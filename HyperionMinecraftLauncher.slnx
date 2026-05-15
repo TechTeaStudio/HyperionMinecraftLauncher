@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/Tests/">
+    <Project Path="tests/HyperionMinecraftLauncher.Core.Tests/HyperionMinecraftLauncher.Core.Tests.csproj" />
+  </Folder>
+  <Project Path="src/HyperionMinecraftLauncher.Core/HyperionMinecraftLauncher.Core.csproj" />
+  <Project Path="src/HyperionMinecraftLauncher.App/HyperionMinecraftLauncher.App.csproj" />
+</Solution>
