@@ -29,4 +29,9 @@ public sealed record InstalledVersion
 
     /// <summary>From the manifest's <c>inheritsFrom</c> field. Always set for Forge/NeoForge/Fabric/Quilt.</summary>
     public string? ParentVersionId { get; init; }
+
+    /// <summary>One-line label for ComboBox / ListBox display. Avoids the
+    /// <c>&lt;Run&gt;</c>-binding pitfall in Avalonia 11 where the selected-item
+    /// presenter would render an empty string from a compound template.</summary>
+    public string DisplayText => Loader == ModLoader.None ? Id : $"{Id}  -  {Loader}";
 }

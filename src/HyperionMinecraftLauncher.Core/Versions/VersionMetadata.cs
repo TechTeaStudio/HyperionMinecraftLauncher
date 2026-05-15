@@ -16,4 +16,7 @@ public sealed record VersionMetadata
 
     /// <summary>The official release timestamp; default if unknown.</summary>
     public DateTimeOffset ReleaseTime { get; init; }
+
+    /// <summary>One-line label for ComboBox / ListBox display.</summary>
+    public string DisplayText => string.IsNullOrEmpty(Type) ? Name : $"{Name}  -  {Type}";
 }
