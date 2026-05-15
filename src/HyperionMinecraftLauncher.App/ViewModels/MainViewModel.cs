@@ -370,7 +370,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         try
         {
             Append("Loading version manifest ...");
-            var versions = await _service.ListVersionsAsync(CancellationToken.None).ConfigureAwait(false);
+            var versions = await _service.ListVersionsAsync(CancellationToken.None);
 
             AvailableVersions.Clear();
             foreach (var v in versions)
@@ -397,7 +397,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         try
         {
             Append("Saving settings ...");
-            await _settingsStore.SaveAsync(BuildSettings(), CancellationToken.None).ConfigureAwait(false);
+            await _settingsStore.SaveAsync(BuildSettings(), CancellationToken.None);
             Append($"Settings saved (Xms={MinMemoryMb}M, Xmx={MaxMemoryMb}M).");
         }
         catch (Exception ex)
@@ -416,7 +416,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         try
         {
             Append("Fetching Minecraft news ...");
-            var news = await _service.ListNewsAsync(CancellationToken.None).ConfigureAwait(false);
+            var news = await _service.ListNewsAsync(CancellationToken.None);
 
             News.Clear();
             foreach (var n in news)
@@ -440,7 +440,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         try
         {
             Append("Reading servers.dat ...");
-            var servers = await _service.ListServersAsync(CancellationToken.None).ConfigureAwait(false);
+            var servers = await _service.ListServersAsync(CancellationToken.None);
 
             Servers.Clear();
             foreach (var s in servers)
@@ -464,7 +464,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         try
         {
             Append("Reading launcher_profiles.json ...");
-            var profiles = await _service.ListProfilesAsync(CancellationToken.None).ConfigureAwait(false);
+            var profiles = await _service.ListProfilesAsync(CancellationToken.None);
 
             Profiles.Clear();
             foreach (var p in profiles)
@@ -488,7 +488,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         try
         {
             Append("Scanning installed versions ...");
-            var versions = await _service.ListInstalledVersionsAsync(CancellationToken.None).ConfigureAwait(false);
+            var versions = await _service.ListInstalledVersionsAsync(CancellationToken.None);
 
             InstalledVersions.Clear();
             foreach (var v in versions)
@@ -516,7 +516,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             Append("Signing in with Microsoft ...");
             var auth = await _service.AuthenticateAsync(
                 new AuthRequest { Mode = AuthMode.Microsoft, Username = string.Empty },
-                CancellationToken.None).ConfigureAwait(false);
+                CancellationToken.None);
 
             CurrentSession = auth;
             Append($"Signed in as '{auth.Username}'.");
@@ -540,7 +540,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             if (_microsoftAuth is not null)
             {
-                await _microsoftAuth.SignOutAsync(CancellationToken.None).ConfigureAwait(false);
+                await _microsoftAuth.SignOutAsync(CancellationToken.None);
             }
             CurrentSession = null;
             Append("Signed out.");
@@ -573,7 +573,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 Append($"Authenticating '{Username}' (offline mode) ...");
                 auth = await _service.AuthenticateAsync(
                     new AuthRequest { Mode = AuthMode.Offline, Username = Username },
-                    CancellationToken.None).ConfigureAwait(false);
+                    CancellationToken.None);
             }
 
             // Synchronous progress wrapper - see project CLAUDE.md "Threading" for the rationale.
@@ -597,7 +597,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                     MaximumRamMb = MaxMemoryMb,
                 },
                 progress,
-                CancellationToken.None).ConfigureAwait(false);
+                CancellationToken.None);
 
             Append($"Launched. pid={result.ProcessId} version={result.VersionName}");
             _logger.Info($"UI: launch complete (pid {result.ProcessId}, version {result.VersionName}).");

@@ -3,6 +3,11 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.1] - 2026-05-15
+
+### Fixed
+- **Crash on first refresh after clicking a sidebar item**: `MainViewModel.Refresh*Async` methods used `await _service.X().ConfigureAwait(false)`, so the continuation that mutated bound `ObservableCollection`s ran on the threadpool. Avalonia's `ItemsControl` / `PanelContainerGenerator` then raised `System.InvalidOperationException: Collection was modified; enumeration operation may not execute` while the panel was iterating its children on the dispatcher thread. Removed `.ConfigureAwait(false)` from every await inside the VM (10 sites) so each continuation lands back on the UI thread before touching bound collections / `IsBusy` / `LogText`. Service-layer code keeps its own `ConfigureAwait(false)` - the change is scoped to view-model code only.
+
 ## [0.10.0] - 2026-05-15
 
 ### Added
