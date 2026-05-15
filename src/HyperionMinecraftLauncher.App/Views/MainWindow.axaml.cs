@@ -85,6 +85,19 @@ public partial class MainWindow : Window
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 ApplySkinBytes(info.SkinPng);
+                if (info.CapePng is { Length: > 0 } capeBytes)
+                {
+                    try
+                    {
+                        using var capeMs = new MemoryStream(capeBytes);
+                        SkinViewer.CapeSource = new Bitmap(capeMs);
+                    }
+                    catch { /* malformed cape PNG - skip */ }
+                }
+                else
+                {
+                    SkinViewer.CapeSource = null;
+                }
             });
         }
         catch
