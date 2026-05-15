@@ -95,7 +95,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
         RefreshServersCommand = new AsyncRelayCommand(RefreshServersAsync, () => !IsBusy);
         RefreshNewsCommand = new AsyncRelayCommand(RefreshNewsAsync, () => !IsBusy);
         RefreshInstancesCommand = new AsyncRelayCommand(RefreshInstancesAsync, () => !IsBusy);
-        DeleteInstanceCommand = new AsyncRelayCommand(DeleteSelectedInstanceAsync, () => !IsBusy && SelectedInstance is not null);
+        DeleteInstanceCommand = new AsyncRelayCommand(
+            DeleteSelectedInstanceAsync,
+            () => !IsBusy && SelectedInstance is { IsAutoImported: false });
         SaveSettingsCommand = new AsyncRelayCommand(SaveSettingsAsync, () => !IsBusy && _settingsStore is not null);
         LaunchCommand = new AsyncRelayCommand(LaunchAsync, CanLaunch);
         SignInMicrosoftCommand = new AsyncRelayCommand(SignInMicrosoftAsync, () => !IsBusy && !IsSignedInOnline);
@@ -461,25 +463,66 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
         Append("Auto-refreshing on startup ...");
         await RefreshInstancesAsync();
-        await RefreshInstalledVersionsAsync();
         await RefreshProfilesAsync();
         await RefreshServersAsync();
         await RefreshNewsAsync();
         await RefreshVersionsAsync();
     }
 
+    /// <summary>
+    /// Unified refresh: loads our saved instances AND scans <c>.minecraft/versions/</c>,
+    /// then merges installed versions that aren't already represented by a saved instance
+    /// as auto-imported entries. Result: a single <see cref="Instances"/> collection that
+    /// backs both the Home page combobox and the Installations grid.
+    /// </summary>
     private async Task RefreshInstancesAsync()
     {
         IsBusy = true;
         try
         {
             Append("Loading instances ...");
-            var list = await _service.ListInstancesAsync(CancellationToken.None);
+            var saved = await _service.ListInstancesAsync(CancellationToken.None);
+            var installed = await _service.ListInstalledVersionsAsync(CancellationToken.None);
+
+            // Keep InstalledVersions current too - the SelectedProfile flow still uses it
+            // to surface the matching install when a launcher_profiles.json profile is picked.
+            InstalledVersions.Clear();
+            foreach (var v in installed) InstalledVersions.Add(v);
 
             Instances.Clear();
-            foreach (var i in list) Instances.Add(i);
+            var coveredVersionIds = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var i in saved)
+            {
+                Instances.Add(i);
+                coveredVersionIds.Add(i.VersionId);
+            }
 
-            Append($"Loaded {list.Count} instances.");
+            foreach (var v in installed)
+            {
+                if (coveredVersionIds.Contains(v.Id)) continue;
+                Instances.Add(new Instance
+                {
+                    Id = $"installed:{v.Id}",
+                    Name = v.Id,
+                    VersionId = v.Id,
+                    Loader = v.Loader,
+                    IsAutoImported = true,
+                    IconKey = v.Loader switch
+                    {
+                        TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.ModLoader.Forge => InstanceIcons.Cobblestone,
+                        TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.ModLoader.NeoForge => InstanceIcons.Cobblestone,
+                        TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.ModLoader.Fabric => InstanceIcons.Planks,
+                        TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.ModLoader.Quilt => InstanceIcons.Planks,
+                        _ => InstanceIcons.GrassBlock,
+                    },
+                });
+            }
+
+            var autoImported = Instances.Count - saved.Count;
+            Append(autoImported > 0
+                ? $"Loaded {saved.Count} instances (+{autoImported} auto-imported from .minecraft/versions/)."
+                : $"Loaded {saved.Count} instances.");
+            _logger.Info($"Instances refreshed ({saved.Count} saved, {autoImported} auto-imported).");
         }
         catch (LauncherException ex)
         {
@@ -494,6 +537,14 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private async Task DeleteSelectedInstanceAsync()
     {
         if (SelectedInstance is not { } victim) return;
+        if (victim.IsAutoImported)
+        {
+            // Auto-imported instances aren't in our store; the version folder belongs to
+            // the official launcher and we leave it alone. The Delete button's CanExecute
+            // already blocks this path, but the guard keeps the method honest.
+            Append("Cannot delete an auto-imported instance (it lives under .minecraft/versions/).");
+            return;
+        }
         IsBusy = true;
         try
         {
@@ -759,12 +810,15 @@ public sealed class MainViewModel : INotifyPropertyChanged
             _logger.Info($"UI: launch complete (pid {result.ProcessId}, version {result.VersionName}).");
 
             // Mark "last played" on the running instance so the grid sorts it to the front next time.
+            // Auto-imported instances aren't in our store - just refresh their in-memory copy
+            // so the UI reacts, without persisting.
             if (SelectedInstance is { } inst)
             {
                 var bumped = inst with { LastPlayedAt = DateTimeOffset.UtcNow };
                 try
                 {
-                    await _service.SaveInstanceAsync(bumped, CancellationToken.None);
+                    if (!inst.IsAutoImported)
+                        await _service.SaveInstanceAsync(bumped, CancellationToken.None);
                     var idx = Instances.IndexOf(inst);
                     if (idx >= 0)
                     {

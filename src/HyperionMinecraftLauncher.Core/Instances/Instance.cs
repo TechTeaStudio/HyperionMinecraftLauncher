@@ -53,6 +53,22 @@ public sealed record Instance
 
     /// <summary>Window height override.</summary>
     public int? ResolutionHeight { get; init; }
+
+    /// <summary>
+    /// True when this instance was synthesized from a version present on disk under
+    /// <c>.minecraft/versions/</c> rather than created by the user through the New
+    /// Instance dialog. Auto-imported instances aren't persisted to our JSON store
+    /// and can't be deleted through the launcher - the version folder belongs to
+    /// the official launcher and we just surface it so the Home page and the
+    /// Installations grid share one unified list of "things you can launch".
+    /// </summary>
+    public bool IsAutoImported { get; init; }
+
+    /// <summary>One-line label for ComboBox / list display. Single-binding to dodge
+    /// the Avalonia 11 <c>&lt;Run&gt;</c>-binding quirk in ComboBox selected-item slots.</summary>
+    public string DisplayText => IsAutoImported
+        ? (Loader == ModLoader.None ? VersionId : $"{VersionId}  -  {Loader}")
+        : (Loader == ModLoader.None ? $"{Name}  -  {VersionId}" : $"{Name}  -  {VersionId} ({Loader})");
 }
 
 /// <summary>Curated icon keys. The view-side resolves these to <c>avares://...</c> URIs.</summary>

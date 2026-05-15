@@ -186,29 +186,29 @@
                      Opacity="0.65" FontSize="11" />
         </StackPanel>
 
-        <!-- Installed versions row -->
+        <!-- Instances (saved + auto-imported from .minecraft/versions/) -->
         <Border Grid.Row="1" Padding="10" Margin="0,0,0,6" CornerRadius="6"
                 Background="{DynamicResource MaterialPaperBrush}">
           <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
             <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
                    Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/grass_block_side.png"
                    Width="24" Height="24" Margin="0,0,10,0" VerticalAlignment="Center" />
-            <TextBlock Grid.Row="0" Grid.Column="1" Text="Installed versions"
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="Your instances"
                        FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" />
             <ComboBox Grid.Row="1" Grid.Column="1" Margin="0,2,0,0"
-                      ItemsSource="{Binding InstalledVersions}"
-                      SelectedItem="{Binding SelectedInstalledVersion, Mode=TwoWay}"
-                      PlaceholderText="(none scanned yet)"
+                      ItemsSource="{Binding Instances}"
+                      SelectedItem="{Binding SelectedInstance, Mode=TwoWay}"
+                      PlaceholderText="(no instances yet - create one on the Installations page)"
                       HorizontalAlignment="Stretch">
               <ComboBox.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate DataType="instances:Instance">
                   <TextBlock Text="{Binding DisplayText}" />
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
             <Button Grid.Row="1" Grid.Column="2"
                     Content="Rescan" FontSize="11"
-                    Command="{Binding RefreshInstalledVersionsCommand}"
+                    Command="{Binding RefreshInstancesCommand}"
                     Padding="10,4" Margin="8,2,0,0" />
           </Grid>
         </Border>
@@ -314,19 +314,30 @@
                         Background="{DynamicResource MaterialPaperBrush}"
                         BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1"
                         Classes="Card">
-                  <Grid RowDefinitions="*,Auto,Auto">
-                    <Image Grid.Row="0"
-                           Source="{Binding IconKey, Converter={x:Static local:IconKeyToUri.Instance}}"
-                          
-                           Stretch="Uniform" Margin="14"
-                           RenderOptions.BitmapInterpolationMode="None" />
-                    <TextBlock Grid.Row="1" Text="{Binding Name}"
-                               FontWeight="SemiBold" FontSize="12"
-                               TextTrimming="CharacterEllipsis"
-                               HorizontalAlignment="Center" Margin="6,0" />
-                    <TextBlock Grid.Row="2" Text="{Binding VersionId}"
-                               Opacity="0.65" FontSize="10"
-                               HorizontalAlignment="Center" Margin="6,2,6,8" />
+                  <Grid>
+                    <Grid RowDefinitions="*,Auto,Auto">
+                      <Image Grid.Row="0"
+                             Source="{Binding IconKey, Converter={x:Static local:IconKeyToUri.Instance}}"
+                             Stretch="Uniform" Margin="14"
+                             RenderOptions.BitmapInterpolationMode="None" />
+                      <TextBlock Grid.Row="1" Text="{Binding Name}"
+                                 FontWeight="SemiBold" FontSize="12"
+                                 TextTrimming="CharacterEllipsis"
+                                 HorizontalAlignment="Center" Margin="6,0" />
+                      <TextBlock Grid.Row="2" Text="{Binding VersionId}"
+                                 Opacity="0.65" FontSize="10"
+                                 HorizontalAlignment="Center" Margin="6,2,6,8" />
+                    </Grid>
+                    <!-- "auto" pill on instances synthesised from .minecraft/versions/.
+                         Quietly signals they live in the official launcher's folder and
+                         aren't deletable from Hyperion's own store. -->
+                    <Border Background="#992A5616" CornerRadius="4" Padding="5,1"
+                            HorizontalAlignment="Right" VerticalAlignment="Top"
+                            Margin="0,5,5,0"
+                            IsVisible="{Binding IsAutoImported}">
+                      <TextBlock Text="auto" FontSize="9" Foreground="White"
+                                 FontWeight="SemiBold" />
+                    </Border>
                   </Grid>
                 </Border>
               </DataTemplate>
