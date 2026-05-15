@@ -10,6 +10,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
@@ -53,11 +54,13 @@ public sealed class MainViewModel : INotifyPropertyChanged
         InstalledVersions = new ObservableCollection<InstalledVersion>();
         Profiles = new ObservableCollection<LauncherProfile>();
         Servers = new ObservableCollection<ServerListEntry>();
+        News = new ObservableCollection<NewsEntry>();
 
         RefreshVersionsCommand = new AsyncRelayCommand(RefreshVersionsAsync, () => !IsBusy);
         RefreshInstalledVersionsCommand = new AsyncRelayCommand(RefreshInstalledVersionsAsync, () => !IsBusy);
         RefreshProfilesCommand = new AsyncRelayCommand(RefreshProfilesAsync, () => !IsBusy);
         RefreshServersCommand = new AsyncRelayCommand(RefreshServersAsync, () => !IsBusy);
+        RefreshNewsCommand = new AsyncRelayCommand(RefreshNewsAsync, () => !IsBusy);
         LaunchCommand = new AsyncRelayCommand(LaunchAsync, CanLaunch);
         SignInMicrosoftCommand = new AsyncRelayCommand(SignInMicrosoftAsync, () => !IsBusy && !IsSignedInOnline);
         SignOutCommand = new AsyncRelayCommand(SignOutAsync, () => !IsBusy && IsSignedInOnline);
@@ -116,6 +119,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     /// <summary>Multiplayer servers parsed from <c>servers.dat</c>.</summary>
     public ObservableCollection<ServerListEntry> Servers { get; }
+
+    /// <summary>News from Mojang's launcher feed.</summary>
+    public ObservableCollection<NewsEntry> News { get; }
 
     /// <summary>Currently-selected profile on the Installations page. Picking a profile pre-fills the launch context.</summary>
     public LauncherProfile? SelectedProfile
@@ -189,6 +195,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 RefreshInstalledVersionsCommand.RaiseCanExecuteChanged();
                 RefreshProfilesCommand.RaiseCanExecuteChanged();
                 RefreshServersCommand.RaiseCanExecuteChanged();
+                RefreshNewsCommand.RaiseCanExecuteChanged();
                 LaunchCommand.RaiseCanExecuteChanged();
                 SignInMicrosoftCommand.RaiseCanExecuteChanged();
                 SignOutCommand.RaiseCanExecuteChanged();
@@ -230,6 +237,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncRelayCommand RefreshInstalledVersionsCommand { get; }
     public AsyncRelayCommand RefreshProfilesCommand { get; }
     public AsyncRelayCommand RefreshServersCommand { get; }
+    public AsyncRelayCommand RefreshNewsCommand { get; }
     public AsyncRelayCommand LaunchCommand { get; }
     public AsyncRelayCommand SignInMicrosoftCommand { get; }
     public AsyncRelayCommand SignOutCommand { get; }
@@ -259,6 +267,30 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             Append($"[error] {ex.Message}");
             _logger.Warn($"RefreshVersions surfaced LauncherException to UI: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task RefreshNewsAsync()
+    {
+        IsBusy = true;
+        try
+        {
+            Append("Fetching Minecraft news ...");
+            var news = await _service.ListNewsAsync(CancellationToken.None).ConfigureAwait(false);
+
+            News.Clear();
+            foreach (var n in news)
+                News.Add(n);
+
+            Append($"Loaded {news.Count} news articles.");
+        }
+        catch (LauncherException ex)
+        {
+            Append($"[error] {ex.Message}");
         }
         finally
         {

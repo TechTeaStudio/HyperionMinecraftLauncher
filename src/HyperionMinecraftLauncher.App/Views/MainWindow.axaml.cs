@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
@@ -25,5 +26,21 @@ public partial class MainWindow : Window
     {
         if (DataContext is MainViewModel vm)
             vm.SelectedSection = section;
+    }
+
+    // News "Read more" -> open the article in the user's default browser. Tag holds the URL.
+    private void OnOpenExternalLink(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: string url } && !string.IsNullOrWhiteSpace(url))
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+            }
+            catch
+            {
+                // Best-effort: a missing default browser shouldn't crash the launcher.
+            }
+        }
     }
 }
