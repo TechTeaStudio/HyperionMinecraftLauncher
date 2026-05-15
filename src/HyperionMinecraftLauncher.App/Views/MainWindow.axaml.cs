@@ -78,7 +78,13 @@ public partial class MainWindow : Window
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 using var ms = new MemoryStream(info.SkinPng);
-                SkinViewer.Skin = new Bitmap(ms);
+                SkinViewer.SkinSource = new Bitmap(ms);
+                SkinViewer.Slim = info.IsSlim;
+                if (info.CapePng is { Length: > 0 } capeBytes)
+                {
+                    using var capeMs = new MemoryStream(capeBytes);
+                    SkinViewer.CapeSource = new Bitmap(capeMs);
+                }
             });
         }
         catch
@@ -95,7 +101,7 @@ public partial class MainWindow : Window
         try
         {
             using var stream = AssetLoader.Open(new Uri("avares://HyperionMinecraftLauncher/Assets/Icons/MC/steve.png"));
-            SkinViewer.Skin = new Bitmap(stream);
+            SkinViewer.SkinSource = new Bitmap(stream);
         }
         catch
         {

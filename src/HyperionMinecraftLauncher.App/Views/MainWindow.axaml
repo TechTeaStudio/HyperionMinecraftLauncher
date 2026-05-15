@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels"
         xmlns:controls="using:TechTeaStudio.HyperionMinecraftLauncher.App.Controls"
+        xmlns:skinRender="using:TechTeaStudio.HyperionMinecraftLauncher.App.Controls.SkinRender"
         xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.MainWindow"
@@ -327,7 +328,7 @@
         </StackPanel>
         <Border Grid.Row="1" CornerRadius="4"
                 Background="{DynamicResource MaterialPaperBrush}">
-          <controls:SkinViewer3D x:Name="SkinViewer" Cursor="SizeAll" />
+          <skinRender:AvaloniaSkinViewer x:Name="SkinViewer" Cursor="SizeAll" />
         </Border>
       </Grid>
 
