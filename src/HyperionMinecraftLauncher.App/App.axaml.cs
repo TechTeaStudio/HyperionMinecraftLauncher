@@ -34,6 +34,13 @@ public partial class App : Application
             {
                 DataContext = viewModel,
             };
+
+            // Fire-and-forget: as soon as the dispatcher is idle after window construction,
+            // populate Installed / Manifest / Profiles / Servers / News so the user doesn't
+            // have to click five "Refresh" buttons before the launcher feels populated.
+            Avalonia.Threading.Dispatcher.UIThread.Post(
+                () => _ = viewModel.RunStartupRefreshesAsync(),
+                Avalonia.Threading.DispatcherPriority.Background);
         }
 
         base.OnFrameworkInitializationCompleted();
