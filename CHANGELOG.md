@@ -3,6 +3,26 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-05-15
+
+### Added
+- **Real Settings page** replaces the stub:
+  - Memory section: two sliders (`-Xms` / `-Xmx`) with live MB readout. Maximum auto-clamps to `~75% of system RAM` (capped at 16 GB) via the new `SystemRam.RecommendedMaxHeapMb()` helper that uses `GlobalMemoryStatusEx` on Windows and `/proc/meminfo` on Linux.
+  - Custom JVM arguments multi-line text box (persisted; CmlLib forwarding planned).
+  - Game-directory and Java-executable overrides with **Browse buttons** that open Avalonia 11's `IStorageProvider.OpenFolderPickerAsync` / `OpenFilePickerAsync` dialogs.
+  - Launcher preferences: "Keep launcher open after the game starts" + "Show game stdout/stderr in launcher log".
+  - "Save settings" button persists everything via `ILauncherSettingsStore`.
+- `Core/Settings/` folder:
+  - `LauncherSettings` DTO.
+  - `ILauncherSettingsStore` + `FileLauncherSettingsStore` (JSON at `%LOCALAPPDATA%\HyperionMinecraftLauncher\settings.json`, atomic write-temp-and-rename).
+  - `SystemRam` helper.
+- 4 new tests (`LauncherSettingsStoreTests`): missing file returns defaults, save+load round-trips every field, corrupt JSON returns defaults, save creates parent directories.
+
+### Changed
+- `MainViewModel` constructor gains an optional `ILauncherSettingsStore`; reads on construction (sync). `LaunchAsync` now passes the user's Xms / Xmx / GameDirectory into `LaunchRequest` so the next launch honours them.
+- App csproj fix-up: bumped to `0.10.0` together with Core (the previous bump landed on the wrong commit).
+- `<Version>` bumped to `0.10.0` in both shipping csproj files.
+
 ## [0.9.0] - 2026-05-15
 
 ### Added

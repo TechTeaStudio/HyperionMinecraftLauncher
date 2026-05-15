@@ -356,16 +356,113 @@
         </Border>
       </Grid>
 
-      <!-- ==== SETTINGS STUB (will get real impl in next feature) ==== -->
-      <Border IsVisible="{Binding IsSettingsSelected}">
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
-          <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/comparator.png"
-                 Width="48" Height="48" />
-          <TextBlock Text="Settings" FontFamily="{StaticResource MinecraftFont}" FontSize="20" HorizontalAlignment="Center" />
-          <TextBlock Text="Coming: memory slider, JVM args, game dir, launcher prefs."
-                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" MaxWidth="340" TextAlignment="Center" />
+      <!-- ==== SETTINGS PAGE ==== -->
+      <Grid IsVisible="{Binding IsSettingsSelected}" RowDefinitions="Auto,*,Auto">
+        <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
+          <TextBlock Text="Settings" FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
+          <TextBlock Text="Persisted to %LOCALAPPDATA%\HyperionMinecraftLauncher\settings.json. Memory limits apply to the next Launch."
+                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
         </StackPanel>
-      </Border>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
+          <StackPanel Spacing="8">
+
+            <!-- Memory -->
+            <Border Padding="10" CornerRadius="4" Background="{DynamicResource MaterialPaperBrush}">
+              <StackPanel Spacing="6">
+                <TextBlock Text="Memory (JVM heap)" FontWeight="SemiBold" FontSize="12" />
+
+                <Grid ColumnDefinitions="100,*,80">
+                  <TextBlock Grid.Column="0" Text="Minimum (-Xms):" FontSize="11" VerticalAlignment="Center" />
+                  <Slider Grid.Column="1" Minimum="256"
+                          Maximum="{Binding MaxAllowedMemoryMb}"
+                          Value="{Binding MinMemoryMb, Mode=TwoWay}"
+                          TickFrequency="256" IsSnapToTickEnabled="True" />
+                  <TextBlock Grid.Column="2" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <Run Text="{Binding MinMemoryMb}" />
+                    <Run Text=" MB" />
+                  </TextBlock>
+                </Grid>
+
+                <Grid ColumnDefinitions="100,*,80">
+                  <TextBlock Grid.Column="0" Text="Maximum (-Xmx):" FontSize="11" VerticalAlignment="Center" />
+                  <Slider Grid.Column="1" Minimum="512"
+                          Maximum="{Binding MaxAllowedMemoryMb}"
+                          Value="{Binding MaxMemoryMb, Mode=TwoWay}"
+                          TickFrequency="512" IsSnapToTickEnabled="True" />
+                  <TextBlock Grid.Column="2" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <Run Text="{Binding MaxMemoryMb}" />
+                    <Run Text=" MB" />
+                  </TextBlock>
+                </Grid>
+
+                <TextBlock FontSize="10" Opacity="0.6">
+                  <Run Text="Ceiling auto-detected from this machine: " />
+                  <Run Text="{Binding MaxAllowedMemoryMb}" />
+                  <Run Text=" MB (~75% of system RAM, capped at 16 GB)." />
+                </TextBlock>
+              </StackPanel>
+            </Border>
+
+            <!-- JVM args -->
+            <Border Padding="10" CornerRadius="4" Background="{DynamicResource MaterialPaperBrush}">
+              <StackPanel Spacing="6">
+                <TextBlock Text="Custom JVM arguments" FontWeight="SemiBold" FontSize="12" />
+                <TextBox Text="{Binding JvmArguments, Mode=TwoWay}"
+                         Watermark="-XX:+UseG1GC -XX:+UnlockExperimentalVMOptions ..."
+                         FontFamily="Cascadia Mono, Consolas, Menlo, monospace" FontSize="11"
+                         AcceptsReturn="True" Height="56" />
+                <TextBlock Text="Appended after the auto-generated -Xms/-Xmx flags. (Not yet forwarded to CmlLib's process builder - planned for a follow-up.)"
+                           FontSize="10" Opacity="0.55" TextWrapping="Wrap" />
+              </StackPanel>
+            </Border>
+
+            <!-- Game directory -->
+            <Border Padding="10" CornerRadius="4" Background="{DynamicResource MaterialPaperBrush}">
+              <StackPanel Spacing="6">
+                <TextBlock Text="Game directory" FontWeight="SemiBold" FontSize="12" />
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBox Grid.Column="0" Text="{Binding GameDirectoryOverride, Mode=TwoWay}"
+                           Watermark="(leave empty to use the OS default .minecraft)" FontSize="11" />
+                  <Button Grid.Column="1" Content="Browse" FontSize="11"
+                          Padding="10,4" Margin="6,0,0,0" Click="OnBrowseGameDir" />
+                </Grid>
+              </StackPanel>
+            </Border>
+
+            <!-- Java executable -->
+            <Border Padding="10" CornerRadius="4" Background="{DynamicResource MaterialPaperBrush}">
+              <StackPanel Spacing="6">
+                <TextBlock Text="Java executable" FontWeight="SemiBold" FontSize="12" />
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBox Grid.Column="0" Text="{Binding JavaExecutableOverride, Mode=TwoWay}"
+                           Watermark="(leave empty to let CmlLib auto-detect)" FontSize="11" />
+                  <Button Grid.Column="1" Content="Browse" FontSize="11"
+                          Padding="10,4" Margin="6,0,0,0" Click="OnBrowseJavaExe" />
+                </Grid>
+              </StackPanel>
+            </Border>
+
+            <!-- Launcher prefs -->
+            <Border Padding="10" CornerRadius="4" Background="{DynamicResource MaterialPaperBrush}">
+              <StackPanel Spacing="6">
+                <TextBlock Text="Launcher preferences" FontWeight="SemiBold" FontSize="12" />
+                <CheckBox IsChecked="{Binding KeepLauncherOpen, Mode=TwoWay}" FontSize="11"
+                          Content="Keep launcher open after the game starts" />
+                <CheckBox IsChecked="{Binding ShowGameLog, Mode=TwoWay}" FontSize="11"
+                          Content="Show game stdout / stderr in the launcher log (planned)" />
+              </StackPanel>
+            </Border>
+
+          </StackPanel>
+        </ScrollViewer>
+
+        <Button Grid.Row="2" Content="Save settings"
+                Command="{Binding SaveSettingsCommand}"
+                FontFamily="{StaticResource MinecraftFont}" FontSize="13"
+                Padding="18,6" HorizontalAlignment="Right" Margin="0,8,0,0"
+                Background="{DynamicResource MaterialPrimaryMidBrush}" Foreground="White" />
+      </Grid>
 
     </Grid>
 

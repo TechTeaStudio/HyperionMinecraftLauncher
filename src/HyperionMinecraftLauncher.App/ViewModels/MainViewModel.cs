@@ -13,6 +13,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Settings;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
@@ -33,6 +34,17 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private readonly IMinecraftLauncherService _service;
     private readonly ILauncherLogger _logger;
     private readonly IMicrosoftAuthService? _microsoftAuth;
+    private readonly ILauncherSettingsStore? _settingsStore;
+
+    // Settings-page state (mirrored from LauncherSettings on load, written back on Save).
+    private int _minMemoryMb;
+    private int _maxMemoryMb;
+    private string _jvmArguments = string.Empty;
+    private string _gameDirectoryOverride = string.Empty;
+    private string _javaExecutableOverride = string.Empty;
+    private bool _keepLauncherOpen;
+    private bool _showGameLog;
+    private readonly int _maxAllowedMemoryMb;
 
     private string _username = "Steve";
     private VersionMetadata? _selectedVersion;
@@ -43,12 +55,24 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private AuthResult? _currentSession;
     private NavSection _selectedSection = NavSection.Home;
 
-    /// <summary>Construct with the launcher service and (optional) Microsoft auth provider.</summary>
-    public MainViewModel(IMinecraftLauncherService service, ILauncherLogger logger, IMicrosoftAuthService? microsoftAuth = null)
+    /// <summary>Construct with the launcher service and (optional) Microsoft auth provider + settings store.</summary>
+    public MainViewModel(
+        IMinecraftLauncherService service,
+        ILauncherLogger logger,
+        IMicrosoftAuthService? microsoftAuth = null,
+        ILauncherSettingsStore? settingsStore = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _microsoftAuth = microsoftAuth;
+        _settingsStore = settingsStore;
+        _maxAllowedMemoryMb = SystemRam.RecommendedMaxHeapMb();
+
+        // Load persisted settings synchronously - the file is small. Defaults if absent / corrupt.
+        var initial = settingsStore is null
+            ? new LauncherSettings()
+            : settingsStore.LoadAsync(CancellationToken.None).GetAwaiter().GetResult();
+        ApplySettings(initial);
 
         AvailableVersions = new ObservableCollection<VersionMetadata>();
         InstalledVersions = new ObservableCollection<InstalledVersion>();
@@ -61,6 +85,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         RefreshProfilesCommand = new AsyncRelayCommand(RefreshProfilesAsync, () => !IsBusy);
         RefreshServersCommand = new AsyncRelayCommand(RefreshServersAsync, () => !IsBusy);
         RefreshNewsCommand = new AsyncRelayCommand(RefreshNewsAsync, () => !IsBusy);
+        SaveSettingsCommand = new AsyncRelayCommand(SaveSettingsAsync, () => !IsBusy && _settingsStore is not null);
         LaunchCommand = new AsyncRelayCommand(LaunchAsync, CanLaunch);
         SignInMicrosoftCommand = new AsyncRelayCommand(SignInMicrosoftAsync, () => !IsBusy && !IsSignedInOnline);
         SignOutCommand = new AsyncRelayCommand(SignOutAsync, () => !IsBusy && IsSignedInOnline);
@@ -122,6 +147,95 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     /// <summary>News from Mojang's launcher feed.</summary>
     public ObservableCollection<NewsEntry> News { get; }
+
+    // ---- Settings ----
+
+    /// <summary>JVM minimum heap (-Xms) in MiB.</summary>
+    public int MinMemoryMb
+    {
+        get => _minMemoryMb;
+        set
+        {
+            // Clamp min <= max
+            var clamped = Math.Clamp(value, 256, _maxAllowedMemoryMb);
+            if (clamped > _maxMemoryMb) clamped = _maxMemoryMb;
+            SetField(ref _minMemoryMb, clamped);
+        }
+    }
+
+    /// <summary>JVM maximum heap (-Xmx) in MiB.</summary>
+    public int MaxMemoryMb
+    {
+        get => _maxMemoryMb;
+        set
+        {
+            var clamped = Math.Clamp(value, 512, _maxAllowedMemoryMb);
+            if (clamped < _minMemoryMb) _minMemoryMb = clamped;
+            if (SetField(ref _maxMemoryMb, clamped))
+                OnPropertyChanged(nameof(MinMemoryMb));
+        }
+    }
+
+    /// <summary>Recommended ceiling for the memory sliders (~75% of detected system RAM, capped at 16 GB).</summary>
+    public int MaxAllowedMemoryMb => _maxAllowedMemoryMb;
+
+    /// <summary>Extra JVM args appended after heap flags.</summary>
+    public string JvmArguments
+    {
+        get => _jvmArguments;
+        set => SetField(ref _jvmArguments, value ?? string.Empty);
+    }
+
+    /// <summary>Override the <c>.minecraft</c> root. Empty string = OS default.</summary>
+    public string GameDirectoryOverride
+    {
+        get => _gameDirectoryOverride;
+        set => SetField(ref _gameDirectoryOverride, value ?? string.Empty);
+    }
+
+    /// <summary>Override the Java executable. Empty string = CmlLib's own auto-detect.</summary>
+    public string JavaExecutableOverride
+    {
+        get => _javaExecutableOverride;
+        set => SetField(ref _javaExecutableOverride, value ?? string.Empty);
+    }
+
+    /// <summary>If true, the launcher window stays open after the game starts.</summary>
+    public bool KeepLauncherOpen
+    {
+        get => _keepLauncherOpen;
+        set => SetField(ref _keepLauncherOpen, value);
+    }
+
+    /// <summary>If true, the in-app log mirrors the game's stdout/stderr.</summary>
+    public bool ShowGameLog
+    {
+        get => _showGameLog;
+        set => SetField(ref _showGameLog, value);
+    }
+
+    private void ApplySettings(LauncherSettings s)
+    {
+        _maxMemoryMb = Math.Clamp(s.MaximumRamMb, 512, _maxAllowedMemoryMb);
+        _minMemoryMb = Math.Clamp(s.MinimumRamMb, 256, _maxMemoryMb);
+        _jvmArguments = s.JvmArguments ?? string.Empty;
+        _gameDirectoryOverride = s.GameDirectory ?? string.Empty;
+        _javaExecutableOverride = s.JavaExecutable ?? string.Empty;
+        _keepLauncherOpen = s.KeepLauncherOpen;
+        _showGameLog = s.ShowGameLog;
+    }
+
+    /// <summary>Snapshot the current VM state as a persistable <see cref="LauncherSettings"/>.</summary>
+    public LauncherSettings BuildSettings() => new()
+    {
+        MinimumRamMb = _minMemoryMb,
+        MaximumRamMb = _maxMemoryMb,
+        JvmArguments = _jvmArguments,
+        GameDirectory = string.IsNullOrWhiteSpace(_gameDirectoryOverride) ? null : _gameDirectoryOverride,
+        JavaExecutable = string.IsNullOrWhiteSpace(_javaExecutableOverride) ? null : _javaExecutableOverride,
+        KeepLauncherOpen = _keepLauncherOpen,
+        ShowGameLog = _showGameLog,
+    };
 
     /// <summary>Currently-selected profile on the Installations page. Picking a profile pre-fills the launch context.</summary>
     public LauncherProfile? SelectedProfile
@@ -196,6 +310,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 RefreshProfilesCommand.RaiseCanExecuteChanged();
                 RefreshServersCommand.RaiseCanExecuteChanged();
                 RefreshNewsCommand.RaiseCanExecuteChanged();
+                SaveSettingsCommand.RaiseCanExecuteChanged();
                 LaunchCommand.RaiseCanExecuteChanged();
                 SignInMicrosoftCommand.RaiseCanExecuteChanged();
                 SignOutCommand.RaiseCanExecuteChanged();
@@ -238,6 +353,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncRelayCommand RefreshProfilesCommand { get; }
     public AsyncRelayCommand RefreshServersCommand { get; }
     public AsyncRelayCommand RefreshNewsCommand { get; }
+    public AsyncRelayCommand SaveSettingsCommand { get; }
     public AsyncRelayCommand LaunchCommand { get; }
     public AsyncRelayCommand SignInMicrosoftCommand { get; }
     public AsyncRelayCommand SignOutCommand { get; }
@@ -267,6 +383,26 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             Append($"[error] {ex.Message}");
             _logger.Warn($"RefreshVersions surfaced LauncherException to UI: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task SaveSettingsAsync()
+    {
+        if (_settingsStore is null) return;
+        IsBusy = true;
+        try
+        {
+            Append("Saving settings ...");
+            await _settingsStore.SaveAsync(BuildSettings(), CancellationToken.None).ConfigureAwait(false);
+            Append($"Settings saved (Xms={MinMemoryMb}M, Xmx={MaxMemoryMb}M).");
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not save settings: {ex.Message}");
         }
         finally
         {
@@ -450,9 +586,16 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 Append($"{p.Stage}{fractionText}{itemText}");
             });
 
-            Append($"Launching {versionName} ...");
+            Append($"Launching {versionName} (Xms={MinMemoryMb}M, Xmx={MaxMemoryMb}M) ...");
             var result = await _service.LaunchAsync(
-                new LaunchRequest { VersionName = versionName, Session = auth },
+                new LaunchRequest
+                {
+                    VersionName = versionName,
+                    Session = auth,
+                    GameDirectory = string.IsNullOrWhiteSpace(_gameDirectoryOverride) ? null : _gameDirectoryOverride,
+                    MinimumRamMb = MinMemoryMb,
+                    MaximumRamMb = MaxMemoryMb,
+                },
                 progress,
                 CancellationToken.None).ConfigureAwait(false);
 
