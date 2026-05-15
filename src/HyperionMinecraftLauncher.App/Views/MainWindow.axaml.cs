@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 
@@ -11,6 +12,28 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
     }
+
+    // Custom title-bar: pointer down anywhere on the header (except on a button) starts a drag.
+    private void OnTitleBarPressed(object? sender, PointerPressedEventArgs e)
+    {
+        // Only the primary mouse button initiates window-move; let other buttons through.
+        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+            return;
+        // Double-click toggles maximize / restore (Windows convention).
+        if (e.ClickCount >= 2)
+        {
+            ToggleMaximize();
+            return;
+        }
+        BeginMoveDrag(e);
+    }
+
+    private void OnWindowMinimize(object? sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+    private void OnWindowMaximizeRestore(object? sender, RoutedEventArgs e) => ToggleMaximize();
+    private void OnWindowClose(object? sender, RoutedEventArgs e) => Close();
+
+    private void ToggleMaximize() =>
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
 
     // Sidebar radio buttons call these instead of two-way binding so SelectedSection
     // is set even when the radio "Click" happens on an already-checked item (the

@@ -4,7 +4,7 @@
     <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     <RootNamespace>TechTeaStudio.HyperionMinecraftLauncher.Core</RootNamespace>
     <AssemblyName>TechTeaStudio.HyperionMinecraftLauncher.Core</AssemblyName>
-    <Version>0.12.0</Version>
+    <Version>0.13.0</Version>
     <Description>Core library for a CmlLib-backed Minecraft launcher: launcher service contract, exception model, DTOs, file logger.</Description>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
