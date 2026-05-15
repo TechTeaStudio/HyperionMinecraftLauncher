@@ -146,12 +146,14 @@ public class MainViewModelTests
     }
 
     [Fact]
-    public void Defaults_AccountChipReadsAsSignIn_AndIsSignedInOnlineIsFalse()
+    public void Defaults_NoSession_ChipShowsSignInButtonOnly()
     {
         var vm = NewVm(out _, out _);
 
         Assert.False(vm.IsSignedInOnline);
-        Assert.Equal("Sign in", vm.AccountDisplay);
+        Assert.False(vm.HasSession);
+        // No session -> AccountDisplay is empty so the chip's label isn't redundant with the Sign-in button.
+        Assert.Equal(string.Empty, vm.AccountDisplay);
         Assert.False(vm.SignOutCommand.CanExecute(null));
         Assert.True(vm.SignInMicrosoftCommand.CanExecute(null));
     }
@@ -231,8 +233,9 @@ public class MainViewModelTests
         await vm.SignOutCommand.ExecuteAsync();
 
         Assert.Null(vm.CurrentSession);
+        Assert.False(vm.HasSession);
         Assert.True(fakeAuth.SignOutCalled);
-        Assert.Equal("Sign in", vm.AccountDisplay);
+        Assert.Equal(string.Empty, vm.AccountDisplay);
     }
 
     [Fact]

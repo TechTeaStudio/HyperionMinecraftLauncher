@@ -3,6 +3,12 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2026-05-15
+
+### Fixed
+- **App crashed on first command click**: `AsyncRelayCommand.RaiseCanExecuteChanged` fired the event from a threadpool continuation (after `await ... ConfigureAwait(false)` in `ExecuteAsync`), and Avalonia's `Button.CanExecuteChanged` handler reads `Button.Command` (a styled property) which throws `InvalidOperationException: Call from invalid thread` off the dispatcher. Now marshals to the UI thread via `Dispatcher.UIThread.Post` when not already on it.
+- Account chip no longer shows "Sign in" twice (label + button) before sign-in. The label now hides entirely until a session exists (`HasSession` property), and the button reads "Sign in with Microsoft" to make the action explicit.
+
 ## [0.7.0] - 2026-05-15
 
 ### Added
