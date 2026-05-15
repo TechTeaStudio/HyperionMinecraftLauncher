@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
@@ -6,16 +7,49 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App.Views;
 
 public partial class MainWindow : Window
 {
+    private DeviceCodeDialog? _deviceCodeDialog;
+
     public MainWindow()
     {
         InitializeComponent();
         LoadDefaultSkin();
+        Opened += (_, _) => HookViewModel();
+    }
+
+    private void HookViewModel()
+    {
+        if (DataContext is not MainViewModel vm) return;
+        vm.DeviceCodeRequested += OnVmDeviceCodeRequested;
+        vm.PropertyChanged += OnVmPropertyChanged;
+    }
+
+    private void OnVmDeviceCodeRequested(object? sender, MicrosoftDeviceCodeInfo info)
+    {
+        // Close any stale prompt (e.g. user re-clicked Sign-in mid-flow).
+        _deviceCodeDialog?.Close();
+        _deviceCodeDialog = DeviceCodeDialog.ForCode(info);
+        // Fire-and-forget ShowDialog so the auth task keeps polling Microsoft.
+        _ = _deviceCodeDialog.ShowDialog(this);
+    }
+
+    private void OnVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        // Once sign-in completes (HasSession flips from false to true), retire the modal.
+        if (e.PropertyName == nameof(MainViewModel.HasSession)
+            && sender is MainViewModel vm
+            && vm.HasSession
+            && _deviceCodeDialog is { } d)
+        {
+            d.Close();
+            _deviceCodeDialog = null;
+        }
     }
 
     private void LoadDefaultSkin()

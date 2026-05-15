@@ -1,0 +1,95 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.DeviceCodeDialog"
+        Title="Sign in with Microsoft"
+        Width="460" Height="320"
+        CanResize="False"
+        SystemDecorations="None"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource MaterialPaperBrush}"
+        FontFamily="Inter, Segoe UI, system-ui">
+
+  <Border BorderBrush="{DynamicResource MaterialPrimaryMidBrush}" BorderThickness="1" CornerRadius="6">
+    <Grid RowDefinitions="36,*,Auto">
+
+      <!-- Drag handle + close button (custom chrome to match the main window) -->
+      <Border Grid.Row="0" Background="{DynamicResource MaterialPrimaryDarkBrush}"
+              PointerPressed="OnTitleBarPressed">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0" Text="Sign in with Microsoft"
+                     FontFamily="{StaticResource MinecraftFont}" FontSize="13"
+                     Foreground="White" VerticalAlignment="Center" Margin="12,0" />
+          <Button Grid.Column="1" Click="OnClose" Classes="WinCtrl WinCtrlClose"
+                  Width="36" Height="36">
+            <Path Data="M 0,0 L 10,10 M 10,0 L 0,10" Stroke="White" StrokeThickness="1.2"
+                  Width="10" Height="10" />
+          </Button>
+        </Grid>
+      </Border>
+
+      <!-- Body -->
+      <StackPanel Grid.Row="1" Margin="22,16,22,8" Spacing="10">
+        <TextBlock Text="Open this page in your browser:" Opacity="0.75" FontSize="12" />
+        <Border Padding="10,6" CornerRadius="4" Background="{DynamicResource MaterialBackgroundBrush}">
+          <TextBlock x:Name="UrlText"
+                     FontFamily="Cascadia Mono, Consolas, Menlo, monospace"
+                     FontSize="13" Foreground="{DynamicResource MaterialSecondaryMidBrush}"
+                     TextWrapping="NoWrap" />
+        </Border>
+
+        <TextBlock Text="And enter this code:" Opacity="0.75" FontSize="12" Margin="0,4,0,0" />
+        <Border Padding="14,10" CornerRadius="6"
+                Background="{DynamicResource MaterialPrimaryDarkBrush}"
+                BorderBrush="{DynamicResource MaterialPrimaryMidBrush}" BorderThickness="1">
+          <TextBlock x:Name="CodeText"
+                     FontFamily="Cascadia Mono, Consolas, Menlo, monospace"
+                     FontSize="34" FontWeight="Bold"
+                     Foreground="White"
+                     HorizontalAlignment="Center"
+                     TextAlignment="Center"
+                     LetterSpacing="4" />
+        </Border>
+
+        <TextBlock Text="The browser should have opened automatically. The launcher polls Microsoft - once you finish signing in, this window closes itself."
+                   Opacity="0.6" FontSize="10" TextWrapping="Wrap" Margin="0,4,0,0" />
+      </StackPanel>
+
+      <!-- Footer buttons -->
+      <Grid Grid.Row="2" Margin="22,4,22,16" ColumnDefinitions="*,Auto,Auto,Auto">
+        <Button Grid.Column="1" Content="Copy code" Click="OnCopy"
+                Padding="14,5" FontSize="12" Margin="0,0,8,0" />
+        <Button Grid.Column="2" Content="Open browser" Click="OnOpenBrowser"
+                Padding="14,5" FontSize="12" Margin="0,0,8,0" />
+        <Button Grid.Column="3" Content="Hide"
+                Click="OnClose"
+                Padding="14,5" FontSize="12"
+                Background="{DynamicResource MaterialPrimaryMidBrush}" Foreground="White" />
+      </Grid>
+    </Grid>
+  </Border>
+
+  <Window.Styles>
+    <Style Selector="Button.WinCtrl">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.15" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Button.WinCtrl:pointerover">
+      <Setter Property="Background" Value="#33FFFFFF" />
+    </Style>
+    <Style Selector="Button.WinCtrlClose:pointerover">
+      <Setter Property="Background" Value="#E81123" />
+    </Style>
+  </Window.Styles>
+</Window>
