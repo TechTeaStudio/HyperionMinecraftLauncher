@@ -3,6 +3,28 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-05-15
+
+### Added
+- Official Minecraft block / item textures pulled from 5+ mirrors (`InventivetalentDev/minecraft-assets` 1.20.4 / 1.21 / 1.21.4 / master branches; `mcasset.cloud` CDN; `PrismarineJS/minecraft-data`; `Mojang/bedrock-samples`). 17 textures fetched from first-success mirror; the chest entity texture and a 32x32 cropped/upscaled Steve face (extracted from the default skin's [8,8,8,8] head face + hat overlay) round out the set to 21 PNGs under `src/HyperionMinecraftLauncher.App/Assets/Icons/MC/`.
+- All UI icons are now real Minecraft textures: grass-block-side (Home), chest entity (Installations), Steve face (Skins / account chip), ender pearl (Servers), writable book (News), comparator (Settings), oak planks (profiles list), compass (manifest versions).
+- `scripts/download_mc_icons.py` and `scripts/extract_extra_mc_icons.py` - reproducible setup scripts left in-tree.
+
+### Changed
+- **Compact layout** to fix the text-overlap / cramped feel:
+  - Window default 1040x640 -> 960x580; min size 860x540 -> 800x500.
+  - Sidebar 220px -> 180px.
+  - Header 60px -> 48px (logo 28 -> 24, title font 20 -> 16).
+  - Content margin 20px -> 14x12. Card padding 14px -> 10px. Inter-card margin 10px -> 6px.
+  - Title fonts 22 -> 18, body fonts -> 11-12. Launch button: pixel-font 14 (was 16) and tighter 18x6 padding.
+  - Account chip: smaller padding (8,4 vs 12,6), 22px Steve face, 11px button.
+- Replaced the resource-pack banner Image strips on the home cards (which contained 4-icon menu sprites and overlapped the watermark) with single 24x24 MC block-texture icons.
+- Sidebar nav rows now use raster MC textures via `RadioButton.Tag`; padding 12,10 -> 10,8.
+
+### Notes
+- `Material.Icons.Avalonia 2.4.1` and `MaterialIconStyles` are still wired in `App.axaml` for future use, but no view currently references a MaterialIcon kind - every chrome glyph is now MC pixel art.
+- `<Version>` bumped to `0.8.0` in both shipping csproj files.
+
 ## [0.7.1] - 2026-05-15
 
 ### Fixed
