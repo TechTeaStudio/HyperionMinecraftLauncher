@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
@@ -18,6 +19,12 @@ public interface IMinecraftLauncherService
     /// Fetch the list of installable Minecraft versions (release + snapshot, sorted newest-first).
     /// </summary>
     Task<IReadOnlyList<VersionMetadata>> ListVersionsAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Enumerate versions already present on disk under the resolved <c>.minecraft</c> directory.
+    /// Returns an empty list when the directory is missing - useful so the UI can render a "no installs yet" state.
+    /// </summary>
+    Task<IReadOnlyList<InstalledVersion>> ListInstalledVersionsAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Resolve a session from the supplied <paramref name="request"/>.

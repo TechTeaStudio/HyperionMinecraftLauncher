@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CmlLib.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
@@ -21,19 +22,29 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     private readonly IUnderlyingLauncher _underlying;
     private readonly ILauncherLogger _logger;
     private readonly IMicrosoftAuthService? _microsoftAuth;
+    private readonly IInstalledVersionScanner _installedScanner;
+    private readonly IMinecraftInstallationLocator _installationLocator;
 
     /// <summary>Primary constructor used by the App and by tests.</summary>
     /// <param name="microsoftAuth">Optional Microsoft sign-in provider. When omitted, <see cref="AuthMode.Microsoft"/>
     /// requests throw with a friendly "not configured" message - useful in headless / test contexts that don't
     /// link the WebView2-dependent <c>MicrosoftAuthService</c>.</param>
+    /// <param name="installedScanner">Reads <c>versions/&lt;id&gt;/&lt;id&gt;.json</c> from disk. Defaults to a fresh
+    /// <see cref="FileSystemInstalledVersionScanner"/> if omitted.</param>
+    /// <param name="installationLocator">Locates the platform-default <c>.minecraft</c> directory. Defaults to
+    /// <see cref="DefaultMinecraftInstallationLocator"/>.</param>
     public CmlLibMinecraftLauncherService(
         IUnderlyingLauncher underlying,
         ILauncherLogger logger,
-        IMicrosoftAuthService? microsoftAuth = null)
+        IMicrosoftAuthService? microsoftAuth = null,
+        IInstalledVersionScanner? installedScanner = null,
+        IMinecraftInstallationLocator? installationLocator = null)
     {
         _underlying = underlying ?? throw new ArgumentNullException(nameof(underlying));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _microsoftAuth = microsoftAuth;
+        _installedScanner = installedScanner ?? new FileSystemInstalledVersionScanner();
+        _installationLocator = installationLocator ?? new DefaultMinecraftInstallationLocator();
     }
 
     /// <summary>
@@ -42,6 +53,22 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     /// </summary>
     public static CmlLibMinecraftLauncherService Create(ILauncherLogger logger, IMicrosoftAuthService? microsoftAuth = null)
         => new(new CmlLibUnderlyingLauncher(), logger, microsoftAuth);
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<InstalledVersion>> ListInstalledVersionsAsync(CancellationToken cancellationToken)
+    {
+        var install = _installationLocator.Locate();
+        _logger.Info($"Scanning installed versions under '{install.VersionsDirectory}'.");
+        // The scan is a few file reads of small JSON manifests; wrap in Task.Run so the UI thread
+        // never blocks on disk IO even though IInstalledVersionScanner is synchronous.
+        return Task.Run(() =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            IReadOnlyList<InstalledVersion> list = _installedScanner.Scan(install.VersionsDirectory);
+            _logger.Info($"Found {list.Count} installed versions.");
+            return list;
+        }, cancellationToken);
+    }
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<VersionMetadata>> ListVersionsAsync(CancellationToken cancellationToken)

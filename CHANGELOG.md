@@ -3,6 +3,21 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-05-15
+
+### Added
+- `IMinecraftLauncherService.ListInstalledVersionsAsync` enumerates versions present on disk under the resolved `.minecraft` directory. The view-model can now show what's already installed (no manifest fetch needed) and combine it with the remote manifest for an "installed + installable" picker.
+- New `Core/Installations/` folder:
+  - `IMinecraftInstallationLocator` + `DefaultMinecraftInstallationLocator` - resolve the platform-default `.minecraft` path. Windows: `%APPDATA%\.minecraft`; macOS: `~/Library/Application Support/minecraft` (no dot, no `.minecraft` suffix - the Mojang convention); Linux: `~/.minecraft` (XDG is intentionally ignored).
+  - `MinecraftInstallation` record - paths to `versions/`, `launcher_profiles.json`, `launcher_accounts.json`, `servers.dat`.
+  - `IInstalledVersionScanner` + `FileSystemInstalledVersionScanner` - read `versions/<id>/<id>.json` and produce `InstalledVersion` DTOs. Sorted newest-first; malformed manifests are skipped silently.
+  - `LoaderDetector` + `ModLoader` enum - classify Forge / NeoForge / Fabric / Quilt / OptiFine / LegacyForge based on `mainClass`, `inheritsFrom`, and id naming conventions.
+- 13 new tests across `InstalledVersionScannerTests` and `LoaderDetectorTests` covering vanilla, Forge, NeoForge, Fabric, Quilt, OptiFine, LegacyForge, malformed manifests, missing folders, and sort order.
+
+### Changed
+- `CmlLibMinecraftLauncherService` constructor now takes optional `IInstalledVersionScanner` + `IMinecraftInstallationLocator` (defaults wire the real implementations).
+- `<Version>` bumped to `0.4.0` in both shipping csproj files.
+
 ## [0.3.0] - 2026-05-15
 
 ### Added

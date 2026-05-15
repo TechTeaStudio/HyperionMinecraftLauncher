@@ -156,6 +156,8 @@ public class MainViewModelTests
 internal sealed class StubLauncherService : IMinecraftLauncherService
 {
     public IReadOnlyList<VersionMetadata> VersionsToReturn { get; set; } = Array.Empty<VersionMetadata>();
+    public IReadOnlyList<TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.InstalledVersion> InstalledVersionsToReturn { get; set; }
+        = Array.Empty<TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.InstalledVersion>();
     public Exception? VersionsException { get; set; }
     public Exception? AuthException { get; set; }
     public Exception? LaunchException { get; set; }
@@ -167,6 +169,9 @@ internal sealed class StubLauncherService : IMinecraftLauncherService
         if (VersionsException is not null) throw VersionsException;
         return Task.FromResult(VersionsToReturn);
     }
+
+    public Task<IReadOnlyList<TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.InstalledVersion>> ListInstalledVersionsAsync(CancellationToken cancellationToken)
+        => Task.FromResult(InstalledVersionsToReturn);
 
     public Task<AuthResult> AuthenticateAsync(AuthRequest request, CancellationToken cancellationToken)
     {
