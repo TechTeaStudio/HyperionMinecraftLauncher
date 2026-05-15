@@ -3,6 +3,14 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2026-05-15
+
+### Changed
+- **Custom window chrome** replaces the Windows-native title bar. `Window.SystemDecorations="None"` + `ExtendClientAreaToDecorationsHint="True"` + `ExtendClientAreaChromeHints="NoChrome"` + `ExtendClientAreaTitleBarHeightHint="-1"` gives us a borderless window; we paint our own 48 px header strip with the launcher logo, account chip, and three Win-11-style buttons (minimize / maximize-restore / close) drawn as `Path` glyphs so they stay sharp at any DPI.
+  - Dragging the header (anywhere except a button) calls `Window.BeginMoveDrag(...)`; double-click toggles maximize/restore.
+  - Close button hover turns red (`#E81123` to match the Windows convention).
+  - The account chip and Sign-in button live in the same strip - one row of chrome doing double duty.
+
 ## [0.12.0] - 2026-05-15
 
 ### Changed
