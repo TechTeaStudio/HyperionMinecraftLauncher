@@ -3,6 +3,18 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-05-15
+
+### Added
+- Material Design baseline via `Material.Avalonia 3.14.2` + `Material.Icons.Avalonia 2.4.1`. `App.axaml` now uses `<themes:MaterialTheme BaseTheme="Dark">` instead of `<FluentTheme/>`, with brush-resource overrides that retint the Material palette to a Minecraft look (grass-block green primary `#3F7E22`, XP-bar yellow secondary `#F7CA18`, dirt/stone/planks named brushes `McGrassBrush`/`McDirtBrush`/`McCobblestoneBrush`/`McPlanksBrush`).
+- Minecraft pixel font (`IdreesInc/Minecraft-Font`, SIL OFL 1.1) bundled under `src/HyperionMinecraftLauncher.App/Assets/Fonts/`. Referenced as `{StaticResource MinecraftFont}` (resolves via `avares://HyperionMinecraftLauncher/Assets/Fonts#Minecraft`).
+- Banner textures from the user-supplied resource pack (`small_simple_icons` variant, RGBA) copied into `src/HyperionMinecraftLauncher.App/Assets/Banners/` so subsequent UI work can reference them via `avares://`.
+- `scripts/inspect_icons.py`, `scripts/inspect_all_textures.py`, `scripts/copy_banner_textures.py`, `scripts/download_minecraft_font.py` - throwaway one-off helpers used to inventory the resource pack and pull the font; left in-tree as reproducible setup.
+
+### Changed
+- `.gitignore` now excludes `/assets/` (the raw user-dropped resource pack at repo root - we copy what we use into `src/.../Assets/` and let the rest stay local).
+- `<Version>` bumped to `0.2.0` in both `HyperionMinecraftLauncher.Core.csproj` and `HyperionMinecraftLauncher.App.csproj`.
+
 ## [0.1.0] - 2026-05-15
 
 ### Added
