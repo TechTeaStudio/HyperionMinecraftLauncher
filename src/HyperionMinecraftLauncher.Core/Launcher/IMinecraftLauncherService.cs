@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
@@ -46,6 +47,15 @@ public interface IMinecraftLauncherService
     /// Returns an empty list on network failure (the launcher must still render).
     /// </summary>
     Task<IReadOnlyList<NewsEntry>> ListNewsAsync(CancellationToken cancellationToken);
+
+    /// <summary>List every saved Hyperion instance (most-recently-played first).</summary>
+    Task<IReadOnlyList<Instance>> ListInstancesAsync(CancellationToken cancellationToken);
+
+    /// <summary>Create or update an instance.</summary>
+    Task SaveInstanceAsync(Instance instance, CancellationToken cancellationToken);
+
+    /// <summary>Delete an instance by id.</summary>
+    Task DeleteInstanceAsync(string id, CancellationToken cancellationToken);
 
     /// <summary>
     /// Resolve a session from the supplied <paramref name="request"/>.

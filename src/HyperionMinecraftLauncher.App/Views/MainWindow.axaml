@@ -4,6 +4,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels"
         xmlns:controls="using:TechTeaStudio.HyperionMinecraftLauncher.App.Controls"
+        xmlns:local="using:TechTeaStudio.HyperionMinecraftLauncher.App.Views"
+        xmlns:instances="using:TechTeaStudio.HyperionMinecraftLauncher.Core.Instances"
         xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
         xmlns:assists="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
         mc:Ignorable="d"
@@ -279,40 +281,58 @@
         <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
           <TextBlock Text="Installations"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
-          <TextBlock Text="Profiles read from launcher_profiles.json (read-only)."
+          <TextBlock Text="Hyperion instances. Each one has its own version, icon, and (eventually) JVM / game-dir."
                      Opacity="0.65" FontSize="11" />
         </StackPanel>
-        <Button Grid.Row="1" Content="Refresh profiles" FontSize="11"
-                Command="{Binding RefreshProfilesCommand}"
-                Padding="10,4" HorizontalAlignment="Left" Margin="0,0,0,6" />
-        <Border Grid.Row="2" Padding="6" CornerRadius="6"
-                Background="{DynamicResource MaterialPaperBrush}">
-          <ListBox ItemsSource="{Binding Profiles}"
-                   SelectedItem="{Binding SelectedProfile, Mode=TwoWay}"
-                   Background="Transparent" BorderThickness="0">
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+          <Button Content="+ New Instance"
+                  Click="OnNewInstanceClicked"
+                  FontFamily="{StaticResource MinecraftFont}" FontSize="12"
+                  Padding="14,5"
+                  Background="{DynamicResource MaterialPrimaryMidBrush}"
+                  Foreground="White" />
+          <Button Content="Refresh" FontSize="11"
+                  Command="{Binding RefreshInstancesCommand}"
+                  Padding="10,5" />
+          <Button Content="Delete selected" FontSize="11"
+                  Command="{Binding DeleteInstanceCommand}"
+                  Padding="10,5" />
+        </StackPanel>
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+          <ListBox ItemsSource="{Binding Instances}"
+                   SelectedItem="{Binding SelectedInstance, Mode=TwoWay}"
+                   Background="Transparent" BorderThickness="0"
+                   ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListBox.ItemsPanel>
+              <ItemsPanelTemplate>
+                <WrapPanel Orientation="Horizontal" />
+              </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>
-              <DataTemplate>
-                <Grid ColumnDefinitions="Auto,*,Auto" Margin="2,3">
-                  <Image Grid.Column="0" Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/oak_planks.png"
-                         Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center" />
-                  <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
-                    <TextBlock FontWeight="SemiBold" FontSize="12">
-                      <Run Text="{Binding Name}" />
-                      <Run Text=" - " />
-                      <Run Text="{Binding Type}" />
-                    </TextBlock>
-                    <TextBlock Opacity="0.65" FontSize="10">
-                      <Run Text="Version: " />
-                      <Run Text="{Binding LastVersionId}" />
-                    </TextBlock>
-                  </StackPanel>
-                  <TextBlock Grid.Column="2" Text="{Binding LastUsed}"
-                             Opacity="0.55" FontSize="10" VerticalAlignment="Center" />
-                </Grid>
+              <DataTemplate DataType="instances:Instance">
+                <Border Width="130" Height="148" Margin="6" CornerRadius="6"
+                        Background="{DynamicResource MaterialPaperBrush}"
+                        BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1"
+                        Classes="Card">
+                  <Grid RowDefinitions="*,Auto,Auto">
+                    <Image Grid.Row="0"
+                           Source="{Binding IconKey, Converter={x:Static local:IconKeyToUri.Instance}}"
+                          
+                           Stretch="Uniform" Margin="14"
+                           RenderOptions.BitmapInterpolationMode="None" />
+                    <TextBlock Grid.Row="1" Text="{Binding Name}"
+                               FontWeight="SemiBold" FontSize="12"
+                               TextTrimming="CharacterEllipsis"
+                               HorizontalAlignment="Center" Margin="6,0" />
+                    <TextBlock Grid.Row="2" Text="{Binding VersionId}"
+                               Opacity="0.65" FontSize="10"
+                               HorizontalAlignment="Center" Margin="6,2,6,8" />
+                  </Grid>
+                </Border>
               </DataTemplate>
             </ListBox.ItemTemplate>
           </ListBox>
-        </Border>
+        </ScrollViewer>
       </Grid>
 
       <!-- ==== SKINS PAGE ==== -->

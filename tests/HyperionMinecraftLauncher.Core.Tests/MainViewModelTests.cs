@@ -331,6 +331,26 @@ internal sealed class StubLauncherService : IMinecraftLauncherService
     public Task<IReadOnlyList<TechTeaStudio.HyperionMinecraftLauncher.Core.News.NewsEntry>> ListNewsAsync(CancellationToken cancellationToken)
         => Task.FromResult(NewsToReturn);
 
+    public IReadOnlyList<TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Instance> InstancesToReturn { get; set; }
+        = Array.Empty<TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Instance>();
+    public TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Instance? LastSavedInstance { get; private set; }
+    public string? LastDeletedInstanceId { get; private set; }
+
+    public Task<IReadOnlyList<TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Instance>> ListInstancesAsync(CancellationToken cancellationToken)
+        => Task.FromResult(InstancesToReturn);
+
+    public Task SaveInstanceAsync(TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Instance instance, CancellationToken cancellationToken)
+    {
+        LastSavedInstance = instance;
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteInstanceAsync(string id, CancellationToken cancellationToken)
+    {
+        LastDeletedInstanceId = id;
+        return Task.CompletedTask;
+    }
+
     public Task<AuthResult> AuthenticateAsync(AuthRequest request, CancellationToken cancellationToken)
     {
         if (AuthException is not null) throw AuthException;

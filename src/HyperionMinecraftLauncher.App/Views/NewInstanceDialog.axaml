@@ -1,0 +1,108 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="using:TechTeaStudio.HyperionMinecraftLauncher.App.Views"
+        xmlns:versions="using:TechTeaStudio.HyperionMinecraftLauncher.Core.Versions"
+        xmlns:sys="using:System"
+        mc:Ignorable="d"
+        x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.NewInstanceDialog"
+        Title="New Instance"
+        Width="560" Height="460"
+        CanResize="False"
+        SystemDecorations="None"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource MaterialPaperBrush}"
+        FontFamily="Inter, Segoe UI, system-ui"
+        RenderOptions.BitmapInterpolationMode="None">
+
+  <Border BorderBrush="{DynamicResource MaterialPrimaryMidBrush}" BorderThickness="1" CornerRadius="6">
+    <Grid RowDefinitions="36,*,Auto">
+
+      <!-- Title bar -->
+      <Border Grid.Row="0" Background="{DynamicResource MaterialPrimaryDarkBrush}"
+              PointerPressed="OnTitleBarPressed">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0" Text="Create a new instance"
+                     FontFamily="{StaticResource MinecraftFont}" FontSize="13"
+                     Foreground="White" VerticalAlignment="Center" Margin="12,0" />
+          <Button Grid.Column="1" Click="OnCancel" Width="36" Height="36"
+                  Background="Transparent" BorderThickness="0" CornerRadius="0">
+            <Path Data="M 0,0 L 10,10 M 10,0 L 0,10" Stroke="White" StrokeThickness="1.2"
+                  Width="10" Height="10" />
+          </Button>
+        </Grid>
+      </Border>
+
+      <!-- Body -->
+      <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="22,16">
+        <StackPanel Spacing="14">
+
+          <!-- Name -->
+          <StackPanel Spacing="4">
+            <TextBlock Text="Instance name" FontSize="12" Opacity="0.85" />
+            <TextBox x:Name="NameBox" Text="My new instance"
+                     Watermark="My new instance" FontSize="13" />
+          </StackPanel>
+
+          <!-- Version picker -->
+          <StackPanel Spacing="4">
+            <TextBlock Text="Minecraft version" FontSize="12" Opacity="0.85" />
+            <ComboBox x:Name="VersionBox" PlaceholderText="(loading manifest ...)"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate DataType="versions:VersionMetadata">
+                  <TextBlock Text="{Binding DisplayText}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Text="Use any of the 888 manifest versions or one already on disk."
+                       FontSize="10" Opacity="0.55" TextWrapping="Wrap" />
+          </StackPanel>
+
+          <!-- Icon picker -->
+          <StackPanel Spacing="4">
+            <TextBlock Text="Icon" FontSize="12" Opacity="0.85" />
+            <ItemsControl x:Name="IconPicker">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <WrapPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="sys:String">
+                  <RadioButton GroupName="IconChoice"
+                              Margin="2"
+                              Tag="{Binding}"
+                              Click="OnIconClicked"
+                              Width="48" Height="48"
+                              Background="{DynamicResource MaterialBackgroundBrush}"
+                              BorderBrush="{DynamicResource MaterialPrimaryMidBrush}"
+                              BorderThickness="1">
+                    <Image Source="{ReflectionBinding Converter={x:Static local:IconKeyToUri.Instance}}"
+                           Width="28" Height="28" />
+                  </RadioButton>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+
+        </StackPanel>
+      </ScrollViewer>
+
+      <!-- Footer -->
+      <Grid Grid.Row="2" Margin="22,4,22,16" ColumnDefinitions="*,Auto,Auto">
+        <Button Grid.Column="1" Content="Cancel" Click="OnCancel"
+                Padding="14,5" FontSize="12" Margin="0,0,8,0" />
+        <Button Grid.Column="2" Content="Create"
+                Click="OnCreate"
+                FontFamily="{StaticResource MinecraftFont}" FontSize="13"
+                Padding="14,5"
+                Background="{DynamicResource MaterialPrimaryMidBrush}" Foreground="White" />
+      </Grid>
+    </Grid>
+  </Border>
+</Window>
