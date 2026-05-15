@@ -3,6 +3,20 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-05-15
+
+### Added
+- Real **Minecraft news feed** on the News page, sourced from `https://launchercontent.mojang.com/news.json` - the same endpoint Mojang's own launcher reads from, so Hyperion users see the same articles in the same order.
+- `Core/News/` folder: `NewsEntry` DTO (`Title`, `Category`, `Date`, `Text`, `ImageUrl`, `ReadMoreLink`, `Id`), `INewsClient` interface, `MojangNewsClient` HTTP impl with `Parse(Stream)` static for fast unit tests.
+- News page UI shows each article as a card with hero image (72x72 from the feed CDN), title, category chip, date, teaser text, and "Read more on minecraft.net" button that opens the article in the default browser via `Process.Start { UseShellExecute = true }`.
+- `IMinecraftLauncherService.ListNewsAsync(...)`; the view-model exposes a `News` observable collection and `RefreshNewsCommand`.
+- 4 new tests (`MojangNewsClientTests`): valid feed maps every field, falls back to `playPageImage` when `newsPageImage` missing, no-entries returns empty, absolute image URL passes through unchanged.
+- `AsyncImageLoader.Avalonia 3.3.0` (pinned to the last 3.x-Avalonia-11 line - 3.8.0 jumps to Avalonia 12) to fetch the hero images asynchronously without blocking the UI thread.
+
+### Changed
+- `CmlLibMinecraftLauncherService` constructor gains an optional `INewsClient` parameter (defaults to `MojangNewsClient`).
+- `<Version>` bumped to `0.9.0` in both shipping csproj files.
+
 ## [0.8.0] - 2026-05-15
 
 ### Added

@@ -8,6 +8,7 @@ using CmlLib.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
@@ -28,6 +29,7 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     private readonly IMinecraftInstallationLocator _installationLocator;
     private readonly ILauncherProfilesStore _profilesStore;
     private readonly IServersStore _serversStore;
+    private readonly INewsClient _newsClient;
 
     /// <summary>Primary constructor used by the App and by tests.</summary>
     /// <param name="microsoftAuth">Optional Microsoft sign-in provider. When omitted, <see cref="AuthMode.Microsoft"/>
@@ -44,7 +46,8 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         IInstalledVersionScanner? installedScanner = null,
         IMinecraftInstallationLocator? installationLocator = null,
         ILauncherProfilesStore? profilesStore = null,
-        IServersStore? serversStore = null)
+        IServersStore? serversStore = null,
+        INewsClient? newsClient = null)
     {
         _underlying = underlying ?? throw new ArgumentNullException(nameof(underlying));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -53,6 +56,7 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         _installationLocator = installationLocator ?? new DefaultMinecraftInstallationLocator();
         _profilesStore = profilesStore ?? new FileLauncherProfilesStore();
         _serversStore = serversStore ?? new FileServersStore();
+        _newsClient = newsClient ?? new MojangNewsClient();
     }
 
     /// <summary>
@@ -61,6 +65,15 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     /// </summary>
     public static CmlLibMinecraftLauncherService Create(ILauncherLogger logger, IMicrosoftAuthService? microsoftAuth = null)
         => new(new CmlLibUnderlyingLauncher(), logger, microsoftAuth);
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<NewsEntry>> ListNewsAsync(CancellationToken cancellationToken)
+    {
+        _logger.Info("Fetching Mojang launcher news feed.");
+        var news = await _newsClient.FetchAsync(cancellationToken).ConfigureAwait(false);
+        _logger.Info($"Loaded {news.Count} news entries.");
+        return news;
+    }
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<ServerListEntry>> ListServersAsync(CancellationToken cancellationToken)

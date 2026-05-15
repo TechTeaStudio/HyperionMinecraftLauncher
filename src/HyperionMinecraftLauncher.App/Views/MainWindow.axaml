@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels"
+        xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.MainWindow"
         x:DataType="vm:MainViewModel"
@@ -307,16 +308,53 @@
         </Border>
       </Grid>
 
-      <!-- ==== NEWS STUB (will get real feed in next feature) ==== -->
-      <Border IsVisible="{Binding IsNewsSelected}">
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
-          <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/writable_book.png"
-                 Width="48" Height="48" />
-          <TextBlock Text="News" FontFamily="{StaticResource MinecraftFont}" FontSize="20" HorizontalAlignment="Center" />
-          <TextBlock Text="Coming: real Minecraft.net feed via launchercontent.mojang.com/news.json."
-                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" MaxWidth="340" TextAlignment="Center" />
+      <!-- ==== NEWS PAGE ==== -->
+      <Grid IsVisible="{Binding IsNewsSelected}" RowDefinitions="Auto,Auto,*">
+        <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
+          <TextBlock Text="News" FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
+          <TextBlock Text="Live feed from launchercontent.mojang.com/news.json - the same source Mojang's official launcher uses."
+                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
         </StackPanel>
-      </Border>
+        <Button Grid.Row="1" Content="Refresh news" FontSize="11"
+                Command="{Binding RefreshNewsCommand}"
+                Padding="10,4" HorizontalAlignment="Left" Margin="0,0,0,6" />
+        <Border Grid.Row="2" Padding="6" CornerRadius="4"
+                Background="{DynamicResource MaterialPaperBrush}">
+          <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding News}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Margin="0,0,0,8" Padding="10" CornerRadius="4"
+                          Background="{DynamicResource MaterialBackgroundBrush}">
+                    <Grid ColumnDefinitions="80,*" RowDefinitions="Auto,Auto,Auto,Auto">
+                      <Image Grid.RowSpan="4" Grid.Column="0"
+                             asyncImageLoader:ImageLoader.Source="{Binding ImageUrl}"
+                             Width="72" Height="72"
+                             Stretch="UniformToFill"
+                             Margin="0,0,10,0" VerticalAlignment="Top" />
+                      <TextBlock Grid.Row="0" Grid.Column="1"
+                                 Text="{Binding Title}" FontWeight="SemiBold" FontSize="13"
+                                 TextWrapping="Wrap" />
+                      <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="0,2,0,0">
+                        <TextBlock Text="{Binding Category}" FontSize="10" Opacity="0.7"
+                                   Foreground="{DynamicResource MaterialSecondaryMidBrush}" />
+                        <TextBlock Text="{Binding Date}" FontSize="10" Opacity="0.55" />
+                      </StackPanel>
+                      <TextBlock Grid.Row="2" Grid.Column="1"
+                                 Text="{Binding Text}" FontSize="11" Opacity="0.85"
+                                 TextWrapping="Wrap" Margin="0,4,0,0" />
+                      <Button Grid.Row="3" Grid.Column="1"
+                              Content="Read more on minecraft.net" FontSize="10"
+                              Tag="{Binding ReadMoreLink}" Click="OnOpenExternalLink"
+                              HorizontalAlignment="Left" Margin="0,6,0,0" Padding="8,3" />
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Border>
+      </Grid>
 
       <!-- ==== SETTINGS STUB (will get real impl in next feature) ==== -->
       <Border IsVisible="{Binding IsSettingsSelected}">

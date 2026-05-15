@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
@@ -39,6 +40,12 @@ public interface IMinecraftLauncherService
     /// Returns an empty list when the file is absent or malformed.
     /// </summary>
     Task<IReadOnlyList<ServerListEntry>> ListServersAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Fetch Minecraft news from Mojang's official launcher feed.
+    /// Returns an empty list on network failure (the launcher must still render).
+    /// </summary>
+    Task<IReadOnlyList<NewsEntry>> ListNewsAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Resolve a session from the supplied <paramref name="request"/>.
