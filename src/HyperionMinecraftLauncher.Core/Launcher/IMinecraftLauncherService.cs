@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
@@ -25,6 +26,12 @@ public interface IMinecraftLauncherService
     /// Returns an empty list when the directory is missing - useful so the UI can render a "no installs yet" state.
     /// </summary>
     Task<IReadOnlyList<InstalledVersion>> ListInstalledVersionsAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Read <c>launcher_profiles.json</c> from the resolved <c>.minecraft</c> directory.
+    /// Returns an empty list when the file is absent. Read-only - we don't write back into Mojang's own file.
+    /// </summary>
+    Task<IReadOnlyList<LauncherProfile>> ListProfilesAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Resolve a session from the supplied <paramref name="request"/>.

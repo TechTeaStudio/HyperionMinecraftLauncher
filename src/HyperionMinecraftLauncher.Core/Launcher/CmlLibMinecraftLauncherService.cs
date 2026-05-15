@@ -8,6 +8,7 @@ using CmlLib.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
@@ -24,6 +25,7 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     private readonly IMicrosoftAuthService? _microsoftAuth;
     private readonly IInstalledVersionScanner _installedScanner;
     private readonly IMinecraftInstallationLocator _installationLocator;
+    private readonly ILauncherProfilesStore _profilesStore;
 
     /// <summary>Primary constructor used by the App and by tests.</summary>
     /// <param name="microsoftAuth">Optional Microsoft sign-in provider. When omitted, <see cref="AuthMode.Microsoft"/>
@@ -38,13 +40,15 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         ILauncherLogger logger,
         IMicrosoftAuthService? microsoftAuth = null,
         IInstalledVersionScanner? installedScanner = null,
-        IMinecraftInstallationLocator? installationLocator = null)
+        IMinecraftInstallationLocator? installationLocator = null,
+        ILauncherProfilesStore? profilesStore = null)
     {
         _underlying = underlying ?? throw new ArgumentNullException(nameof(underlying));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _microsoftAuth = microsoftAuth;
         _installedScanner = installedScanner ?? new FileSystemInstalledVersionScanner();
         _installationLocator = installationLocator ?? new DefaultMinecraftInstallationLocator();
+        _profilesStore = profilesStore ?? new FileLauncherProfilesStore();
     }
 
     /// <summary>
@@ -53,6 +57,30 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     /// </summary>
     public static CmlLibMinecraftLauncherService Create(ILauncherLogger logger, IMicrosoftAuthService? microsoftAuth = null)
         => new(new CmlLibUnderlyingLauncher(), logger, microsoftAuth);
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<LauncherProfile>> ListProfilesAsync(CancellationToken cancellationToken)
+    {
+        var install = _installationLocator.Locate();
+        _logger.Info($"Reading launcher_profiles.json from '{install.LauncherProfilesPath}'.");
+        try
+        {
+            var file = await _profilesStore.LoadAsync(install.LauncherProfilesPath, cancellationToken).ConfigureAwait(false);
+            _logger.Info($"Loaded {file.Profiles.Count} profiles (schema v{file.SchemaVersion}).");
+            return file.Profiles;
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            // launcher_profiles.json can be malformed if the user's been editing it by hand;
+            // surface that as an empty list rather than a hard error.
+            _logger.Warn($"Could not parse launcher_profiles.json: {ex.Message}");
+            return Array.Empty<LauncherProfile>();
+        }
+    }
 
     /// <inheritdoc />
     public Task<IReadOnlyList<InstalledVersion>> ListInstalledVersionsAsync(CancellationToken cancellationToken)
