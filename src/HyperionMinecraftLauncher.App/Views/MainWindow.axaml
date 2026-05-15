@@ -1,0 +1,67 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels"
+        mc:Ignorable="d"
+        x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="Hyperion Minecraft Launcher"
+        Width="720" Height="480"
+        MinWidth="540" MinHeight="360">
+
+  <DockPanel Margin="16" LastChildFill="True">
+
+    <StackPanel DockPanel.Dock="Top" Orientation="Vertical" Spacing="6" Margin="0,0,0,12">
+      <TextBlock Text="Hyperion Minecraft Launcher" FontSize="20" FontWeight="SemiBold" />
+      <TextBlock Text="Offline authentication only in v0.1. Logs are stored under %LOCALAPPDATA%/HyperionMinecraftLauncher/logs."
+                 Opacity="0.7" TextWrapping="Wrap" />
+    </StackPanel>
+
+    <Grid DockPanel.Dock="Top"
+          Margin="0,0,0,12"
+          ColumnDefinitions="Auto,*,Auto,*,Auto,Auto">
+
+      <TextBlock Grid.Column="0" Text="Username:" VerticalAlignment="Center" />
+      <TextBox  Grid.Column="1" Text="{Binding Username, Mode=TwoWay}" Watermark="Steve" Margin="8,0,0,0" />
+
+      <TextBlock Grid.Column="2" Text="Version:" VerticalAlignment="Center" Margin="16,0,0,0" />
+      <ComboBox Grid.Column="3"
+                Margin="8,0,0,0"
+                ItemsSource="{Binding AvailableVersions}"
+                SelectedItem="{Binding SelectedVersion, Mode=TwoWay}"
+                PlaceholderText="(none)">
+        <ComboBox.ItemTemplate>
+          <DataTemplate>
+            <TextBlock>
+              <Run Text="{Binding Name}" />
+              <Run Text=" (" />
+              <Run Text="{Binding Type}" />
+              <Run Text=")" />
+            </TextBlock>
+          </DataTemplate>
+        </ComboBox.ItemTemplate>
+      </ComboBox>
+
+      <Button Grid.Column="4" Content="Refresh versions" Command="{Binding RefreshVersionsCommand}" Margin="16,0,0,0" />
+      <Button Grid.Column="5" Content="Launch"
+              Command="{Binding LaunchCommand}"
+              Classes="accent"
+              Margin="8,0,0,0" />
+    </Grid>
+
+    <Border BorderBrush="#22000000" BorderThickness="1" CornerRadius="4">
+      <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <TextBox Text="{Binding LogText, Mode=OneWay}"
+                 IsReadOnly="True"
+                 AcceptsReturn="True"
+                 BorderThickness="0"
+                 FontFamily="Cascadia Mono, Consolas, Menlo, monospace"
+                 FontSize="12"
+                 Padding="8" />
+      </ScrollViewer>
+    </Border>
+
+  </DockPanel>
+
+</Window>
