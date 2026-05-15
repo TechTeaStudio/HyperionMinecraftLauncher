@@ -43,4 +43,45 @@ public partial class MainWindow : Window
             }
         }
     }
+
+    private async void OnBrowseGameDir(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        var topLevel = GetTopLevel(this);
+        if (topLevel?.StorageProvider is null) return;
+
+        var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new Avalonia.Platform.Storage.FolderPickerOpenOptions
+        {
+            Title = "Pick Minecraft game directory",
+            AllowMultiple = false,
+        });
+        if (folders.Count > 0 && folders[0].Path is { } uri)
+        {
+            vm.GameDirectoryOverride = uri.LocalPath;
+        }
+    }
+
+    private async void OnBrowseJavaExe(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        var topLevel = GetTopLevel(this);
+        if (topLevel?.StorageProvider is null) return;
+
+        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new Avalonia.Platform.Storage.FilePickerOpenOptions
+        {
+            Title = "Pick Java executable",
+            AllowMultiple = false,
+            FileTypeFilter = new[]
+            {
+                new Avalonia.Platform.Storage.FilePickerFileType("Executable")
+                {
+                    Patterns = new[] { "java.exe", "javaw.exe", "java", "*.exe" },
+                },
+            },
+        });
+        if (files.Count > 0 && files[0].Path is { } uri)
+        {
+            vm.JavaExecutableOverride = uri.LocalPath;
+        }
+    }
 }

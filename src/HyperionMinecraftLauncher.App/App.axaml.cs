@@ -6,6 +6,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 using TechTeaStudio.HyperionMinecraftLauncher.App.Views;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Settings;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App;
 
@@ -25,8 +26,9 @@ public partial class App : Application
             logger.Info("HyperionMinecraftLauncher starting.");
 
             var microsoftAuth = new MicrosoftAuthService(logger);
+            var settingsStore = new FileLauncherSettingsStore();
             var service = CmlLibMinecraftLauncherService.Create(logger, microsoftAuth);
-            var viewModel = new MainViewModel(service, logger, microsoftAuth);
+            var viewModel = new MainViewModel(service, logger, microsoftAuth, settingsStore);
 
             desktop.MainWindow = new MainWindow
             {
