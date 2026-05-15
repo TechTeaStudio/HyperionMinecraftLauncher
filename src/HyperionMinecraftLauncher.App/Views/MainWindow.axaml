@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels"
+        xmlns:controls="using:TechTeaStudio.HyperionMinecraftLauncher.App.Controls"
         xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.MainWindow"
@@ -290,16 +291,18 @@
         </Border>
       </Grid>
 
-      <!-- ==== SKINS STUB ==== -->
-      <Border IsVisible="{Binding IsSkinsSelected}" Classes="Page">
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
-          <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/steve_face_with_hat.png"
-                 Width="64" Height="64" />
-          <TextBlock Text="Skins" FontFamily="{StaticResource MinecraftFont}" FontSize="20" HorizontalAlignment="Center" />
-          <TextBlock Text="Coming: skin / cape preview and upload via SkiaSharp 2.5D."
-                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" MaxWidth="340" TextAlignment="Center" />
+      <!-- ==== SKINS PAGE ==== -->
+      <Grid IsVisible="{Binding IsSkinsSelected}" Classes="Page" RowDefinitions="Auto,*">
+        <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
+          <TextBlock Text="Skins" FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
+          <TextBlock Text="Live 3D preview. Click and drag inside the viewer to rotate. Upload + cape support planned."
+                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
         </StackPanel>
-      </Border>
+        <Border Grid.Row="1" CornerRadius="4"
+                Background="{DynamicResource MaterialPaperBrush}">
+          <controls:SkinViewer3D x:Name="SkinViewer" Cursor="SizeAll" />
+        </Border>
+      </Grid>
 
       <!-- ==== SERVERS PAGE ==== -->
       <Grid IsVisible="{Binding IsServersSelected}" Classes="Page" RowDefinitions="Auto,Auto,*">
