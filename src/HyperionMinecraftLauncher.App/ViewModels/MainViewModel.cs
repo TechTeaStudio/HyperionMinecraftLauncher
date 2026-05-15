@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
@@ -51,6 +52,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private VersionMetadata? _selectedVersion;
     private InstalledVersion? _selectedInstalledVersion;
     private LauncherProfile? _selectedProfile;
+    private Instance? _selectedInstance;
     private string _logText = string.Empty;
     private bool _isBusy;
     private AuthResult? _currentSession;
@@ -85,12 +87,15 @@ public sealed class MainViewModel : INotifyPropertyChanged
         Profiles = new ObservableCollection<LauncherProfile>();
         Servers = new ObservableCollection<ServerListEntry>();
         News = new ObservableCollection<NewsEntry>();
+        Instances = new ObservableCollection<Instance>();
 
         RefreshVersionsCommand = new AsyncRelayCommand(RefreshVersionsAsync, () => !IsBusy);
         RefreshInstalledVersionsCommand = new AsyncRelayCommand(RefreshInstalledVersionsAsync, () => !IsBusy);
         RefreshProfilesCommand = new AsyncRelayCommand(RefreshProfilesAsync, () => !IsBusy);
         RefreshServersCommand = new AsyncRelayCommand(RefreshServersAsync, () => !IsBusy);
         RefreshNewsCommand = new AsyncRelayCommand(RefreshNewsAsync, () => !IsBusy);
+        RefreshInstancesCommand = new AsyncRelayCommand(RefreshInstancesAsync, () => !IsBusy);
+        DeleteInstanceCommand = new AsyncRelayCommand(DeleteSelectedInstanceAsync, () => !IsBusy && SelectedInstance is not null);
         SaveSettingsCommand = new AsyncRelayCommand(SaveSettingsAsync, () => !IsBusy && _settingsStore is not null);
         LaunchCommand = new AsyncRelayCommand(LaunchAsync, CanLaunch);
         SignInMicrosoftCommand = new AsyncRelayCommand(SignInMicrosoftAsync, () => !IsBusy && !IsSignedInOnline);
@@ -164,6 +169,23 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     /// <summary>News from Mojang's launcher feed.</summary>
     public ObservableCollection<NewsEntry> News { get; }
+
+    /// <summary>Hyperion launcher instances (created via the New Instance dialog).</summary>
+    public ObservableCollection<Instance> Instances { get; }
+
+    /// <summary>The instance currently selected on the Installations page tile grid.</summary>
+    public Instance? SelectedInstance
+    {
+        get => _selectedInstance;
+        set
+        {
+            if (SetField(ref _selectedInstance, value))
+            {
+                DeleteInstanceCommand.RaiseCanExecuteChanged();
+                LaunchCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
 
     // ---- Settings ----
 
@@ -327,6 +349,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 RefreshProfilesCommand.RaiseCanExecuteChanged();
                 RefreshServersCommand.RaiseCanExecuteChanged();
                 RefreshNewsCommand.RaiseCanExecuteChanged();
+                RefreshInstancesCommand.RaiseCanExecuteChanged();
+                DeleteInstanceCommand.RaiseCanExecuteChanged();
                 SaveSettingsCommand.RaiseCanExecuteChanged();
                 LaunchCommand.RaiseCanExecuteChanged();
                 SignInMicrosoftCommand.RaiseCanExecuteChanged();
@@ -370,6 +394,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncRelayCommand RefreshProfilesCommand { get; }
     public AsyncRelayCommand RefreshServersCommand { get; }
     public AsyncRelayCommand RefreshNewsCommand { get; }
+    public AsyncRelayCommand RefreshInstancesCommand { get; }
+    public AsyncRelayCommand DeleteInstanceCommand { get; }
     public AsyncRelayCommand SaveSettingsCommand { get; }
     public AsyncRelayCommand LaunchCommand { get; }
     public AsyncRelayCommand SignInMicrosoftCommand { get; }
@@ -377,9 +403,6 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
-
-    private bool CanLaunch()
-        => !IsBusy && (SelectedInstalledVersion is not null || SelectedVersion is not null);
 
     private async Task RefreshVersionsAsync()
     {
@@ -413,6 +436,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
     /// "Refresh" buttons. Runs the refreshes in parallel for fast first-paint; surfaces failures
     /// through the existing log/Append path. Safe to call once on construction.
     /// </summary>
+    private bool CanLaunch()
+        => !IsBusy && (SelectedInstance is not null || SelectedInstalledVersion is not null || SelectedVersion is not null);
+
     public async Task RunStartupRefreshesAsync()
     {
         // 0) If MSAL still holds a refresh token from the last session, restore the user
@@ -434,11 +460,72 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
 
         Append("Auto-refreshing on startup ...");
+        await RefreshInstancesAsync();
         await RefreshInstalledVersionsAsync();
         await RefreshProfilesAsync();
         await RefreshServersAsync();
         await RefreshNewsAsync();
         await RefreshVersionsAsync();
+    }
+
+    private async Task RefreshInstancesAsync()
+    {
+        IsBusy = true;
+        try
+        {
+            Append("Loading instances ...");
+            var list = await _service.ListInstancesAsync(CancellationToken.None);
+
+            Instances.Clear();
+            foreach (var i in list) Instances.Add(i);
+
+            Append($"Loaded {list.Count} instances.");
+        }
+        catch (LauncherException ex)
+        {
+            Append($"[error] {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task DeleteSelectedInstanceAsync()
+    {
+        if (SelectedInstance is not { } victim) return;
+        IsBusy = true;
+        try
+        {
+            Append($"Deleting instance '{victim.Name}' ...");
+            await _service.DeleteInstanceAsync(victim.Id, CancellationToken.None);
+            Instances.Remove(victim);
+            SelectedInstance = null;
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not delete instance: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    /// <summary>Add a freshly-built instance to the store and the in-memory list. Returns the saved record.</summary>
+    public async Task<Instance> CreateInstanceAsync(string name, string versionId, string iconKey)
+    {
+        var instance = new Instance
+        {
+            Id = Guid.NewGuid().ToString("N"),
+            Name = name,
+            VersionId = versionId,
+            IconKey = iconKey,
+        };
+        await _service.SaveInstanceAsync(instance, CancellationToken.None);
+        Instances.Insert(0, instance);
+        Append($"Created instance '{name}' for version {versionId}.");
+        return instance;
     }
 
     private async Task SaveSettingsAsync()
@@ -623,8 +710,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     private async Task LaunchAsync()
     {
-        // Choose the version to launch: prefer an installed one (no install step), fall back to manifest.
-        var versionName = SelectedInstalledVersion?.Id ?? SelectedVersion?.Name;
+        // Priority: explicit Instance > already-installed version > manifest version.
+        var versionName = SelectedInstance?.VersionId ?? SelectedInstalledVersion?.Id ?? SelectedVersion?.Name;
         if (string.IsNullOrEmpty(versionName))
             return;
 
@@ -670,6 +757,27 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
             Append($"Launched. pid={result.ProcessId} version={result.VersionName}");
             _logger.Info($"UI: launch complete (pid {result.ProcessId}, version {result.VersionName}).");
+
+            // Mark "last played" on the running instance so the grid sorts it to the front next time.
+            if (SelectedInstance is { } inst)
+            {
+                var bumped = inst with { LastPlayedAt = DateTimeOffset.UtcNow };
+                try
+                {
+                    await _service.SaveInstanceAsync(bumped, CancellationToken.None);
+                    var idx = Instances.IndexOf(inst);
+                    if (idx >= 0)
+                    {
+                        Instances.RemoveAt(idx);
+                        Instances.Insert(0, bumped);
+                        SelectedInstance = bumped;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warn($"Could not stamp LastPlayedAt on instance: {ex.Message}");
+                }
+            }
         }
         catch (LauncherException ex)
         {

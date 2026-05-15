@@ -206,6 +206,24 @@ public partial class MainWindow : Window
         }
     }
 
+    private async void OnNewInstanceClicked(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+
+        // Need at least one version to choose from. If the manifest hasn't loaded yet,
+        // trigger the refresh first so the picker isn't empty.
+        if (vm.AvailableVersions.Count == 0)
+            await vm.RefreshVersionsCommand.ExecuteAsync();
+
+        var dialog = NewInstanceDialog.WithVersions(vm.AvailableVersions);
+        await dialog.ShowDialog(this);
+
+        if (dialog.Confirmed && dialog.SelectedVersion is { } v)
+        {
+            await vm.CreateInstanceAsync(dialog.SelectedName, v.Name, dialog.SelectedIconKey);
+        }
+    }
+
     private async void OnBrowseGameDir(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel vm) return;

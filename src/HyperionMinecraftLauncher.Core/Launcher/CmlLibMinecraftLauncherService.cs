@@ -8,6 +8,7 @@ using CmlLib.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
@@ -30,6 +31,7 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     private readonly ILauncherProfilesStore _profilesStore;
     private readonly IServersStore _serversStore;
     private readonly INewsClient _newsClient;
+    private readonly IInstanceStore _instanceStore;
 
     /// <summary>Primary constructor used by the App and by tests.</summary>
     /// <param name="microsoftAuth">Optional Microsoft sign-in provider. When omitted, <see cref="AuthMode.Microsoft"/>
@@ -47,7 +49,8 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         IMinecraftInstallationLocator? installationLocator = null,
         ILauncherProfilesStore? profilesStore = null,
         IServersStore? serversStore = null,
-        INewsClient? newsClient = null)
+        INewsClient? newsClient = null,
+        IInstanceStore? instanceStore = null)
     {
         _underlying = underlying ?? throw new ArgumentNullException(nameof(underlying));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -57,6 +60,7 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         _profilesStore = profilesStore ?? new FileLauncherProfilesStore();
         _serversStore = serversStore ?? new FileServersStore();
         _newsClient = newsClient ?? new MojangNewsClient();
+        _instanceStore = instanceStore ?? new FileInstanceStore();
     }
 
     /// <summary>
@@ -73,6 +77,30 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         var news = await _newsClient.FetchAsync(cancellationToken).ConfigureAwait(false);
         _logger.Info($"Loaded {news.Count} news entries.");
         return news;
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Instance>> ListInstancesAsync(CancellationToken cancellationToken)
+    {
+        _logger.Info("Loading Hyperion instances ...");
+        var instances = await _instanceStore.LoadAllAsync(cancellationToken).ConfigureAwait(false);
+        _logger.Info($"Loaded {instances.Count} instances.");
+        return instances;
+    }
+
+    /// <inheritdoc />
+    public async Task SaveInstanceAsync(Instance instance, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(instance);
+        _logger.Info($"Saving instance '{instance.Name}' (id={instance.Id}, version={instance.VersionId}).");
+        await _instanceStore.SaveAsync(instance, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task DeleteInstanceAsync(string id, CancellationToken cancellationToken)
+    {
+        _logger.Info($"Deleting instance id={id}.");
+        await _instanceStore.DeleteAsync(id, cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc />

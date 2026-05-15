@@ -3,6 +3,23 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.0] - 2026-05-15
+
+### Added
+- **Instance grid + New Instance dialog** on the Installations page (replaces the read-only Mojang profiles view).
+- `Core/Instances/` module:
+  - `Instance` record - per-instance fields: `Id`, `Name`, `VersionId`, `Loader`, `LoaderVersion`, `IconKey`, `CreatedAt`, `LastPlayedAt`, `GameDirectory`, `JvmArguments`, `MinimumRamMb`, `MaximumRamMb`, `ResolutionWidth/Height`.
+  - `InstanceIcons` - 15 curated MC icon-key constants (grass, dirt, stone, chest, compass, ...).
+  - `IInstanceStore` + `FileInstanceStore` - one JSON file per instance under `%LOCALAPPDATA%\HyperionMinecraftLauncher\instances\{Id}.json`. Atomic writes (write-temp + rename). Load is tolerant of malformed entries.
+- `IMinecraftLauncherService` grows `ListInstancesAsync`, `SaveInstanceAsync`, `DeleteInstanceAsync`.
+- `MainViewModel` exposes `Instances` (ObservableCollection), `SelectedInstance`, `RefreshInstancesCommand`, `DeleteInstanceCommand`, and `CreateInstanceAsync(name, version, icon)`. Launch flow now prefers `SelectedInstance.VersionId` over the home page version pickers; on successful launch the instance's `LastPlayedAt` is stamped and the tile floats to the front of the grid.
+- `Views/NewInstanceDialog.axaml(.cs)` - custom-chrome modal with name, version dropdown (consumes `AvailableVersions`), and a 15-tile icon picker driven by `InstanceIcons.All`.
+- `IconKeyToUri` value converter resolves icon-key strings to bundled `avares://...Assets/Icons/MC/{key}.png` bitmaps.
+
+### Changed
+- The Installations page is now a `WrapPanel` ListBox of 130x148 tiles (icon + name + version), with "+ New Instance", "Refresh", and "Delete selected" buttons. Hover lift inherited from the existing `Classes="Card"` style.
+- Auto-refresh on startup now also loads instances (in addition to installed versions / profiles / servers / news / manifest).
+
 ## [0.23.0] - 2026-05-15
 
 ### Added
