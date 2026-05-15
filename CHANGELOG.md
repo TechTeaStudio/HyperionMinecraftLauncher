@@ -3,6 +3,13 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2026-05-15
+
+### Changed
+- **Font readability**: swapped the chunky pixel `IdreesInc/Minecraft-Font` for **`IdreesInc/Monocraft`** (same author, SIL OFL 1.1, monospaced face designed for legibility in code editors while keeping the Minecraft pixel idiom). The `{StaticResource MinecraftFont}` resource now resolves to Monocraft, so every existing XAML reference picks up the readable face without changes. The old pixel font is still bundled and exposed as `{StaticResource MinecraftPixelFont}` for any future decorative headlines that need the chunkier look.
+- `MainWindow.FontFamily="Inter, Segoe UI, system-ui"` so body text uses the existing `Avalonia.Fonts.Inter` package rather than the system default.
+- `<Version>` bumped to `0.12.0` in both shipping csproj files.
+
 ## [0.11.0] - 2026-05-15
 
 ### Fixed
