@@ -3,6 +3,15 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.0] - 2026-05-15
+
+### Added
+- **Hover and transition animations** across the chrome to give the launcher the same "this feels alive" polish as the official Mojang launcher:
+  - Sidebar nav radios: 180 ms `BrushTransition` on `Background` for smooth hover + selection-state crossfade.
+  - Launch button (`Classes="LaunchBtn"`): 180 ms `TransformOperationsTransition` scales to 1.05 on hover and 0.97 on press, plus a synchronous `BrushTransition` from the dark primary to the lighter primary - lifts off the page when you reach for it.
+  - Window-control buttons (min / max / close): 150 ms background fade. Close still flashes red on hover; min / max get a 20% white wash.
+  - Page panels (`Classes="Page"` on Home / Installations / Skins / Servers / News / Settings): 220 ms `DoubleTransition` on `Opacity`, easing out, applied when the panel becomes visible from a sidebar switch.
+
 ## [0.13.0] - 2026-05-15
 
 ### Changed
