@@ -3,6 +3,15 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.0] - 2026-05-15
+
+### Added
+- **Card hover-lift.** Every paper-brush card on Home / Installations / Servers / News / Settings now carries `Classes="Card"`; the new style runs a 160 ms `TransformOperationsTransition` + `BrushTransition` that translates the card up 2 px and brightens the surface when the pointer enters.
+- **Account-chip avatar tilt.** The player face in the header rotates `-8deg` and scales 1.08 on hover (200 ms `QuadraticEaseOut`). Tagged `Classes="Avatar"`.
+- **Sign-in / Sign-out chip buttons** (`Classes="ChipBtn"`) scale to 1.06 on hover - same family as the Launch button but gentler so the header doesn't jiggle aggressively.
+- **Sidebar nav tiles** now also translate 2 px to the right on hover (in addition to the existing background swap) for a more "alive" feel.
+- **ListBoxItem** hover background fades over 140 ms instead of snapping (Profiles list, Servers list).
+
 ## [0.22.0] - 2026-05-15
 
 ### Fixed
