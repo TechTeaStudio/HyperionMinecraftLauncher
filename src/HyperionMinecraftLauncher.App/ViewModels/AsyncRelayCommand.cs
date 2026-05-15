@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Avalonia.Threading;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 
@@ -53,7 +54,28 @@ public sealed class AsyncRelayCommand : ICommand
         }
     }
 
-    /// <summary>Notify the UI that the result of <see cref="CanExecute"/> may have changed.</summary>
+    /// <summary>
+    /// Notify the UI that the result of <see cref="CanExecute"/> may have changed.
+    /// Marshals to the UI thread when called from a background continuation - Avalonia's
+    /// <c>Button.CanExecuteChanged</c> handler reads <c>Button.Command</c> (a styled
+    /// property) which crashes with <c>InvalidOperationException: Call from invalid thread</c>
+    /// if raised off the dispatcher.
+    /// </summary>
     public void RaiseCanExecuteChanged()
-        => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+    {
+        var handler = CanExecuteChanged;
+        if (handler is null) return;
+
+        // Hot path: we're already on the UI thread (most synchronous setter paths). Fire inline
+        // so tests that assert state right after the call still see the event sequence.
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            handler(this, EventArgs.Empty);
+            return;
+        }
+
+        // Cold path: a continuation after `await ... ConfigureAwait(false)` is running on the
+        // threadpool. Post the event back to the UI thread.
+        Dispatcher.UIThread.Post(() => handler(this, EventArgs.Empty));
+    }
 }

@@ -68,9 +68,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
     /// <summary>True when the user is signed in via Microsoft (not offline).</summary>
     public bool IsSignedInOnline => _currentSession is { IsOffline: false };
 
-    /// <summary>Display label for the account chip: username when signed in, "Sign in" otherwise.</summary>
+    /// <summary>True when there is any session (offline or Microsoft). Drives the account-chip label visibility.</summary>
+    public bool HasSession => _currentSession is not null;
+
+    /// <summary>Display label for the account chip when a session exists. Empty when not signed in (the Sign-in button speaks for itself).</summary>
     public string AccountDisplay => _currentSession is null
-        ? "Sign in"
+        ? string.Empty
         : _currentSession.IsOffline
             ? $"Offline: {_currentSession.Username}"
             : _currentSession.Username;
@@ -84,6 +87,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             if (SetField(ref _currentSession, value))
             {
                 OnPropertyChanged(nameof(IsSignedInOnline));
+                OnPropertyChanged(nameof(HasSession));
                 OnPropertyChanged(nameof(AccountDisplay));
                 SignInMicrosoftCommand.RaiseCanExecuteChanged();
                 SignOutCommand.RaiseCanExecuteChanged();
