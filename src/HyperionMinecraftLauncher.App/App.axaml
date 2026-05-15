@@ -1,9 +1,48 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:themes="clr-namespace:Material.Styles.Themes;assembly=Material.Styles"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.App"
-             RequestedThemeVariant="Default">
+             RequestedThemeVariant="Dark">
+
+  <Application.Resources>
+    <FontFamily x:Key="MinecraftFont">avares://HyperionMinecraftLauncher/Assets/Fonts#Minecraft</FontFamily>
+    <FontFamily x:Key="MinecraftFontBold">avares://HyperionMinecraftLauncher/Assets/Fonts#Minecraft</FontFamily>
+  </Application.Resources>
 
   <Application.Styles>
-    <FluentTheme />
+    <!-- Material baseline. PrimaryColor/SecondaryColor only accept swatch names from
+         Material.Avalonia's bundled palette; the brush-resource overrides below tint
+         the Material brushes to a Minecraft palette without forking the library. -->
+    <themes:MaterialTheme BaseTheme="Dark" PrimaryColor="Green" SecondaryColor="Amber" />
+    <materialIcons:MaterialIconStyles />
+
+    <Style>
+      <Style.Resources>
+        <!-- Minecraft grass-block green as the primary brand. -->
+        <SolidColorBrush x:Key="MaterialPrimaryLightBrush"         Color="#5BA834" />
+        <SolidColorBrush x:Key="MaterialPrimaryMidBrush"           Color="#3F7E22" />
+        <SolidColorBrush x:Key="MaterialPrimaryDarkBrush"          Color="#2A5616" />
+        <SolidColorBrush x:Key="MaterialPrimaryMidForegroundBrush" Color="#FFFFFF" />
+
+        <!-- XP-bar yellow as the secondary accent. -->
+        <SolidColorBrush x:Key="MaterialSecondaryLightBrush"          Color="#FFE066" />
+        <SolidColorBrush x:Key="MaterialSecondaryMidBrush"            Color="#F7CA18" />
+        <SolidColorBrush x:Key="MaterialSecondaryDarkBrush"           Color="#B8930F" />
+        <SolidColorBrush x:Key="MaterialSecondaryMidForegroundBrush"  Color="#1B1B1F" />
+
+        <!-- Dark dirt/stone surfaces for the chrome. -->
+        <SolidColorBrush x:Key="MaterialBackgroundBrush"     Color="#1B1B1F" />
+        <SolidColorBrush x:Key="MaterialPaperBrush"          Color="#2A2A30" />
+        <SolidColorBrush x:Key="MaterialCardBackgroundBrush" Color="#2A2A30" />
+
+        <!-- Named app-level brushes for Minecraft block-tinted accents (XAML references via DynamicResource). -->
+        <SolidColorBrush x:Key="McGrassBrush"        Color="#5BA834" />
+        <SolidColorBrush x:Key="McDirtBrush"         Color="#8B5A2B" />
+        <SolidColorBrush x:Key="McCobblestoneBrush"  Color="#7F7F7F" />
+        <SolidColorBrush x:Key="McPlanksBrush"       Color="#A0763D" />
+        <SolidColorBrush x:Key="McXpYellowBrush"     Color="#F7CA18" />
+      </Style.Resources>
+    </Style>
   </Application.Styles>
 </Application>

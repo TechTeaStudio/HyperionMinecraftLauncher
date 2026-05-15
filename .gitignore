@@ -66,3 +66,6 @@ appsettings.Local.json
 # Claude Code artifacts
 CLAUDE.md
 .claude/
+
+# Raw asset drops at repo root - we copy only what's needed into src/.../Assets/.
+/assets/
