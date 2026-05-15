@@ -3,6 +3,12 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.1] - 2026-05-16
+
+### Changed
+- README rewritten in the TechTeaStudio house style: centered logo, badges (.NET 10, Avalonia 11.2.x, platform, build, license, test count), Highlights / How it compares / Configuration and storage / Project layout / Roadmap sections.
+- Added `icon.png` at the repo root (256x256 nearest-upscaled `grass_block_side`) so the README hero renders crisp on GitHub.
+
 ## [0.25.0] - 2026-05-15
 
 ### Changed
