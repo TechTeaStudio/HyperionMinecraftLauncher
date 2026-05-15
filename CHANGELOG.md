@@ -3,6 +3,11 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.2] - 2026-05-16
+
+### Changed
+- `.gitignore` now excludes `/.icon/` (local folder-icon build artifacts: `_build-folder-ico.ps1` script + generated `folder.ico`). `desktop.ini` was already covered by the OS-junk section.
+
 ## [0.25.1] - 2026-05-16
 
 ### Changed

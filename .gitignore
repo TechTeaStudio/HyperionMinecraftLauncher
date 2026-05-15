@@ -69,3 +69,4 @@ CLAUDE.md
 
 # Raw asset drops at repo root - we copy only what's needed into src/.../Assets/.
 /assets/
+/.icon/
