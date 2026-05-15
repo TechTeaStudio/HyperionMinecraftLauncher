@@ -1,13 +1,18 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Avalonia.Threading;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
 using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App.Views;
@@ -39,16 +44,46 @@ public partial class MainWindow : Window
         _ = _deviceCodeDialog.ShowDialog(this);
     }
 
-    private void OnVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private async void OnVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        // Once sign-in completes (HasSession flips from false to true), retire the modal.
-        if (e.PropertyName == nameof(MainViewModel.HasSession)
-            && sender is MainViewModel vm
-            && vm.HasSession
-            && _deviceCodeDialog is { } d)
+        if (e.PropertyName != nameof(MainViewModel.HasSession)
+            || sender is not MainViewModel vm
+            || !vm.HasSession)
+            return;
+
+        // Retire the device-code modal (auth completed).
+        if (_deviceCodeDialog is { } d)
         {
             d.Close();
             _deviceCodeDialog = null;
+        }
+
+        // If the session is online (Microsoft), fetch the user's real skin and push it
+        // into the 3D viewer so the Skins page shows their face instead of default Steve.
+        if (vm.IsSignedInOnline && vm.CurrentSession is { Uuid: { Length: > 0 } uuid })
+        {
+            await TryReplaceSkinFromMojangAsync(uuid).ConfigureAwait(false);
+        }
+    }
+
+    private async Task TryReplaceSkinFromMojangAsync(string uuid)
+    {
+        try
+        {
+            var fetcher = new MojangPlayerSkinFetcher();
+            var info = await fetcher.FetchAsync(uuid, CancellationToken.None).ConfigureAwait(false);
+            if (info is null || info.SkinPng.Length == 0) return;
+
+            // Marshal back to the UI thread before touching Avalonia controls.
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                using var ms = new MemoryStream(info.SkinPng);
+                SkinViewer.Skin = new Bitmap(ms);
+            });
+        }
+        catch
+        {
+            // Quietly keep the bundled Steve skin - the user's auth + launch still work.
         }
     }
 
