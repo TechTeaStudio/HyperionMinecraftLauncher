@@ -3,6 +3,15 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0] - 2026-05-15
+
+### Added
+- **Real player skin** in the 3D viewer after Microsoft sign-in. New `Core/Skins/` module:
+  - `PlayerSkinInfo` DTO (`SkinPng`, `IsSlim`, `CapePng`).
+  - `IPlayerSkinFetcher` interface.
+  - `MojangPlayerSkinFetcher` - hits `sessionserver.mojang.com/session/minecraft/profile/{uuid}?unsigned=false`, base64-decodes the `textures` property, downloads the skin and (if present) cape PNGs. Network / schema errors degrade silently.
+- `MainWindow` listens for `HasSession` flip to true; when the session is online (real Microsoft auth, not offline), it fetches the skin via UUID and pushes the bytes into `SkinViewer.Skin` on the UI thread. Offline sessions and signed-out states keep the bundled Steve.
+
 ## [0.18.0] - 2026-05-15
 
 ### Added
