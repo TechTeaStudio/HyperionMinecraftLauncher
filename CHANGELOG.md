@@ -3,6 +3,16 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.0] - 2026-05-15
+
+### Changed
+- **Replaced the home-rolled SkiaSharp 3D viewer** with the real GPU renderer from `Coloryr/MinecraftSkinRender.OpenGL` 1.2.0 (MIT, on NuGet). The old painter's-algorithm Skia approach had cracks between faces, no depth buffer and no overlay layers; the new path is proper OpenGL with depth-tested cubes, full base-layer + hat/jacket overlays, slim arms, cape, and built-in walking animation.
+- New control `AvaloniaSkinViewer : OpenGlControlBase` (in `Controls/SkinRender/`) wraps the renderer. Custom `AvaloniaGlApi : OpenGLApi` adapter routes every GL call through `Avalonia.OpenGL.GlInterface` - mostly via the strongly-typed methods, with `GetProcAddress` + delegate fallbacks for the few functions Avalonia 11.2 doesn't expose directly (`glDepthMask`, `glCullFace`, `glBlendFunc`, `glRenderbufferStorageMultisample`, `glBlitFramebuffer`, info-log helpers, etc.).
+- Mouse drag rotates the model, scroll wheel zooms. The renderer's `Tick(seconds)` is driven by a `DispatcherTimer` at ~30 fps for the walking animation.
+- New control exposes `SkinSource`, `CapeSource`, `Slim` styled properties; `MainWindow` forwards the bundled Steve PNG plus, when the user is signed in, the real skin + cape + slim-flag from `sessionserver.mojang.com`.
+- Bumped SkiaSharp to `3.119.2` (required by `MinecraftSkinRender` 1.2.0); old `SkinViewer3D.cs` deleted.
+- Enabled `<AllowUnsafeBlocks>` in the App csproj for the GL function-pointer marshalling.
+
 ## [0.19.0] - 2026-05-15
 
 ### Added
