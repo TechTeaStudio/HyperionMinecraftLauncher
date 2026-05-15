@@ -1,7 +1,11 @@
+using System;
 using System.Diagnostics;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App.Views;
@@ -11,6 +15,23 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        LoadDefaultSkin();
+    }
+
+    private void LoadDefaultSkin()
+    {
+        // Wire the bundled Steve PNG into the 3D viewer so the Skins page has something to draw
+        // even when the user is offline / not signed in. Microsoft sign-in will later fetch the
+        // user's real skin from sessionserver.mojang.com (planned in a follow-up).
+        try
+        {
+            using var stream = AssetLoader.Open(new Uri("avares://HyperionMinecraftLauncher/Assets/Icons/MC/steve.png"));
+            SkinViewer.Skin = new Bitmap(stream);
+        }
+        catch
+        {
+            // Asset loader failure - the viewer just shows an empty area.
+        }
     }
 
     // Custom title-bar: pointer down anywhere on the header (except on a button) starts a drag.

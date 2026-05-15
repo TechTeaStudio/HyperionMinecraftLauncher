@@ -3,6 +3,25 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.0] - 2026-05-15
+
+### Added
+- **3D player-skin viewer** on the Skins page (was a stub). `SkinViewer3D : Avalonia.Controls.Control` renders the full Minecraft player model - head, body, both arms, both legs - as 6 textured cuboids, drawn via `DrawingContext.Custom(...)` + `ISkiaSharpApiLeaseFeature` on the live Skia canvas. Mouse drag rotates the model (yaw + pitch). Pixels stay crisp (`SKFilterQuality.None`).
+- Implementation:
+  - World transform built with `SKMatrix44` (yaw -> pitch -> perspective via `[3,2] = -1/depth`).
+  - Each of the 36 faces gets a local matrix (rotate-to-face -> translate onto cuboid -> world). Combined matrix is flattened to `SKMatrix` and `canvas.Concat`-ed before drawing the face's UV sub-rect.
+  - Painter's algorithm sorts faces by their transformed Z so back faces draw first.
+  - Detects legacy 64x32 skins (height 32) and mirrors the right arm/leg into the left slots to avoid grey placeholder rectangles.
+  - Bundled Steve.png loaded by code-behind from `avares://...Assets/Icons/MC/steve.png` so the page is populated immediately.
+- Added explicit `SkiaSharp 2.88.9` reference so the package version is locked.
+- UV table for every cuboid follows the canonical Java 1.8+ skin spec (`https://minecraft.wiki/w/Skin`).
+
+### Known limitations (planned for follow-ups)
+- No second-layer overlay (hat / jacket / sleeves / pants) - draws only the base layer.
+- No cape support.
+- No slim-arm (Alex) detection - everyone renders with classic 4 px arms.
+- No fetch of the authenticated user's real skin - everyone sees Steve. Next step is to wire `MojangSkinFetcher` (decode the `textures` property from `sessionserver.mojang.com/session/minecraft/profile/{uuid}`).
+
 ## [0.14.0] - 2026-05-15
 
 ### Added
