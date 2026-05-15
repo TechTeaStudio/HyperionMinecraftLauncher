@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
@@ -32,6 +33,12 @@ public interface IMinecraftLauncherService
     /// Returns an empty list when the file is absent. Read-only - we don't write back into Mojang's own file.
     /// </summary>
     Task<IReadOnlyList<LauncherProfile>> ListProfilesAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Read the multiplayer server list (<c>servers.dat</c>) from the resolved <c>.minecraft</c> directory.
+    /// Returns an empty list when the file is absent or malformed.
+    /// </summary>
+    Task<IReadOnlyList<ServerListEntry>> ListServersAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Resolve a session from the supplied <paramref name="request"/>.

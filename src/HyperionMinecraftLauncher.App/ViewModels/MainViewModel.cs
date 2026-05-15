@@ -11,6 +11,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
@@ -51,10 +52,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
         AvailableVersions = new ObservableCollection<VersionMetadata>();
         InstalledVersions = new ObservableCollection<InstalledVersion>();
         Profiles = new ObservableCollection<LauncherProfile>();
+        Servers = new ObservableCollection<ServerListEntry>();
 
         RefreshVersionsCommand = new AsyncRelayCommand(RefreshVersionsAsync, () => !IsBusy);
         RefreshInstalledVersionsCommand = new AsyncRelayCommand(RefreshInstalledVersionsAsync, () => !IsBusy);
         RefreshProfilesCommand = new AsyncRelayCommand(RefreshProfilesAsync, () => !IsBusy);
+        RefreshServersCommand = new AsyncRelayCommand(RefreshServersAsync, () => !IsBusy);
         LaunchCommand = new AsyncRelayCommand(LaunchAsync, CanLaunch);
         SignInMicrosoftCommand = new AsyncRelayCommand(SignInMicrosoftAsync, () => !IsBusy && !IsSignedInOnline);
         SignOutCommand = new AsyncRelayCommand(SignOutAsync, () => !IsBusy && IsSignedInOnline);
@@ -106,6 +109,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     /// <summary>Profiles parsed from Mojang's <c>launcher_profiles.json</c>.</summary>
     public ObservableCollection<LauncherProfile> Profiles { get; }
+
+    /// <summary>Multiplayer servers parsed from <c>servers.dat</c>.</summary>
+    public ObservableCollection<ServerListEntry> Servers { get; }
 
     /// <summary>Currently-selected profile on the Installations page. Picking a profile pre-fills the launch context.</summary>
     public LauncherProfile? SelectedProfile
@@ -178,6 +184,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 RefreshVersionsCommand.RaiseCanExecuteChanged();
                 RefreshInstalledVersionsCommand.RaiseCanExecuteChanged();
                 RefreshProfilesCommand.RaiseCanExecuteChanged();
+                RefreshServersCommand.RaiseCanExecuteChanged();
                 LaunchCommand.RaiseCanExecuteChanged();
                 SignInMicrosoftCommand.RaiseCanExecuteChanged();
                 SignOutCommand.RaiseCanExecuteChanged();
@@ -218,6 +225,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncRelayCommand RefreshVersionsCommand { get; }
     public AsyncRelayCommand RefreshInstalledVersionsCommand { get; }
     public AsyncRelayCommand RefreshProfilesCommand { get; }
+    public AsyncRelayCommand RefreshServersCommand { get; }
     public AsyncRelayCommand LaunchCommand { get; }
     public AsyncRelayCommand SignInMicrosoftCommand { get; }
     public AsyncRelayCommand SignOutCommand { get; }
@@ -247,6 +255,30 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             Append($"[error] {ex.Message}");
             _logger.Warn($"RefreshVersions surfaced LauncherException to UI: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task RefreshServersAsync()
+    {
+        IsBusy = true;
+        try
+        {
+            Append("Reading servers.dat ...");
+            var servers = await _service.ListServersAsync(CancellationToken.None).ConfigureAwait(false);
+
+            Servers.Clear();
+            foreach (var s in servers)
+                Servers.Add(s);
+
+            Append($"Loaded {servers.Count} servers.");
+        }
+        catch (LauncherException ex)
+        {
+            Append($"[error] {ex.Message}");
         }
         finally
         {

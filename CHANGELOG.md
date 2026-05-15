@@ -3,6 +3,19 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-05-15
+
+### Added
+- Read-only support for the multiplayer server list (`servers.dat`). The Servers page is no longer a stub - it now lists every server saved by the in-game multiplayer screen with display name and host:port. Status pinging and add/edit/delete are planned for a later release.
+- `Core/Servers/` folder: `ServerListEntry` DTO (Name, Ip, IconBase64, AcceptTextures), `IServersStore` interface, `FileServersStore` implementation using `fNbt 1.0.0` to parse the uncompressed NBT.
+- `IMinecraftLauncherService.ListServersAsync(...)`; the view-model owns a `Servers` observable collection and a `RefreshServersCommand`.
+- 4 new tests in `FileServersStoreTests`: missing file returns empty, two entries round-trip name+ip, optional icon + acceptTextures round-trip correctly, corrupt file returns empty instead of throwing.
+
+### Changed
+- `Core.csproj` now depends on `fNbt 1.0.0` (NBT parser, no transitive deps, ~150 KB).
+- `CmlLibMinecraftLauncherService` constructor gains an optional `IServersStore` parameter (defaults to `FileServersStore`).
+- `<Version>` bumped to `0.7.0` in both shipping csproj files.
+
 ## [0.6.0] - 2026-05-15
 
 ### Added

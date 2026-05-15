@@ -9,6 +9,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
@@ -26,6 +27,7 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     private readonly IInstalledVersionScanner _installedScanner;
     private readonly IMinecraftInstallationLocator _installationLocator;
     private readonly ILauncherProfilesStore _profilesStore;
+    private readonly IServersStore _serversStore;
 
     /// <summary>Primary constructor used by the App and by tests.</summary>
     /// <param name="microsoftAuth">Optional Microsoft sign-in provider. When omitted, <see cref="AuthMode.Microsoft"/>
@@ -41,7 +43,8 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         IMicrosoftAuthService? microsoftAuth = null,
         IInstalledVersionScanner? installedScanner = null,
         IMinecraftInstallationLocator? installationLocator = null,
-        ILauncherProfilesStore? profilesStore = null)
+        ILauncherProfilesStore? profilesStore = null,
+        IServersStore? serversStore = null)
     {
         _underlying = underlying ?? throw new ArgumentNullException(nameof(underlying));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -49,6 +52,7 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         _installedScanner = installedScanner ?? new FileSystemInstalledVersionScanner();
         _installationLocator = installationLocator ?? new DefaultMinecraftInstallationLocator();
         _profilesStore = profilesStore ?? new FileLauncherProfilesStore();
+        _serversStore = serversStore ?? new FileServersStore();
     }
 
     /// <summary>
@@ -57,6 +61,16 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     /// </summary>
     public static CmlLibMinecraftLauncherService Create(ILauncherLogger logger, IMicrosoftAuthService? microsoftAuth = null)
         => new(new CmlLibUnderlyingLauncher(), logger, microsoftAuth);
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<ServerListEntry>> ListServersAsync(CancellationToken cancellationToken)
+    {
+        var install = _installationLocator.Locate();
+        _logger.Info($"Reading servers.dat from '{install.ServersDatPath}'.");
+        var servers = await _serversStore.LoadAsync(install.ServersDatPath, cancellationToken).ConfigureAwait(false);
+        _logger.Info($"Loaded {servers.Count} servers.");
+        return servers;
+    }
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<LauncherProfile>> ListProfilesAsync(CancellationToken cancellationToken)
