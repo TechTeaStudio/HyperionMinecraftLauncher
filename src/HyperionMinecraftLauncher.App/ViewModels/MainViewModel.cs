@@ -68,6 +68,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _settingsStore = settingsStore;
         _maxAllowedMemoryMb = SystemRam.RecommendedMaxHeapMb();
 
+        // MSAL device-code prompts come from a background thread; surface them in the UI log.
+        if (_microsoftAuth is not null)
+            _microsoftAuth.DeviceCodeRequested += OnDeviceCodeRequested;
+
         // Load persisted settings synchronously - the file is small. Defaults if absent / corrupt.
         var initial = settingsStore is null
             ? new LauncherSettings()
@@ -506,6 +510,17 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             IsBusy = false;
         }
+    }
+
+    private void OnDeviceCodeRequested(object? sender, MicrosoftDeviceCodeInfo info)
+    {
+        // The MSAL device-code callback runs off the UI thread. Marshal back so Append
+        // (which raises PropertyChanged on LogText) updates bindings cleanly.
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            Append($"Microsoft sign-in: open {info.VerificationUrl} and enter code {info.UserCode}");
+            Append("(Your default browser should have opened to that page automatically.)");
+        });
     }
 
     private async Task SignInMicrosoftAsync()

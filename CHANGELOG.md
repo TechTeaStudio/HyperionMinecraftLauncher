@@ -3,6 +3,16 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2026-05-15
+
+### Fixed
+- **Microsoft sign-in now works on Avalonia.** The default `XboxAuthNet` OAuth flow expects a WPF-hosted WebView2 instance, which Avalonia doesn't provide; sign-in failed with `"Current platform does not support to provide default WebUI."` Replaced the OAuth provider with `XboxAuthNet.Game.Msal.OAuth.MsalDeviceCodeProvider` (no native UI host required - Microsoft hands us a short device code, we open the verification page in the user's default browser, MSAL polls until the user finishes). MSAL's own token cache lives in `%LOCALAPPDATA%\.IdentityService\`, so subsequent launches sign in silently with no prompt.
+
+### Added
+- `MicrosoftDeviceCodeInfo` DTO (`UserCode`, `VerificationUrl`, `Message`) + `IMicrosoftAuthService.DeviceCodeRequested` event. The view-model subscribes and appends the code to the launcher log (marshalled to the UI thread via `Dispatcher.UIThread.Post`).
+- `MicrosoftAuthService` now uses the Mojang/Minecraft MSAL client_id `499c8d36-be2a-4231-9ebd-ef291b7bb64c`; account cache at `%LOCALAPPDATA%\HyperionMinecraftLauncher\accounts.json` unchanged.
+- `XboxAuthNet.Game.Msal 0.1.3` added to App.
+
 ## [0.10.1] - 2026-05-15
 
 ### Fixed

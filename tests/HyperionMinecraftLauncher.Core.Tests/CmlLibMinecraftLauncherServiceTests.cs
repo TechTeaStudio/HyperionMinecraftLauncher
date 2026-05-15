@@ -390,7 +390,13 @@ internal sealed class FakeMicrosoftAuthService : IMicrosoftAuthService
     public bool SignInInteractiveCalled { get; private set; }
     public bool SignOutCalled { get; private set; }
 
+    public event EventHandler<MicrosoftDeviceCodeInfo>? DeviceCodeRequested;
+
     public bool HasCachedAccount => HasCachedAccountValue;
+
+    /// <summary>Test helper: simulate a device-code prompt to subscribers.</summary>
+    public void RaiseDeviceCodeRequested(MicrosoftDeviceCodeInfo info)
+        => DeviceCodeRequested?.Invoke(this, info);
 
     public Task<AuthResult> SignInAsync(CancellationToken cancellationToken)
     {
