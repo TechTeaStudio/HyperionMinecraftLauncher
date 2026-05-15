@@ -6,8 +6,13 @@
              RequestedThemeVariant="Dark">
 
   <Application.Resources>
-    <FontFamily x:Key="MinecraftFont">avares://HyperionMinecraftLauncher/Assets/Fonts#Minecraft</FontFamily>
-    <FontFamily x:Key="MinecraftFontBold">avares://HyperionMinecraftLauncher/Assets/Fonts#Minecraft</FontFamily>
+    <!-- "MinecraftFont" used to point at the chunky pixel face; we swapped it to Monocraft
+         (same author, SIL OFL, monospaced) because the pixel face was unreadable in chrome
+         at 11-14 px. The pixel face is still available under "MinecraftPixelFont" for big
+         decorative headings if anyone wants it. -->
+    <FontFamily x:Key="MinecraftFont">avares://HyperionMinecraftLauncher/Assets/Fonts#Monocraft</FontFamily>
+    <FontFamily x:Key="MinecraftFontBold">avares://HyperionMinecraftLauncher/Assets/Fonts#Monocraft</FontFamily>
+    <FontFamily x:Key="MinecraftPixelFont">avares://HyperionMinecraftLauncher/Assets/Fonts#Minecraft</FontFamily>
   </Application.Resources>
 
   <Application.Styles>
