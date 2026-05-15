@@ -4,8 +4,11 @@ using Avalonia.Markup.Xaml;
 using TechTeaStudio.HyperionMinecraftLauncher.App.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 using TechTeaStudio.HyperionMinecraftLauncher.App.Views;
+using System.Net.Http;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Settings;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App;
@@ -27,7 +30,18 @@ public partial class App : Application
 
             var microsoftAuth = new MicrosoftAuthService(logger);
             var settingsStore = new FileLauncherSettingsStore();
-            var service = CmlLibMinecraftLauncherService.Create(logger, microsoftAuth);
+
+            // Shared disk cache for news, player skins, and anything else network-bound.
+            // News re-fetches at most once per hour; skins for 6 h; stale entries are also served
+            // on network failure so the launcher stays usable offline.
+            var cache = new FileCache();
+            var httpClient = new System.Net.Http.HttpClient { Timeout = System.TimeSpan.FromSeconds(15) };
+            var newsClient = new MojangNewsClient(httpClient, cache);
+
+            var service = new CmlLibMinecraftLauncherService(
+                new CmlLibUnderlyingLauncher(), logger, microsoftAuth,
+                newsClient: newsClient);
+
             var viewModel = new MainViewModel(service, logger, microsoftAuth, settingsStore);
 
             desktop.MainWindow = new MainWindow

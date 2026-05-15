@@ -132,6 +132,26 @@ public sealed class MicrosoftAuthService : IMicrosoftAuthService
     }
 
     /// <inheritdoc />
+    public async Task<AuthResult> SignInSilentlyAsync(CancellationToken cancellationToken)
+    {
+        _logger.Info("Microsoft sign-in: silent-only.");
+        try
+        {
+            var session = await _handler.AuthenticateSilently(cancellationToken).ConfigureAwait(false);
+            return ToAuthResult(session);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            // Silent failure is expected on first launch / when refresh-token expired.
+            throw new AuthenticationFailedException($"Silent sign-in unavailable: {ex.Message}", ex);
+        }
+    }
+
+    /// <inheritdoc />
     public async Task<AuthResult> SignInInteractiveAsync(CancellationToken cancellationToken)
     {
         _logger.Info("Microsoft sign-in: forced device-code (MSAL).");
