@@ -11,6 +11,8 @@ using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Threading;
+using MinecraftSkinRender.Image;
+using SkiaSharp;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
@@ -82,14 +84,7 @@ public partial class MainWindow : Window
             // Marshal back to the UI thread before touching Avalonia controls.
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                using var ms = new MemoryStream(info.SkinPng);
-                SkinViewer.SkinSource = new Bitmap(ms);
-                SkinViewer.Slim = info.IsSlim;
-                if (info.CapePng is { Length: > 0 } capeBytes)
-                {
-                    using var capeMs = new MemoryStream(capeBytes);
-                    SkinViewer.CapeSource = new Bitmap(capeMs);
-                }
+                ApplySkinBytes(info.SkinPng);
             });
         }
         catch
@@ -100,17 +95,47 @@ public partial class MainWindow : Window
 
     private void LoadDefaultSkin()
     {
-        // Wire the bundled Steve PNG into the 3D viewer so the Skins page has something to draw
-        // even when the user is offline / not signed in. Microsoft sign-in will later fetch the
-        // user's real skin from sessionserver.mojang.com (planned in a follow-up).
+        // The bundled Steve PNG drives the Skins page and the account-chip avatar until
+        // Microsoft sign-in fetches the user's own skin.
         try
         {
             using var stream = AssetLoader.Open(new Uri("avares://HyperionMinecraftLauncher/Assets/Icons/MC/steve.png"));
-            SkinViewer.SkinSource = new Bitmap(stream);
+            var memoryBytes = new MemoryStream();
+            stream.CopyTo(memoryBytes);
+            ApplySkinBytes(memoryBytes.ToArray());
         }
         catch
         {
-            // Asset loader failure - the viewer just shows an empty area.
+            // Asset loader failure - SkinViewer + avatar stay empty.
+        }
+    }
+
+    /// <summary>Push a raw skin PNG into the Skins page preview AND into the account-chip avatar.</summary>
+    private void ApplySkinBytes(byte[] png)
+    {
+        if (png.Length == 0) return;
+        try
+        {
+            // Feed the full skin to the Skins-page preview.
+            using (var ms = new MemoryStream(png))
+                SkinViewer.SkinSource = new Bitmap(ms);
+
+            // Build the chip avatar: crop the 8x8 face from the skin, then re-encode as PNG for
+            // an Avalonia Bitmap. `Skin2DHeadTypeA.MakeHeadImage` returns the 2-layer-merged head,
+            // which is exactly what every other launcher shows in the corner.
+            using var sk = SKBitmap.Decode(png);
+            if (sk is null) return;
+            using var head = Skin2DHeadTypeA.MakeHeadImage(sk);
+            using var data = head.Encode(SKEncodedImageFormat.Png, 100);
+            using var headStream = data.AsStream();
+            var avatar = new Bitmap(headStream);
+
+            if (DataContext is MainViewModel vm)
+                vm.AvatarBitmap = avatar;
+        }
+        catch
+        {
+            // Bad skin bytes - SkinViewer stays on the previous image, avatar untouched.
         }
     }
 

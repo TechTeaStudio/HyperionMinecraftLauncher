@@ -3,6 +3,16 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.1] - 2026-05-15
+
+### Fixed
+- **Skins page no longer renders blank** (GL_INVALID_OPERATION spam in stderr was 1282/1282/1282). The OpenGL adapter against `MinecraftSkinRender.OpenGL` choked on functions Avalonia's GLES context doesn't expose; rather than fight `glTexStorage2DMultisample` availability and ANGLE quirks, the page now uses Coloryr's pure-Skia path: `MinecraftSkinRender.Image` renders a 3D-perspective head (Skin3DHeadTypeB) and a 2D full-body sprite (Skin2DTypeA) into PNGs, displayed side-by-side via a new `SkinPreview` UserControl. No GL context required, no GL errors. Loses mouse-rotation; gains correct rendering.
+- **Account-chip avatar now updates to the real player skin** after Microsoft sign-in. The chip used to hard-code the bundled `steve_face_with_hat.png` asset URI; it now binds to `MainViewModel.AvatarBitmap`, which `MainWindow.ApplySkinBytes` populates by cropping the 8x8 head face (via `Skin2DHeadTypeA.MakeHeadImage`) from whichever skin is active - default Steve at launch, user's real face after sign-in / cache hit.
+
+### Removed
+- `Controls/SkinRender/` (broken OpenGL adapter + the unused ColorMC license file).
+- `MinecraftSkinRender.OpenGL` and the `<AllowUnsafeBlocks>` toggle - no longer needed.
+
 ## [0.21.0] - 2026-05-15
 
 ### Added

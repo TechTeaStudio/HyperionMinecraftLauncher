@@ -4,7 +4,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels"
         xmlns:controls="using:TechTeaStudio.HyperionMinecraftLauncher.App.Controls"
-        xmlns:skinRender="using:TechTeaStudio.HyperionMinecraftLauncher.App.Controls.SkinRender"
         xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.MainWindow"
@@ -70,8 +69,9 @@
         <Border Grid.Column="2" CornerRadius="16" Padding="8,4" Margin="0,0,8,0"
                 Background="{DynamicResource MaterialPrimaryMidBrush}">
           <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-            <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/steve_face_with_hat.png"
-                   Width="22" Height="22" />
+            <Image Source="{Binding AvatarBitmap}"
+                   Width="22" Height="22"
+                   RenderOptions.BitmapInterpolationMode="None" />
             <TextBlock Text="{Binding AccountDisplay}" Foreground="White" VerticalAlignment="Center"
                        FontSize="12"
                        IsVisible="{Binding HasSession}" />
@@ -328,7 +328,7 @@
         </StackPanel>
         <Border Grid.Row="1" CornerRadius="4"
                 Background="{DynamicResource MaterialPaperBrush}">
-          <skinRender:AvaloniaSkinViewer x:Name="SkinViewer" Cursor="SizeAll" />
+          <controls:SkinPreview x:Name="SkinViewer" />
         </Border>
       </Grid>
 

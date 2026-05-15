@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Media.Imaging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
@@ -54,6 +55,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private bool _isBusy;
     private AuthResult? _currentSession;
     private NavSection _selectedSection = NavSection.Home;
+    private Bitmap? _avatarBitmap;
 
     /// <summary>Construct with the launcher service and (optional) Microsoft auth provider + settings store.</summary>
     public MainViewModel(
@@ -102,6 +104,17 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     /// <summary>True when there is any session (offline or Microsoft). Drives the account-chip label visibility.</summary>
     public bool HasSession => _currentSession is not null;
+
+    /// <summary>
+    /// Avatar bitmap shown in the header account chip and the sidebar. The View pushes this
+    /// after a skin is loaded - either the bundled Steve face on startup, or the head face
+    /// cropped from the user's real skin after Microsoft sign-in.
+    /// </summary>
+    public Bitmap? AvatarBitmap
+    {
+        get => _avatarBitmap;
+        set => SetField(ref _avatarBitmap, value);
+    }
 
     /// <summary>Display label for the account chip when a session exists. Empty when not signed in (the Sign-in button speaks for itself).</summary>
     public string AccountDisplay => _currentSession is null
