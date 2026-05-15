@@ -3,6 +3,17 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.0] - 2026-05-15
+
+### Changed
+- **Instances and Installed Versions unified into a single concept.** The Home page combobox now binds to `Instances` (the same source as the Installations grid) instead of the parallel `InstalledVersions` list, and every version found under `.minecraft/versions/` that isn't already covered by a user-created instance is surfaced as an auto-imported entry. One source of truth, one place to launch from.
+  - `Instance` record grows `IsAutoImported` (true for synthesised entries) and a `DisplayText` computed property (single-bind safe for ComboBox closed-state).
+  - `RefreshInstancesAsync` now also calls `ListInstalledVersionsAsync`, merges by `VersionId`, and keeps `InstalledVersions` populated for the legacy `SelectedProfile` cross-reference path. Auto-imported instances get a sensible default icon based on detected loader (`cobblestone` for Forge/NeoForge, `oak_planks` for Fabric/Quilt, `grass_block_side` for vanilla).
+  - `DeleteInstanceCommand.CanExecute` returns false when the selected instance is auto-imported (the version folder belongs to the official launcher; we don't touch it). The actual delete handler short-circuits with a friendly log line as well.
+  - On Launch, auto-imported instances no longer get a `SaveInstanceAsync` for the `LastPlayedAt` stamp - the bump still happens in-memory so the tile floats to the front, but we don't write a JSON file for an instance we didn't create.
+  - Installations grid shows a small "auto" pill (top-right of the tile) on auto-imported entries so the distinction is visible at a glance.
+- Startup refresh no longer calls `RefreshInstalledVersionsAsync` separately - `RefreshInstancesAsync` now covers both paths.
+
 ## [0.24.0] - 2026-05-15
 
 ### Added

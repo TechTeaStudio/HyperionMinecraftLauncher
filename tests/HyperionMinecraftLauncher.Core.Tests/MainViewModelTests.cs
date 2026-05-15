@@ -267,6 +267,102 @@ public class MainViewModelTests
     }
 
     [Fact]
+    public async Task RefreshInstances_MergesInstalledVersionsAsAutoImported()
+    {
+        var vm = NewVm(out var service, out _);
+        service.InstancesToReturn = new[]
+        {
+            new TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Instance
+            {
+                Id = "saved-1", Name = "My modpack", VersionId = "1.21.4",
+            },
+        };
+        service.InstalledVersionsToReturn = new[]
+        {
+            // Same VersionId as the saved instance - must NOT be duplicated.
+            new TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.InstalledVersion
+            {
+                Id = "1.21.4", Type = "release", JsonPath = "X",
+            },
+            // Not covered by any saved instance - must show up as auto-imported.
+            new TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.InstalledVersion
+            {
+                Id = "1.20.4", Type = "release", JsonPath = "X",
+            },
+        };
+
+        await vm.RefreshInstancesCommand.ExecuteAsync();
+
+        Assert.Equal(2, vm.Instances.Count);
+        // Saved comes first, then the auto-imported entry the user never created.
+        Assert.False(vm.Instances[0].IsAutoImported);
+        Assert.Equal("saved-1", vm.Instances[0].Id);
+        Assert.True(vm.Instances[1].IsAutoImported);
+        Assert.Equal("1.20.4", vm.Instances[1].VersionId);
+        Assert.Contains("+1 auto-imported", vm.LogText);
+        // InstalledVersions still populated for the SelectedProfile cross-reference.
+        Assert.Equal(2, vm.InstalledVersions.Count);
+    }
+
+    [Fact]
+    public async Task DeleteCommand_DisabledForAutoImportedInstance()
+    {
+        var vm = NewVm(out var service, out _);
+        service.InstalledVersionsToReturn = new[]
+        {
+            new TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.InstalledVersion
+            {
+                Id = "1.21.5", Type = "release", JsonPath = "X",
+            },
+        };
+        await vm.RefreshInstancesCommand.ExecuteAsync();
+
+        Assert.Single(vm.Instances);
+        vm.SelectedInstance = vm.Instances[0];
+        Assert.True(vm.SelectedInstance.IsAutoImported);
+        Assert.False(vm.DeleteInstanceCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public void DeleteCommand_EnabledForSavedInstance()
+    {
+        var vm = NewVm(out _, out _);
+        vm.Instances.Add(new TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Instance
+        {
+            Id = "real", Name = "Real", VersionId = "1.21.5",
+        });
+        vm.SelectedInstance = vm.Instances[0];
+
+        Assert.False(vm.SelectedInstance.IsAutoImported);
+        Assert.True(vm.DeleteInstanceCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public async Task LaunchAsync_AutoImportedInstance_DoesNotPersistLastPlayedAt()
+    {
+        var vm = NewVm(out var service, out _);
+        service.InstalledVersionsToReturn = new[]
+        {
+            new TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.InstalledVersion
+            {
+                Id = "1.21.5", Type = "release", JsonPath = "X",
+            },
+        };
+        service.LaunchResultToReturn = new LaunchResult { ProcessId = 7, VersionName = "1.21.5" };
+
+        await vm.RefreshInstancesCommand.ExecuteAsync();
+        vm.SelectedInstance = vm.Instances[0];
+        Assert.True(vm.SelectedInstance.IsAutoImported);
+
+        await vm.LaunchCommand.ExecuteAsync();
+
+        // The store must not have received a SaveInstanceAsync for an auto-imported entry.
+        Assert.Null(service.LastSavedInstance);
+        // But the in-memory tile still got the LastPlayedAt bump.
+        Assert.NotNull(vm.Instances[0].LastPlayedAt);
+    }
+
+    [Fact]
     public async Task LaunchAsync_PrefersSelectedInstalledVersionOverManifest()
     {
         var vm = NewVm(out var service, out _);
