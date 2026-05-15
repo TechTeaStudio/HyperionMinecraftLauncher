@@ -20,20 +20,28 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
 {
     private readonly IUnderlyingLauncher _underlying;
     private readonly ILauncherLogger _logger;
+    private readonly IMicrosoftAuthService? _microsoftAuth;
 
     /// <summary>Primary constructor used by the App and by tests.</summary>
-    public CmlLibMinecraftLauncherService(IUnderlyingLauncher underlying, ILauncherLogger logger)
+    /// <param name="microsoftAuth">Optional Microsoft sign-in provider. When omitted, <see cref="AuthMode.Microsoft"/>
+    /// requests throw with a friendly "not configured" message - useful in headless / test contexts that don't
+    /// link the WebView2-dependent <c>MicrosoftAuthService</c>.</param>
+    public CmlLibMinecraftLauncherService(
+        IUnderlyingLauncher underlying,
+        ILauncherLogger logger,
+        IMicrosoftAuthService? microsoftAuth = null)
     {
         _underlying = underlying ?? throw new ArgumentNullException(nameof(underlying));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _microsoftAuth = microsoftAuth;
     }
 
     /// <summary>
     /// Convenience factory: wire a real <see cref="CmlLibUnderlyingLauncher"/> with the platform-default
     /// <c>.minecraft</c> directory. Used by the App's manual DI in <c>App.axaml.cs</c>.
     /// </summary>
-    public static CmlLibMinecraftLauncherService Create(ILauncherLogger logger)
-        => new(new CmlLibUnderlyingLauncher(), logger);
+    public static CmlLibMinecraftLauncherService Create(ILauncherLogger logger, IMicrosoftAuthService? microsoftAuth = null)
+        => new(new CmlLibUnderlyingLauncher(), logger, microsoftAuth);
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<VersionMetadata>> ListVersionsAsync(CancellationToken cancellationToken)
@@ -64,14 +72,16 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     }
 
     /// <inheritdoc />
-    public Task<AuthResult> AuthenticateAsync(AuthRequest request, CancellationToken cancellationToken)
+    public async Task<AuthResult> AuthenticateAsync(AuthRequest request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (string.IsNullOrWhiteSpace(request.Username))
+        // For Microsoft mode the username comes from the OAuth-issued profile, not the request.
+        // We only require a username for offline play.
+        if (request.Mode == AuthMode.Offline && string.IsNullOrWhiteSpace(request.Username))
         {
-            var ex = new AuthenticationFailedException("Username is required for authentication.");
-            _logger.Error("AuthenticateAsync rejected: empty username.", ex);
+            var ex = new AuthenticationFailedException("Username is required for offline authentication.");
+            _logger.Error("AuthenticateAsync rejected: empty username (offline).", ex);
             throw ex;
         }
 
@@ -80,28 +90,54 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
             case AuthMode.Offline:
                 var session = MSession.CreateOfflineSession(request.Username);
                 _logger.Info($"Offline session created for '{request.Username}'.");
-                return Task.FromResult(new AuthResult
+                return new AuthResult
                 {
                     Username = session.Username ?? request.Username,
                     Uuid = session.UUID ?? string.Empty,
                     AccessToken = session.AccessToken ?? string.Empty,
                     IsOffline = true,
-                });
+                };
 
             case AuthMode.Microsoft:
             {
-                var ex = new AuthenticationFailedException(
-                    "Microsoft account authentication is not implemented in v0.1. " +
-                    "It requires an Azure-app Client ID; tracked for v0.2. Use AuthMode.Offline for now.");
-                _logger.Error("AuthenticateAsync rejected: Microsoft auth not implemented.", ex);
-                throw ex;
+                if (_microsoftAuth is null)
+                {
+                    var ex = new AuthenticationFailedException(
+                        "Microsoft sign-in is not configured: no IMicrosoftAuthService was injected. " +
+                        "The desktop App wires this up via MicrosoftAuthService; headless / test contexts must " +
+                        "supply their own implementation or use AuthMode.Offline.");
+                    _logger.Error("AuthenticateAsync rejected: Microsoft auth not configured.", ex);
+                    throw ex;
+                }
+
+                _logger.Info("Microsoft sign-in: delegating to IMicrosoftAuthService.");
+                try
+                {
+                    var result = await _microsoftAuth.SignInAsync(cancellationToken).ConfigureAwait(false);
+                    _logger.Info($"Microsoft sign-in succeeded for '{result.Username}'.");
+                    return result;
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (AuthenticationFailedException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    var wrapped = new AuthenticationFailedException($"Microsoft sign-in failed: {ex.Message}", ex);
+                    _logger.Error("Microsoft sign-in failed.", wrapped);
+                    throw wrapped;
+                }
             }
 
             case AuthMode.Mojang:
             {
                 var ex = new AuthenticationFailedException(
                     "Mojang username+password authentication was discontinued by Mojang in 2022 " +
-                    "and is not supported by this launcher. Use AuthMode.Offline.");
+                    "and is not supported by this launcher. Use AuthMode.Microsoft or AuthMode.Offline.");
                 _logger.Error("AuthenticateAsync rejected: Mojang auth removed upstream.", ex);
                 throw ex;
             }

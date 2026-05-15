@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using TechTeaStudio.HyperionMinecraftLauncher.App.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 using TechTeaStudio.HyperionMinecraftLauncher.App.Views;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
@@ -23,7 +24,8 @@ public partial class App : Application
             var logger = new FileLauncherLogger(DefaultLogDirectory.Resolve());
             logger.Info("HyperionMinecraftLauncher starting.");
 
-            var service = CmlLibMinecraftLauncherService.Create(logger);
+            var microsoftAuth = new MicrosoftAuthService(logger);
+            var service = CmlLibMinecraftLauncherService.Create(logger, microsoftAuth);
             var viewModel = new MainViewModel(service, logger);
 
             desktop.MainWindow = new MainWindow

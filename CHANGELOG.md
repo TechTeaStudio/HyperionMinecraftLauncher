@@ -3,6 +3,17 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-05-15
+
+### Added
+- Real Microsoft account sign-in via `CmlLib.Core.Auth.Microsoft 3.3.1` (Java Edition: Microsoft OAuth -> Xbox Live -> XSTS -> Minecraft Services -> profile fetch). On Windows the default flow uses WebView2; the account cache is stored at `%LOCALAPPDATA%\HyperionMinecraftLauncher\accounts.json` (separate from the official launcher's `launcher_accounts.json` to avoid stepping on each other).
+- `IMicrosoftAuthService` in `HyperionMinecraftLauncher.Core` (interface; portable). Concrete `MicrosoftAuthService` in `HyperionMinecraftLauncher.App` wraps `JELoginHandler` and translates exceptions into the existing `AuthenticationFailedException`. Tests substitute a `FakeMicrosoftAuthService` so the cross-platform Core test suite never pulls in WebView2.
+- `CmlLibMinecraftLauncherService` now takes an optional `IMicrosoftAuthService` and delegates the `AuthMode.Microsoft` branch to it. Without an injected provider, the Microsoft branch still throws a friendly "not configured" message (so headless test contexts work unchanged).
+
+### Changed
+- `<Version>` bumped to `0.3.0` in both `HyperionMinecraftLauncher.Core.csproj` and `HyperionMinecraftLauncher.App.csproj`.
+- `AuthenticateAsync` no longer rejects an empty username for `AuthMode.Microsoft` (the OAuth-issued profile supplies it). Offline mode still requires one.
+
 ## [0.2.0] - 2026-05-15
 
 ### Added

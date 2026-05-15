@@ -65,15 +65,87 @@ public class CmlLibMinecraftLauncherServiceTests
     }
 
     [Fact]
-    public async Task AuthenticateAsync_Microsoft_ThrowsWithFriendlyMessage()
+    public async Task AuthenticateAsync_Microsoft_WithoutProvider_ThrowsFriendly()
     {
         var service = new CmlLibMinecraftLauncherService(new FakeUnderlyingLauncher(), new RecordingLogger());
 
         var ex = await Assert.ThrowsAsync<AuthenticationFailedException>(
             () => service.AuthenticateAsync(new AuthRequest { Mode = AuthMode.Microsoft, Username = "Steve" }, CancellationToken.None));
 
-        Assert.Contains("Microsoft", ex.Message);
-        Assert.Contains("v0.2", ex.Message);
+        Assert.Contains("Microsoft sign-in is not configured", ex.Message);
+        Assert.Contains("IMicrosoftAuthService", ex.Message);
+    }
+
+    [Fact]
+    public async Task AuthenticateAsync_Microsoft_WithProvider_DelegatesAndReturnsAuthResult()
+    {
+        var fakeAuth = new FakeMicrosoftAuthService
+        {
+            ResultToReturn = new AuthResult
+            {
+                Username = "Notch",
+                Uuid = "069a79f444e94726a5befca90e38aaf5",
+                AccessToken = "eyJraWQiOi...redacted...",
+                IsOffline = false,
+            },
+        };
+        var logger = new RecordingLogger();
+        var service = new CmlLibMinecraftLauncherService(new FakeUnderlyingLauncher(), logger, fakeAuth);
+
+        // Microsoft mode does NOT require the request username (OAuth supplies it).
+        var result = await service.AuthenticateAsync(new AuthRequest { Mode = AuthMode.Microsoft, Username = "" }, CancellationToken.None);
+
+        Assert.Equal("Notch", result.Username);
+        Assert.Equal("069a79f444e94726a5befca90e38aaf5", result.Uuid);
+        Assert.False(result.IsOffline);
+        Assert.True(fakeAuth.SignInCalled);
+        Assert.Contains(logger.InfoEntries, e => e.Contains("Notch"));
+    }
+
+    [Fact]
+    public async Task AuthenticateAsync_Microsoft_AuthenticationFailedFromProvider_PropagatesUnwrapped()
+    {
+        var fakeAuth = new FakeMicrosoftAuthService
+        {
+            ThrowOnSignIn = new AuthenticationFailedException("WebView2 closed by user"),
+        };
+        var service = new CmlLibMinecraftLauncherService(new FakeUnderlyingLauncher(), new RecordingLogger(), fakeAuth);
+
+        var ex = await Assert.ThrowsAsync<AuthenticationFailedException>(
+            () => service.AuthenticateAsync(new AuthRequest { Mode = AuthMode.Microsoft, Username = "" }, CancellationToken.None));
+
+        Assert.Equal("WebView2 closed by user", ex.Message);
+    }
+
+    [Fact]
+    public async Task AuthenticateAsync_Microsoft_GenericExceptionFromProvider_WrappedAsAuthenticationFailed()
+    {
+        var fakeAuth = new FakeMicrosoftAuthService
+        {
+            ThrowOnSignIn = new InvalidOperationException("xbox token rejected"),
+        };
+        var logger = new RecordingLogger();
+        var service = new CmlLibMinecraftLauncherService(new FakeUnderlyingLauncher(), logger, fakeAuth);
+
+        var ex = await Assert.ThrowsAsync<AuthenticationFailedException>(
+            () => service.AuthenticateAsync(new AuthRequest { Mode = AuthMode.Microsoft, Username = "" }, CancellationToken.None));
+
+        Assert.IsType<InvalidOperationException>(ex.InnerException);
+        Assert.Contains("xbox token rejected", ex.Message);
+        Assert.NotEmpty(logger.ErrorEntries);
+    }
+
+    [Fact]
+    public async Task AuthenticateAsync_Microsoft_CancellationPropagates()
+    {
+        var fakeAuth = new FakeMicrosoftAuthService
+        {
+            ThrowOnSignIn = new OperationCanceledException(),
+        };
+        var service = new CmlLibMinecraftLauncherService(new FakeUnderlyingLauncher(), new RecordingLogger(), fakeAuth);
+
+        await Assert.ThrowsAsync<OperationCanceledException>(
+            () => service.AuthenticateAsync(new AuthRequest { Mode = AuthMode.Microsoft, Username = "" }, CancellationToken.None));
     }
 
     [Fact]
@@ -299,6 +371,45 @@ internal sealed class FakeUnderlyingLauncher : IUnderlyingLauncher
 
         if (ThrowOnStart is not null) throw ThrowOnStart;
         return Task.FromResult(ProcessIdToReturn);
+    }
+}
+
+internal sealed class FakeMicrosoftAuthService : IMicrosoftAuthService
+{
+    public AuthResult ResultToReturn { get; set; } = new()
+    {
+        Username = "FakeUser",
+        Uuid = "00000000000000000000000000000000",
+        AccessToken = "fake-token",
+        IsOffline = false,
+    };
+    public Exception? ThrowOnSignIn { get; set; }
+    public bool HasCachedAccountValue { get; set; }
+
+    public bool SignInCalled { get; private set; }
+    public bool SignInInteractiveCalled { get; private set; }
+    public bool SignOutCalled { get; private set; }
+
+    public bool HasCachedAccount => HasCachedAccountValue;
+
+    public Task<AuthResult> SignInAsync(CancellationToken cancellationToken)
+    {
+        SignInCalled = true;
+        if (ThrowOnSignIn is not null) throw ThrowOnSignIn;
+        return Task.FromResult(ResultToReturn);
+    }
+
+    public Task<AuthResult> SignInInteractiveAsync(CancellationToken cancellationToken)
+    {
+        SignInInteractiveCalled = true;
+        if (ThrowOnSignIn is not null) throw ThrowOnSignIn;
+        return Task.FromResult(ResultToReturn);
+    }
+
+    public Task SignOutAsync(CancellationToken cancellationToken)
+    {
+        SignOutCalled = true;
+        return Task.CompletedTask;
     }
 }
 
