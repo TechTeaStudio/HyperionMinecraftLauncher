@@ -2,10 +2,12 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
@@ -13,42 +15,92 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 namespace TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 
 /// <summary>
-/// View-model behind <c>MainWindow.axaml</c>. Owns username, version selection, log text,
-/// and the two commands the window exposes (<see cref="RefreshVersionsCommand"/> and
-/// <see cref="LaunchCommand"/>).
+/// View-model behind <c>MainWindow.axaml</c>. Owns the sidebar selection, the account
+/// state (offline vs Microsoft-signed-in), the manifest + installed version lists, the
+/// log, and every command the window exposes.
 /// </summary>
+/// <remarks>
+/// One view-model for the whole window is fine while every "page" is either the Home
+/// page (real UI) or a "Coming soon" placeholder. When the placeholders graduate to
+/// real pages in later releases, each will own its own view-model and this one becomes
+/// a thin shell.
+/// </remarks>
 public sealed class MainViewModel : INotifyPropertyChanged
 {
     private readonly IMinecraftLauncherService _service;
     private readonly ILauncherLogger _logger;
+    private readonly IMicrosoftAuthService? _microsoftAuth;
 
     private string _username = "Steve";
     private VersionMetadata? _selectedVersion;
+    private InstalledVersion? _selectedInstalledVersion;
     private string _logText = string.Empty;
     private bool _isBusy;
+    private AuthResult? _currentSession;
+    private NavSection _selectedSection = NavSection.Home;
 
-    /// <summary>Construct the view-model with the launcher service it should drive and the log sink it should mirror to.</summary>
-    public MainViewModel(IMinecraftLauncherService service, ILauncherLogger logger)
+    /// <summary>Construct with the launcher service and (optional) Microsoft auth provider.</summary>
+    public MainViewModel(IMinecraftLauncherService service, ILauncherLogger logger, IMicrosoftAuthService? microsoftAuth = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _microsoftAuth = microsoftAuth;
 
         AvailableVersions = new ObservableCollection<VersionMetadata>();
+        InstalledVersions = new ObservableCollection<InstalledVersion>();
+
         RefreshVersionsCommand = new AsyncRelayCommand(RefreshVersionsAsync, () => !IsBusy);
-        LaunchCommand = new AsyncRelayCommand(LaunchAsync, () => !IsBusy && SelectedVersion is not null);
+        RefreshInstalledVersionsCommand = new AsyncRelayCommand(RefreshInstalledVersionsAsync, () => !IsBusy);
+        LaunchCommand = new AsyncRelayCommand(LaunchAsync, CanLaunch);
+        SignInMicrosoftCommand = new AsyncRelayCommand(SignInMicrosoftAsync, () => !IsBusy && !IsSignedInOnline);
+        SignOutCommand = new AsyncRelayCommand(SignOutAsync, () => !IsBusy && IsSignedInOnline);
     }
 
-    /// <summary>The username the user typed.</summary>
+    // ---- Account ----
+
+    /// <summary>True when the user is signed in via Microsoft (not offline).</summary>
+    public bool IsSignedInOnline => _currentSession is { IsOffline: false };
+
+    /// <summary>Display label for the account chip: username when signed in, "Sign in" otherwise.</summary>
+    public string AccountDisplay => _currentSession is null
+        ? "Sign in"
+        : _currentSession.IsOffline
+            ? $"Offline: {_currentSession.Username}"
+            : _currentSession.Username;
+
+    /// <summary>The current authenticated session, if any.</summary>
+    public AuthResult? CurrentSession
+    {
+        get => _currentSession;
+        private set
+        {
+            if (SetField(ref _currentSession, value))
+            {
+                OnPropertyChanged(nameof(IsSignedInOnline));
+                OnPropertyChanged(nameof(AccountDisplay));
+                SignInMicrosoftCommand.RaiseCanExecuteChanged();
+                SignOutCommand.RaiseCanExecuteChanged();
+                LaunchCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    // ---- Versions ----
+
+    /// <summary>The offline username the user typed; only used when no Microsoft session is active.</summary>
     public string Username
     {
         get => _username;
         set => SetField(ref _username, value);
     }
 
-    /// <summary>Sorted list of versions returned by the service.</summary>
+    /// <summary>Versions returned by the Mojang manifest (full list of installable versions).</summary>
     public ObservableCollection<VersionMetadata> AvailableVersions { get; }
 
-    /// <summary>Currently-selected version (drives <see cref="LaunchCommand"/>'s CanExecute).</summary>
+    /// <summary>Versions already present on disk under <c>.minecraft/versions/</c>.</summary>
+    public ObservableCollection<InstalledVersion> InstalledVersions { get; }
+
+    /// <summary>Selection in the manifest dropdown.</summary>
     public VersionMetadata? SelectedVersion
     {
         get => _selectedVersion;
@@ -59,14 +111,27 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    /// <summary>Multi-line log displayed in the window's textbox.</summary>
+    /// <summary>Selection in the installed-versions list.</summary>
+    public InstalledVersion? SelectedInstalledVersion
+    {
+        get => _selectedInstalledVersion;
+        set
+        {
+            if (SetField(ref _selectedInstalledVersion, value))
+                LaunchCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    // ---- Log / busy ----
+
+    /// <summary>Multi-line log displayed in the window.</summary>
     public string LogText
     {
         get => _logText;
         private set => SetField(ref _logText, value);
     }
 
-    /// <summary>True while an async command is running. Disables both buttons.</summary>
+    /// <summary>True while an async command is running. Disables every button.</summary>
     public bool IsBusy
     {
         get => _isBusy;
@@ -75,19 +140,55 @@ public sealed class MainViewModel : INotifyPropertyChanged
             if (SetField(ref _isBusy, value))
             {
                 RefreshVersionsCommand.RaiseCanExecuteChanged();
+                RefreshInstalledVersionsCommand.RaiseCanExecuteChanged();
                 LaunchCommand.RaiseCanExecuteChanged();
+                SignInMicrosoftCommand.RaiseCanExecuteChanged();
+                SignOutCommand.RaiseCanExecuteChanged();
             }
         }
     }
 
-    /// <summary>Fetch the version manifest.</summary>
-    public AsyncRelayCommand RefreshVersionsCommand { get; }
+    // ---- Sidebar ----
 
-    /// <summary>Authenticate + install + launch the selected version.</summary>
+    /// <summary>Currently-selected sidebar item. Bindings on the content panels gate their visibility on this.</summary>
+    public NavSection SelectedSection
+    {
+        get => _selectedSection;
+        set
+        {
+            if (SetField(ref _selectedSection, value))
+            {
+                // Each "Is*Selected" guard backs an x:Bind-style visibility in MainWindow.axaml.
+                OnPropertyChanged(nameof(IsHomeSelected));
+                OnPropertyChanged(nameof(IsInstallationsSelected));
+                OnPropertyChanged(nameof(IsSkinsSelected));
+                OnPropertyChanged(nameof(IsServersSelected));
+                OnPropertyChanged(nameof(IsNewsSelected));
+                OnPropertyChanged(nameof(IsSettingsSelected));
+            }
+        }
+    }
+
+    public bool IsHomeSelected => SelectedSection == NavSection.Home;
+    public bool IsInstallationsSelected => SelectedSection == NavSection.Installations;
+    public bool IsSkinsSelected => SelectedSection == NavSection.Skins;
+    public bool IsServersSelected => SelectedSection == NavSection.Servers;
+    public bool IsNewsSelected => SelectedSection == NavSection.News;
+    public bool IsSettingsSelected => SelectedSection == NavSection.Settings;
+
+    // ---- Commands ----
+
+    public AsyncRelayCommand RefreshVersionsCommand { get; }
+    public AsyncRelayCommand RefreshInstalledVersionsCommand { get; }
     public AsyncRelayCommand LaunchCommand { get; }
+    public AsyncRelayCommand SignInMicrosoftCommand { get; }
+    public AsyncRelayCommand SignOutCommand { get; }
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    private bool CanLaunch()
+        => !IsBusy && (SelectedInstalledVersion is not null || SelectedVersion is not null);
 
     private async Task RefreshVersionsAsync()
     {
@@ -107,8 +208,77 @@ public sealed class MainViewModel : INotifyPropertyChanged
         catch (LauncherException ex)
         {
             Append($"[error] {ex.Message}");
-            // The service already logged the underlying exception; record the user-facing surfacing here.
             _logger.Warn($"RefreshVersions surfaced LauncherException to UI: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task RefreshInstalledVersionsAsync()
+    {
+        IsBusy = true;
+        try
+        {
+            Append("Scanning installed versions ...");
+            var versions = await _service.ListInstalledVersionsAsync(CancellationToken.None).ConfigureAwait(false);
+
+            InstalledVersions.Clear();
+            foreach (var v in versions)
+                InstalledVersions.Add(v);
+
+            Append($"Found {versions.Count} installed versions.");
+            _logger.Info($"Installed versions scanned ({versions.Count} entries).");
+        }
+        catch (LauncherException ex)
+        {
+            Append($"[error] {ex.Message}");
+            _logger.Warn($"RefreshInstalledVersions surfaced LauncherException to UI: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task SignInMicrosoftAsync()
+    {
+        IsBusy = true;
+        try
+        {
+            Append("Signing in with Microsoft ...");
+            var auth = await _service.AuthenticateAsync(
+                new AuthRequest { Mode = AuthMode.Microsoft, Username = string.Empty },
+                CancellationToken.None).ConfigureAwait(false);
+
+            CurrentSession = auth;
+            Append($"Signed in as '{auth.Username}'.");
+            _logger.Info($"UI: Microsoft sign-in succeeded for '{auth.Username}'.");
+        }
+        catch (LauncherException ex)
+        {
+            Append($"[error] {ex.Message}");
+            _logger.Warn($"Microsoft sign-in surfaced LauncherException to UI: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task SignOutAsync()
+    {
+        IsBusy = true;
+        try
+        {
+            if (_microsoftAuth is not null)
+            {
+                await _microsoftAuth.SignOutAsync(CancellationToken.None).ConfigureAwait(false);
+            }
+            CurrentSession = null;
+            Append("Signed out.");
+            _logger.Info("UI: signed out.");
         }
         finally
         {
@@ -118,20 +288,29 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     private async Task LaunchAsync()
     {
-        if (SelectedVersion is null) return;
+        // Choose the version to launch: prefer an installed one (no install step), fall back to manifest.
+        var versionName = SelectedInstalledVersion?.Id ?? SelectedVersion?.Name;
+        if (string.IsNullOrEmpty(versionName))
+            return;
 
         IsBusy = true;
         try
         {
-            Append($"Authenticating '{Username}' (offline mode) ...");
-            var auth = await _service.AuthenticateAsync(
-                new AuthRequest { Mode = AuthMode.Offline, Username = Username },
-                CancellationToken.None).ConfigureAwait(false);
+            AuthResult auth;
+            if (CurrentSession is { IsOffline: false } online)
+            {
+                auth = online;
+                Append($"Launching as '{auth.Username}' (Microsoft session).");
+            }
+            else
+            {
+                Append($"Authenticating '{Username}' (offline mode) ...");
+                auth = await _service.AuthenticateAsync(
+                    new AuthRequest { Mode = AuthMode.Offline, Username = Username },
+                    CancellationToken.None).ConfigureAwait(false);
+            }
 
-            // We intentionally use a synchronous progress wrapper rather than System.Progress<T>:
-            // Progress<T> posts to the captured SynchronizationContext, which races with our final
-            // "Launched." Append on test threads (and the UI thread marshalling is handled by the
-            // Avalonia binding system anyway when LogText raises PropertyChanged).
+            // Synchronous progress wrapper - see project CLAUDE.md "Threading" for the rationale.
             var progress = new SynchronousProgress<LaunchProgress>(p =>
             {
                 var fractionText = p.Fraction is double frac
@@ -141,9 +320,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 Append($"{p.Stage}{fractionText}{itemText}");
             });
 
-            Append($"Launching {SelectedVersion.Name} ...");
+            Append($"Launching {versionName} ...");
             var result = await _service.LaunchAsync(
-                new LaunchRequest { VersionName = SelectedVersion.Name, Session = auth },
+                new LaunchRequest { VersionName = versionName, Session = auth },
                 progress,
                 CancellationToken.None).ConfigureAwait(false);
 
@@ -176,7 +355,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
             return false;
 
         field = value;
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        OnPropertyChanged(propertyName);
         return true;
     }
+
+    private void OnPropertyChanged(string? propertyName) =>
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

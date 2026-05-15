@@ -26,7 +26,7 @@ public partial class App : Application
 
             var microsoftAuth = new MicrosoftAuthService(logger);
             var service = CmlLibMinecraftLauncherService.Create(logger, microsoftAuth);
-            var viewModel = new MainViewModel(service, logger);
+            var viewModel = new MainViewModel(service, logger, microsoftAuth);
 
             desktop.MainWindow = new MainWindow
             {
