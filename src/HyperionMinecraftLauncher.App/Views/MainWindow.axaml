@@ -71,6 +71,7 @@
                 Background="{DynamicResource MaterialPrimaryMidBrush}">
           <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
             <Image Source="{Binding AvatarBitmap}"
+                   Classes="Avatar"
                    Width="22" Height="22"
                    RenderOptions.BitmapInterpolationMode="None" />
             <TextBlock Text="{Binding AccountDisplay}" Foreground="White" VerticalAlignment="Center"
@@ -79,10 +80,12 @@
             <Button Content="Sign in with Microsoft"
                     Command="{Binding SignInMicrosoftCommand}"
                     IsVisible="{Binding !IsSignedInOnline}"
+                    Classes="ChipBtn"
                     Margin="6,0,0,0" Padding="8,2" FontSize="11" />
             <Button Content="Sign out"
                     Command="{Binding SignOutCommand}"
                     IsVisible="{Binding IsSignedInOnline}"
+                    Classes="ChipBtn"
                     Margin="6,0,0,0" Padding="8,2" FontSize="11" />
           </StackPanel>
         </Border>
@@ -416,7 +419,7 @@
           <StackPanel Spacing="8">
 
             <!-- Memory -->
-            <Border Padding="10" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" Classes="Card" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Memory (JVM heap)" FontWeight="SemiBold" FontSize="12" />
 
@@ -453,7 +456,7 @@
             </Border>
 
             <!-- JVM args -->
-            <Border Padding="10" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" Classes="Card" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Custom JVM arguments" FontWeight="SemiBold" FontSize="12" />
                 <TextBox Text="{Binding JvmArguments, Mode=TwoWay}"
@@ -466,7 +469,7 @@
             </Border>
 
             <!-- Game directory -->
-            <Border Padding="10" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" Classes="Card" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Game directory" FontWeight="SemiBold" FontSize="12" />
                 <Grid ColumnDefinitions="*,Auto">
@@ -479,7 +482,7 @@
             </Border>
 
             <!-- Java executable -->
-            <Border Padding="10" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" Classes="Card" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Java executable" FontWeight="SemiBold" FontSize="12" />
                 <Grid ColumnDefinitions="*,Auto">
@@ -492,7 +495,7 @@
             </Border>
 
             <!-- Launcher prefs -->
-            <Border Padding="10" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" Classes="Card" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Launcher preferences" FontWeight="SemiBold" FontSize="12" />
                 <CheckBox IsChecked="{Binding KeepLauncherOpen, Mode=TwoWay}" FontSize="11"
@@ -562,6 +565,70 @@
     </Style>
     <Style Selector="Button.LaunchBtn:pressed">
       <Setter Property="RenderTransform" Value="scale(0.97)" />
+    </Style>
+
+    <!-- Card hover: subtle lift + brighter surface. Borders tagged Classes="Card" get this. -->
+    <Style Selector="Border.Card">
+      <Setter Property="RenderTransform" Value="translate(0px,0px)" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.16" Easing="QuadraticEaseOut" />
+          <BrushTransition Property="Background" Duration="0:0:0.16" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.Card:pointerover">
+      <Setter Property="RenderTransform" Value="translate(0px,-2px)" />
+      <Setter Property="Background" Value="#E6262B30" />
+    </Style>
+
+    <!-- Avatar tilts on hover so the chip feels alive. -->
+    <Style Selector="Image.Avatar">
+      <Setter Property="RenderTransform" Value="rotate(0deg)" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" Easing="QuadraticEaseOut" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Image.Avatar:pointerover">
+      <Setter Property="RenderTransform" Value="rotate(-8deg) scale(1.08)" />
+    </Style>
+
+    <!-- Header chip Sign-in / Sign-out buttons: same family of scale-on-hover as Launch but gentler. -->
+    <Style Selector="Button.ChipBtn">
+      <Setter Property="RenderTransform" Value="scale(1)" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15" Easing="QuadraticEaseOut" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Button.ChipBtn:pointerover">
+      <Setter Property="RenderTransform" Value="scale(1.06)" />
+    </Style>
+
+    <!-- ListBoxItem hover: smooth background fade instead of an instant snap. -->
+    <Style Selector="ListBoxItem">
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.14" />
+        </Transitions>
+      </Setter>
+    </Style>
+
+    <!-- Sidebar nav radios get a tiny lift in addition to the existing background swap. -->
+    <Style Selector="RadioButton.Nav /template/ Border#PART_Border">
+      <Setter Property="RenderTransform" Value="translate(0px,0px)" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.18" />
+          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.18" Easing="QuadraticEaseOut" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="RadioButton.Nav:pointerover /template/ Border#PART_Border">
+      <Setter Property="RenderTransform" Value="translate(2px,0px)" />
     </Style>
 
     <!-- Page content panels: subtle fade-in once visible. The trigger is the
