@@ -11,7 +11,8 @@
         Title="Hyperion Minecraft Launcher"
         Width="960" Height="580"
         MinWidth="800" MinHeight="500"
-        Background="{DynamicResource MaterialBackgroundBrush}"
+        Background="Transparent"
+        TransparencyLevelHint="AcrylicBlur, Mica, Blur, None"
         FontFamily="Inter, Segoe UI, system-ui"
         SystemDecorations="None"
         ExtendClientAreaToDecorationsHint="True"
@@ -19,6 +20,32 @@
         ExtendClientAreaTitleBarHeightHint="-1"
         RenderOptions.BitmapInterpolationMode="None"
         RenderOptions.EdgeMode="Aliased">
+
+  <Window.Resources>
+    <!-- Liquid-glass: overrides the App.axaml palette with semi-transparent variants so the
+         acrylic tint under the window shows through cards / chrome. Solid brushes still live
+         in App.axaml for any other window (the device-code modal in particular). -->
+    <SolidColorBrush x:Key="MaterialPaperBrush"          Color="#CC1F2326" />
+    <SolidColorBrush x:Key="MaterialBackgroundBrush"     Color="#A6131614" />
+    <SolidColorBrush x:Key="MaterialCardBackgroundBrush" Color="#CC1F2326" />
+    <SolidColorBrush x:Key="MaterialPrimaryDarkBrush"    Color="#E62A5616" />
+    <SolidColorBrush x:Key="MaterialDividerBrush"        Color="#33FFFFFF" />
+  </Window.Resources>
+
+
+  <Panel>
+    <!-- Acrylic underlay - paints a tinted, blurred frame behind the launcher chrome.
+         When the OS doesn't support acrylic / mica / blur, the system falls back to a flat
+         dark surface so we don't lose readability. -->
+    <ExperimentalAcrylicBorder IsHitTestVisible="False">
+      <ExperimentalAcrylicBorder.Material>
+        <ExperimentalAcrylicMaterial
+          BackgroundSource="Digger"
+          TintColor="#0F1410"
+          TintOpacity="1"
+          MaterialOpacity="0.78" />
+      </ExperimentalAcrylicBorder.Material>
+    </ExperimentalAcrylicBorder>
 
   <Grid ColumnDefinitions="180,*" RowDefinitions="48,*">
 
@@ -494,6 +521,7 @@
     </Grid>
 
   </Grid>
+  </Panel>
 
   <Window.Styles>
     <!-- Custom window-control buttons (min / max / close) in the title bar, with a 150 ms hover fade. -->

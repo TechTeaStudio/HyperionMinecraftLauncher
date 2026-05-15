@@ -3,6 +3,11 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.0] - 2026-05-15
+
+### Added
+- **Liquid-glass UI**. The main window now uses `TransparencyLevelHint="AcrylicBlur, Mica, Blur, None"` and a transparent background; an `ExperimentalAcrylicBorder` with a dark-green tint (`#0F1410` at 78% material opacity) paints behind everything for a frosted-glass look on Win11 / mica-capable platforms. Cards, sidebar paper, header, and dividers are overridden in `Window.Resources` to semi-transparent variants (~80% alpha) so the acrylic shows through; legacy OSes fall through to the flat-dark fallback automatically.
+
 ## [0.17.0] - 2026-05-15
 
 ### Added
