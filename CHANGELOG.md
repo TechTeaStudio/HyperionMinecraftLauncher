@@ -3,6 +3,23 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-05-15
+
+### Added
+- Read-only support for Mojang's `launcher_profiles.json`. The Installations page is no longer a stub - it now lists every profile from the official launcher with name, type, version id, JVM args, and last-used time, and selecting one pre-fills the Home page's installed-version picker (when the profile's `lastVersionId` matches something on disk).
+- `Core/Profiles/` folder:
+  - `LauncherProfile` DTO carrying the well-known fields (`Key`, `Name`, `Type`, `Created`, `LastUsed`, `LastVersionId`, `Icon`, `GameDir`, `JavaDir`, `JavaArgs`, `ResolutionWidth`, `ResolutionHeight`).
+  - `LauncherProfilesFile` DTO (profiles list + schema version).
+  - `ILauncherProfilesStore` interface (read-only).
+  - `FileLauncherProfilesStore` JSON implementation tolerant of unknown fields and missing optional keys.
+- `IMinecraftLauncherService.ListProfilesAsync(...)` wires the store into the service; the App's view-model owns a `Profiles` observable collection and a `RefreshProfilesCommand`.
+- 4 new tests (`LauncherProfilesStoreTests`): missing file returns empty, realistic modern file parses every field, no-profiles-key returns empty, missing-optional-fields produces sensible nulls.
+
+### Changed
+- `CmlLibMinecraftLauncherService` constructor gains an optional `ILauncherProfilesStore` parameter (defaults to `FileLauncherProfilesStore`).
+- We deliberately do **not** write into Mojang's `launcher_profiles.json` - any future Hyperion-owned profile state will live in a separate file. The Installations page calls out the read-only stance.
+- `<Version>` bumped to `0.6.0` in both shipping csproj files.
+
 ## [0.5.0] - 2026-05-15
 
 ### Added

@@ -10,6 +10,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
@@ -34,6 +35,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private string _username = "Steve";
     private VersionMetadata? _selectedVersion;
     private InstalledVersion? _selectedInstalledVersion;
+    private LauncherProfile? _selectedProfile;
     private string _logText = string.Empty;
     private bool _isBusy;
     private AuthResult? _currentSession;
@@ -48,9 +50,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
         AvailableVersions = new ObservableCollection<VersionMetadata>();
         InstalledVersions = new ObservableCollection<InstalledVersion>();
+        Profiles = new ObservableCollection<LauncherProfile>();
 
         RefreshVersionsCommand = new AsyncRelayCommand(RefreshVersionsAsync, () => !IsBusy);
         RefreshInstalledVersionsCommand = new AsyncRelayCommand(RefreshInstalledVersionsAsync, () => !IsBusy);
+        RefreshProfilesCommand = new AsyncRelayCommand(RefreshProfilesAsync, () => !IsBusy);
         LaunchCommand = new AsyncRelayCommand(LaunchAsync, CanLaunch);
         SignInMicrosoftCommand = new AsyncRelayCommand(SignInMicrosoftAsync, () => !IsBusy && !IsSignedInOnline);
         SignOutCommand = new AsyncRelayCommand(SignOutAsync, () => !IsBusy && IsSignedInOnline);
@@ -100,6 +104,38 @@ public sealed class MainViewModel : INotifyPropertyChanged
     /// <summary>Versions already present on disk under <c>.minecraft/versions/</c>.</summary>
     public ObservableCollection<InstalledVersion> InstalledVersions { get; }
 
+    /// <summary>Profiles parsed from Mojang's <c>launcher_profiles.json</c>.</summary>
+    public ObservableCollection<LauncherProfile> Profiles { get; }
+
+    /// <summary>Currently-selected profile on the Installations page. Picking a profile pre-fills the launch context.</summary>
+    public LauncherProfile? SelectedProfile
+    {
+        get => _selectedProfile;
+        set
+        {
+            if (SetField(ref _selectedProfile, value) && value is not null)
+            {
+                // Cherry-pick the most useful per-profile defaults into the home page so
+                // the user can launch with "their" profile settings without retyping.
+                if (!string.IsNullOrEmpty(value.LastVersionId))
+                {
+                    // Try to surface the matching installed version (if any) and pre-select it.
+                    var match = FindInstalledById(value.LastVersionId);
+                    if (match is not null) SelectedInstalledVersion = match;
+                }
+                Append($"Using profile '{value.Name}' (version {value.LastVersionId ?? "-"}).");
+            }
+        }
+    }
+
+    private InstalledVersion? FindInstalledById(string id)
+    {
+        foreach (var v in InstalledVersions)
+            if (string.Equals(v.Id, id, StringComparison.OrdinalIgnoreCase))
+                return v;
+        return null;
+    }
+
     /// <summary>Selection in the manifest dropdown.</summary>
     public VersionMetadata? SelectedVersion
     {
@@ -141,6 +177,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             {
                 RefreshVersionsCommand.RaiseCanExecuteChanged();
                 RefreshInstalledVersionsCommand.RaiseCanExecuteChanged();
+                RefreshProfilesCommand.RaiseCanExecuteChanged();
                 LaunchCommand.RaiseCanExecuteChanged();
                 SignInMicrosoftCommand.RaiseCanExecuteChanged();
                 SignOutCommand.RaiseCanExecuteChanged();
@@ -180,6 +217,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     public AsyncRelayCommand RefreshVersionsCommand { get; }
     public AsyncRelayCommand RefreshInstalledVersionsCommand { get; }
+    public AsyncRelayCommand RefreshProfilesCommand { get; }
     public AsyncRelayCommand LaunchCommand { get; }
     public AsyncRelayCommand SignInMicrosoftCommand { get; }
     public AsyncRelayCommand SignOutCommand { get; }
@@ -209,6 +247,30 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             Append($"[error] {ex.Message}");
             _logger.Warn($"RefreshVersions surfaced LauncherException to UI: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task RefreshProfilesAsync()
+    {
+        IsBusy = true;
+        try
+        {
+            Append("Reading launcher_profiles.json ...");
+            var profiles = await _service.ListProfilesAsync(CancellationToken.None).ConfigureAwait(false);
+
+            Profiles.Clear();
+            foreach (var p in profiles)
+                Profiles.Add(p);
+
+            Append($"Loaded {profiles.Count} profiles from launcher_profiles.json.");
+        }
+        catch (LauncherException ex)
+        {
+            Append($"[error] {ex.Message}");
         }
         finally
         {

@@ -310,6 +310,12 @@ internal sealed class StubLauncherService : IMinecraftLauncherService
     public Task<IReadOnlyList<TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.InstalledVersion>> ListInstalledVersionsAsync(CancellationToken cancellationToken)
         => Task.FromResult(InstalledVersionsToReturn);
 
+    public IReadOnlyList<TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles.LauncherProfile> ProfilesToReturn { get; set; }
+        = Array.Empty<TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles.LauncherProfile>();
+
+    public Task<IReadOnlyList<TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles.LauncherProfile>> ListProfilesAsync(CancellationToken cancellationToken)
+        => Task.FromResult(ProfilesToReturn);
+
     public Task<AuthResult> AuthenticateAsync(AuthRequest request, CancellationToken cancellationToken)
     {
         if (AuthException is not null) throw AuthException;
