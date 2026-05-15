@@ -3,6 +3,15 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.22.0] - 2026-05-15
+
+### Fixed
+- **ComboBox selected item no longer renders empty.** Avalonia 11's `<Run Text="{Binding X}" />` inside a `TextBlock` template doesn't round-trip through the ComboBox's selection-display path (dropdown items rendered fine, the closed-state slot blanked out). Replaced every multi-`<Run>` template with a single-binding `<TextBlock Text="{Binding DisplayText}" />`; added a computed `DisplayText` property to `InstalledVersion`, `VersionMetadata`, and `LauncherProfile` that produces the previous "id - type" / "id - loader" / "name - type" string in one go.
+- **Window-control buttons (min / max / close) no longer cast a Material drop-shadow.** Added `Material.Styles.Assists.ShadowAssist.ShadowDepth="Depth0"` on the `Button.WinCtrl` style and a templated-Border override that pins the inner shadow to transparent. Same treatment applied to the sidebar nav radios so the whole chrome stays flat against the acrylic.
+
+### Changed
+- Card / panel corner radius bumped from 4 px to 6 px across all 14 cards (Home, Installations, Servers, News, Settings) for a slightly softer "modern" feel.
+
 ## [0.21.2] - 2026-05-15
 
 ### Added

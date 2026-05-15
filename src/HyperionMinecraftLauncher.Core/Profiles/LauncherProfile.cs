@@ -44,4 +44,7 @@ public sealed record LauncherProfile
 
     /// <summary>Preferred window height.</summary>
     public int? ResolutionHeight { get; init; }
+
+    /// <summary>One-line label for ComboBox / ListBox display.</summary>
+    public string DisplayText => string.IsNullOrEmpty(Type) ? Name : $"{Name}  -  {Type}";
 }

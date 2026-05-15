@@ -5,6 +5,7 @@
         xmlns:vm="using:TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels"
         xmlns:controls="using:TechTeaStudio.HyperionMinecraftLauncher.App.Controls"
         xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+        xmlns:assists="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.MainWindow"
         x:DataType="vm:MainViewModel"
@@ -181,7 +182,7 @@
         </StackPanel>
 
         <!-- Installed versions row -->
-        <Border Grid.Row="1" Padding="10" Margin="0,0,0,6" CornerRadius="4"
+        <Border Grid.Row="1" Padding="10" Margin="0,0,0,6" CornerRadius="6"
                 Background="{DynamicResource MaterialPaperBrush}">
           <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
             <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
@@ -196,11 +197,7 @@
                       HorizontalAlignment="Stretch">
               <ComboBox.ItemTemplate>
                 <DataTemplate>
-                  <TextBlock>
-                    <Run Text="{Binding Id}" />
-                    <Run Text="  -  " />
-                    <Run Text="{Binding Loader}" />
-                  </TextBlock>
+                  <TextBlock Text="{Binding DisplayText}" />
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
@@ -212,7 +209,7 @@
         </Border>
 
         <!-- Manifest versions row -->
-        <Border Grid.Row="2" Padding="10" Margin="0,0,0,6" CornerRadius="4"
+        <Border Grid.Row="2" Padding="10" Margin="0,0,0,6" CornerRadius="6"
                 Background="{DynamicResource MaterialPaperBrush}">
           <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
             <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
@@ -227,11 +224,7 @@
                       HorizontalAlignment="Stretch">
               <ComboBox.ItemTemplate>
                 <DataTemplate>
-                  <TextBlock>
-                    <Run Text="{Binding Name}" />
-                    <Run Text="  -  " />
-                    <Run Text="{Binding Type}" />
-                  </TextBlock>
+                  <TextBlock Text="{Binding DisplayText}" />
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
@@ -243,7 +236,7 @@
         </Border>
 
         <!-- Username + Launch row -->
-        <Border Grid.Row="3" Padding="10" Margin="0,0,0,8" CornerRadius="4"
+        <Border Grid.Row="3" Padding="10" Margin="0,0,0,8" CornerRadius="6"
                 Background="{DynamicResource MaterialPaperBrush}">
           <Grid ColumnDefinitions="Auto,Auto,*,Auto">
             <Image Grid.Column="0" Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/steve_face.png"
@@ -264,7 +257,7 @@
         </Border>
 
         <!-- Log -->
-        <Border Grid.Row="4" BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1" CornerRadius="4"
+        <Border Grid.Row="4" BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1" CornerRadius="6"
                 Background="{DynamicResource MaterialBackgroundBrush}">
           <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <TextBox Text="{Binding LogText, Mode=OneWay}"
@@ -289,7 +282,7 @@
         <Button Grid.Row="1" Content="Refresh profiles" FontSize="11"
                 Command="{Binding RefreshProfilesCommand}"
                 Padding="10,4" HorizontalAlignment="Left" Margin="0,0,0,6" />
-        <Border Grid.Row="2" Padding="6" CornerRadius="4"
+        <Border Grid.Row="2" Padding="6" CornerRadius="6"
                 Background="{DynamicResource MaterialPaperBrush}">
           <ListBox ItemsSource="{Binding Profiles}"
                    SelectedItem="{Binding SelectedProfile, Mode=TwoWay}"
@@ -326,7 +319,7 @@
           <TextBlock Text="Live 3D preview. Click and drag inside the viewer to rotate. Upload + cape support planned."
                      Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
         </StackPanel>
-        <Border Grid.Row="1" CornerRadius="4"
+        <Border Grid.Row="1" CornerRadius="6"
                 Background="{DynamicResource MaterialPaperBrush}">
           <controls:SkinPreview x:Name="SkinViewer" />
         </Border>
@@ -343,7 +336,7 @@
         <Button Grid.Row="1" Content="Refresh servers" FontSize="11"
                 Command="{Binding RefreshServersCommand}"
                 Padding="10,4" HorizontalAlignment="Left" Margin="0,0,0,6" />
-        <Border Grid.Row="2" Padding="6" CornerRadius="4"
+        <Border Grid.Row="2" Padding="6" CornerRadius="6"
                 Background="{DynamicResource MaterialPaperBrush}">
           <ListBox ItemsSource="{Binding Servers}"
                    Background="Transparent" BorderThickness="0">
@@ -373,13 +366,13 @@
         <Button Grid.Row="1" Content="Refresh news" FontSize="11"
                 Command="{Binding RefreshNewsCommand}"
                 Padding="10,4" HorizontalAlignment="Left" Margin="0,0,0,6" />
-        <Border Grid.Row="2" Padding="6" CornerRadius="4"
+        <Border Grid.Row="2" Padding="6" CornerRadius="6"
                 Background="{DynamicResource MaterialPaperBrush}">
           <ScrollViewer VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding News}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                  <Border Margin="0,0,0,8" Padding="10" CornerRadius="4"
+                  <Border Margin="0,0,0,8" Padding="10" CornerRadius="6"
                           Background="{DynamicResource MaterialBackgroundBrush}">
                     <Grid ColumnDefinitions="80,*" RowDefinitions="Auto,Auto,Auto,Auto">
                       <Image Grid.RowSpan="4" Grid.Column="0"
@@ -423,7 +416,7 @@
           <StackPanel Spacing="8">
 
             <!-- Memory -->
-            <Border Padding="10" CornerRadius="4" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Memory (JVM heap)" FontWeight="SemiBold" FontSize="12" />
 
@@ -460,7 +453,7 @@
             </Border>
 
             <!-- JVM args -->
-            <Border Padding="10" CornerRadius="4" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Custom JVM arguments" FontWeight="SemiBold" FontSize="12" />
                 <TextBox Text="{Binding JvmArguments, Mode=TwoWay}"
@@ -473,7 +466,7 @@
             </Border>
 
             <!-- Game directory -->
-            <Border Padding="10" CornerRadius="4" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Game directory" FontWeight="SemiBold" FontSize="12" />
                 <Grid ColumnDefinitions="*,Auto">
@@ -486,7 +479,7 @@
             </Border>
 
             <!-- Java executable -->
-            <Border Padding="10" CornerRadius="4" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Java executable" FontWeight="SemiBold" FontSize="12" />
                 <Grid ColumnDefinitions="*,Auto">
@@ -499,7 +492,7 @@
             </Border>
 
             <!-- Launcher prefs -->
-            <Border Padding="10" CornerRadius="4" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Launcher preferences" FontWeight="SemiBold" FontSize="12" />
                 <CheckBox IsChecked="{Binding KeepLauncherOpen, Mode=TwoWay}" FontSize="11"
@@ -525,7 +518,9 @@
   </Panel>
 
   <Window.Styles>
-    <!-- Custom window-control buttons (min / max / close) in the title bar, with a 150 ms hover fade. -->
+    <!-- Custom window-control buttons (min / max / close) in the title bar, with a 150 ms hover fade
+         and no Material elevation shadow. ShadowDepth0 + zero BoxShadow on the templated Border
+         covers both Material.Avalonia's own elevation system and any leftover BoxShadow setters. -->
     <Style Selector="Button.WinCtrl">
       <Setter Property="Width" Value="44" />
       <Setter Property="Height" Value="48" />
@@ -534,11 +529,15 @@
       <Setter Property="CornerRadius" Value="0" />
       <Setter Property="HorizontalContentAlignment" Value="Center" />
       <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="assists:ShadowAssist.ShadowDepth" Value="Depth0" />
       <Setter Property="Transitions">
         <Transitions>
           <BrushTransition Property="Background" Duration="0:0:0.15" />
         </Transitions>
       </Setter>
+    </Style>
+    <Style Selector="Button.WinCtrl /template/ Border#PART_RootBorder">
+      <Setter Property="BoxShadow" Value="0 0 0 0 #00000000" />
     </Style>
     <Style Selector="Button.WinCtrl:pointerover">
       <Setter Property="Background" Value="#33FFFFFF" />
@@ -575,6 +574,12 @@
           <DoubleTransition Property="Opacity" Duration="0:0:0.22" Easing="QuadraticEaseOut" />
         </Transitions>
       </Setter>
+    </Style>
+
+    <!-- Strip Material.Avalonia's drop-shadow from every header / sidebar control so the
+         custom chrome stays flat against the acrylic. -->
+    <Style Selector="RadioButton.Nav">
+      <Setter Property="assists:ShadowAssist.ShadowDepth" Value="Depth0" />
     </Style>
 
     <!-- Sidebar nav radios styled as full-width tiles. -->
