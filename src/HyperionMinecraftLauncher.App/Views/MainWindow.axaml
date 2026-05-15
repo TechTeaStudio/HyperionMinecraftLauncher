@@ -3,65 +3,302 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels"
+        xmlns:material="using:Material.Icons.Avalonia"
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Title="Hyperion Minecraft Launcher"
-        Width="720" Height="480"
-        MinWidth="540" MinHeight="360">
+        Width="1040" Height="640"
+        MinWidth="860" MinHeight="540"
+        Background="{DynamicResource MaterialBackgroundBrush}"
+        RenderOptions.BitmapInterpolationMode="None"
+        RenderOptions.EdgeMode="Aliased">
 
-  <DockPanel Margin="16" LastChildFill="True">
+  <Grid ColumnDefinitions="220,*" RowDefinitions="60,*">
 
-    <StackPanel DockPanel.Dock="Top" Orientation="Vertical" Spacing="6" Margin="0,0,0,12">
-      <TextBlock Text="Hyperion Minecraft Launcher" FontSize="20" FontWeight="SemiBold" />
-      <TextBlock Text="Offline authentication only in v0.1. Logs are stored under %LOCALAPPDATA%/HyperionMinecraftLauncher/logs."
-                 Opacity="0.7" TextWrapping="Wrap" />
-    </StackPanel>
+    <!-- =================== HEADER =================== -->
+    <Border Grid.ColumnSpan="2" Background="{DynamicResource MaterialPrimaryDarkBrush}"
+            BorderBrush="{DynamicResource MaterialPrimaryMidBrush}" BorderThickness="0,0,0,2">
+      <Grid Margin="16,0" ColumnDefinitions="Auto,*,Auto">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+          <material:MaterialIcon Kind="Minecraft" Width="28" Height="28" Foreground="White" />
+          <TextBlock Text="Hyperion Minecraft Launcher"
+                     FontFamily="{StaticResource MinecraftFont}"
+                     FontSize="20" Foreground="White" VerticalAlignment="Center" />
+        </StackPanel>
 
-    <Grid DockPanel.Dock="Top"
-          Margin="0,0,0,12"
-          ColumnDefinitions="Auto,*,Auto,*,Auto,Auto">
-
-      <TextBlock Grid.Column="0" Text="Username:" VerticalAlignment="Center" />
-      <TextBox  Grid.Column="1" Text="{Binding Username, Mode=TwoWay}" Watermark="Steve" Margin="8,0,0,0" />
-
-      <TextBlock Grid.Column="2" Text="Version:" VerticalAlignment="Center" Margin="16,0,0,0" />
-      <ComboBox Grid.Column="3"
-                Margin="8,0,0,0"
-                ItemsSource="{Binding AvailableVersions}"
-                SelectedItem="{Binding SelectedVersion, Mode=TwoWay}"
-                PlaceholderText="(none)">
-        <ComboBox.ItemTemplate>
-          <DataTemplate>
-            <TextBlock>
-              <Run Text="{Binding Name}" />
-              <Run Text=" (" />
-              <Run Text="{Binding Type}" />
-              <Run Text=")" />
-            </TextBlock>
-          </DataTemplate>
-        </ComboBox.ItemTemplate>
-      </ComboBox>
-
-      <Button Grid.Column="4" Content="Refresh versions" Command="{Binding RefreshVersionsCommand}" Margin="16,0,0,0" />
-      <Button Grid.Column="5" Content="Launch"
-              Command="{Binding LaunchCommand}"
-              Classes="accent"
-              Margin="8,0,0,0" />
-    </Grid>
-
-    <Border BorderBrush="#22000000" BorderThickness="1" CornerRadius="4">
-      <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-        <TextBox Text="{Binding LogText, Mode=OneWay}"
-                 IsReadOnly="True"
-                 AcceptsReturn="True"
-                 BorderThickness="0"
-                 FontFamily="Cascadia Mono, Consolas, Menlo, monospace"
-                 FontSize="12"
-                 Padding="8" />
-      </ScrollViewer>
+        <!-- Account chip on the right -->
+        <Border Grid.Column="2" CornerRadius="20" Padding="12,6"
+                Background="{DynamicResource MaterialPrimaryMidBrush}">
+          <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <material:MaterialIcon Kind="AccountCircle" Width="20" Height="20" Foreground="White" />
+            <TextBlock Text="{Binding AccountDisplay}" Foreground="White" VerticalAlignment="Center" />
+            <Button Content="Sign in"
+                    Command="{Binding SignInMicrosoftCommand}"
+                    IsVisible="{Binding !IsSignedInOnline}"
+                    Margin="8,0,0,0" Padding="10,4" />
+            <Button Content="Sign out"
+                    Command="{Binding SignOutCommand}"
+                    IsVisible="{Binding IsSignedInOnline}"
+                    Margin="8,0,0,0" Padding="10,4" />
+          </StackPanel>
+        </Border>
+      </Grid>
     </Border>
 
-  </DockPanel>
+    <!-- =================== SIDEBAR =================== -->
+    <Border Grid.Row="1" Grid.Column="0"
+            Background="{DynamicResource MaterialPaperBrush}"
+            BorderBrush="{DynamicResource MaterialPrimaryDarkBrush}" BorderThickness="0,0,2,0">
+      <StackPanel Spacing="2" Margin="8">
+
+        <RadioButton Content="Home" GroupName="Nav"
+                     IsChecked="{Binding IsHomeSelected, Mode=OneWay}"
+                     Click="OnNavHome" Classes="Nav">
+          <RadioButton.Tag>
+            <material:MaterialIcon Kind="HomeOutline" />
+          </RadioButton.Tag>
+        </RadioButton>
+        <RadioButton Content="Installations" GroupName="Nav"
+                     IsChecked="{Binding IsInstallationsSelected, Mode=OneWay}"
+                     Click="OnNavInstallations" Classes="Nav">
+          <RadioButton.Tag>
+            <material:MaterialIcon Kind="Cube" />
+          </RadioButton.Tag>
+        </RadioButton>
+        <RadioButton Content="Skins" GroupName="Nav"
+                     IsChecked="{Binding IsSkinsSelected, Mode=OneWay}"
+                     Click="OnNavSkins" Classes="Nav">
+          <RadioButton.Tag>
+            <material:MaterialIcon Kind="TshirtCrew" />
+          </RadioButton.Tag>
+        </RadioButton>
+        <RadioButton Content="Servers" GroupName="Nav"
+                     IsChecked="{Binding IsServersSelected, Mode=OneWay}"
+                     Click="OnNavServers" Classes="Nav">
+          <RadioButton.Tag>
+            <material:MaterialIcon Kind="Server" />
+          </RadioButton.Tag>
+        </RadioButton>
+        <RadioButton Content="News" GroupName="Nav"
+                     IsChecked="{Binding IsNewsSelected, Mode=OneWay}"
+                     Click="OnNavNews" Classes="Nav">
+          <RadioButton.Tag>
+            <material:MaterialIcon Kind="Newspaper" />
+          </RadioButton.Tag>
+        </RadioButton>
+        <RadioButton Content="Settings" GroupName="Nav"
+                     IsChecked="{Binding IsSettingsSelected, Mode=OneWay}"
+                     Click="OnNavSettings" Classes="Nav">
+          <RadioButton.Tag>
+            <material:MaterialIcon Kind="Cog" />
+          </RadioButton.Tag>
+        </RadioButton>
+
+        <Border Margin="6,16,6,8" Height="1" Background="{DynamicResource MaterialDividerBrush}" />
+
+        <TextBlock Text="v0.5 - parity in progress"
+                   FontFamily="{StaticResource MinecraftFont}" FontSize="11"
+                   Opacity="0.6" Margin="12,4,0,0" />
+      </StackPanel>
+    </Border>
+
+    <!-- =================== CONTENT =================== -->
+    <Grid Grid.Row="1" Grid.Column="1" Margin="20">
+
+      <!-- ==== HOME PAGE ==== -->
+      <Grid IsVisible="{Binding IsHomeSelected}" RowDefinitions="Auto,Auto,Auto,Auto,*">
+
+        <!-- Title strip uses the resource-pack banner texture for a pixel-art accent. -->
+        <Border Grid.Row="0" Margin="0,0,0,10">
+          <StackPanel Spacing="2">
+            <TextBlock Text="Play Minecraft"
+                       FontFamily="{StaticResource MinecraftFont}"
+                       FontSize="22" Foreground="White" />
+            <TextBlock Text="Pick an installed version or fetch one from the manifest."
+                       Opacity="0.7" />
+          </StackPanel>
+        </Border>
+
+        <!-- Installed versions row -->
+        <Border Grid.Row="1" Padding="14" Margin="0,0,0,10" CornerRadius="6"
+                Background="{DynamicResource MaterialPaperBrush}">
+          <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
+            <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+                   Source="avares://HyperionMinecraftLauncher/Assets/Banners/menu/singleplayer.png"
+                   Stretch="Uniform" Width="120" Height="30" VerticalAlignment="Center" />
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="Installed versions"
+                       FontWeight="SemiBold" VerticalAlignment="Center" />
+            <ComboBox Grid.Row="1" Grid.Column="1"
+                      ItemsSource="{Binding InstalledVersions}"
+                      SelectedItem="{Binding SelectedInstalledVersion, Mode=TwoWay}"
+                      PlaceholderText="(none scanned yet)"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <material:MaterialIcon Kind="CubeOutline" Width="16" Height="16" />
+                    <TextBlock>
+                      <Run Text="{Binding Id}" />
+                      <Run Text=" (" />
+                      <Run Text="{Binding Loader}" />
+                      <Run Text=")" />
+                    </TextBlock>
+                  </StackPanel>
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Button Grid.Row="1" Grid.Column="2"
+                    Content="Rescan"
+                    Command="{Binding RefreshInstalledVersionsCommand}"
+                    Padding="10,4" />
+          </Grid>
+        </Border>
+
+        <!-- Manifest versions row -->
+        <Border Grid.Row="2" Padding="14" Margin="0,0,0,10" CornerRadius="6"
+                Background="{DynamicResource MaterialPaperBrush}">
+          <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
+            <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+                   Source="avares://HyperionMinecraftLauncher/Assets/Banners/menu/resource_packs.png"
+                   Stretch="Uniform" Width="90" Height="30" VerticalAlignment="Center" />
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="Or install another version"
+                       FontWeight="SemiBold" VerticalAlignment="Center" />
+            <ComboBox Grid.Row="1" Grid.Column="1"
+                      ItemsSource="{Binding AvailableVersions}"
+                      SelectedItem="{Binding SelectedVersion, Mode=TwoWay}"
+                      PlaceholderText="(Click Refresh manifest first)"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock>
+                    <Run Text="{Binding Name}" />
+                    <Run Text=" (" />
+                    <Run Text="{Binding Type}" />
+                    <Run Text=")" />
+                  </TextBlock>
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Button Grid.Row="1" Grid.Column="2"
+                    Content="Refresh manifest"
+                    Command="{Binding RefreshVersionsCommand}"
+                    Padding="10,4" />
+          </Grid>
+        </Border>
+
+        <!-- Username + Launch row -->
+        <Border Grid.Row="3" Padding="14" Margin="0,0,0,10" CornerRadius="6"
+                Background="{DynamicResource MaterialPaperBrush}">
+          <Grid ColumnDefinitions="Auto,*,Auto">
+            <TextBlock Grid.Column="0" Text="Offline username:" VerticalAlignment="Center" />
+            <TextBox Grid.Column="1" Text="{Binding Username, Mode=TwoWay}" Watermark="Steve"
+                     IsEnabled="{Binding !IsSignedInOnline}" />
+            <Button Grid.Column="2"
+                    Content="Launch"
+                    Command="{Binding LaunchCommand}"
+                    Classes="accent"
+                    FontFamily="{StaticResource MinecraftFont}"
+                    FontSize="16"
+                    Padding="24,8"
+                    Background="{DynamicResource MaterialPrimaryMidBrush}"
+                    Foreground="White" />
+          </Grid>
+        </Border>
+
+        <!-- Log -->
+        <Border Grid.Row="4" BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1" CornerRadius="4"
+                Background="{DynamicResource MaterialBackgroundBrush}">
+          <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <TextBox Text="{Binding LogText, Mode=OneWay}"
+                     IsReadOnly="True"
+                     AcceptsReturn="True"
+                     BorderThickness="0"
+                     FontFamily="Cascadia Mono, Consolas, Menlo, monospace"
+                     FontSize="12"
+                     Padding="10" />
+          </ScrollViewer>
+        </Border>
+      </Grid>
+
+      <!-- ==== STUB PAGES (placeholder until each ships its own feature) ==== -->
+      <Border IsVisible="{Binding IsInstallationsSelected}">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+          <material:MaterialIcon Kind="Cube" Width="64" Height="64" Foreground="{DynamicResource MaterialPrimaryMidBrush}" />
+          <TextBlock Text="Installations" FontFamily="{StaticResource MinecraftFont}" FontSize="24" HorizontalAlignment="Center" />
+          <TextBlock Text="Coming next: launcher_profiles.json read/write + CRUD."
+                     Opacity="0.7" TextWrapping="Wrap" MaxWidth="380" TextAlignment="Center" />
+        </StackPanel>
+      </Border>
+      <Border IsVisible="{Binding IsSkinsSelected}">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+          <material:MaterialIcon Kind="TshirtCrew" Width="64" Height="64" Foreground="{DynamicResource MaterialPrimaryMidBrush}" />
+          <TextBlock Text="Skins" FontFamily="{StaticResource MinecraftFont}" FontSize="24" HorizontalAlignment="Center" />
+          <TextBlock Text="Coming: skin / cape preview and upload via SkiaSharp 2.5D."
+                     Opacity="0.7" TextWrapping="Wrap" MaxWidth="380" TextAlignment="Center" />
+        </StackPanel>
+      </Border>
+      <Border IsVisible="{Binding IsServersSelected}">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+          <material:MaterialIcon Kind="Server" Width="64" Height="64" Foreground="{DynamicResource MaterialPrimaryMidBrush}" />
+          <TextBlock Text="Servers" FontFamily="{StaticResource MinecraftFont}" FontSize="24" HorizontalAlignment="Center" />
+          <TextBlock Text="Coming: servers.dat NBT editor + status ping."
+                     Opacity="0.7" TextWrapping="Wrap" MaxWidth="380" TextAlignment="Center" />
+        </StackPanel>
+      </Border>
+      <Border IsVisible="{Binding IsNewsSelected}">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+          <material:MaterialIcon Kind="Newspaper" Width="64" Height="64" Foreground="{DynamicResource MaterialPrimaryMidBrush}" />
+          <TextBlock Text="News" FontFamily="{StaticResource MinecraftFont}" FontSize="24" HorizontalAlignment="Center" />
+          <TextBlock Text="Coming: Minecraft.net feed + per-version patch notes."
+                     Opacity="0.7" TextWrapping="Wrap" MaxWidth="380" TextAlignment="Center" />
+        </StackPanel>
+      </Border>
+      <Border IsVisible="{Binding IsSettingsSelected}">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+          <material:MaterialIcon Kind="Cog" Width="64" Height="64" Foreground="{DynamicResource MaterialPrimaryMidBrush}" />
+          <TextBlock Text="Settings" FontFamily="{StaticResource MinecraftFont}" FontSize="24" HorizontalAlignment="Center" />
+          <TextBlock Text="Coming: memory slider, JVM args, game dir, launcher prefs."
+                     Opacity="0.7" TextWrapping="Wrap" MaxWidth="380" TextAlignment="Center" />
+        </StackPanel>
+      </Border>
+
+    </Grid>
+
+  </Grid>
+
+  <Window.Styles>
+    <!-- Sidebar nav radios styled as full-width tiles. -->
+    <Style Selector="RadioButton.Nav">
+      <Setter Property="Padding" Value="12,10" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Name="PART_Border"
+                  Background="{TemplateBinding Background}"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  Padding="{TemplateBinding Padding}">
+            <Grid ColumnDefinitions="Auto,*">
+              <ContentPresenter Grid.Column="0" Content="{TemplateBinding Tag}"
+                                Width="20" Height="20" Margin="0,0,12,0"
+                                VerticalAlignment="Center" />
+              <ContentPresenter Grid.Column="1" Content="{TemplateBinding Content}"
+                                VerticalAlignment="Center" />
+            </Grid>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="RadioButton.Nav:checked /template/ Border#PART_Border">
+      <Setter Property="Background" Value="{DynamicResource MaterialPrimaryMidBrush}" />
+    </Style>
+    <Style Selector="RadioButton.Nav:pointerover /template/ Border#PART_Border">
+      <Setter Property="Background" Value="{DynamicResource MaterialPrimaryDarkBrush}" />
+    </Style>
+  </Window.Styles>
 
 </Window>

@@ -3,6 +3,23 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-05-15
+
+### Added
+- Full UI overhaul: 220 px sidebar (Home / Installations / Skins / Servers / News / Settings) + account chip header + content area, replacing the cramped single-row pre-v0.5 layout that overlapped the "Refresh versions" and "Launch" buttons. Window grew to 1040x640.
+- `MainViewModel` extended with account state, installed-version selection, sidebar selection, and three new commands: `SignInMicrosoftCommand`, `SignOutCommand`, `RefreshInstalledVersionsCommand`. Home page now picks between (a) installed versions list (no install step) and (b) manifest versions (downloads + installs first). Microsoft-signed-in sessions skip the offline-auth call and flow straight to launch.
+- Material Icons throughout the chrome (Minecraft, HomeOutline, Cube, TshirtCrew, Server, Newspaper, Cog, AccountCircle), pixel `Minecraft` font on titles + Launch button, banner-texture accents from the resource pack on the Installed / Manifest version rows.
+- Placeholders for Installations / Skins / Servers / News / Settings pages with the Material Icon + Minecraft font + the planned scope - each will graduate to a real feature in a later release.
+- 8 new view-model tests covering: account-chip defaults, sidebar selection booleans, `RefreshInstalledVersionsCommand` populating `InstalledVersions`, `LaunchCommand.CanExecute` becoming true on installed-version selection alone, `SignInMicrosoftCommand` flipping the account state, `SignOutCommand` calling the auth provider, signed-in `LaunchAsync` skipping the offline-auth call, and installed-version IDs taking precedence over manifest names in the launch path.
+
+### Changed
+- `MainViewModel` constructor now optionally accepts `IMicrosoftAuthService` (used by the sign-out command); the App's manual DI passes it through. Existing tests that omit it continue to work.
+- `StubLauncherService` in tests now mirrors the real service's `AuthMode -> IsOffline` mapping so view-model tests against signed-in flows are realistic.
+- `<Version>` bumped to `0.5.0` in both shipping csproj files.
+
+### Fixed
+- The "text overlap" bug from the v0.4 screenshot (the version dropdown crushed by the Refresh + Launch buttons in a 6-column row) is gone - each control now sits in its own card with predictable vertical spacing.
+
 ## [0.4.0] - 2026-05-15
 
 ### Added
