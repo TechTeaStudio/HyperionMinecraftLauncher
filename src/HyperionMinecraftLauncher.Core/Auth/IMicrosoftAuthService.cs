@@ -30,6 +30,13 @@ public interface IMicrosoftAuthService
     /// (system browser / WebView2) if the cache is empty or expired.</summary>
     Task<AuthResult> SignInAsync(CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Silent-only sign-in: uses the cached MSAL refresh token without ever showing a
+    /// device-code prompt. Throws if no cached account exists or the refresh token is
+    /// invalid. Use this on startup to auto-restore the previous session without UI.
+    /// </summary>
+    Task<AuthResult> SignInSilentlyAsync(CancellationToken cancellationToken);
+
     /// <summary>Skip the cache and force an interactive sign-in.</summary>
     Task<AuthResult> SignInInteractiveAsync(CancellationToken cancellationToken);
 

@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 
@@ -17,25 +18,52 @@ public sealed class MojangNewsClient : INewsClient
 {
     private const string FeedUrl = "https://launchercontent.mojang.com/news.json";
     private const string ImageBaseUrl = "https://launchercontent.mojang.com";
+    private const string CacheKey = "news.json";
+    private static readonly TimeSpan CacheTtl = TimeSpan.FromHours(1);
 
     private readonly HttpClient _http;
+    private readonly FileCache? _cache;
 
-    /// <summary>Default constructor: builds its own <see cref="HttpClient"/>.</summary>
+    /// <summary>Default constructor: builds its own <see cref="HttpClient"/>; no disk cache.</summary>
     public MojangNewsClient() : this(new HttpClient { Timeout = TimeSpan.FromSeconds(15) }) { }
 
-    /// <summary>Test / advanced constructor accepting a pre-configured client (or one with a fake handler).</summary>
-    public MojangNewsClient(HttpClient http)
+    /// <summary>Test / advanced constructor accepting a pre-configured client (or one with a fake handler) and an optional disk cache.</summary>
+    public MojangNewsClient(HttpClient http, FileCache? cache = null)
     {
         _http = http ?? throw new ArgumentNullException(nameof(http));
+        _cache = cache;
     }
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<NewsEntry>> FetchAsync(CancellationToken cancellationToken)
     {
+        // Cache hit (fresh): return parsed without hitting the network.
+        if (_cache is not null)
+        {
+            var cached = await _cache.TryReadAsync(CacheKey, CacheTtl, cancellationToken).ConfigureAwait(false);
+            if (cached is { Length: > 0 })
+            {
+                try
+                {
+                    using var ms = new MemoryStream(cached);
+                    return Parse(ms);
+                }
+                catch
+                {
+                    // Corrupt cache entry - fall through and re-fetch.
+                }
+            }
+        }
+
         try
         {
-            await using var stream = await _http.GetStreamAsync(FeedUrl, cancellationToken).ConfigureAwait(false);
-            return Parse(stream);
+            var bytes = await _http.GetByteArrayAsync(FeedUrl, cancellationToken).ConfigureAwait(false);
+            if (_cache is not null && bytes.Length > 0)
+            {
+                try { await _cache.WriteAsync(CacheKey, bytes, cancellationToken).ConfigureAwait(false); } catch { /* best-effort */ }
+            }
+            using var ms = new MemoryStream(bytes);
+            return Parse(ms);
         }
         catch (OperationCanceledException)
         {
@@ -43,8 +71,16 @@ public sealed class MojangNewsClient : INewsClient
         }
         catch (Exception)
         {
-            // Network outage, DNS failure, schema drift - all yield an empty list rather than blowing up.
-            // Logging is intentionally left to the service layer that wraps this client.
+            // Network outage / schema drift: if we have ANY cached entry (even stale), serve it
+            // so the user sees yesterday's news offline rather than a blank page.
+            if (_cache is not null)
+            {
+                var stale = await _cache.TryReadAsync(CacheKey, maxAge: null, cancellationToken).ConfigureAwait(false);
+                if (stale is { Length: > 0 })
+                {
+                    try { using var ms = new MemoryStream(stale); return Parse(ms); } catch { }
+                }
+            }
             return Array.Empty<NewsEntry>();
         }
     }

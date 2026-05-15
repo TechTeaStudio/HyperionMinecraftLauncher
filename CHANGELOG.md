@@ -3,6 +3,18 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.0] - 2026-05-15
+
+### Added
+- **Silent auto-sign-in on startup.** `IMicrosoftAuthService.SignInSilentlyAsync` uses MSAL's cached refresh token directly via `JELoginHandler.AuthenticateSilently` (no device-code prompt, no UI). `MainViewModel.RunStartupRefreshesAsync` calls it when `HasCachedAccount` is true so the user lands signed-in - no clicking Sign-in every launch, no re-entering the device code. Falls through silently to "you're signed out" when the refresh token has expired.
+- **`Core/Cache/FileCache`**: tiny disk-backed key-value store rooted at `%LOCALAPPDATA%\HyperionMinecraftLauncher\cache\`. Reads check the on-disk last-write-time against an optional TTL; writes are atomic (write-temp + rename). Slash-separated keys nest into subdirectories.
+- **News disk cache (1 h TTL)**: `MojangNewsClient` now writes the raw `news.json` bytes to cache after a successful fetch. On startup, a fresh cache hit skips the network entirely; on network failure a *stale* cache entry is still served so the launcher renders yesterday's news offline.
+- **Skin disk cache (6 h TTL)**: `MojangPlayerSkinFetcher` caches `skins/{uuid}.png` + a tiny metadata sidecar `{uuid}.json` (slim flag, cape ref) + optional `{uuid}.cape.png`. On stale-cache hit *with* a network failure we still serve the last-known PNG so the user keeps seeing their face offline.
+
+### Changed
+- `MojangNewsClient` and `MojangPlayerSkinFetcher` constructors gain an optional `FileCache` parameter. `App.axaml.cs` builds one cache, feeds it to the news client, and passes it through to the skin fetcher in `MainWindow`.
+- `IMicrosoftAuthService` grows a third method; the fake in the tests + the stub launcher implement it.
+
 ## [0.20.0] - 2026-05-15
 
 ### Changed

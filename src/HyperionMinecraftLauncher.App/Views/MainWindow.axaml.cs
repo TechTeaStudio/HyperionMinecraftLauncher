@@ -12,6 +12,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Threading;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
 using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 
@@ -70,7 +71,11 @@ public partial class MainWindow : Window
     {
         try
         {
-            var fetcher = new MojangPlayerSkinFetcher();
+            // Share the on-disk cache root with the news client so repeated sign-ins are instant
+            // and offline launches still show the user's last-seen skin.
+            var fetcher = new MojangPlayerSkinFetcher(
+                new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(15) },
+                new FileCache());
             var info = await fetcher.FetchAsync(uuid, CancellationToken.None).ConfigureAwait(false);
             if (info is null || info.SkinPng.Length == 0) return;
 

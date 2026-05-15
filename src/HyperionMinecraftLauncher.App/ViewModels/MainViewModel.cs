@@ -402,9 +402,25 @@ public sealed class MainViewModel : INotifyPropertyChanged
     /// </summary>
     public async Task RunStartupRefreshesAsync()
     {
+        // 0) If MSAL still holds a refresh token from the last session, restore the user
+        //    silently so they don't have to re-enter a device code on every launch.
+        if (_microsoftAuth is { HasCachedAccount: true })
+        {
+            try
+            {
+                Append("Silent Microsoft sign-in (cached refresh token) ...");
+                CurrentSession = await _microsoftAuth.SignInSilentlyAsync(CancellationToken.None);
+                Append($"Auto-signed in as '{CurrentSession.Username}'.");
+            }
+            catch (Exception ex)
+            {
+                // Refresh token expired or no cache - leave the user signed out, they can
+                // click Sign in manually to trigger the device-code flow.
+                Append($"Silent sign-in skipped: {ex.Message}");
+            }
+        }
+
         Append("Auto-refreshing on startup ...");
-        // Each refresh sets IsBusy, so we serialize them - parallel would have the buttons
-        // flicker in/out and the log lines interleave incomprehensibly.
         await RefreshInstalledVersionsAsync();
         await RefreshProfilesAsync();
         await RefreshServersAsync();

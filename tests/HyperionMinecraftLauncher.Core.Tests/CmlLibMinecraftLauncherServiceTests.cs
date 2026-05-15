@@ -412,6 +412,16 @@ internal sealed class FakeMicrosoftAuthService : IMicrosoftAuthService
         return Task.FromResult(ResultToReturn);
     }
 
+    public bool SignInSilentlyCalled { get; private set; }
+    public Exception? ThrowOnSignInSilently { get; set; }
+    public Task<AuthResult> SignInSilentlyAsync(CancellationToken cancellationToken)
+    {
+        SignInSilentlyCalled = true;
+        if (ThrowOnSignInSilently is not null) throw ThrowOnSignInSilently;
+        if (ThrowOnSignIn is not null) throw ThrowOnSignIn;
+        return Task.FromResult(ResultToReturn);
+    }
+
     public Task SignOutAsync(CancellationToken cancellationToken)
     {
         SignOutCalled = true;
