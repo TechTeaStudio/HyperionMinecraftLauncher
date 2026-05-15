@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,6 +16,12 @@ namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 /// </remarks>
 public interface IMicrosoftAuthService
 {
+    /// <summary>
+    /// Raised when the underlying OAuth flow needs the user to enter a device code on a separate device / browser tab.
+    /// The view-model subscribes and surfaces the message in the launcher log + opens the verification URL.
+    /// </summary>
+    event EventHandler<MicrosoftDeviceCodeInfo>? DeviceCodeRequested;
+
     /// <summary>True when the local cache already holds a Microsoft refresh token,
     /// so <see cref="SignInAsync"/> can complete silently without showing a browser.</summary>
     bool HasCachedAccount { get; }
