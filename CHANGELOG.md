@@ -3,6 +3,12 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.0] - 2026-05-15
+
+### Added
+- **Device-code modal dialog** when signing in with Microsoft. `DeviceCodeDialog` is a custom-chrome Window (matches the main launcher) that shows the verification URL on top, then the user-code as a huge 34pt bold monospace block with extra letter-spacing so it's actually readable. Buttons: **Copy code** (writes to clipboard via Avalonia 11's `Window.Clipboard`), **Open browser** (re-opens the verification URL via `Process.Start`), **Hide** (closes manually). Auto-closes when sign-in completes - `MainWindow` listens for `MainViewModel.HasSession` flipping true and calls `Close()` on the open dialog.
+- `MainViewModel.DeviceCodeRequested` event is now re-raised on the UI thread (already was, but now also subscribed by `MainWindow` to open the modal instead of only logging).
+
 ## [0.16.0] - 2026-05-15
 
 ### Added

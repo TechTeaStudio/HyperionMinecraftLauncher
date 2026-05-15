@@ -530,14 +530,21 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Re-raised from <see cref="IMicrosoftAuthService.DeviceCodeRequested"/> on the UI thread,
+    /// so the View can show a modal dialog with the readable code.
+    /// </summary>
+    public event EventHandler<MicrosoftDeviceCodeInfo>? DeviceCodeRequested;
+
     private void OnDeviceCodeRequested(object? sender, MicrosoftDeviceCodeInfo info)
     {
         // The MSAL device-code callback runs off the UI thread. Marshal back so Append
-        // (which raises PropertyChanged on LogText) updates bindings cleanly.
+        // (which raises PropertyChanged on LogText) updates bindings cleanly AND so the
+        // re-raised DeviceCodeRequested fires on the dispatcher thread (View opens a modal).
         Avalonia.Threading.Dispatcher.UIThread.Post(() =>
         {
-            Append($"Microsoft sign-in: open {info.VerificationUrl} and enter code {info.UserCode}");
-            Append("(Your default browser should have opened to that page automatically.)");
+            Append($"Microsoft sign-in: enter code {info.UserCode} at {info.VerificationUrl}");
+            DeviceCodeRequested?.Invoke(this, info);
         });
     }
 
