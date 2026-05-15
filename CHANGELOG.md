@@ -3,6 +3,11 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.0] - 2026-05-15
+
+### Added
+- **Auto-refresh on startup**: `MainViewModel.RunStartupRefreshesAsync()` walks through Installed versions / launcher_profiles / servers / news / version manifest in sequence right after construction, so the launcher lands fully populated instead of with five empty cards waiting for the user to click "Refresh". App fires it via `Dispatcher.UIThread.Post(..., DispatcherPriority.Background)` so the first paint isn't blocked.
+
 ## [0.15.0] - 2026-05-15
 
 ### Added

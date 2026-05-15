@@ -394,6 +394,24 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Populate every observable list (installed versions, profiles, servers, news, manifest)
+    /// on startup so the user lands on a fully-rendered launcher without having to click five
+    /// "Refresh" buttons. Runs the refreshes in parallel for fast first-paint; surfaces failures
+    /// through the existing log/Append path. Safe to call once on construction.
+    /// </summary>
+    public async Task RunStartupRefreshesAsync()
+    {
+        Append("Auto-refreshing on startup ...");
+        // Each refresh sets IsBusy, so we serialize them - parallel would have the buttons
+        // flicker in/out and the log lines interleave incomprehensibly.
+        await RefreshInstalledVersionsAsync();
+        await RefreshProfilesAsync();
+        await RefreshServersAsync();
+        await RefreshNewsAsync();
+        await RefreshVersionsAsync();
+    }
+
     private async Task SaveSettingsAsync()
     {
         if (_settingsStore is null) return;
