@@ -3,6 +3,13 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.2] - 2026-05-15
+
+### Added
+- **Drag-to-rotate head** on the Skins page. `SkinPreview` now tracks pointer state on the head image; each pointer-move delta tweaks the `Skin3DHeadTypeB` x / y view parameters and re-renders the head PNG, which is cheap because the source is 64x64. Cursor turns into a four-arrow indicator over the head, plus a "Drag the head to rotate" hint sits at the bottom.
+- **Cape support.** New `SkinPreview.CapeSource` styled property renders via `Cape2DTypaA.MakeCapeImage` next to the body sprite. `MainWindow` pushes the cape PNG (already fetched by `MojangPlayerSkinFetcher` and cached on disk) when sign-in finishes; it clears the slot when the user has no cape.
+- **Real isometric chest icon** for the Installations sidebar item. Generated once by `scripts/render_iso_chest.py`: loads the chest entity texture, crops top + front + right-side faces, warps each into a 2:1 pixel-art isometric parallelogram with PIL's `PERSPECTIVE` transform, and composites back-to-front. Output at `Assets/Icons/MC/chest_iso.png` (336x348, indexed) - looks like an actual chest now, not a flat texture strip.
+
 ## [0.21.1] - 2026-05-15
 
 ### Fixed
