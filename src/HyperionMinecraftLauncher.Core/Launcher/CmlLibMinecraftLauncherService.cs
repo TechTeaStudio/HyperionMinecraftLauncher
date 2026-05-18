@@ -70,6 +70,49 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     public static CmlLibMinecraftLauncherService Create(ILauncherLogger logger, IMicrosoftAuthService? microsoftAuth = null)
         => new(new CmlLibUnderlyingLauncher(), logger, microsoftAuth);
 
+    /// <summary>
+    /// Parse a <c>host</c> or <c>host:port</c> string (the shape stored in <c>servers.dat</c>) into
+    /// its two parts. Empty / whitespace input throws <see cref="ArgumentException"/>; a missing
+    /// port falls back to the Minecraft default (25565); an unparseable port preserves the
+    /// numeric default rather than crashing.
+    /// </summary>
+    /// <param name="hostPort">e.g. <c>"mc.hypixel.net"</c>, <c>"127.0.0.1:25577"</c>, or an IPv6 bracketed form.</param>
+    /// <returns>The host (lowercased trim) and TCP port.</returns>
+    public static (string Host, int Port) ParseHostPort(string hostPort)
+    {
+        if (string.IsNullOrWhiteSpace(hostPort))
+            throw new ArgumentException("host:port is required", nameof(hostPort));
+
+        var trimmed = hostPort.Trim();
+        const int DefaultPort = 25565;
+
+        // IPv6 in brackets: [::1]:25565 or [::1]
+        if (trimmed.StartsWith('['))
+        {
+            var close = trimmed.IndexOf(']');
+            if (close > 0)
+            {
+                var host = trimmed.Substring(1, close - 1);
+                if (close + 1 < trimmed.Length && trimmed[close + 1] == ':'
+                    && int.TryParse(trimmed.AsSpan(close + 2), out var p6) && p6 is > 0 and <= 65535)
+                    return (host, p6);
+                return (host, DefaultPort);
+            }
+        }
+
+        // Plain host[:port].
+        var idx = trimmed.LastIndexOf(':');
+        if (idx <= 0 || idx == trimmed.Length - 1)
+            return (trimmed, DefaultPort);
+
+        var hostPart = trimmed.Substring(0, idx);
+        var portPart = trimmed.Substring(idx + 1);
+        if (int.TryParse(portPart, out var port) && port is > 0 and <= 65535)
+            return (hostPart, port);
+
+        return (hostPart, DefaultPort);
+    }
+
     /// <inheritdoc />
     public async Task<IReadOnlyList<NewsEntry>> ListNewsAsync(CancellationToken cancellationToken)
     {

@@ -15,6 +15,9 @@ using MinecraftSkinRender.Image;
 using SkiaSharp;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
 using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 
@@ -239,6 +242,43 @@ public partial class MainWindow : Window
         {
             vm.GameDirectoryOverride = uri.LocalPath;
         }
+    }
+
+    /// <summary>Servers page "Join" button: open the confirmation dialog, then Quick-Play-launch the picked instance.</summary>
+    private async void OnJoinServerClicked(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        if (sender is not Button { Tag: ServerListEntry server }) return;
+
+        if (vm.Instances.Count == 0)
+        {
+            vm.Append("[error] No instances available to launch into. Create one on the Installations page first.");
+            return;
+        }
+
+        var dialog = JoinServerDialog.ForServer(server, vm.Instances, vm.SelectedInstance);
+        await dialog.ShowDialog(this);
+        if (!dialog.Confirmed || dialog.SelectedInstance is not { } picked) return;
+
+        var (host, port) = CmlLibMinecraftLauncherService.ParseHostPort(server.Ip);
+        await vm.QuickPlayLaunchAsync(picked, new QuickPlay.Multiplayer(host, port));
+    }
+
+    /// <summary>Home page "Resume world..." button: pick a world and Quick-Play-launch into it.</summary>
+    private async void OnResumeWorldClicked(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        if (vm.SelectedInstance is not { } inst)
+        {
+            vm.Append("[error] Pick an instance first - Resume world needs to know which install to use.");
+            return;
+        }
+
+        var dialog = WorldsDialog.ForInstance(inst, vm.GameDirectoryOverride);
+        await dialog.ShowDialog(this);
+        if (!dialog.Confirmed || dialog.SelectedWorldFolder is not { } world) return;
+
+        await vm.QuickPlayLaunchAsync(inst, new QuickPlay.Singleplayer(world));
     }
 
     private async void OnBrowseJavaExe(object? sender, RoutedEventArgs e)

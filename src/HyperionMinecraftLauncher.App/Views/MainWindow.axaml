@@ -6,6 +6,7 @@
         xmlns:controls="using:TechTeaStudio.HyperionMinecraftLauncher.App.Controls"
         xmlns:local="using:TechTeaStudio.HyperionMinecraftLauncher.App.Views"
         xmlns:instances="using:TechTeaStudio.HyperionMinecraftLauncher.Core.Instances"
+        xmlns:servers="using:TechTeaStudio.HyperionMinecraftLauncher.Core.Servers"
         xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
         xmlns:assists="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
         mc:Ignorable="d"
@@ -243,13 +244,19 @@
         <!-- Username + Launch row -->
         <Border Grid.Row="3" Padding="10" Margin="0,0,0,8" CornerRadius="6"
                 Background="{DynamicResource MaterialPaperBrush}">
-          <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+          <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto">
             <Image Grid.Column="0" Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/steve_face.png"
                    Width="22" Height="22" Margin="0,0,10,0" VerticalAlignment="Center" />
             <TextBlock Grid.Column="1" Text="Offline username:" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0" />
             <TextBox Grid.Column="2" Text="{Binding Username, Mode=TwoWay}" Watermark="Steve" FontSize="12"
                      IsEnabled="{Binding !IsSignedInOnline}" />
             <Button Grid.Column="3"
+                    Content="Resume world..."
+                    Click="OnResumeWorldClicked"
+                    FontSize="11"
+                    Padding="10,5" Margin="8,0,0,0"
+                    ToolTip.Tip="Quick Play: pick a world under .minecraft/saves/ and open it directly." />
+            <Button Grid.Column="4"
                     Content="Launch"
                     Command="{Binding LaunchCommand}"
                     Classes="accent LaunchBtn"
@@ -375,14 +382,19 @@
           <ListBox ItemsSource="{Binding Servers}"
                    Background="Transparent" BorderThickness="0">
             <ListBox.ItemTemplate>
-              <DataTemplate>
-                <Grid ColumnDefinitions="Auto,*" Margin="2,3">
+              <DataTemplate DataType="servers:ServerListEntry">
+                <Grid ColumnDefinitions="Auto,*,Auto" Margin="2,3">
                   <Image Grid.Column="0" Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/ender_pearl.png"
                          Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center" />
                   <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12" />
                     <TextBlock Text="{Binding Ip}" Opacity="0.65" FontSize="10" />
                   </StackPanel>
+                  <Button Grid.Column="2" Content="Join"
+                          FontSize="11" Padding="10,3" Margin="6,0,2,0"
+                          VerticalAlignment="Center"
+                          Click="OnJoinServerClicked" Tag="{Binding}"
+                          ToolTip.Tip="Quick Play: launch and connect to this server." />
                 </Grid>
               </DataTemplate>
             </ListBox.ItemTemplate>
