@@ -8,6 +8,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.App.Views;
 using System.Net.Http;
 using System.Threading;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
@@ -69,7 +70,10 @@ public partial class App : Application
                 presence = new NullPresenceService();
             }
 
-            var viewModel = new MainViewModel(service, logger, microsoftAuth, settingsStore, presence);
+            // Per-instance browser: lists screenshots / worlds / servers under each instance's gameDir.
+            var instanceBrowser = new FileSystemInstanceBrowser();
+
+            var viewModel = new MainViewModel(service, logger, microsoftAuth, settingsStore, presence, instanceBrowser);
 
             var mainWindow = new MainWindow
             {

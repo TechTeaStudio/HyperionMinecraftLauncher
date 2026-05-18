@@ -6,6 +6,8 @@
         xmlns:controls="using:TechTeaStudio.HyperionMinecraftLauncher.App.Controls"
         xmlns:local="using:TechTeaStudio.HyperionMinecraftLauncher.App.Views"
         xmlns:instances="using:TechTeaStudio.HyperionMinecraftLauncher.Core.Instances"
+        xmlns:browsing="using:TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing"
+        xmlns:servers="using:TechTeaStudio.HyperionMinecraftLauncher.Core.Servers"
         xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
         xmlns:assists="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
         xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
@@ -334,7 +336,7 @@
       </Grid>
 
       <!-- ==== INSTALLATIONS PAGE ==== -->
-      <Grid IsVisible="{Binding IsInstallationsSelected}" Classes="Page" RowDefinitions="Auto,Auto,*">
+      <Grid IsVisible="{Binding IsInstallationsSelected}" Classes="Page" RowDefinitions="Auto,Auto,*,Auto">
         <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
           <TextBlock Text="Installations"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
@@ -429,6 +431,120 @@
             </ListBox.ItemTemplate>
           </ListBox>
         </ScrollViewer>
+
+        <!-- Per-instance detail panel: screenshots / worlds / servers, scoped to the selected instance's gameDir. -->
+        <Border Grid.Row="3" Margin="0,8,0,0" Padding="8" CornerRadius="6"
+                Background="{DynamicResource MaterialPaperBrush}"
+                BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1"
+                MinHeight="220"
+                IsVisible="{Binding HasSelectedInstance}">
+          <Grid RowDefinitions="Auto,*">
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="4" Margin="0,0,0,6">
+              <RadioButton Content="Screenshots" GroupName="InstanceTabs"
+                           Classes="DetailTab"
+                           IsChecked="{Binding IsScreenshotsTabSelected, Mode=OneWay}"
+                           Click="OnInstanceTabScreenshots" />
+              <RadioButton Content="Worlds" GroupName="InstanceTabs"
+                           Classes="DetailTab"
+                           IsChecked="{Binding IsWorldsTabSelected, Mode=OneWay}"
+                           Click="OnInstanceTabWorlds" />
+              <RadioButton Content="Servers" GroupName="InstanceTabs"
+                           Classes="DetailTab"
+                           IsChecked="{Binding IsInstanceServersTabSelected, Mode=OneWay}"
+                           Click="OnInstanceTabServers" />
+              <Button Content="Refresh" FontSize="10" Padding="8,2" Margin="14,0,0,0"
+                      Click="OnRefreshInstanceTab" />
+            </StackPanel>
+
+            <!-- Screenshots tab: WrapPanel of 160x100 thumbnail tiles. Click opens with OS default viewer. -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                          IsVisible="{Binding IsScreenshotsTabSelected}">
+              <ItemsControl ItemsSource="{Binding InstanceScreenshots}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate DataType="browsing:ScreenshotEntry">
+                    <Border Width="160" Height="118" Margin="4" CornerRadius="4"
+                            Background="{DynamicResource MaterialBackgroundBrush}"
+                            BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1"
+                            Classes="Card"
+                            ToolTip.Tip="{Binding Filename}">
+                      <Grid RowDefinitions="100,*">
+                        <Border Grid.Row="0" Background="#33000000">
+                          <Image Source="{Binding FullPath, Converter={x:Static local:PngPathToThumbnail.Instance}}"
+                                 Stretch="UniformToFill"
+                                 Tag="{Binding FullPath}"
+                                 PointerPressed="OnScreenshotPressed" />
+                        </Border>
+                        <TextBlock Grid.Row="1" Text="{Binding Filename}"
+                                   FontSize="9" Opacity="0.75"
+                                   TextTrimming="CharacterEllipsis"
+                                   Margin="4,2,4,2" />
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
+
+            <!-- Worlds tab: ListBox with name, display name, last played, size. Right-click opens folder. -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                          IsVisible="{Binding IsWorldsTabSelected}">
+              <ListBox ItemsSource="{Binding InstanceWorlds}"
+                       Background="Transparent" BorderThickness="0">
+                <ListBox.ItemTemplate>
+                  <DataTemplate DataType="browsing:WorldEntry">
+                    <Border Padding="6,4" Tag="{Binding FullPath}"
+                            PointerReleased="OnWorldRowPointerReleased">
+                      <Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,Auto">
+                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                   Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="12"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock Grid.Row="1" Grid.Column="0"
+                                   Text="{Binding FolderName}" Opacity="0.6" FontSize="10"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                   Text="{Binding LastPlayedIso, Converter={x:Static local:IsoToHumanizedAgo.Instance}}"
+                                   Opacity="0.7" FontSize="10" VerticalAlignment="Center"
+                                   Margin="10,0,0,0" />
+                        <TextBlock Grid.Row="1" Grid.Column="1"
+                                   Text="{Binding SizeBytes, Converter={x:Static local:ByteSizeFormatter.Instance}}"
+                                   Opacity="0.55" FontSize="10" VerticalAlignment="Center"
+                                   Margin="10,0,0,0" HorizontalAlignment="Right" />
+                        <TextBlock Grid.Row="0" Grid.Column="2" Grid.RowSpan="2"
+                                   Text="{Binding Version}" Opacity="0.55" FontSize="10"
+                                   VerticalAlignment="Center" Margin="10,0,0,0" />
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+            </ScrollViewer>
+
+            <!-- Servers tab: plain list of name + ip from this instance's servers.dat. -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                          IsVisible="{Binding IsInstanceServersTabSelected}">
+              <ListBox ItemsSource="{Binding InstanceServers}"
+                       Background="Transparent" BorderThickness="0">
+                <ListBox.ItemTemplate>
+                  <DataTemplate DataType="servers:ServerListEntry">
+                    <Grid ColumnDefinitions="Auto,*" Margin="2,3">
+                      <Image Grid.Column="0" Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/ender_pearl.png"
+                             Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center" />
+                      <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12" />
+                        <TextBlock Text="{Binding Ip}" Opacity="0.65" FontSize="10" />
+                      </StackPanel>
+                    </Grid>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+            </ScrollViewer>
+          </Grid>
+        </Border>
       </Grid>
 
       <!-- ==== SKINS PAGE ==== -->
@@ -843,6 +959,38 @@
          custom chrome stays flat against the acrylic. -->
     <Style Selector="RadioButton.Nav">
       <Setter Property="assists:ShadowAssist.ShadowDepth" Value="Depth0" />
+    </Style>
+
+    <!-- Per-instance detail-panel tab buttons: radios styled like chunky tabs. -->
+    <Style Selector="RadioButton.DetailTab">
+      <Setter Property="Padding" Value="10,4" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="assists:ShadowAssist.ShadowDepth" Value="Depth0" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Name="PART_Border"
+                  Background="{TemplateBinding Background}"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  Padding="{TemplateBinding Padding}">
+            <ContentPresenter Content="{TemplateBinding Content}" VerticalAlignment="Center" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="RadioButton.DetailTab /template/ Border#PART_Border">
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.14" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="RadioButton.DetailTab:pointerover /template/ Border#PART_Border">
+      <Setter Property="Background" Value="{DynamicResource MaterialPrimaryDarkBrush}" />
+    </Style>
+    <Style Selector="RadioButton.DetailTab:checked /template/ Border#PART_Border">
+      <Setter Property="Background" Value="{DynamicResource MaterialPrimaryMidBrush}" />
     </Style>
 
     <!-- Sidebar nav radios styled as full-width tiles. -->
