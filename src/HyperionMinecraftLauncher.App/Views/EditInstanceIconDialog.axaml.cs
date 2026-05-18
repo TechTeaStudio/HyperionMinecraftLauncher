@@ -3,6 +3,8 @@ using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using Avalonia.VisualTree;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
 
@@ -26,6 +28,7 @@ public partial class EditInstanceIconDialog : Window
     {
         InitializeComponent();
         IconPicker.ItemsSource = InstanceIcons.All;
+        UpdatePreview(SelectedIconKey);
     }
 
     /// <summary>
@@ -42,6 +45,7 @@ public partial class EditInstanceIconDialog : Window
             Title = $"Change icon - {instance.Name}",
         };
         dlg.SubtitleText.Text = $"Pick a new icon for '{instance.Name}'.";
+        dlg.UpdatePreview(instance.IconKey);
         // Pre-check the matching radio after the items have been generated.
         dlg.Opened += (_, _) => dlg.PreselectIcon(instance.IconKey);
         return dlg;
@@ -61,6 +65,26 @@ public partial class EditInstanceIconDialog : Window
         }
     }
 
+    /// <summary>
+    /// Updates the centred preview tile above the grid so the user can see the
+    /// currently-selected icon at a larger size before committing. Resolves the
+    /// icon key to the same <c>avares://</c> URI shape the picker tiles use.
+    /// </summary>
+    private void UpdatePreview(string iconKey)
+    {
+        if (PreviewImage is null || string.IsNullOrEmpty(iconKey)) return;
+        try
+        {
+            var uri = new Uri($"avares://HyperionMinecraftLauncher/Assets/Icons/MC/{iconKey}.png");
+            using var stream = AssetLoader.Open(uri);
+            PreviewImage.Source = new Bitmap(stream);
+        }
+        catch
+        {
+            // Missing asset is non-fatal: leave the previous preview in place.
+        }
+    }
+
     private void OnTitleBarPressed(object? sender, PointerPressedEventArgs e)
     {
         if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
@@ -70,7 +94,10 @@ public partial class EditInstanceIconDialog : Window
     private void OnIconClicked(object? sender, RoutedEventArgs e)
     {
         if (sender is RadioButton { Tag: string key })
+        {
             SelectedIconKey = key;
+            UpdatePreview(key);
+        }
     }
 
     private void OnCancel(object? sender, RoutedEventArgs e) => Close();
