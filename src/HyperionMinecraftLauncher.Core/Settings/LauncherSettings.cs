@@ -54,4 +54,19 @@ public sealed record LauncherSettings
     /// auto-install). Default <c>true</c>.
     /// </summary>
     public bool AutoUpdateCheckEnabled { get; init; } = true;
+
+    /// <summary>
+    /// If true, the launcher zips every world under each instance's <c>saves/</c> into
+    /// <c>backups/</c> before invoking the underlying launch. Default <c>true</c> -
+    /// Prism's safety net for the "MultiMC ate my world" class of incident. A failure
+    /// during the backup is logged as a warning but never blocks the launch.
+    /// </summary>
+    public bool AutoBackupBeforeLaunch { get; init; } = true;
+
+    /// <summary>
+    /// How many backups to retain per world. After each pre-launch backup, the launcher
+    /// prunes older zips per world down to this count. Default <c>5</c>; values &lt;= 0
+    /// disable pruning (keep everything).
+    /// </summary>
+    public int AutoBackupKeepLatest { get; init; } = 5;
 }

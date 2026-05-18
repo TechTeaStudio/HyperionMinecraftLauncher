@@ -694,6 +694,20 @@
                   <DataTemplate DataType="browsing:WorldEntry">
                     <Border Padding="6,4" Tag="{Binding FullPath}"
                             PointerReleased="OnWorldRowPointerReleased">
+                      <Border.ContextMenu>
+                        <ContextMenu>
+                          <MenuItem Header="Open folder"
+                                    Tag="{Binding FullPath}"
+                                    Click="OnWorldOpenFolderMenuClicked" />
+                          <Separator />
+                          <MenuItem Header="Backup now"
+                                    Command="{Binding $parent[ListBox].((vm:MainViewModel)DataContext).BackupWorldCommand}"
+                                    CommandParameter="{Binding FolderName}" />
+                          <MenuItem Header="Restore latest backup"
+                                    Command="{Binding $parent[ListBox].((vm:MainViewModel)DataContext).RestoreLatestBackupCommand}"
+                                    CommandParameter="{Binding FolderName}" />
+                        </ContextMenu>
+                      </Border.ContextMenu>
                       <Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,Auto">
                         <TextBlock Grid.Row="0" Grid.Column="0"
                                    Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="12"
@@ -1211,6 +1225,24 @@
                           Content="Keep launcher open after the game starts" />
                 <CheckBox IsChecked="{Binding ShowGameLog, Mode=TwoWay}" FontSize="11"
                           Content="Show game stdout / stderr in the launcher log (planned)" />
+              </StackPanel>
+            </Border>
+
+            <!-- Backups (v0.30 T21f). Pre-launch world snapshot under <gameDir>/backups/ -->
+            <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
+              <StackPanel Spacing="6">
+                <TextBlock Text="Backups" FontWeight="SemiBold" FontSize="12" />
+                <CheckBox IsChecked="{Binding AutoBackupBeforeLaunch, Mode=TwoWay}" FontSize="11"
+                          Content="Auto-backup worlds before each launch" />
+                <Grid ColumnDefinitions="*,80" Margin="0,2,0,0">
+                  <TextBlock Grid.Column="0" FontSize="11" VerticalAlignment="Center"
+                             Text="Keep latest N per world (0 = keep all):" />
+                  <NumericUpDown Grid.Column="1" Minimum="0" Maximum="100" Increment="1"
+                                 Value="{Binding AutoBackupKeepLatest, Mode=TwoWay}"
+                                 FormatString="0" FontSize="11" />
+                </Grid>
+                <TextBlock FontSize="10" Opacity="0.6" TextWrapping="Wrap"
+                           Text="Each world is zipped under &lt;gameDir&gt;/backups/{world}-{timestamp}.zip. A failure during backup is logged but never blocks the launch." />
               </StackPanel>
             </Border>
 

@@ -10,6 +10,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Backups;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Diagnostics;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
@@ -129,11 +130,16 @@ public partial class App : Application
             // Headless dedicated-server registry (v0.28 T11). Folder-per-server under LOCALAPPDATA.
             var headlessServerStore = new FileHeadlessServerStore();
 
+            // Per-instance world backup service (v0.30 T21f). Streams each saves/ subdir into
+            // <gameDir>/backups/{worldName}-{ts}.zip before each launch, gated by
+            // LauncherSettings.AutoBackupBeforeLaunch.
+            var backupService = new FileSystemBackupService();
+
             var viewModel = new MainViewModel(
                 service, logger, microsoftAuth, settingsStore,
                 presence, instanceBrowser, skinService, skinHistory,
                 modrinthRepo, curseForgeRepo, instanceModManager, accountStore,
-                updateChecker, headlessServerStore);
+                updateChecker, headlessServerStore, backupService);
 
             var mainWindow = new MainWindow
             {

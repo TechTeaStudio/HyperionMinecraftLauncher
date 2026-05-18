@@ -429,12 +429,21 @@ public partial class MainWindow : Window
         OpenWithOsDefault(path);
     }
 
-    /// <summary>Right-click on a world row -> open its folder in the OS file manager.</summary>
+    /// <summary>
+    /// Right-click on a world row used to open its folder directly. After T21f the row now
+    /// shows a ContextMenu (Open folder / Backup now / Restore latest backup), so this
+    /// handler is intentionally a no-op - we leave the ContextMenu to do the work.
+    /// </summary>
     private void OnWorldRowPointerReleased(object? sender, PointerReleasedEventArgs e)
     {
-        if (e.InitialPressMouseButton != MouseButton.Right) return;
-        if (sender is not Control c || c.Tag is not string path) return;
-        OpenWithOsDefault(path);
+        // ContextMenu opens automatically on right-press; nothing to do here.
+    }
+
+    /// <summary>Context-menu "Open folder" entry -> Explorer / Finder / xdg-open.</summary>
+    private void OnWorldOpenFolderMenuClicked(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Control c && c.Tag is string path && !string.IsNullOrEmpty(path))
+            OpenWithOsDefault(path);
     }
 
     /// <summary>Best-effort cross-platform "open path with default handler".</summary>
