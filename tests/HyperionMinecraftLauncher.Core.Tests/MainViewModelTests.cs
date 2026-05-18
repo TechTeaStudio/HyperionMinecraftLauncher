@@ -381,6 +381,47 @@ public class MainViewModelTests
         Assert.Contains("1.20.1-forge-47.4.5", vm.LogText);
     }
 
+    [Fact]
+    public void IsSidebarCollapsed_DefaultsFalse_WidthIsExpanded()
+    {
+        var vm = NewVm(out _, out _);
+
+        Assert.False(vm.IsSidebarCollapsed);
+        Assert.Equal(MainViewModel.SidebarExpandedWidth, vm.SidebarWidth);
+        Assert.True(vm.AreSidebarLabelsVisible);
+    }
+
+    [Fact]
+    public void IsSidebarCollapsed_FlipTrue_UpdatesWidthAndLabelsAndRaisesINPC()
+    {
+        var vm = NewVm(out _, out _);
+        var raised = new List<string?>();
+        vm.PropertyChanged += (_, e) => raised.Add(e.PropertyName);
+
+        vm.IsSidebarCollapsed = true;
+
+        Assert.True(vm.IsSidebarCollapsed);
+        Assert.Equal(MainViewModel.SidebarCollapsedWidth, vm.SidebarWidth);
+        Assert.False(vm.AreSidebarLabelsVisible);
+        Assert.Contains(nameof(MainViewModel.IsSidebarCollapsed), raised);
+        Assert.Contains(nameof(MainViewModel.SidebarWidth), raised);
+        Assert.Contains(nameof(MainViewModel.AreSidebarLabelsVisible), raised);
+    }
+
+    [Fact]
+    public async Task ToggleSidebarCommand_FlipsIsSidebarCollapsedBackAndForth()
+    {
+        var vm = NewVm(out _, out _);
+
+        Assert.False(vm.IsSidebarCollapsed);
+
+        await vm.ToggleSidebarCommand.ExecuteAsync();
+        Assert.True(vm.IsSidebarCollapsed);
+
+        await vm.ToggleSidebarCommand.ExecuteAsync();
+        Assert.False(vm.IsSidebarCollapsed);
+    }
+
     private static MainViewModel NewVm(out StubLauncherService service, out RecordingLogger logger)
     {
         service = new StubLauncherService();

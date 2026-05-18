@@ -33,6 +33,7 @@ public class LauncherSettingsStoreTests : IDisposable
         Assert.Equal(4096, s.MaximumRamMb);
         Assert.True(s.KeepLauncherOpen);
         Assert.False(s.ShowGameLog);
+        Assert.False(s.SidebarCollapsed);
         Assert.Null(s.GameDirectory);
         Assert.Null(s.JavaExecutable);
         Assert.Equal(string.Empty, s.JvmArguments);
@@ -51,6 +52,7 @@ public class LauncherSettingsStoreTests : IDisposable
             JavaExecutable = @"C:\Java\jdk-21\bin\javaw.exe",
             KeepLauncherOpen = false,
             ShowGameLog = true,
+            SidebarCollapsed = true,
         };
         await store.SaveAsync(original, CancellationToken.None);
 
@@ -79,5 +81,19 @@ public class LauncherSettingsStoreTests : IDisposable
         await store.SaveAsync(new LauncherSettings(), CancellationToken.None);
 
         Assert.True(File.Exists(deep));
+    }
+
+    [Fact]
+    public async Task SaveAsync_ThenLoadAsync_RoundTripsSidebarCollapsedBothStates()
+    {
+        var store = new FileLauncherSettingsStore(_path);
+
+        await store.SaveAsync(new LauncherSettings { SidebarCollapsed = true }, CancellationToken.None);
+        var loadedCollapsed = await store.LoadAsync(CancellationToken.None);
+        Assert.True(loadedCollapsed.SidebarCollapsed);
+
+        await store.SaveAsync(new LauncherSettings { SidebarCollapsed = false }, CancellationToken.None);
+        var loadedExpanded = await store.LoadAsync(CancellationToken.None);
+        Assert.False(loadedExpanded.SidebarCollapsed);
     }
 }
