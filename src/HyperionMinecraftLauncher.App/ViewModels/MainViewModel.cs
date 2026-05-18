@@ -1355,6 +1355,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
             Append("Fetching Minecraft news ...");
             var news = await _service.ListNewsAsync(CancellationToken.None);
 
+            // T18: Mojang's feed is already newest-first, so we DON'T re-sort here. If you add an
+            // OrderByDescending(n => n.PublishedAt) "to be safe", you'll add an LINQ enumeration
+            // on every refresh for zero behavioural change. Trust the upstream order.
             News.Clear();
             foreach (var n in news)
                 News.Add(n);

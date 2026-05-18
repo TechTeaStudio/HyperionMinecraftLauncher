@@ -2,14 +2,27 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Settings;
 
 /// <summary>Best-effort total physical RAM probe, used to clamp the memory slider on the Settings page.</summary>
 public static class SystemRam
 {
+    // T18: total RAM and the derived recommended heap cap are constant for the lifetime of the
+    // process, so we compute them lazily once. The MainViewModel ctor calls
+    // RecommendedMaxHeapMb() today; if future call sites appear (e.g. headless server tooling)
+    // they reuse the cached value at zero P/Invoke cost.
+    private static readonly Lazy<int> _totalMb = new(ComputeTotalMb, LazyThreadSafetyMode.PublicationOnly);
+    private static readonly Lazy<int> _recommendedMaxHeapMb = new(ComputeRecommendedMaxHeapMb, LazyThreadSafetyMode.PublicationOnly);
+
     /// <summary>Return total system RAM in MiB. Falls back to 8192 (8 GB) when the OS doesn't expose a known counter.</summary>
-    public static int TotalMb()
+    public static int TotalMb() => _totalMb.Value;
+
+    /// <summary>Recommended maximum heap in MiB for a 64-bit Minecraft JVM on this machine. We leave 25% headroom for the OS.</summary>
+    public static int RecommendedMaxHeapMb() => _recommendedMaxHeapMb.Value;
+
+    private static int ComputeTotalMb()
     {
         try
         {
@@ -31,10 +44,9 @@ public static class SystemRam
         return 8192;
     }
 
-    /// <summary>Recommended maximum heap in MiB for a 64-bit Minecraft JVM on this machine. We leave 25% headroom for the OS.</summary>
-    public static int RecommendedMaxHeapMb()
+    private static int ComputeRecommendedMaxHeapMb()
     {
-        var ram = TotalMb();
+        var ram = _totalMb.Value;
         // Reserve a quarter for the OS / browser / other processes.
         var max = (int)(ram * 0.75);
         // Never recommend more than 16 GB - modern MC barely uses 6 GB at peak.
