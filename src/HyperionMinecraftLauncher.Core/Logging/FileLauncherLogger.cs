@@ -13,6 +13,7 @@ namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 /// reopens the file in append mode under a coarse lock; this is fine for the launcher's
 /// low log volume (a few dozen lines per launch).
 /// </summary>
+[Obsolete("Prefer SerilogLauncherLogger. Kept for deterministic tests with injected clock.", false)]
 public sealed class FileLauncherLogger : ILauncherLogger, IDisposable
 {
     private static readonly Encoding LogEncoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
