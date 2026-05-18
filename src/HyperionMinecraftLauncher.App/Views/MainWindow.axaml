@@ -1642,7 +1642,8 @@
                 <CheckBox IsChecked="{Binding KeepLauncherOpen, Mode=TwoWay}" FontSize="11"
                           Content="{x:Static loc:Strings.Settings_KeepLauncherOpen}" />
                 <CheckBox IsChecked="{Binding ShowGameLog, Mode=TwoWay}" FontSize="11"
-                          Content="{x:Static loc:Strings.Settings_ShowGameLog}" />
+                          Content="{x:Static loc:Strings.Settings_ShowGameLog}"
+                          ToolTip.Tip="{x:Static loc:Strings.Settings_ShowGameLogTooltip}" />
               </StackPanel>
             </Border>
 

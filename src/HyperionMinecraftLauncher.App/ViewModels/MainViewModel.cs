@@ -38,6 +38,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.Browser;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.History;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Updates;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Util;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
@@ -3078,12 +3079,28 @@ public sealed class MainViewModel : INotifyPropertyChanged
                     JavaPath = javaOverride,
                     Loader = loader,
                     LoaderVersion = loaderVersion,
+                    // T-stdout-pipe (v0.32.1): ask the underlying launcher to redirect the child's
+                    // stdout/stderr only when the user has the in-launcher log mirror toggle on.
+                    // The launcher service then attaches an observable to LaunchResult.GameLogStream
+                    // which we subscribe to below.
+                    CaptureGameLog = _showGameLog,
                 },
                 progress,
                 CancellationToken.None);
 
             Append($"Launched. pid={result.ProcessId} version={result.VersionName}");
             _logger.Info($"UI: launch complete (pid {result.ProcessId}, version {result.VersionName}).");
+
+            // T-stdout-pipe (v0.32.1): subscribe to the live game log when capture is on. Each
+            // line lands in the same LogText buffer the rest of the launcher writes to, prefixed
+            // with [game] so users can tell it apart from launcher messages. The subscription
+            // self-cancels when the Subject completes (the underlying launcher fires OnCompleted
+            // from Process.Exited). We never await this - it's a fire-and-forget bridge that
+            // lives for the lifetime of the game process.
+            if (result.GameLogStream is { } gameLog)
+            {
+                _ = SubscribeToGameLogAsync(gameLog);
+            }
 
             // Update Discord presence to "Playing <version> - <instance>" now that the
             // game process is up. Cosmetic only - any failure here is logged and swallowed.
@@ -3597,6 +3614,44 @@ public sealed class MainViewModel : INotifyPropertyChanged
         LogText = string.IsNullOrEmpty(LogText)
             ? $"{stamp}  {line}"
             : $"{LogText}{Environment.NewLine}{stamp}  {line}";
+    }
+
+    /// <summary>
+    /// Bridge a live <see cref="GameLogLine"/> stream into the launcher's in-window log
+    /// (the <see cref="LogText"/> buffer). Each stdout/stderr line is prefixed with
+    /// <c>[game]</c> so users can tell game output apart from the launcher's own messages.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The returned <see cref="Task"/> completes when the observable fires <c>OnCompleted</c>
+    /// (the underlying launcher does so from <c>Process.Exited</c>), at which point the helper
+    /// logs a closing marker line and disposes the subscription. <c>public</c> rather than
+    /// <c>internal</c> so the Core test project can drive it without an
+    /// <c>InternalsVisibleTo</c>; the same exposure used by <see cref="Append"/>.
+    /// </para>
+    /// <para>
+    /// The underlying launcher raises <c>OutputDataReceived</c>/<c>ErrorDataReceived</c> on
+    /// background threads. Our <see cref="LogText"/> setter notifies bindings via the
+    /// <see cref="System.ComponentModel.INotifyPropertyChanged"/> contract which Avalonia
+    /// dispatches to the UI thread internally, so the bridge stays correct without an
+    /// explicit thread hop on this side. The unit tests exercise both the subscribe and the
+    /// complete-on-OnCompleted paths.
+    /// </para>
+    /// </remarks>
+    public Task SubscribeToGameLogAsync(IObservable<GameLogLine> stream)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        var tcs = new TaskCompletionSource();
+        IDisposable? sub = null;
+        sub = stream.Subscribe(
+            onNext: line => Append($"[game] {line.Text}"),
+            onCompleted: () =>
+            {
+                Append("[game] (process exited)");
+                sub?.Dispose();
+                tcs.TrySetResult();
+            });
+        return tcs.Task;
     }
 
     // ---- Logs page ----

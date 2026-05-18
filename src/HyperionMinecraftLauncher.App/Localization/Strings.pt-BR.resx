@@ -196,7 +196,8 @@
   <data name="Settings.JavaExeWatermark" xml:space="preserve"><value>(deixe vazio para o CmlLib detectar automaticamente)</value></data>
   <data name="Settings.LauncherPrefsHeader" xml:space="preserve"><value>Preferências do launcher</value></data>
   <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>Manter o launcher aberto depois que o jogo iniciar</value></data>
-  <data name="Settings.ShowGameLog" xml:space="preserve"><value>Mostrar stdout / stderr do jogo no log do launcher (planejado)</value></data>
+  <data name="Settings.ShowGameLog" xml:space="preserve"><value>Mostrar stdout / stderr do jogo no log do launcher</value></data>
+  <data name="Settings.ShowGameLogTooltip" xml:space="preserve"><value>Transmitir stdout / stderr do Minecraft para o log do launcher.</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>Backups</value></data>
   <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>Fazer backup automático dos mundos antes de cada início</value></data>
   <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>Manter os N mais recentes por mundo (0 = manter todos):</value></data>

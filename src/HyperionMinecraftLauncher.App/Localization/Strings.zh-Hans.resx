@@ -196,7 +196,8 @@
   <data name="Settings.JavaExeWatermark" xml:space="preserve"><value>（留空则由 CmlLib 自动检测）</value></data>
   <data name="Settings.LauncherPrefsHeader" xml:space="preserve"><value>启动器偏好设置</value></data>
   <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>游戏启动后保持启动器打开</value></data>
-  <data name="Settings.ShowGameLog" xml:space="preserve"><value>在启动器日志中显示游戏的 stdout / stderr（计划中）</value></data>
+  <data name="Settings.ShowGameLog" xml:space="preserve"><value>在启动器日志中显示游戏的 stdout / stderr</value></data>
+  <data name="Settings.ShowGameLogTooltip" xml:space="preserve"><value>将 Minecraft 的 stdout / stderr 流式输出到启动器内日志。</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>备份</value></data>
   <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>每次启动前自动备份世界</value></data>
   <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>每个世界保留最新 N 份（0 = 全部保留）：</value></data>

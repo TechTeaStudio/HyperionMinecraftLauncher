@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -9,6 +10,7 @@ using CmlLib.Core.Auth;
 using CmlLib.Core.Installers;
 using CmlLib.Core.ProcessBuilder;
 using CmlLib.Core.VersionMetadata;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Util;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
@@ -119,7 +121,10 @@ public sealed class CmlLibUnderlyingLauncher : IUnderlyingLauncher
     }
 
     /// <inheritdoc />
-    public async Task<int> StartProcessAsync(LaunchRequest request, CancellationToken cancellationToken)
+    public async Task<StartProcessResult> StartProcessAsync(
+        LaunchRequest request,
+        bool captureGameLog,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(request.Session);
@@ -187,8 +192,49 @@ public sealed class CmlLibUnderlyingLauncher : IUnderlyingLauncher
         }
 
         var process = await _launcher.BuildProcessAsync(request.VersionName, options, cancellationToken).ConfigureAwait(false);
-        process.Start();
-        return process.Id;
+
+        // Game-log capture (T-stdout-pipe, v0.32.1): only wire stdout/stderr redirection when the
+        // caller asked for it. Production launches with ShowGameLog=false keep the default
+        // shell-attached pipes (no per-line cost, child writes straight to the parent terminal
+        // / GUI subsystem). When capture is on we flip RedirectStandardOutput/Error before Start()
+        // and drain the pipes into a multicast Subject<GameLogLine> through the
+        // OutputDataReceived/ErrorDataReceived events. Process.Exited completes the observable
+        // so subscribers can dispose deterministically. EnableRaisingEvents is required for the
+        // Exited event to fire when the process actually quits.
+        IObservable<GameLogLine>? logStream = null;
+        if (captureGameLog)
+        {
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+
+            var subject = new Subject<GameLogLine>();
+            logStream = subject;
+
+            process.OutputDataReceived += (_, args) =>
+            {
+                if (args.Data is string line)
+                    subject.OnNext(new GameLogLine(line, GameLogStream.Stdout, DateTimeOffset.UtcNow));
+            };
+            process.ErrorDataReceived += (_, args) =>
+            {
+                if (args.Data is string line)
+                    subject.OnNext(new GameLogLine(line, GameLogStream.Stderr, DateTimeOffset.UtcNow));
+            };
+
+            process.EnableRaisingEvents = true;
+            process.Exited += (_, _) => subject.OnCompleted();
+
+            process.Start();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+        }
+        else
+        {
+            process.Start();
+        }
+
+        return new StartProcessResult { ProcessId = process.Id, GameLogStream = logStream };
     }
 
     /// <summary>

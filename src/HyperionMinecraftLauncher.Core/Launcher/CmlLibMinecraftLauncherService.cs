@@ -657,10 +657,17 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
 
         try
         {
-            var pid = await _underlying.StartProcessAsync(request, cancellationToken).ConfigureAwait(false);
+            var started = await _underlying
+                .StartProcessAsync(request, request.CaptureGameLog, cancellationToken)
+                .ConfigureAwait(false);
 
-            _logger.Info($"Minecraft '{request.VersionName}' started (pid {pid}).");
-            return new LaunchResult { ProcessId = pid, VersionName = request.VersionName };
+            _logger.Info($"Minecraft '{request.VersionName}' started (pid {started.ProcessId}).");
+            return new LaunchResult
+            {
+                ProcessId = started.ProcessId,
+                VersionName = request.VersionName,
+                GameLogStream = started.GameLogStream,
+            };
         }
         catch (OperationCanceledException)
         {

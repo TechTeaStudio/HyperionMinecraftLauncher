@@ -193,7 +193,8 @@
   <data name="Settings.JavaExeWatermark" xml:space="preserve"><value>(空のままで CmlLib に自動検出させます)</value></data>
   <data name="Settings.LauncherPrefsHeader" xml:space="preserve"><value>ランチャーの環境設定</value></data>
   <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>ゲーム開始後もランチャーを開いたままにする</value></data>
-  <data name="Settings.ShowGameLog" xml:space="preserve"><value>ゲームの stdout / stderr をランチャーのログに表示する (予定)</value></data>
+  <data name="Settings.ShowGameLog" xml:space="preserve"><value>ゲームの stdout / stderr をランチャーのログに表示する</value></data>
+  <data name="Settings.ShowGameLogTooltip" xml:space="preserve"><value>Minecraft の stdout / stderr をランチャー内のログに流します。</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>バックアップ</value></data>
   <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>起動前に各ワールドを自動バックアップする</value></data>
   <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>ワールドごとに保持する最新 N 件 (0 = すべて保持):</value></data>

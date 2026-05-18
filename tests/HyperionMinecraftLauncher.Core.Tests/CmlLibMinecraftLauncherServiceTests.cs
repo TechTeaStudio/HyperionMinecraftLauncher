@@ -369,14 +369,25 @@ internal sealed class FakeUnderlyingLauncher : IUnderlyingLauncher
         return Task.CompletedTask;
     }
 
-    public Task<int> StartProcessAsync(LaunchRequest request, CancellationToken cancellationToken)
+    /// <summary>Last value of <c>captureGameLog</c> the service passed through.</summary>
+    public bool? LastCaptureGameLog { get; private set; }
+
+    /// <summary>Test hook: when set, <see cref="StartProcessAsync"/> returns this as <see cref="StartProcessResult.GameLogStream"/>.</summary>
+    public IObservable<GameLogLine>? GameLogStreamToReturn { get; set; }
+
+    public Task<StartProcessResult> StartProcessAsync(LaunchRequest request, bool captureGameLog, CancellationToken cancellationToken)
     {
         StartCalled = true;
         InstallCalledBeforeStart = InstallCalled;
         LastRequest = request;
+        LastCaptureGameLog = captureGameLog;
 
         if (ThrowOnStart is not null) throw ThrowOnStart;
-        return Task.FromResult(ProcessIdToReturn);
+        return Task.FromResult(new StartProcessResult
+        {
+            ProcessId = ProcessIdToReturn,
+            GameLogStream = GameLogStreamToReturn,
+        });
     }
 }
 

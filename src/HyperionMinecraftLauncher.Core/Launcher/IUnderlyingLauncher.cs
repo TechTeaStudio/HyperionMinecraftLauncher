@@ -23,11 +23,25 @@ public interface IUnderlyingLauncher
         CancellationToken cancellationToken);
 
     /// <summary>
-    /// Spawn the Java process for the given <paramref name="request"/>, returning its OS process id.
-    /// All session, RAM, and Quick Play settings are read from the request - keeps this interface
-    /// resilient to future additions on <see cref="LaunchRequest"/> without further sig churn.
+    /// Spawn the Java process for the given <paramref name="request"/>, returning its OS process id
+    /// and, when <paramref name="captureGameLog"/> is <c>true</c>, a live multicast
+    /// <see cref="IObservable{T}"/> of <see cref="GameLogLine"/>s drained from the child's
+    /// stdout/stderr pipes.
     /// </summary>
-    Task<int> StartProcessAsync(
+    /// <param name="request">
+    /// All session, RAM, and Quick Play settings - resilient to future additions on
+    /// <see cref="LaunchRequest"/> without further sig churn.
+    /// </param>
+    /// <param name="captureGameLog">
+    /// When <c>true</c>, the implementation redirects <c>stdout</c>/<c>stderr</c> and exposes
+    /// them through <see cref="StartProcessResult.GameLogStream"/>. When <c>false</c>, the
+    /// implementation skips both the redirection cost and the observable plumbing - production
+    /// launches with <see cref="Settings.LauncherSettings.ShowGameLog"/> off pay no per-line
+    /// allocation overhead.
+    /// </param>
+    /// <param name="cancellationToken">Cancellation token for the launch.</param>
+    Task<StartProcessResult> StartProcessAsync(
         LaunchRequest request,
+        bool captureGameLog,
         CancellationToken cancellationToken);
 }

@@ -196,7 +196,8 @@
   <data name="Settings.JavaExeWatermark" xml:space="preserve"><value>(оставьте пустым, чтобы CmlLib нашёл сам)</value></data>
   <data name="Settings.LauncherPrefsHeader" xml:space="preserve"><value>Настройки лаунчера</value></data>
   <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>Держать лаунчер открытым после запуска игры</value></data>
-  <data name="Settings.ShowGameLog" xml:space="preserve"><value>Показывать stdout / stderr игры в логе лаунчера (запланировано)</value></data>
+  <data name="Settings.ShowGameLog" xml:space="preserve"><value>Показывать stdout / stderr игры в логе лаунчера</value></data>
+  <data name="Settings.ShowGameLogTooltip" xml:space="preserve"><value>Транслировать stdout / stderr Minecraft в лог лаунчера.</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>Бэкапы</value></data>
   <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>Автоматически бэкапить миры перед каждым запуском</value></data>
   <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>Хранить последних N на мир (0 = хранить все):</value></data>
