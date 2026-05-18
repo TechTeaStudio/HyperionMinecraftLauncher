@@ -14,6 +14,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods;
@@ -1825,6 +1826,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 Append($"{p.Stage}{fractionText}{itemText}");
             });
 
+            // Manual Java override wins: when the user has pinned a specific java.exe in Settings,
+            // pass it through verbatim and skip the auto-download. Otherwise let the service pull
+            // the matching Adoptium Temurin runtime for the requested Minecraft version.
+            var javaOverride = string.IsNullOrWhiteSpace(_javaExecutableOverride) ? null : _javaExecutableOverride;
+            var javaRequirement = javaOverride is null ? JavaRequirementResolver.For(versionName) : (JavaRequirement?)null;
+
             Append($"Launching {versionName} (Xms={MinMemoryMb}M, Xmx={MaxMemoryMb}M) ...");
             var result = await _service.LaunchAsync(
                 new LaunchRequest
@@ -1835,6 +1842,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
                     MinimumRamMb = MinMemoryMb,
                     MaximumRamMb = MaxMemoryMb,
                     QuickPlay = quickPlay,
+                    JavaRequirement = javaRequirement,
+                    JavaPath = javaOverride,
                 },
                 progress,
                 CancellationToken.None);

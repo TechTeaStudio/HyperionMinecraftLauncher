@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using CmlLib.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
@@ -34,6 +35,7 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     private readonly IServerPinger _serverPinger;
     private readonly INewsClient _newsClient;
     private readonly IInstanceStore _instanceStore;
+    private readonly IJavaRuntimeManager _javaRuntimeManager;
 
     /// <summary>Primary constructor used by the App and by tests.</summary>
     /// <param name="microsoftAuth">Optional Microsoft sign-in provider. When omitted, <see cref="AuthMode.Microsoft"/>
@@ -43,6 +45,12 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     /// <see cref="FileSystemInstalledVersionScanner"/> if omitted.</param>
     /// <param name="installationLocator">Locates the platform-default <c>.minecraft</c> directory. Defaults to
     /// <see cref="DefaultMinecraftInstallationLocator"/>.</param>
+    /// <param name="javaRuntimeManager">Optional Adoptium-backed JRE downloader. Defaults to
+    /// <see cref="NullJavaRuntimeManager"/> in tests and headless contexts; the App injects a real
+    /// <see cref="AdoptiumJavaRuntimeManager"/>. When the request carries a non-null
+    /// <see cref="LaunchRequest.JavaRequirement"/>, the service ensures the runtime is on disk
+    /// before invoking the underlying CmlLib launch and patches <see cref="LaunchRequest.JavaPath"/>
+    /// with the resolved <c>java(.exe)</c> path.</param>
     public CmlLibMinecraftLauncherService(
         IUnderlyingLauncher underlying,
         ILauncherLogger logger,
@@ -53,7 +61,8 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         IServersStore? serversStore = null,
         INewsClient? newsClient = null,
         IInstanceStore? instanceStore = null,
-        IServerPinger? serverPinger = null)
+        IServerPinger? serverPinger = null,
+        IJavaRuntimeManager? javaRuntimeManager = null)
     {
         _underlying = underlying ?? throw new ArgumentNullException(nameof(underlying));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -65,6 +74,7 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         _serverPinger = serverPinger ?? new TcpServerPinger();
         _newsClient = newsClient ?? new MojangNewsClient();
         _instanceStore = instanceStore ?? new FileInstanceStore();
+        _javaRuntimeManager = javaRuntimeManager ?? new NullJavaRuntimeManager();
     }
 
     /// <summary>
@@ -387,6 +397,40 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         }
 
         _logger.Info($"Installing Minecraft '{request.VersionName}' for user '{request.Session.Username}' ...");
+
+        // Auto-download the matching Adoptium Temurin JRE if the request specifies a requirement
+        // AND no explicit JavaPath was already set. We patch the request in place via 'with' so
+        // CmlLibUnderlyingLauncher can pick up the resolved exe through MLaunchOption.JavaPath.
+        if (request.JavaRequirement is JavaRequirement requirement && string.IsNullOrWhiteSpace(request.JavaPath))
+        {
+            progress?.Report(new LaunchProgress { Stage = $"Preparing Java {(int)requirement}", Fraction = 0 });
+            try
+            {
+                var javaProgress = progress is null ? null : new Progress<double>(f =>
+                    progress.Report(new LaunchProgress { Stage = $"Downloading Java", Fraction = f }));
+                var javaPath = await _javaRuntimeManager
+                    .EnsureRuntimeAsync(requirement, javaProgress, cancellationToken)
+                    .ConfigureAwait(false);
+                if (!string.IsNullOrWhiteSpace(javaPath))
+                {
+                    _logger.Info($"Resolved managed JRE for {requirement} at '{javaPath}'.");
+                    request = request with { JavaPath = javaPath };
+                }
+                else
+                {
+                    _logger.Info($"Java runtime manager returned no path for {requirement}; using launcher default.");
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                // JRE bootstrap is a best-effort: log and proceed with whatever java the OS exposes.
+                _logger.Warn($"Could not provision Java {requirement}: {ex.Message}. Falling back to system default.");
+            }
+        }
 
         try
         {

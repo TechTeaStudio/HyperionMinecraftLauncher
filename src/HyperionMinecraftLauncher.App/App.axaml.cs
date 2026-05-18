@@ -12,6 +12,7 @@ using System.Threading;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods;
@@ -59,10 +60,21 @@ public partial class App : Application
             // The default 1.8 protocol number keeps us compatible with virtually every modern server.
             var serverPinger = new TcpServerPinger();
 
+            // Adoptium Temurin auto-installer: writes JREs under %LOCALAPPDATA%/HyperionMinecraftLauncher/java/.
+            // Reuses its own HttpClient with a generous 5-minute timeout because a fresh JRE download
+            // on a slow link is the longest-running thing the launcher pulls.
+            var javaHttp = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
+            var javaRuntimeManager = new AdoptiumJavaRuntimeManager(
+                javaHttp,
+                AdoptiumJavaRuntimeManager.DefaultRootDirectory(),
+                AdoptiumJavaRuntimeManager.DetectOs(),
+                AdoptiumJavaRuntimeManager.DetectArch());
+
             var service = new CmlLibMinecraftLauncherService(
                 new CmlLibUnderlyingLauncher(), logger, microsoftAuth,
                 newsClient: newsClient,
-                serverPinger: serverPinger);
+                serverPinger: serverPinger,
+                javaRuntimeManager: javaRuntimeManager);
 
             // Discord Rich Presence - obeys the LauncherSettings toggle. Read settings synchronously
             // here for the same reason MainViewModel does: the file is tiny and the wiring has to know
