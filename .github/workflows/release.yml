@@ -1,0 +1,150 @@
+name: Release
+
+# Tag-driven release pipeline.
+#
+# Triggered ONLY by pushing a SemVer tag like `v0.32.1`. Branch pushes do
+# nothing here - the CI matrix in dotnet.yml already covers per-commit build
+# and test on `product`. This workflow is reserved for producing user-facing
+# artifacts (Windows .zip, Linux .AppImage, macOS .app.zip) and, optionally,
+# attaching them to a GitHub Release.
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    name: package (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: windows-latest
+            rid: win-x64
+          - os: macos-latest
+            rid: osx-arm64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        run: dotnet restore HyperionMinecraftLauncher.slnx
+
+      - name: Test
+        run: dotnet test HyperionMinecraftLauncher.slnx -c Release
+
+      # Linux: AppImage via the existing script in scripts/build-appimage.sh.
+      - name: Package (Linux AppImage)
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          set -euo pipefail
+          # appimagetool is optional - if it's not on PATH the script leaves the
+          # AppDir unpacked and exits 0. We try to install it so the artifact is
+          # an actual .AppImage; if the install fails we still upload the AppDir.
+          if ! command -v appimagetool >/dev/null 2>&1; then
+            curl -sSL -o /tmp/appimagetool \
+              "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+            chmod +x /tmp/appimagetool
+            sudo mv /tmp/appimagetool /usr/local/bin/appimagetool
+          fi
+          bash scripts/build-appimage.sh
+
+      - name: Stage Linux artifact
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          # Prefer the packed .AppImage if present, fall back to a tar of the AppDir.
+          if compgen -G "publish/*.AppImage" > /dev/null; then
+            cp publish/*.AppImage "artifacts/hyperion-linux-x64-${GITHUB_REF_NAME}.AppImage"
+          else
+            tar -C publish -czf "artifacts/hyperion-linux-x64-${GITHUB_REF_NAME}.AppDir.tar.gz" HyperionMinecraftLauncher.AppDir
+          fi
+
+      # Windows: self-contained single-file publish then zip.
+      - name: Package (Windows zip)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          dotnet publish src/HyperionMinecraftLauncher.App `
+            -r win-x64 `
+            -c Release `
+            --self-contained `
+            -p:PublishSingleFile=true `
+            -o publish/win-x64
+          New-Item -ItemType Directory -Force artifacts | Out-Null
+          $zip = "artifacts/hyperion-win-x64-$env:GITHUB_REF_NAME.zip"
+          Compress-Archive -Path publish/win-x64/* -DestinationPath $zip -Force
+
+      # macOS: no .app packaging script yet (see README roadmap "macOS .pkg / .dmg
+      # packaging" gap). Publish the binary, zip the output, and tag the artifact
+      # name with "pending" so the gap is visible in the GitHub Release UI.
+      - name: Package (macOS publish placeholder)
+        if: matrix.os == 'macos-latest'
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "[macos packaging script pending] producing raw publish output"
+          if [ -f scripts/build-macos-app.sh ]; then
+            bash scripts/build-macos-app.sh
+          else
+            dotnet publish src/HyperionMinecraftLauncher.App \
+              -r osx-arm64 \
+              -c Release \
+              --self-contained \
+              -p:PublishSingleFile=true \
+              -o publish/osx-arm64
+          fi
+          mkdir -p artifacts
+          (cd publish && zip -r "../artifacts/hyperion-osx-arm64-${GITHUB_REF_NAME}.app.zip" osx-arm64)
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hyperion-${{ matrix.rid }}-${{ github.ref_name }}
+          path: artifacts/*
+          if-no-files-found: error
+
+  release:
+    name: GitHub Release
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Flatten artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release-assets
+          find dist -type f \( -name '*.zip' -o -name '*.AppImage' -o -name '*.tar.gz' \) -print -exec cp {} release-assets/ \;
+          ls -la release-assets
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body_path: CHANGELOG.md
+          files: release-assets/*
+          fail_on_unmatched_files: false
