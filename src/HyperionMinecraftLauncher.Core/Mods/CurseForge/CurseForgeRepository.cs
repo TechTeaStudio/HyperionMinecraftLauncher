@@ -71,6 +71,12 @@ public sealed class CurseForgeRepository : IModRepository
 
         if (_http.BaseAddress is null)
             _http.BaseAddress = new Uri(DefaultBaseAddress);
+
+        // v0.32.2: defensive scrub - some callers share a HttpClient across services and a
+        // stale default `x-api-key` header from a previous build of the launcher would
+        // shadow the per-request value silently. NewRequest below is the only writer.
+        _http.DefaultRequestHeaders.Remove("x-api-key");
+        _http.DefaultRequestHeaders.Remove("X-API-Key");
     }
 
     /// <summary>
@@ -161,8 +167,10 @@ public sealed class CurseForgeRepository : IModRepository
         if (string.IsNullOrEmpty(apiKey))
             throw new NotSupportedException(KeyMissingMessage);
 
-        using var request = new HttpRequestMessage(HttpMethod.Get, file.DownloadUrl);
-        request.Headers.TryAddWithoutValidation("x-api-key", apiKey);
+        // v0.32.2: route through NewRequest so all three verbs (search / list-files / download)
+        // share the same header-construction code path. The download URL is absolute, so
+        // HttpRequestMessage accepts it without consulting HttpClient.BaseAddress.
+        using var request = NewRequest(HttpMethod.Get, file.DownloadUrl, apiKey);
         using var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
@@ -181,9 +189,16 @@ public sealed class CurseForgeRepository : IModRepository
         }
     }
 
-    private HttpRequestMessage NewRequest(HttpMethod method, string relativeUrl, string apiKey)
+    /// <summary>
+    /// Construct an <see cref="HttpRequestMessage"/> carrying the freshly resolved API key
+    /// in its own <c>x-api-key</c> header (lower-case per the CurseForge docs). Building the
+    /// message per-call is what lets the user paste a new key into onboarding and have the
+    /// very next search authenticate correctly - <see cref="HttpClient.DefaultRequestHeaders"/>
+    /// is intentionally NOT touched, so a stale key cannot leak between sessions.
+    /// </summary>
+    private HttpRequestMessage NewRequest(HttpMethod method, string url, string apiKey)
     {
-        var req = new HttpRequestMessage(method, relativeUrl);
+        var req = new HttpRequestMessage(method, url);
         req.Headers.TryAddWithoutValidation("x-api-key", apiKey);
         req.Headers.TryAddWithoutValidation("Accept", "application/json");
         return req;
