@@ -120,6 +120,18 @@
   <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>Reaplicar esta skin</value></data>
   <data name="Skins.DragHint" xml:space="preserve"><value>Arraste dentro da prévia da cabeça para girar.</value></data>
 
+  <!-- Skins page: NameMC community browser (T-namemc, v0.32.1) -->
+  <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Explorar skins (NameMC)</value></data>
+  <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>Buscar skins por nome ou tag...</value></data>
+  <data name="SkinsBrowser.ShowTrending" xml:space="preserve"><value>Mostrar em alta</value></data>
+  <data name="SkinsBrowser.ApplyButton" xml:space="preserve"><value>Aplicar à minha conta</value></data>
+  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>Fornecido por namemc.com. A Hyperion não é afiliada à NameMC.</value></data>
+  <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[erro] Não foi possível carregar a galeria do NameMC: {0}</value></data>
+  <data name="SkinsBrowser.DownloadFailed" xml:space="preserve"><value>[erro] Não foi possível baixar a skin: {0}</value></data>
+  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>Baixando skin {0} do NameMC...</value></data>
+  <data name="SkinsBrowser.Loading" xml:space="preserve"><value>Carregando galeria...</value></data>
+  <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>Nenhuma skin encontrada. Tente outra busca ou clique em "Mostrar em alta".</value></data>
+
   <!-- Servers page -->
   <data name="Servers.Title" xml:space="preserve"><value>Servidores</value></data>
   <data name="Servers.Subtitle" xml:space="preserve"><value>Lista de servidores multiplayer (NBT do servers.dat). Pings via protocolo Minecraft Server List Ping.</value></data>
