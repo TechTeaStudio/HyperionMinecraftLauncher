@@ -658,29 +658,45 @@
                 MinHeight="220"
                 IsVisible="{Binding HasSelectedInstance}">
           <Grid RowDefinitions="Auto,*">
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="4" Margin="0,0,0,6">
-              <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Screenshots}" GroupName="InstanceTabs"
-                           Classes="DetailTab"
-                           IsChecked="{Binding IsScreenshotsTabSelected, Mode=OneWay}"
-                           Click="OnInstanceTabScreenshots" />
-              <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Worlds}" GroupName="InstanceTabs"
-                           Classes="DetailTab"
-                           IsChecked="{Binding IsWorldsTabSelected, Mode=OneWay}"
-                           Click="OnInstanceTabWorlds" />
-              <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Servers}" GroupName="InstanceTabs"
-                           Classes="DetailTab"
-                           IsChecked="{Binding IsInstanceServersTabSelected, Mode=OneWay}"
-                           Click="OnInstanceTabServers" />
-              <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Crashes}" GroupName="InstanceTabs"
-                           Classes="DetailTab"
-                           IsChecked="{Binding IsCrashesTabSelected, Mode=OneWay}"
-                           Click="OnInstanceTabCrashes" />
-              <Button Content="{x:Static loc:Strings.InstanceTabs_RefreshButton}" FontSize="10" Padding="8,2" Margin="14,0,0,0"
-                      Click="OnRefreshInstanceTab" />
-              <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2" Margin="4,0,0,0"
-                      Click="OnOpenCrashReportsFolder"
-                      IsVisible="{Binding IsCrashesTabSelected}" />
-            </StackPanel>
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,6">
+              <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4">
+                <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Screenshots}" GroupName="InstanceTabs"
+                             Classes="DetailTab"
+                             IsChecked="{Binding IsScreenshotsTabSelected, Mode=OneWay}"
+                             Click="OnInstanceTabScreenshots" />
+                <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Worlds}" GroupName="InstanceTabs"
+                             Classes="DetailTab"
+                             IsChecked="{Binding IsWorldsTabSelected, Mode=OneWay}"
+                             Click="OnInstanceTabWorlds" />
+                <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Servers}" GroupName="InstanceTabs"
+                             Classes="DetailTab"
+                             IsChecked="{Binding IsInstanceServersTabSelected, Mode=OneWay}"
+                             Click="OnInstanceTabServers" />
+                <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Crashes}" GroupName="InstanceTabs"
+                             Classes="DetailTab"
+                             IsChecked="{Binding IsCrashesTabSelected, Mode=OneWay}"
+                             Click="OnInstanceTabCrashes" />
+                <Button Content="{x:Static loc:Strings.InstanceTabs_RefreshButton}" FontSize="10" Padding="8,2" Margin="14,0,0,0"
+                        Click="OnRefreshInstanceTab" />
+                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2" Margin="4,0,0,0"
+                        Click="OnOpenCrashReportsFolder"
+                        IsVisible="{Binding IsCrashesTabSelected}" />
+              </StackPanel>
+              <!-- Bug 3 (v0.32.0): the detail panel had no way to be dismissed. This X
+                   button nulls SelectedInstance, which collapses the whole Border via
+                   the IsVisible="HasSelectedInstance" binding above. Uses the same
+                   WinCtrl style as the header window controls so the click target is
+                   consistent with the rest of the chrome. -->
+              <Button Grid.Column="1"
+                      Classes="WinCtrl"
+                      Width="28" Height="22"
+                      Padding="0"
+                      Command="{Binding CloseInstanceDetailCommand}"
+                      ToolTip.Tip="{x:Static loc:Strings.WindowChrome_Close}">
+                <Path Data="M 0,0 L 9,9 M 9,0 L 0,9" Stroke="White" StrokeThickness="1.4"
+                      Width="9" Height="9" />
+              </Button>
+            </Grid>
 
             <!-- Screenshots tab: WrapPanel of 160x100 thumbnail tiles. Click opens with OS default viewer. -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"

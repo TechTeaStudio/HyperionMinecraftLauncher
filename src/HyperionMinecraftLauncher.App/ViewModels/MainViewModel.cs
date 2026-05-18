@@ -294,6 +294,14 @@ public sealed class MainViewModel : INotifyPropertyChanged
         // Dismiss simply clears the banner for the current session (re-checked on next startup).
         OpenReleasePageCommand = new AsyncRelayCommand(OpenReleasePageAsync, () => AvailableUpdate is not null);
         DismissUpdateCommand = new AsyncRelayCommand(DismissUpdateAsync, () => AvailableUpdate is not null);
+
+        // Bug 3 (v0.32.0): the per-instance detail panel had no dismiss affordance, so once
+        // a tile was clicked the user was stuck looking at it. This command nulls
+        // SelectedInstance, which collapses the whole Border via the HasSelectedInstance
+        // IsVisible binding. Enabled only when an instance is actually selected.
+        CloseInstanceDetailCommand = new AsyncRelayCommand(
+            CloseInstanceDetailAsync,
+            () => SelectedInstance is not null);
         // Headless servers (v0.28 T11). Refresh repopulates the page list; Delete drops the
         // selected entry; Start / Stop are placeholders until the v0.29 server-jar pipeline lands.
         RefreshHeadlessServersCommand = new AsyncRelayCommand(
@@ -604,6 +612,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 RefreshInstanceServersCommand.RaiseCanExecuteChanged();
                 RefreshInstanceCrashReportsCommand.RaiseCanExecuteChanged();
                 ExportInstanceCommand?.RaiseCanExecuteChanged();
+                CloseInstanceDetailCommand?.RaiseCanExecuteChanged();
                 OnPropertyChanged(nameof(HasSelectedInstance));
                 // Auto-refresh per-instance detail tabs when the selected instance changes.
                 // Fire-and-forget: the View animates a fade-in while we populate the lists.
@@ -3087,6 +3096,20 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     /// <summary>X button on the banner clears <see cref="AvailableUpdate"/> for this session.</summary>
     public AsyncRelayCommand DismissUpdateCommand { get; }
+
+    /// <summary>
+    /// Bug 3 (v0.32.0): X button on the per-instance detail panel. Nulls
+    /// <see cref="SelectedInstance"/>, which collapses the panel via the
+    /// <see cref="HasSelectedInstance"/> binding. Surfaced from the panel's top-right
+    /// corner next to the tab strip.
+    /// </summary>
+    public AsyncRelayCommand CloseInstanceDetailCommand { get; }
+
+    private Task CloseInstanceDetailAsync()
+    {
+        SelectedInstance = null;
+        return Task.CompletedTask;
+    }
 
     private Task OpenReleasePageAsync()
     {
