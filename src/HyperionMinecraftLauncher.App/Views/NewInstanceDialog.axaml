@@ -4,11 +4,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="using:TechTeaStudio.HyperionMinecraftLauncher.App.Views"
         xmlns:versions="using:TechTeaStudio.HyperionMinecraftLauncher.Core.Versions"
+        xmlns:vm="using:TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels"
         xmlns:sys="using:System"
+        xmlns:assists="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.NewInstanceDialog"
+        x:DataType="vm:MainViewModel"
         Title="New Instance"
-        Width="560" Height="460"
+        Width="560" Height="520"
         CanResize="False"
         SystemDecorations="None"
         ExtendClientAreaToDecorationsHint="True"
@@ -51,7 +54,24 @@
           <!-- Version picker -->
           <StackPanel Spacing="4">
             <TextBlock Text="Minecraft version" FontSize="12" Opacity="0.85" />
+
+            <!-- Search box. Binds straight to MainViewModel.VersionSearchText so the
+                 filter is shared with the Home page. -->
+            <TextBox Text="{Binding VersionSearchText, Mode=TwoWay}"
+                     Watermark="Search version..."
+                     FontSize="11" />
+
+            <!-- Type-filter chips, identical to the Home page row. -->
+            <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,2,0,0">
+              <ToggleButton Content="Release"   Classes="Chip" IsChecked="{Binding ShowRelease,  Mode=TwoWay}" />
+              <ToggleButton Content="Snapshot"  Classes="Chip" IsChecked="{Binding ShowSnapshot, Mode=TwoWay}" />
+              <ToggleButton Content="Old beta"  Classes="Chip" IsChecked="{Binding ShowOldBeta,  Mode=TwoWay}" />
+              <ToggleButton Content="Old alpha" Classes="Chip" IsChecked="{Binding ShowOldAlpha, Mode=TwoWay}" />
+            </StackPanel>
+
             <ComboBox x:Name="VersionBox" PlaceholderText="(loading manifest ...)"
+                      ItemsSource="{Binding FilteredVersions}"
+                      SelectedItem="{Binding SelectedVersion, Mode=TwoWay}"
                       HorizontalAlignment="Stretch">
               <ComboBox.ItemTemplate>
                 <DataTemplate DataType="versions:VersionMetadata">
@@ -59,7 +79,7 @@
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
-            <TextBlock Text="Use any of the 888 manifest versions or one already on disk."
+            <TextBlock Text="Filter chips and search are shared with the Home page picker."
                        FontSize="10" Opacity="0.55" TextWrapping="Wrap" />
           </StackPanel>
 
@@ -105,4 +125,35 @@
       </Grid>
     </Grid>
   </Border>
+
+  <Window.Styles>
+    <!-- Filter chips: shared visual language with the Home page row. -->
+    <Style Selector="ToggleButton.Chip">
+      <Setter Property="Padding" Value="10,3" />
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="MinHeight" Value="22" />
+      <Setter Property="Background" Value="#33FFFFFF" />
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="assists:ShadowAssist.ShadowDepth" Value="Depth0" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.15" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="ToggleButton.Chip /template/ Border#PART_RootBorder">
+      <Setter Property="BoxShadow" Value="0 0 0 0 #00000000" />
+    </Style>
+    <Style Selector="ToggleButton.Chip:pointerover">
+      <Setter Property="Background" Value="#55FFFFFF" />
+    </Style>
+    <Style Selector="ToggleButton.Chip:checked">
+      <Setter Property="Background" Value="{DynamicResource MaterialPrimaryMidBrush}" />
+    </Style>
+    <Style Selector="ToggleButton.Chip:checked:pointerover">
+      <Setter Property="Background" Value="{DynamicResource MaterialPrimaryLightBrush}" />
+    </Style>
+  </Window.Styles>
 </Window>

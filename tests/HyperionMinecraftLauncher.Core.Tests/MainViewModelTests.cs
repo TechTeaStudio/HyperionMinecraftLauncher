@@ -422,6 +422,52 @@ public class MainViewModelTests
         Assert.False(vm.IsSidebarCollapsed);
     }
 
+    [Fact]
+    public async Task VersionFilter_ChipsAndSearch_NarrowFilteredVersions()
+    {
+        var vm = NewVm(out var service, out _);
+        service.VersionsToReturn = new[]
+        {
+            new VersionMetadata { Name = "1.21.5",  Type = "release"   },
+            new VersionMetadata { Name = "1.21.4",  Type = "release"   },
+            new VersionMetadata { Name = "24w14a",  Type = "snapshot"  },
+            new VersionMetadata { Name = "b1.7.3",  Type = "old_beta"  },
+            new VersionMetadata { Name = "a1.0.4",  Type = "old_alpha" },
+        };
+
+        await vm.RefreshVersionsCommand.ExecuteAsync();
+
+        // Defaults: only Release on -> exactly the two 1.21.x entries survive.
+        Assert.Equal(2, vm.FilteredVersions.Count);
+        Assert.All(vm.FilteredVersions, v => Assert.Equal("release", v.Type));
+        Assert.NotNull(vm.SelectedVersion);
+        Assert.Equal("release", vm.SelectedVersion!.Type);
+
+        // Enable Snapshot too -> three entries; the previous Release selection still
+        // satisfies the filter and must not be reset.
+        var previous = vm.SelectedVersion;
+        vm.ShowSnapshot = true;
+        Assert.Equal(3, vm.FilteredVersions.Count);
+        Assert.Same(previous, vm.SelectedVersion);
+
+        // Turn Release off -> Release entries gone, only snapshot remains. Previous
+        // selection was Release-typed so it gets replaced with the first survivor.
+        vm.ShowRelease = false;
+        Assert.Single(vm.FilteredVersions);
+        Assert.Equal("24w14a", vm.FilteredVersions[0].Name);
+        Assert.Same(vm.FilteredVersions[0], vm.SelectedVersion);
+
+        // Search is case-insensitive on Name and DisplayText. Re-enable Release first.
+        vm.ShowRelease = true;
+        vm.VersionSearchText = "1.21.5";
+        Assert.Single(vm.FilteredVersions);
+        Assert.Equal("1.21.5", vm.FilteredVersions[0].Name);
+
+        // Clearing the search restores the chip-driven list.
+        vm.VersionSearchText = string.Empty;
+        Assert.Equal(3, vm.FilteredVersions.Count);
+    }
+
     private static MainViewModel NewVm(out StubLauncherService service, out RecordingLogger logger)
     {
         service = new StubLauncherService();

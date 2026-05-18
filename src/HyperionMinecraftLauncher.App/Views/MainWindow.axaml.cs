@@ -218,7 +218,7 @@ public partial class MainWindow : Window
         if (vm.AvailableVersions.Count == 0)
             await vm.RefreshVersionsCommand.ExecuteAsync();
 
-        var dialog = NewInstanceDialog.WithVersions(vm.AvailableVersions);
+        var dialog = NewInstanceDialog.WithViewModel(vm);
         await dialog.ShowDialog(this);
 
         if (dialog.Confirmed && dialog.SelectedVersion is { } v)
