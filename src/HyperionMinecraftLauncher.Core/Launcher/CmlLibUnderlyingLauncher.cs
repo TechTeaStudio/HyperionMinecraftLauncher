@@ -13,6 +13,11 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 
+// Extra JVM args are whitespace-separated. We split with simple Split-on-whitespace
+// semantics because MArgument expects one element per JVM token. A more elaborate
+// shell-style tokenizer is out of scope - users adding quoted args with embedded
+// spaces are an edge case the global Settings page has never supported either.
+
 /// <summary>
 /// Production implementation of <see cref="IUnderlyingLauncher"/> that delegates to
 /// <see cref="MinecraftLauncher"/>. All translation between CmlLib's types and our
@@ -138,6 +143,29 @@ public sealed class CmlLibUnderlyingLauncher : IUnderlyingLauncher
 
         if (request.MinimumRamMb is int min) options.MinimumRamMb = min;
         if (request.MaximumRamMb is int max) options.MaximumRamMb = max;
+
+        // Per-instance overrides for screen dimensions. CmlLib emits -width/-height
+        // game args from these so Minecraft starts in the requested window size.
+        if (request.ScreenWidth is int w && w > 0) options.ScreenWidth = w;
+        if (request.ScreenHeight is int h && h > 0) options.ScreenHeight = h;
+
+        // Per-instance game-directory override. The chosen path becomes both the version
+        // root (so jars/libraries resolve there) and the working dir Minecraft writes to.
+        if (!string.IsNullOrWhiteSpace(request.GameDirectory)) options.Path = new MinecraftPath(request.GameDirectory);
+
+        // Per-instance extra JVM args. Whitespace-split; CmlLib joins them after its built-in
+        // heap flags so user args land near the end of the command line.
+        if (!string.IsNullOrWhiteSpace(request.JvmArguments))
+        {
+            var tokens = request.JvmArguments
+                .Split(new[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            if (tokens.Length > 0)
+            {
+                var jvm = new List<MArgument>(tokens.Length);
+                foreach (var t in tokens) jvm.Add(new MArgument(t));
+                options.ExtraJvmArguments = jvm;
+            }
+        }
 
         // Auto-downloaded Adoptium Temurin: when the service has pre-resolved a JRE for the
         // requested Java family (1.20.5+ -> Java 21, etc.), thread the absolute path through to

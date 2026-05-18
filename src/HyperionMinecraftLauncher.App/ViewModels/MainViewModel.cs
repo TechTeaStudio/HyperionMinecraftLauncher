@@ -1899,15 +1899,22 @@ public sealed class MainViewModel : INotifyPropertyChanged
             var javaOverride = string.IsNullOrWhiteSpace(_javaExecutableOverride) ? null : _javaExecutableOverride;
             var javaRequirement = javaOverride is null ? JavaRequirementResolver.For(versionName) : (JavaRequirement?)null;
 
-            Append($"Launching {versionName} (Xms={MinMemoryMb}M, Xmx={MaxMemoryMb}M) ...");
+            // Per-instance overrides win over the global Settings page values; blank or zero
+            // fields on the instance fall through to the Settings defaults (see Merge helper).
+            var resolved = InstanceLaunchSettings.Merge(instance, BuildSettings());
+
+            Append($"Launching {versionName} (Xms={resolved.MinimumRamMb}M, Xmx={resolved.MaximumRamMb}M) ...");
             var result = await _service.LaunchAsync(
                 new LaunchRequest
                 {
                     VersionName = versionName,
                     Session = auth,
-                    GameDirectory = string.IsNullOrWhiteSpace(_gameDirectoryOverride) ? null : _gameDirectoryOverride,
-                    MinimumRamMb = MinMemoryMb,
-                    MaximumRamMb = MaxMemoryMb,
+                    GameDirectory = resolved.GameDirectory,
+                    MinimumRamMb = resolved.MinimumRamMb,
+                    MaximumRamMb = resolved.MaximumRamMb,
+                    JvmArguments = string.IsNullOrWhiteSpace(resolved.JvmArguments) ? null : resolved.JvmArguments,
+                    ScreenWidth = resolved.ResolutionWidth,
+                    ScreenHeight = resolved.ResolutionHeight,
                     QuickPlay = quickPlay,
                     JavaRequirement = javaRequirement,
                     JavaPath = javaOverride,
