@@ -17,6 +17,7 @@ using MinecraftSkinRender.Image;
 using SkiaSharp;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
@@ -566,6 +567,9 @@ public partial class MainWindow : Window
     private void OnInstanceTabWorlds(object? sender, RoutedEventArgs e) => SetInstanceTab(InstanceDetailTab.Worlds);
     private void OnInstanceTabServers(object? sender, RoutedEventArgs e) => SetInstanceTab(InstanceDetailTab.Servers);
     private void OnInstanceTabCrashes(object? sender, RoutedEventArgs e) => SetInstanceTab(InstanceDetailTab.Crashes);
+    private void OnInstanceTabResourcePacks(object? sender, RoutedEventArgs e) => SetInstanceTab(InstanceDetailTab.ResourcePacks);
+    private void OnInstanceTabShaderPacks(object? sender, RoutedEventArgs e) => SetInstanceTab(InstanceDetailTab.ShaderPacks);
+    private void OnInstanceTabDataPacks(object? sender, RoutedEventArgs e) => SetInstanceTab(InstanceDetailTab.DataPacks);
 
     private void SetInstanceTab(InstanceDetailTab tab)
     {
@@ -593,6 +597,15 @@ public partial class MainWindow : Window
                 case InstanceDetailTab.Crashes:
                     await vm.RefreshInstanceCrashReportsCommand.ExecuteAsync();
                     break;
+                case InstanceDetailTab.ResourcePacks:
+                    await vm.RefreshInstanceResourcePacksCommand.ExecuteAsync();
+                    break;
+                case InstanceDetailTab.ShaderPacks:
+                    await vm.RefreshInstanceShaderPacksCommand.ExecuteAsync();
+                    break;
+                case InstanceDetailTab.DataPacks:
+                    await vm.RefreshInstanceDataPacksCommand.ExecuteAsync();
+                    break;
             }
         }
         catch
@@ -619,6 +632,66 @@ public partial class MainWindow : Window
             // Creating the folder on-demand is best-effort; OpenWithOsDefault will surface a no-op.
         }
         OpenWithOsDefault(dir);
+    }
+
+    /// <summary>"Open folder" on the Resource packs tab.</summary>
+    private void OnOpenResourcePacksFolder(object? sender, RoutedEventArgs e) => OpenInstanceSubfolder("resourcepacks");
+
+    /// <summary>"Open folder" on the Shader packs tab.</summary>
+    private void OnOpenShaderPacksFolder(object? sender, RoutedEventArgs e) => OpenInstanceSubfolder("shaderpacks");
+
+    /// <summary>"Open folder" on the Data packs tab - data packs live per-world, so open the parent <c>saves/</c>.</summary>
+    private void OnOpenSavesFolder(object? sender, RoutedEventArgs e) => OpenInstanceSubfolder("saves");
+
+    /// <summary>Resolve the per-instance gameDir + subfolder, ensure it exists, then launch the OS file manager.</summary>
+    private void OpenInstanceSubfolder(string subfolder)
+    {
+        if (DataContext is not MainViewModel vm || vm.SelectedInstance is null) return;
+        var root = string.IsNullOrWhiteSpace(vm.SelectedInstance.GameDirectory)
+            ? Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + System.IO.Path.DirectorySeparatorChar + ".minecraft"
+            : vm.SelectedInstance.GameDirectory;
+        var dir = System.IO.Path.Combine(root, subfolder);
+        try
+        {
+            if (!System.IO.Directory.Exists(dir))
+                System.IO.Directory.CreateDirectory(dir);
+        }
+        catch
+        {
+            // Best-effort - OpenWithOsDefault on a missing folder is a no-op.
+        }
+        OpenWithOsDefault(dir);
+    }
+
+    /// <summary>
+    /// ToggleSwitch click handler for a resource pack row. The Tag is the filename; we
+    /// dispatch through the VM command so the rename + re-list logic stays single-source.
+    /// </summary>
+    private async void OnToggleResourcePack(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        if (sender is not Control c || c.Tag is not string filename || string.IsNullOrEmpty(filename)) return;
+        try { await vm.ToggleResourcePackCommand.ExecuteAsync(filename); }
+        catch { /* errors already logged by the VM */ }
+    }
+
+    /// <summary>Toggle a shader pack on/off. Mirrors <see cref="OnToggleResourcePack"/>.</summary>
+    private async void OnToggleShaderPack(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        if (sender is not Control c || c.Tag is not string filename || string.IsNullOrEmpty(filename)) return;
+        try { await vm.ToggleShaderPackCommand.ExecuteAsync(filename); }
+        catch { /* logged */ }
+    }
+
+    /// <summary>Toggle a data pack on/off. Tag is the whole <see cref="DataPackEntry"/> because we
+    /// need both the world folder name and the filename to build the path.</summary>
+    private async void OnToggleDataPack(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        if (sender is not Control c || c.Tag is not DataPackEntry entry) return;
+        try { await vm.ToggleDataPackCommand.ExecuteAsync(entry); }
+        catch { /* logged */ }
     }
 
     /// <summary>One of the Modrinth / CurseForge buttons on a suspect-mod chip was clicked.</summary>

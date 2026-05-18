@@ -688,11 +688,32 @@
                              Classes="DetailTab"
                              IsChecked="{Binding IsCrashesTabSelected, Mode=OneWay}"
                              Click="OnInstanceTabCrashes" />
+                <RadioButton Content="{x:Static loc:Strings.InstanceTabs_ResourcePacks}" GroupName="InstanceTabs"
+                             Classes="DetailTab"
+                             IsChecked="{Binding IsResourcePacksTabSelected, Mode=OneWay}"
+                             Click="OnInstanceTabResourcePacks" />
+                <RadioButton Content="{x:Static loc:Strings.InstanceTabs_ShaderPacks}" GroupName="InstanceTabs"
+                             Classes="DetailTab"
+                             IsChecked="{Binding IsShaderPacksTabSelected, Mode=OneWay}"
+                             Click="OnInstanceTabShaderPacks" />
+                <RadioButton Content="{x:Static loc:Strings.InstanceTabs_DataPacks}" GroupName="InstanceTabs"
+                             Classes="DetailTab"
+                             IsChecked="{Binding IsDataPacksTabSelected, Mode=OneWay}"
+                             Click="OnInstanceTabDataPacks" />
                 <Button Content="{x:Static loc:Strings.InstanceTabs_RefreshButton}" FontSize="10" Padding="8,2" Margin="14,0,0,0"
                         Click="OnRefreshInstanceTab" />
                 <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2" Margin="4,0,0,0"
                         Click="OnOpenCrashReportsFolder"
                         IsVisible="{Binding IsCrashesTabSelected}" />
+                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2" Margin="4,0,0,0"
+                        Click="OnOpenResourcePacksFolder"
+                        IsVisible="{Binding IsResourcePacksTabSelected}" />
+                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2" Margin="4,0,0,0"
+                        Click="OnOpenShaderPacksFolder"
+                        IsVisible="{Binding IsShaderPacksTabSelected}" />
+                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2" Margin="4,0,0,0"
+                        Click="OnOpenSavesFolder"
+                        IsVisible="{Binding IsDataPacksTabSelected}" />
               </StackPanel>
               <!-- Bug 3 (v0.32.0): the detail panel had no way to be dismissed. This X
                    button nulls SelectedInstance, which collapses the whole Border via
@@ -893,6 +914,130 @@
                 </Grid>
               </Border>
             </Grid>
+
+            <!-- Resource packs tab: ListBox over InstanceResourcePacks, with enable toggle + remove. -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                          IsVisible="{Binding IsResourcePacksTabSelected}">
+              <Grid RowDefinitions="*,Auto">
+                <ListBox Grid.Row="0" ItemsSource="{Binding InstanceResourcePacks}"
+                         Background="Transparent" BorderThickness="0">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate DataType="browsing:ResourcePackEntry">
+                      <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" Margin="2,3">
+                        <Image Grid.Column="0"
+                               Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/book.png"
+                               Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
+                          <TextBlock Text="{Binding Filename}" FontWeight="SemiBold" FontSize="12"
+                                     TextTrimming="CharacterEllipsis" />
+                          <TextBlock Text="{Binding SizeBytes, Converter={x:Static local:ByteSizeFormatter.Instance}}"
+                                     Opacity="0.55" FontSize="10" />
+                        </StackPanel>
+                        <ToggleSwitch Grid.Column="2"
+                                      IsChecked="{Binding IsEnabled, Mode=OneWay}"
+                                      Tag="{Binding Filename}"
+                                      Click="OnToggleResourcePack"
+                                      ToolTip.Tip="{x:Static loc:Strings.InstanceTabs_PackEnableTooltip}"
+                                      VerticalAlignment="Center"
+                                      Margin="6,0,0,0" />
+                        <Button Grid.Column="3"
+                                Content="{x:Static loc:Strings.InstanceTabs_PackRemoveButton}"
+                                FontSize="10" Padding="8,2" Margin="6,0,0,0"
+                                Command="{Binding $parent[ListBox].((vm:MainViewModel)DataContext).RemoveResourcePackCommand}"
+                                CommandParameter="{Binding Filename}" />
+                      </Grid>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+                <TextBlock Grid.Row="1" Text="{x:Static loc:Strings.InstanceTabs_PackEmptyResource}"
+                           FontSize="10" Opacity="0.55" Margin="6,4"
+                           IsVisible="{Binding !InstanceResourcePacks.Count}" />
+              </Grid>
+            </ScrollViewer>
+
+            <!-- Shader packs tab: mirror of resource packs but pointing at shaderpacks/. -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                          IsVisible="{Binding IsShaderPacksTabSelected}">
+              <Grid RowDefinitions="*,Auto">
+                <ListBox Grid.Row="0" ItemsSource="{Binding InstanceShaderPacks}"
+                         Background="Transparent" BorderThickness="0">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate DataType="browsing:ShaderPackEntry">
+                      <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" Margin="2,3">
+                        <Image Grid.Column="0"
+                               Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/redstone.png"
+                               Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
+                          <TextBlock Text="{Binding Filename}" FontWeight="SemiBold" FontSize="12"
+                                     TextTrimming="CharacterEllipsis" />
+                          <TextBlock Text="{Binding SizeBytes, Converter={x:Static local:ByteSizeFormatter.Instance}}"
+                                     Opacity="0.55" FontSize="10" />
+                        </StackPanel>
+                        <ToggleSwitch Grid.Column="2"
+                                      IsChecked="{Binding IsEnabled, Mode=OneWay}"
+                                      Tag="{Binding Filename}"
+                                      Click="OnToggleShaderPack"
+                                      ToolTip.Tip="{x:Static loc:Strings.InstanceTabs_PackEnableTooltip}"
+                                      VerticalAlignment="Center"
+                                      Margin="6,0,0,0" />
+                        <Button Grid.Column="3"
+                                Content="{x:Static loc:Strings.InstanceTabs_PackRemoveButton}"
+                                FontSize="10" Padding="8,2" Margin="6,0,0,0"
+                                Command="{Binding $parent[ListBox].((vm:MainViewModel)DataContext).RemoveShaderPackCommand}"
+                                CommandParameter="{Binding Filename}" />
+                      </Grid>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+                <TextBlock Grid.Row="1" Text="{x:Static loc:Strings.InstanceTabs_PackEmptyShader}"
+                           FontSize="10" Opacity="0.55" Margin="6,4"
+                           IsVisible="{Binding !InstanceShaderPacks.Count}" />
+              </Grid>
+            </ScrollViewer>
+
+            <!-- Data packs tab: flat list but each row prefixes the owning world folder so
+                 the user can read "(world) packname" at a glance. -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                          IsVisible="{Binding IsDataPacksTabSelected}">
+              <Grid RowDefinitions="*,Auto">
+                <ListBox Grid.Row="0" ItemsSource="{Binding InstanceDataPacks}"
+                         Background="Transparent" BorderThickness="0">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate DataType="browsing:DataPackEntry">
+                      <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" Margin="2,3">
+                        <Image Grid.Column="0"
+                               Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/writable_book.png"
+                               Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
+                          <TextBlock Text="{Binding Filename}" FontWeight="SemiBold" FontSize="12"
+                                     TextTrimming="CharacterEllipsis" />
+                          <TextBlock Opacity="0.55" FontSize="10">
+                            <Run Text="{Binding WorldFolderName}" />
+                            <Run Text=" - " />
+                            <Run Text="{Binding SizeBytes, Converter={x:Static local:ByteSizeFormatter.Instance}}" />
+                          </TextBlock>
+                        </StackPanel>
+                        <ToggleSwitch Grid.Column="2"
+                                      IsChecked="{Binding IsEnabled, Mode=OneWay}"
+                                      Tag="{Binding}"
+                                      Click="OnToggleDataPack"
+                                      ToolTip.Tip="{x:Static loc:Strings.InstanceTabs_PackEnableTooltip}"
+                                      VerticalAlignment="Center"
+                                      Margin="6,0,0,0" />
+                        <Button Grid.Column="3"
+                                Content="{x:Static loc:Strings.InstanceTabs_PackRemoveButton}"
+                                FontSize="10" Padding="8,2" Margin="6,0,0,0"
+                                Command="{Binding $parent[ListBox].((vm:MainViewModel)DataContext).RemoveDataPackCommand}"
+                                CommandParameter="{Binding}" />
+                      </Grid>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+                <TextBlock Grid.Row="1" Text="{x:Static loc:Strings.InstanceTabs_PackEmptyData}"
+                           FontSize="10" Opacity="0.55" Margin="6,4"
+                           IsVisible="{Binding !InstanceDataPacks.Count}" />
+              </Grid>
+            </ScrollViewer>
           </Grid>
         </Border>
       </Grid>
