@@ -11,11 +11,11 @@
 <p align="center">
   <img alt=".NET" src="https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet&amp;logoColor=white" />
   <img alt="Avalonia" src="https://img.shields.io/badge/Avalonia-11.2.x-8B5CF6" />
-  <img alt="Platform" src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux-blue" />
+  <img alt="Platform" src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-blue" />
   <a href="https://github.com/TechTeaStudio/HyperionMinecraftLauncher/actions/workflows/dotnet.yml"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/TechTeaStudio/HyperionMinecraftLauncher/dotnet.yml?branch=product&amp;logo=github&amp;label=build" /></a>
   <a href="LICENSE.txt"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
   <img alt="Tests" src="https://img.shields.io/badge/tests-422%20passing-brightgreen" />
-  <img alt="Version" src="https://img.shields.io/badge/version-0.32.0-3C8527" />
+  <img alt="Version" src="https://img.shields.io/badge/version-0.32.1-3C8527" />
 </p>
 
 ## Overview
@@ -57,7 +57,7 @@ The launcher reads from and writes alongside the same `.minecraft` directory the
 - **Update banner + manual check.** GitHub Releases polled hourly; a green banner appears when a newer version is published. Settings has a "Check for updates" button that reports either the update or "you're on the latest version".
 - **8-language UI.** Source is English; bundled translations: Russian, Spanish, Brazilian Portuguese, German, French, Simplified Chinese, Japanese. Locale picker in Settings; falls back to OS culture by default.
 - **CLI mode.** `--list-instances`, `--list-versions`, `--launch <id>`, `--help`, `--version` work without opening the Avalonia window. Uses `AttachConsole` on Windows so stdout reaches the parent shell.
-- **Cross-platform.** Windows installer and Linux `.AppImage` ship today; macOS `.pkg` is on the roadmap. Linux paths follow the XDG Base Directory spec (`$XDG_STATE_HOME` for logs, `$XDG_CONFIG_HOME` for config, etc.).
+- **Cross-platform.** Windows installer, Linux `.AppImage`, and macOS `.app` bundle (Intel + Apple Silicon, with optional `.pkg` / `.dmg`) all ship today. Linux paths follow the XDG Base Directory spec (`$XDG_STATE_HOME` for logs, `$XDG_CONFIG_HOME` for config, etc.); macOS uses `~/Library/Application Support` and `~/Library/Logs`.
 - **Minecraft palette.** Warm dark background `#171615`, surface tiles `#262423`, green CTAs with the `#6CC349 -> #3C8527` button shading from the official Mojang launcher. Pixel-style 1px black outlines, sharp 4dp corners, and a Minecraft-font sidebar.
 
 ### Engineering
@@ -94,7 +94,7 @@ The launcher reads from and writes alongside the same `.minecraft` directory the
 | Update banner via GitHub Releases | yes | n/a | no |
 | 8-language UI (en, ru, es, pt-BR, de, fr, zh-Hans, ja) | yes | yes (more) | yes |
 | Native AOT publish profile | opt-in (unvalidated) | n/a | no |
-| Cross-platform | Windows + Linux AppImage today, macOS roadmap | Windows / macOS / Linux | all three |
+| Cross-platform | Windows + Linux AppImage + macOS .app today | Windows / macOS / Linux | all three |
 | Open source | yes (MIT) | no | yes |
 
 As of v0.32.0, Hyperion ships the full Prism feature set (mod loaders, per-instance settings, mod browser, crash parser, modpack import, zip share, auto-backup) on top of the official launcher's news feed and Microsoft auth path, plus Hyperion-only extras (multi-account switcher, Discord RPC, headless-server registry, CLI mode, eight-language UI) under a palette tuned to match the Mojang launcher.
@@ -116,6 +116,21 @@ bash scripts/build-appimage.sh
 ```
 
 Publishes a self-contained `linux-x64` binary and packages it into `HyperionMinecraftLauncher-x86_64.AppImage`. `appimagetool` must be on `$PATH`.
+
+### macOS build
+
+```bash
+bash scripts/build-macos-app.sh         # .app bundle for Intel + Apple Silicon
+bash scripts/build-macos-dmg.sh         # optional: wrap each .app into a drag-to-install .dmg
+```
+
+`build-macos-app.sh` publishes self-contained `osx-x64` and `osx-arm64` binaries, then assembles `publish/HyperionMinecraftLauncher-x86_64.app` and `publish/HyperionMinecraftLauncher-arm64.app` with a proper `Info.plist`, an `AppIcon.icns` generated from the repo-root `icon.png` via `sips` + `iconutil`, and the resx satellite assemblies mirrored into `Contents/Resources/Localization/`. If `productbuild` is on `$PATH` (it ships with Xcode Command Line Tools) the script also produces `.pkg` installers next to the bundles. The bundles are **unsigned and not notarized** - on first launch users must right-click the `.app` and pick "Open", or clear the Gatekeeper quarantine attribute manually:
+
+```bash
+xattr -d com.apple.quarantine HyperionMinecraftLauncher-x86_64.app
+```
+
+`build-macos-dmg.sh` wraps each produced `.app` in a compressed `.dmg` with a `/Applications` symlink for the standard drag-to-install affordance. macOS-only (uses `hdiutil`).
 
 ### CLI mode
 
@@ -197,8 +212,8 @@ HyperionMinecraftLauncher/
 |  +- ViewModels/MainViewModel.cs                   <- the one view-model behind everything
 |  +- App.axaml(.cs), Program.cs                    <- DI bootstrap + Avalonia entry + CLI dispatch
 +- tests/HyperionMinecraftLauncher.Core.Tests/      <- 422 xUnit tests
-+- scripts/                                          <- build-appimage.sh + Python helpers
-+- .github/workflows/dotnet.yml                      <- build + test on ubuntu + windows matrix
++- scripts/                                          <- build-appimage.sh + build-macos-app.sh + build-macos-dmg.sh + Python helpers
++- .github/workflows/dotnet.yml                      <- build + test on ubuntu + windows + macos matrix
 +- CHANGELOG.md
 +- QUICKSTART.md
 +- LICENSE.txt
@@ -224,7 +239,7 @@ dotnet build HyperionMinecraftLauncher.slnx
 
 Format is 3-part SemVer (`X.Y.Z`); commit format is `vX.Y.Z <short description>` capped at 72 characters.
 
-Pushing to the `product` branch triggers `.github/workflows/dotnet.yml` (restore + build + test on Ubuntu and Windows matrix, .NET 10). There is no NuGet publish step; this is an application.
+Pushing to the `product` branch triggers `.github/workflows/dotnet.yml` (restore + build + test on Ubuntu, Windows, and macOS matrix, .NET 10). Packaging scripts (`build-appimage.sh`, `build-macos-app.sh`) do not run in CI yet - they require platform-specific tooling (and macOS bundles need code-signing creds to be Gatekeeper-friendly). There is no NuGet publish step; this is an application.
 
 See [CHANGELOG.md](CHANGELOG.md) for the full release history.
 
@@ -234,7 +249,6 @@ Picked up in priority order. Tracked under the `feat/post-v0.32` umbrella.
 
 ### Carry-over from `feat/prism-parity` (still not done)
 - **Process stream piping.** The `LauncherSettings.ShowGameLog` toggle exists; the actual hook from `Process.OutputDataReceived` / `ErrorDataReceived` into the in-launcher log textbox is not yet wired. Today the game's stdout / stderr only reach disk through Minecraft's own `latest.log`.
-- **macOS `.pkg` / `.dmg` packaging.** Avalonia and the Core code run on macOS already (paths use `~/Library/...`), but no Mac packaging script exists. Linux AppImage is shipping; macOS is the last platform gap.
 - **OptiFine and Legacy-Forge (1.7.10 era) loader installers.** `CmlLibModLoaderInstaller` currently throws `NotSupportedException` for these two cases; the other four loaders (Fabric / Forge / Quilt / NeoForge) are fully wired.
 
 ### Headless server completion
@@ -259,7 +273,7 @@ Picked up in priority order. Tracked under the `feat/post-v0.32` umbrella.
 - **Plural-form helpers.** Some plural-fragile strings ("{0} resultado(s)") would benefit from ICU-style plural blocks. Not blocking, but improves polish on count-heavy lines.
 
 ### Polish
-- **macOS Library paths.** Already coded but unverified on macOS hardware; needs a CI runner or a developer test pass.
+- **Code-signing + notarization for macOS bundles.** `build-macos-app.sh` produces unsigned `.app` / `.pkg`; users must right-click -> Open or clear `com.apple.quarantine` on first launch. Apple Developer credentials would let CI run `codesign` + `xcrun notarytool submit` and emit a Gatekeeper-friendly artifact.
 - **Material.Avalonia replacement audit.** A handful of controls still pull Material.Avalonia for the `Depth0` shadow override; verify these still look right against the new Minecraft palette or replace with native Avalonia styles.
 
 ## Further reading
