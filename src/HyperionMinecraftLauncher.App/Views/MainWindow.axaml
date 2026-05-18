@@ -52,6 +52,12 @@
     <SolidColorBrush x:Key="MaterialBackgroundBrush"     Color="#330D0D1B" />
     <SolidColorBrush x:Key="MaterialPrimaryDarkBrush"    Color="#400D0D1B" />
     <SolidColorBrush x:Key="MaterialDividerBrush"        Color="#22FFFFFF" />
+
+    <!-- Mid/Light "primary" was Minecraft grass-green; in the LG theme the brand
+         accent moves to the surfaceSelected lavender so chips and "primary" buttons
+         tint with the bubble's signature colour instead of clashing with it. -->
+    <SolidColorBrush x:Key="MaterialPrimaryMidBrush"     Color="#ACAECC" />
+    <SolidColorBrush x:Key="MaterialPrimaryLightBrush"   Color="#C8CAE6" />
   </Window.Resources>
 
 
@@ -129,8 +135,9 @@
                 Grid.Column="2"
                 Classes="AccountChip"
                 Padding="8,4" Margin="0,0,8,0"
-                Background="{DynamicResource MaterialPrimaryMidBrush}"
-                BorderThickness="0"
+                Background="{DynamicResource LG.BubbleFillCombined}"
+                BorderBrush="{DynamicResource LG.GlassRimStrong}"
+                BorderThickness="1"
                 CornerRadius="16">
           <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
             <Image Source="{Binding AvatarBitmap}"
@@ -504,7 +511,6 @@
                     FontFamily="{StaticResource MinecraftFont}"
                     FontSize="14"
                     Padding="18,6" Margin="8,0,0,0"
-                    Background="{DynamicResource MaterialPrimaryMidBrush}"
                     Foreground="White" />
           </Grid>
         </Border>
@@ -535,9 +541,9 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
           <Button Content="+ New Instance"
                   Click="OnNewInstanceClicked"
+                  Classes="LaunchBtn"
                   FontFamily="{StaticResource MinecraftFont}" FontSize="12"
                   Padding="14,5"
-                  Background="{DynamicResource MaterialPrimaryMidBrush}"
                   Foreground="White" />
           <Button Content="Refresh" FontSize="11"
                   Command="{Binding RefreshInstancesCommand}"
@@ -750,9 +756,9 @@
           <StackPanel Orientation="Horizontal" Spacing="10">
             <Button Content="Upload new skin..."
                     Command="{Binding UploadSkinCommand}"
+                    Classes="LaunchBtn"
                     FontFamily="{StaticResource MinecraftFont}" FontSize="12"
                     Padding="14,5"
-                    Background="{DynamicResource MaterialPrimaryMidBrush}"
                     Foreground="White" />
             <Border Width="1" Background="{DynamicResource MaterialDividerBrush}" Margin="2,0" />
             <TextBlock Text="Cape:" VerticalAlignment="Center" FontSize="12"
@@ -871,9 +877,9 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
           <Button Content="+ New server"
                   Click="OnNewHeadlessServerClicked"
+                  Classes="LaunchBtn"
                   FontFamily="{StaticResource MinecraftFont}" FontSize="12"
                   Padding="14,5"
-                  Background="{DynamicResource MaterialPrimaryMidBrush}"
                   Foreground="White" />
           <Button Content="Refresh" FontSize="11"
                   Command="{Binding RefreshHeadlessServersCommand}"
@@ -1213,9 +1219,10 @@
 
         <Button Grid.Row="2" Content="Save settings"
                 Command="{Binding SaveSettingsCommand}"
+                Classes="LaunchBtn"
                 FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                 Padding="18,6" HorizontalAlignment="Right" Margin="0,8,0,0"
-                Background="{DynamicResource MaterialPrimaryMidBrush}" Foreground="White" />
+                Foreground="White" />
       </Grid>
 
       <!-- ==== LOGS PAGE ==== -->
