@@ -116,6 +116,14 @@ public static class Strings
     public static string InstanceTabs_WorldMenuRestoreLatest => L("InstanceTabs.WorldMenuRestoreLatest");
     public static string InstanceTabs_WorldMenuOpenFolder => L("InstanceTabs.WorldMenuOpenFolder");
     public static string InstanceTabs_CrashSeparatorDash => L("InstanceTabs.CrashSeparatorDash");
+    public static string InstanceTabs_ResourcePacks => L("InstanceTabs.ResourcePacks");
+    public static string InstanceTabs_ShaderPacks => L("InstanceTabs.ShaderPacks");
+    public static string InstanceTabs_DataPacks => L("InstanceTabs.DataPacks");
+    public static string InstanceTabs_PackEnableTooltip => L("InstanceTabs.PackEnableTooltip");
+    public static string InstanceTabs_PackRemoveButton => L("InstanceTabs.PackRemoveButton");
+    public static string InstanceTabs_PackEmptyResource => L("InstanceTabs.PackEmptyResource");
+    public static string InstanceTabs_PackEmptyShader => L("InstanceTabs.PackEmptyShader");
+    public static string InstanceTabs_PackEmptyData => L("InstanceTabs.PackEmptyData");
 
     // Skins
     public static string Skins_Title => L("Skins.Title");

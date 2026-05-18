@@ -12,6 +12,12 @@ public enum InstanceDetailTab
     Servers,
     /// <summary>Recent crash reports parsed from <c>&lt;gameDir&gt;/crash-reports/</c>.</summary>
     Crashes,
+    /// <summary>Zipped resource packs under <c>&lt;gameDir&gt;/resourcepacks/</c> (enabled + <c>.zip.disabled</c>).</summary>
+    ResourcePacks,
+    /// <summary>Zipped shader packs under <c>&lt;gameDir&gt;/shaderpacks/</c>.</summary>
+    ShaderPacks,
+    /// <summary>Zipped data packs under <c>&lt;gameDir&gt;/saves/&lt;world&gt;/datapacks/</c>, grouped by world.</summary>
+    DataPacks,
 }
 
 /// <summary>Identifies the active sidebar item. The content area binds <c>IsVisible</c> to a converter that matches this enum.</summary>

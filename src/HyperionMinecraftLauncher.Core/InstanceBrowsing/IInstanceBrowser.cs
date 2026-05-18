@@ -22,4 +22,13 @@ public interface IInstanceBrowser
 
     /// <summary>Parse <c>&lt;gameDir&gt;/servers.dat</c>. Empty list when the file is missing or malformed.</summary>
     Task<IReadOnlyList<ServerListEntry>> ListServersAsync(Instance instance, CancellationToken cancellationToken);
+
+    /// <summary>Enumerate <c>&lt;gameDir&gt;/resourcepacks/*.zip</c> and <c>*.zip.disabled</c>.</summary>
+    Task<IReadOnlyList<ResourcePackEntry>> ListResourcePacksAsync(Instance instance, CancellationToken cancellationToken);
+
+    /// <summary>Enumerate <c>&lt;gameDir&gt;/shaderpacks/*.zip</c> and <c>*.zip.disabled</c>.</summary>
+    Task<IReadOnlyList<ShaderPackEntry>> ListShaderPacksAsync(Instance instance, CancellationToken cancellationToken);
+
+    /// <summary>Enumerate <c>&lt;gameDir&gt;/saves/&lt;world&gt;/datapacks/*.zip</c> across every world, grouped by world.</summary>
+    Task<IReadOnlyList<DataPackEntry>> ListDataPacksAsync(Instance instance, CancellationToken cancellationToken);
 }
