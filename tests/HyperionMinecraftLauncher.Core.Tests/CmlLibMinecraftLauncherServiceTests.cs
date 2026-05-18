@@ -344,6 +344,9 @@ internal sealed class FakeUnderlyingLauncher : IUnderlyingLauncher
     /// <summary>Captures the last <see cref="LaunchRequest"/> the service handed to <see cref="StartProcessAsync"/>.</summary>
     public LaunchRequest? LastRequest { get; private set; }
 
+    /// <summary>Captures the last <c>versionName</c> the service asked the underlying launcher to install.</summary>
+    public string? LastInstalledVersionName { get; private set; }
+
     public Task<IReadOnlyList<VersionMetadata>> GetAllVersionsAsync(CancellationToken cancellationToken)
     {
         if (ThrowOnVersions is not null) throw ThrowOnVersions;
@@ -353,6 +356,7 @@ internal sealed class FakeUnderlyingLauncher : IUnderlyingLauncher
     public Task InstallAsync(string versionName, IProgress<LaunchProgress>? progress, CancellationToken cancellationToken)
     {
         InstallCalled = true;
+        LastInstalledVersionName = versionName;
         foreach (var ev in ProgressEventsToEmit)
             progress?.Report(ev);
 

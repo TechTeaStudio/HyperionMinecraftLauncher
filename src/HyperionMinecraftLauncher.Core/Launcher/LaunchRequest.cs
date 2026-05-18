@@ -1,4 +1,5 @@
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
@@ -46,4 +47,20 @@ public sealed record LaunchRequest
     /// <c>null</c> means "let CmlLib decide".
     /// </summary>
     public string? JavaPath { get; init; }
+
+    /// <summary>
+    /// Mod loader to install on top of the vanilla <see cref="VersionName"/> before launching.
+    /// Defaults to <see cref="ModLoader.None"/> (vanilla). v0.30.0 (T21a). The service runs
+    /// the configured <see cref="Installations.Loaders.IModLoaderInstaller"/> ahead of the
+    /// regular install + start pipeline and patches <see cref="VersionName"/> in-place
+    /// with the resulting modded version id.
+    /// </summary>
+    public ModLoader Loader { get; init; } = ModLoader.None;
+
+    /// <summary>
+    /// Loader-specific version string (e.g. <c>"49.0.30"</c> for Forge, <c>"0.16.10"</c> for
+    /// Fabric). Ignored when <see cref="Loader"/> is <see cref="ModLoader.None"/>. <c>null</c>
+    /// means "let the installer pick the newest stable build".
+    /// </summary>
+    public string? LoaderVersion { get; init; }
 }

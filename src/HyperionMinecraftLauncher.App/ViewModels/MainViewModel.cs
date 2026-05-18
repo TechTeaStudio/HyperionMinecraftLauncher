@@ -1947,6 +1947,13 @@ public sealed class MainViewModel : INotifyPropertyChanged
             var javaOverride = string.IsNullOrWhiteSpace(_javaExecutableOverride) ? null : _javaExecutableOverride;
             var javaRequirement = javaOverride is null ? JavaRequirementResolver.For(versionName) : (JavaRequirement?)null;
 
+            // T21a, v0.30.0: forward the instance's mod loader so CmlLibMinecraftLauncherService
+            // can run IModLoaderInstaller before the regular install. Vanilla instances (or any
+            // launch path with no instance, e.g. direct version pick) leave Loader == None and
+            // the launcher service short-circuits the loader-install block entirely.
+            var loader = instance?.Loader ?? ModLoader.None;
+            var loaderVersion = instance?.LoaderVersion;
+
             Append($"Launching {versionName} (Xms={MinMemoryMb}M, Xmx={MaxMemoryMb}M) ...");
             var result = await _service.LaunchAsync(
                 new LaunchRequest
@@ -1959,6 +1966,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
                     QuickPlay = quickPlay,
                     JavaRequirement = javaRequirement,
                     JavaPath = javaOverride,
+                    Loader = loader,
+                    LoaderVersion = loaderVersion,
                 },
                 progress,
                 CancellationToken.None);
