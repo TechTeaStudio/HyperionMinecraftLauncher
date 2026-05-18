@@ -7,6 +7,7 @@
         xmlns:local="using:TechTeaStudio.HyperionMinecraftLauncher.App.Views"
         xmlns:instances="using:TechTeaStudio.HyperionMinecraftLauncher.Core.Instances"
         xmlns:browsing="using:TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing"
+        xmlns:crashes="using:TechTeaStudio.HyperionMinecraftLauncher.Core.CrashReports"
         xmlns:servers="using:TechTeaStudio.HyperionMinecraftLauncher.Core.Servers"
         xmlns:accounts="using:TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts"
         xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
@@ -647,8 +648,15 @@
                            Classes="DetailTab"
                            IsChecked="{Binding IsInstanceServersTabSelected, Mode=OneWay}"
                            Click="OnInstanceTabServers" />
+              <RadioButton Content="Crashes" GroupName="InstanceTabs"
+                           Classes="DetailTab"
+                           IsChecked="{Binding IsCrashesTabSelected, Mode=OneWay}"
+                           Click="OnInstanceTabCrashes" />
               <Button Content="Refresh" FontSize="10" Padding="8,2" Margin="14,0,0,0"
                       Click="OnRefreshInstanceTab" />
+              <Button Content="Open folder" FontSize="10" Padding="8,2" Margin="4,0,0,0"
+                      Click="OnOpenCrashReportsFolder"
+                      IsVisible="{Binding IsCrashesTabSelected}" />
             </StackPanel>
 
             <!-- Screenshots tab: WrapPanel of 160x100 thumbnail tiles. Click opens with OS default viewer. -->
@@ -738,6 +746,88 @@
                 </ListBox.ItemTemplate>
               </ListBox>
             </ScrollViewer>
+
+            <!-- Crashes tab: top half lists each parsed crash report, bottom half shows the
+                 full text + a button strip with mod-search links for each suspect mod. -->
+            <Grid Grid.Row="1" IsVisible="{Binding IsCrashesTabSelected}"
+                  RowDefinitions="*,2,*">
+              <!-- Top half: list of crash reports -->
+              <Border Grid.Row="0" CornerRadius="8"
+                      Background="{DynamicResource MaterialBackgroundBrush}">
+                <Grid RowDefinitions="*,Auto">
+                  <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+                    <ListBox ItemsSource="{Binding InstanceCrashReports}"
+                             SelectedItem="{Binding SelectedCrashReport, Mode=TwoWay}"
+                             Background="Transparent" BorderThickness="0">
+                      <ListBox.ItemTemplate>
+                        <DataTemplate DataType="crashes:CrashReport">
+                          <Grid ColumnDefinitions="*,Auto" Margin="2,3" RowDefinitions="Auto,Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0"
+                                       Text="{Binding Filename}" FontWeight="SemiBold" FontSize="11"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Grid.Row="1" Grid.Column="0"
+                                       FontSize="10" Opacity="0.7"
+                                       TextTrimming="CharacterEllipsis">
+                              <Run Text="{Binding MinecraftVersion}" />
+                              <Run Text="  -  " />
+                              <Run Text="{Binding SummaryLine}" />
+                            </TextBlock>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
+                                       Text="{Binding GeneratedAt, Converter={x:Static local:DateTimeOffsetToHumanizedAgo.Instance}}"
+                                       Opacity="0.6" FontSize="10" VerticalAlignment="Center"
+                                       Margin="10,0,4,0" />
+                          </Grid>
+                        </DataTemplate>
+                      </ListBox.ItemTemplate>
+                    </ListBox>
+                  </ScrollViewer>
+                  <TextBlock Grid.Row="1" Text="No crash reports for this instance."
+                             FontSize="10" Opacity="0.55" Margin="6,4"
+                             IsVisible="{Binding !HasInstanceCrashReports}" />
+                </Grid>
+              </Border>
+
+              <!-- Bottom half: viewer + mod search button strip -->
+              <Border Grid.Row="2" CornerRadius="8"
+                      Background="{DynamicResource MaterialBackgroundBrush}"
+                      IsVisible="{Binding HasSelectedCrashReport}">
+                <Grid RowDefinitions="Auto,*">
+                  <ItemsControl Grid.Row="0" ItemsSource="{Binding SelectedCrashReportSuspects}"
+                                Margin="6,4">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate DataType="crashes:CrashFrame">
+                        <StackPanel Orientation="Horizontal" Spacing="3" Margin="0,2,8,2">
+                          <TextBlock Text="{Binding ModDisplayName}" FontWeight="SemiBold" FontSize="11"
+                                     VerticalAlignment="Center" />
+                          <Button Content="Modrinth" Padding="6,2" FontSize="10"
+                                  Tag="{Binding ModrinthSearchUrl}"
+                                  Click="OnOpenCrashSuspectUrl" />
+                          <Button Content="CurseForge" Padding="6,2" FontSize="10"
+                                  Tag="{Binding CurseForgeSearchUrl}"
+                                  Click="OnOpenCrashSuspectUrl" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <TextBox Grid.Row="1"
+                           Text="{Binding SelectedCrashReport.FullText, Mode=OneWay}"
+                           IsReadOnly="True"
+                           AcceptsReturn="True"
+                           TextWrapping="NoWrap"
+                           FontFamily="Cascadia Mono, Consolas, monospace"
+                           FontSize="10"
+                           Background="Transparent"
+                           Margin="6,2,6,6"
+                           ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                           ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                </Grid>
+              </Border>
+            </Grid>
           </Grid>
         </Border>
       </Grid>

@@ -60,6 +60,32 @@ public sealed class ByteSizeFormatter : IValueConverter
 }
 
 /// <summary>
+/// Convert a <see cref="DateTimeOffset"/> (e.g. <c>CrashReport.GeneratedAt</c>) into a
+/// short humanised "ago" label using the same vocabulary as <see cref="IsoToHumanizedAgo"/>.
+/// </summary>
+public sealed class DateTimeOffsetToHumanizedAgo : IValueConverter
+{
+    public static readonly DateTimeOffsetToHumanizedAgo Instance = new();
+
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not DateTimeOffset when) return string.Empty;
+        var delta = DateTimeOffset.UtcNow - when;
+        if (delta.TotalSeconds < 0) return when.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+        if (delta.TotalSeconds < 60) return "just now";
+        if (delta.TotalMinutes < 60) return $"{(int)delta.TotalMinutes} min ago";
+        if (delta.TotalHours < 24) return $"{(int)delta.TotalHours} hours ago";
+        if (delta.TotalDays < 2) return "yesterday";
+        if (delta.TotalDays < 30) return $"{(int)delta.TotalDays} days ago";
+        if (delta.TotalDays < 365) return $"{(int)(delta.TotalDays / 30)} months ago";
+        return $"{(int)(delta.TotalDays / 365)} years ago";
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
+/// <summary>
 /// Convert an ISO-8601 timestamp string (e.g. from <c>LevelDatInfo.LastPlayedIso</c>)
 /// into "3 hours ago" / "yesterday" / "2 days ago". Returns "never" for null/empty.
 /// </summary>
