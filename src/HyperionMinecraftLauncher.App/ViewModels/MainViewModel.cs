@@ -137,6 +137,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private IReadOnlyList<WorldEntry> _instanceWorlds = Array.Empty<WorldEntry>();
     private IReadOnlyList<ServerListEntry> _instanceServers = Array.Empty<ServerListEntry>();
     private IReadOnlyList<CrashReport> _instanceCrashReports = Array.Empty<CrashReport>();
+    // v0.32.1 T-content-tabs: per-instance content packs. The collections back the three new
+    // tabs (Resource packs / Shader packs / Data packs) on the Installations detail panel.
+    // Toggle/Remove commands rename / delete the file in place and then trigger a refresh.
     private CrashReport? _selectedCrashReport;
     private InstanceDetailTab _selectedInstanceTab = InstanceDetailTab.Screenshots;
     private IReadOnlyList<OwnedSkin> _ownedSkins = Array.Empty<OwnedSkin>();
@@ -233,6 +236,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
         ModSearchResults = new ObservableCollection<Mod>();
         InstalledMods = new ObservableCollection<LocalMod>();
         Accounts = new ObservableCollection<Account>();
+        InstanceResourcePacks = new ObservableCollection<ResourcePackEntry>();
+        InstanceShaderPacks = new ObservableCollection<ShaderPackEntry>();
+        InstanceDataPacks = new ObservableCollection<DataPackEntry>();
 
         RefreshVersionsCommand = new AsyncRelayCommand(RefreshVersionsAsync, () => !IsBusy);
         RefreshInstalledVersionsCommand = new AsyncRelayCommand(RefreshInstalledVersionsAsync, () => !IsBusy);
@@ -262,6 +268,37 @@ public sealed class MainViewModel : INotifyPropertyChanged
         RefreshInstanceCrashReportsCommand = new AsyncRelayCommand(
             RefreshInstanceCrashReportsAsync,
             () => !IsBusy && SelectedInstance is not null && _crashReportListener is not null);
+
+        // v0.32.1 T-content-tabs: refresh + per-row Toggle / Remove commands for the three
+        // new pack tabs. Toggle renames .zip <-> .zip.disabled in place; Remove deletes the
+        // file. Both commands then re-list to update the UI.
+        RefreshInstanceResourcePacksCommand = new AsyncRelayCommand(
+            RefreshInstanceResourcePacksAsync,
+            () => !IsBusy && SelectedInstance is not null && _instanceBrowser is not null);
+        RefreshInstanceShaderPacksCommand = new AsyncRelayCommand(
+            RefreshInstanceShaderPacksAsync,
+            () => !IsBusy && SelectedInstance is not null && _instanceBrowser is not null);
+        RefreshInstanceDataPacksCommand = new AsyncRelayCommand(
+            RefreshInstanceDataPacksAsync,
+            () => !IsBusy && SelectedInstance is not null && _instanceBrowser is not null);
+        ToggleResourcePackCommand = new AsyncParameterRelayCommand<string>(
+            ToggleResourcePackAsync,
+            n => !IsBusy && SelectedInstance is not null && !string.IsNullOrEmpty(n));
+        ToggleShaderPackCommand = new AsyncParameterRelayCommand<string>(
+            ToggleShaderPackAsync,
+            n => !IsBusy && SelectedInstance is not null && !string.IsNullOrEmpty(n));
+        ToggleDataPackCommand = new AsyncParameterRelayCommand<DataPackEntry>(
+            ToggleDataPackAsync,
+            e => !IsBusy && SelectedInstance is not null && e is not null);
+        RemoveResourcePackCommand = new AsyncParameterRelayCommand<string>(
+            RemoveResourcePackAsync,
+            n => !IsBusy && SelectedInstance is not null && !string.IsNullOrEmpty(n));
+        RemoveShaderPackCommand = new AsyncParameterRelayCommand<string>(
+            RemoveShaderPackAsync,
+            n => !IsBusy && SelectedInstance is not null && !string.IsNullOrEmpty(n));
+        RemoveDataPackCommand = new AsyncParameterRelayCommand<DataPackEntry>(
+            RemoveDataPackAsync,
+            e => !IsBusy && SelectedInstance is not null && e is not null);
         OpenCrashReportInBrowserCommand = new AsyncRelayCommand(
             OpenSelectedCrashReportInBrowserAsync,
             () => SelectedCrashReport is not null && SelectedCrashReport.SuspectedMods.Count > 0);
@@ -621,6 +658,15 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 RefreshInstanceWorldsCommand.RaiseCanExecuteChanged();
                 RefreshInstanceServersCommand.RaiseCanExecuteChanged();
                 RefreshInstanceCrashReportsCommand.RaiseCanExecuteChanged();
+                RefreshInstanceResourcePacksCommand?.RaiseCanExecuteChanged();
+                RefreshInstanceShaderPacksCommand?.RaiseCanExecuteChanged();
+                RefreshInstanceDataPacksCommand?.RaiseCanExecuteChanged();
+                ToggleResourcePackCommand?.RaiseCanExecuteChanged();
+                ToggleShaderPackCommand?.RaiseCanExecuteChanged();
+                ToggleDataPackCommand?.RaiseCanExecuteChanged();
+                RemoveResourcePackCommand?.RaiseCanExecuteChanged();
+                RemoveShaderPackCommand?.RaiseCanExecuteChanged();
+                RemoveDataPackCommand?.RaiseCanExecuteChanged();
                 ExportInstanceCommand?.RaiseCanExecuteChanged();
                 CloseInstanceDetailCommand?.RaiseCanExecuteChanged();
                 OnPropertyChanged(nameof(HasSelectedInstance));
@@ -635,6 +681,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
                     InstanceScreenshots = Array.Empty<ScreenshotEntry>();
                     InstanceWorlds = Array.Empty<WorldEntry>();
                     InstanceServers = Array.Empty<ServerListEntry>();
+                    InstanceResourcePacks?.Clear();
+                    InstanceShaderPacks?.Clear();
+                    InstanceDataPacks?.Clear();
                 }
                 // Crash reports use a separate listener; refresh independently of the regular browser.
                 if (value is not null && _crashReportListener is not null)
@@ -678,6 +727,15 @@ public sealed class MainViewModel : INotifyPropertyChanged
         get => _instanceServers;
         private set => SetField(ref _instanceServers, value);
     }
+
+    /// <summary>Resource packs (zip / zip.disabled) under <c>&lt;gameDir&gt;/resourcepacks/</c>.</summary>
+    public ObservableCollection<ResourcePackEntry> InstanceResourcePacks { get; }
+
+    /// <summary>Shader packs under <c>&lt;gameDir&gt;/shaderpacks/</c>.</summary>
+    public ObservableCollection<ShaderPackEntry> InstanceShaderPacks { get; }
+
+    /// <summary>Data packs under <c>&lt;gameDir&gt;/saves/&lt;world&gt;/datapacks/</c>, grouped by world (XAML sees the flat list).</summary>
+    public ObservableCollection<DataPackEntry> InstanceDataPacks { get; }
 
     /// <summary>Crash reports parsed from <c>&lt;gameDir&gt;/crash-reports/</c>, newest first.</summary>
     public IReadOnlyList<CrashReport> InstanceCrashReports
@@ -734,6 +792,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 OnPropertyChanged(nameof(IsWorldsTabSelected));
                 OnPropertyChanged(nameof(IsInstanceServersTabSelected));
                 OnPropertyChanged(nameof(IsCrashesTabSelected));
+                OnPropertyChanged(nameof(IsResourcePacksTabSelected));
+                OnPropertyChanged(nameof(IsShaderPacksTabSelected));
+                OnPropertyChanged(nameof(IsDataPacksTabSelected));
             }
         }
     }
@@ -742,6 +803,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public bool IsWorldsTabSelected => SelectedInstanceTab == InstanceDetailTab.Worlds;
     public bool IsInstanceServersTabSelected => SelectedInstanceTab == InstanceDetailTab.Servers;
     public bool IsCrashesTabSelected => SelectedInstanceTab == InstanceDetailTab.Crashes;
+    public bool IsResourcePacksTabSelected => SelectedInstanceTab == InstanceDetailTab.ResourcePacks;
+    public bool IsShaderPacksTabSelected => SelectedInstanceTab == InstanceDetailTab.ShaderPacks;
+    public bool IsDataPacksTabSelected => SelectedInstanceTab == InstanceDetailTab.DataPacks;
 
     // ---- Settings ----
 
@@ -1039,6 +1103,15 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 RefreshInstanceWorldsCommand.RaiseCanExecuteChanged();
                 RefreshInstanceServersCommand.RaiseCanExecuteChanged();
                 RefreshInstanceCrashReportsCommand.RaiseCanExecuteChanged();
+                RefreshInstanceResourcePacksCommand?.RaiseCanExecuteChanged();
+                RefreshInstanceShaderPacksCommand?.RaiseCanExecuteChanged();
+                RefreshInstanceDataPacksCommand?.RaiseCanExecuteChanged();
+                ToggleResourcePackCommand?.RaiseCanExecuteChanged();
+                ToggleShaderPackCommand?.RaiseCanExecuteChanged();
+                ToggleDataPackCommand?.RaiseCanExecuteChanged();
+                RemoveResourcePackCommand?.RaiseCanExecuteChanged();
+                RemoveShaderPackCommand?.RaiseCanExecuteChanged();
+                RemoveDataPackCommand?.RaiseCanExecuteChanged();
                 UploadSkinCommand.RaiseCanExecuteChanged();
                 SetActiveCapeCommand.RaiseCanExecuteChanged();
                 ClearActiveCapeCommand.RaiseCanExecuteChanged();
@@ -1180,6 +1253,18 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncRelayCommand RefreshInstanceWorldsCommand { get; }
     public AsyncRelayCommand RefreshInstanceServersCommand { get; }
     public AsyncRelayCommand RefreshInstanceCrashReportsCommand { get; }
+    public AsyncRelayCommand RefreshInstanceResourcePacksCommand { get; }
+    public AsyncRelayCommand RefreshInstanceShaderPacksCommand { get; }
+    public AsyncRelayCommand RefreshInstanceDataPacksCommand { get; }
+    /// <summary>Toggle a resource pack enable/disable by filename (renames <c>.zip</c> &lt;-&gt; <c>.zip.disabled</c>).</summary>
+    public AsyncParameterRelayCommand<string> ToggleResourcePackCommand { get; }
+    /// <summary>Toggle a shader pack by filename.</summary>
+    public AsyncParameterRelayCommand<string> ToggleShaderPackCommand { get; }
+    /// <summary>Toggle a data pack. Needs the full entry (we need both filename and the owning world folder).</summary>
+    public AsyncParameterRelayCommand<DataPackEntry> ToggleDataPackCommand { get; }
+    public AsyncParameterRelayCommand<string> RemoveResourcePackCommand { get; }
+    public AsyncParameterRelayCommand<string> RemoveShaderPackCommand { get; }
+    public AsyncParameterRelayCommand<DataPackEntry> RemoveDataPackCommand { get; }
     public AsyncRelayCommand OpenCrashReportInBrowserCommand { get; }
     public AsyncRelayCommand UploadSkinCommand { get; }
     public AsyncRelayCommand SetActiveCapeCommand { get; }
@@ -2763,6 +2848,164 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
     }
 
+    private async Task RefreshInstanceResourcePacksAsync()
+    {
+        if (_instanceBrowser is null || SelectedInstance is not { } inst) return;
+        try
+        {
+            var list = await _instanceBrowser.ListResourcePacksAsync(inst, CancellationToken.None);
+            ReplaceCollection(InstanceResourcePacks, list);
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not list resource packs: {ex.Message}");
+            InstanceResourcePacks.Clear();
+        }
+    }
+
+    private async Task RefreshInstanceShaderPacksAsync()
+    {
+        if (_instanceBrowser is null || SelectedInstance is not { } inst) return;
+        try
+        {
+            var list = await _instanceBrowser.ListShaderPacksAsync(inst, CancellationToken.None);
+            ReplaceCollection(InstanceShaderPacks, list);
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not list shader packs: {ex.Message}");
+            InstanceShaderPacks.Clear();
+        }
+    }
+
+    private async Task RefreshInstanceDataPacksAsync()
+    {
+        if (_instanceBrowser is null || SelectedInstance is not { } inst) return;
+        try
+        {
+            var list = await _instanceBrowser.ListDataPacksAsync(inst, CancellationToken.None);
+            ReplaceCollection(InstanceDataPacks, list);
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not list data packs: {ex.Message}");
+            InstanceDataPacks.Clear();
+        }
+    }
+
+    private static void ReplaceCollection<T>(ObservableCollection<T> target, System.Collections.Generic.IReadOnlyList<T> source)
+    {
+        target.Clear();
+        foreach (var item in source)
+            target.Add(item);
+    }
+
+    /// <summary>
+    /// Resolve the per-instance root directory (game directory or default <c>.minecraft</c>).
+    /// Used by the pack toggle/remove logic to build absolute pack-file paths without going
+    /// through the browser interface (which only enumerates - it doesn't expose the root).
+    /// </summary>
+    private string? ResolvePackRoot()
+    {
+        if (SelectedInstance is not { } inst) return null;
+        return !string.IsNullOrWhiteSpace(inst.GameDirectory)
+            ? inst.GameDirectory
+            : Core.Installations.DefaultMinecraftInstallationLocator.ResolveRoot();
+    }
+
+    private async Task ToggleResourcePackAsync(string? filename)
+    {
+        if (string.IsNullOrEmpty(filename) || ResolvePackRoot() is not { } root) return;
+        var dir = Path.Combine(root, "resourcepacks");
+        ToggleZipDisabledSuffix(dir, filename);
+        await RefreshInstanceResourcePacksAsync().ConfigureAwait(true);
+    }
+
+    private async Task ToggleShaderPackAsync(string? filename)
+    {
+        if (string.IsNullOrEmpty(filename) || ResolvePackRoot() is not { } root) return;
+        var dir = Path.Combine(root, "shaderpacks");
+        ToggleZipDisabledSuffix(dir, filename);
+        await RefreshInstanceShaderPacksAsync().ConfigureAwait(true);
+    }
+
+    private async Task ToggleDataPackAsync(DataPackEntry? entry)
+    {
+        if (entry is null || ResolvePackRoot() is not { } root) return;
+        var dir = Path.Combine(root, "saves", entry.WorldFolderName, "datapacks");
+        ToggleZipDisabledSuffix(dir, entry.Filename);
+        await RefreshInstanceDataPacksAsync().ConfigureAwait(true);
+    }
+
+    /// <summary>
+    /// Rename a pack file between <c>foo.zip</c> and <c>foo.zip.disabled</c> in-place.
+    /// Logs but never throws when the source is missing or the destination already exists -
+    /// the UI just stays as it was.
+    /// </summary>
+    private void ToggleZipDisabledSuffix(string dir, string filename)
+    {
+        try
+        {
+            var source = Path.Combine(dir, filename);
+            if (!File.Exists(source))
+            {
+                Append($"[warn] Pack file not found: {filename}");
+                return;
+            }
+            string dest;
+            if (filename.EndsWith(".zip.disabled", StringComparison.OrdinalIgnoreCase))
+                dest = source.Substring(0, source.Length - ".disabled".Length);
+            else if (filename.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+                dest = source + ".disabled";
+            else
+                return;
+            if (File.Exists(dest))
+            {
+                Append($"[warn] Cannot toggle '{filename}': '{Path.GetFileName(dest)}' already exists.");
+                return;
+            }
+            File.Move(source, dest);
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Toggle pack '{filename}' failed: {ex.Message}");
+        }
+    }
+
+    private async Task RemoveResourcePackAsync(string? filename)
+    {
+        if (string.IsNullOrEmpty(filename) || ResolvePackRoot() is not { } root) return;
+        DeletePackFile(Path.Combine(root, "resourcepacks", filename));
+        await RefreshInstanceResourcePacksAsync().ConfigureAwait(true);
+    }
+
+    private async Task RemoveShaderPackAsync(string? filename)
+    {
+        if (string.IsNullOrEmpty(filename) || ResolvePackRoot() is not { } root) return;
+        DeletePackFile(Path.Combine(root, "shaderpacks", filename));
+        await RefreshInstanceShaderPacksAsync().ConfigureAwait(true);
+    }
+
+    private async Task RemoveDataPackAsync(DataPackEntry? entry)
+    {
+        if (entry is null || ResolvePackRoot() is not { } root) return;
+        DeletePackFile(Path.Combine(root, "saves", entry.WorldFolderName, "datapacks", entry.Filename));
+        await RefreshInstanceDataPacksAsync().ConfigureAwait(true);
+    }
+
+    private void DeletePackFile(string fullPath)
+    {
+        try
+        {
+            if (File.Exists(fullPath))
+                File.Delete(fullPath);
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not delete '{Path.GetFileName(fullPath)}': {ex.Message}");
+        }
+    }
+
     /// <summary>
     /// Open the first suspect mod's Modrinth search page in the OS default browser. Falls back to
     /// the CurseForge link when Modrinth is empty. No-op when nothing is selected or no suspects.
@@ -2793,12 +3036,18 @@ public sealed class MainViewModel : INotifyPropertyChanged
             var ssTask = _instanceBrowser.ListScreenshotsAsync(instance, CancellationToken.None);
             var worldsTask = _instanceBrowser.ListWorldsAsync(instance, CancellationToken.None);
             var serversTask = _instanceBrowser.ListServersAsync(instance, CancellationToken.None);
-            await Task.WhenAll(ssTask, worldsTask, serversTask);
+            var resTask = _instanceBrowser.ListResourcePacksAsync(instance, CancellationToken.None);
+            var shaderTask = _instanceBrowser.ListShaderPacksAsync(instance, CancellationToken.None);
+            var dataTask = _instanceBrowser.ListDataPacksAsync(instance, CancellationToken.None);
+            await Task.WhenAll(ssTask, worldsTask, serversTask, resTask, shaderTask, dataTask);
             // Guard against the selection moving while we were scanning.
             if (!ReferenceEquals(SelectedInstance, instance)) return;
             InstanceScreenshots = ssTask.Result;
             InstanceWorlds = worldsTask.Result;
             InstanceServers = serversTask.Result;
+            ReplaceCollection(InstanceResourcePacks, resTask.Result);
+            ReplaceCollection(InstanceShaderPacks, shaderTask.Result);
+            ReplaceCollection(InstanceDataPacks, dataTask.Result);
         }
         catch (Exception ex)
         {
