@@ -114,25 +114,21 @@ public sealed class CmlLibUnderlyingLauncher : IUnderlyingLauncher
     }
 
     /// <inheritdoc />
-    public async Task<int> StartProcessAsync(
-        string versionName,
-        string username,
-        string uuid,
-        string accessToken,
-        int? minimumRamMb,
-        int? maximumRamMb,
-        CancellationToken cancellationToken)
+    public async Task<int> StartProcessAsync(LaunchRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(versionName))
-            throw new ArgumentException("versionName is required", nameof(versionName));
-        if (string.IsNullOrWhiteSpace(username))
-            throw new ArgumentException("username is required", nameof(username));
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(request.Session);
+
+        if (string.IsNullOrWhiteSpace(request.VersionName))
+            throw new ArgumentException("VersionName is required", nameof(request));
+        if (string.IsNullOrWhiteSpace(request.Session.Username))
+            throw new ArgumentException("Session.Username is required", nameof(request));
 
         var session = new MSession
         {
-            Username = username,
-            UUID = uuid,
-            AccessToken = accessToken,
+            Username = request.Session.Username,
+            UUID = request.Session.Uuid,
+            AccessToken = request.Session.AccessToken,
         };
 
         var options = new MLaunchOption
@@ -140,10 +136,10 @@ public sealed class CmlLibUnderlyingLauncher : IUnderlyingLauncher
             Session = session,
         };
 
-        if (minimumRamMb is int min) options.MinimumRamMb = min;
-        if (maximumRamMb is int max) options.MaximumRamMb = max;
+        if (request.MinimumRamMb is int min) options.MinimumRamMb = min;
+        if (request.MaximumRamMb is int max) options.MaximumRamMb = max;
 
-        var process = await _launcher.BuildProcessAsync(versionName, options, cancellationToken).ConfigureAwait(false);
+        var process = await _launcher.BuildProcessAsync(request.VersionName, options, cancellationToken).ConfigureAwait(false);
         process.Start();
         return process.Id;
     }

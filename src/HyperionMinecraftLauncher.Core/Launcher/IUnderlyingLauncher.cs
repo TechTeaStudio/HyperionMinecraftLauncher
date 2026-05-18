@@ -22,13 +22,12 @@ public interface IUnderlyingLauncher
         IProgress<LaunchProgress>? progress,
         CancellationToken cancellationToken);
 
-    /// <summary>Spawn the Java process for the given version + session, returning its OS process id.</summary>
+    /// <summary>
+    /// Spawn the Java process for the given <paramref name="request"/>, returning its OS process id.
+    /// All session, RAM, and Quick Play settings are read from the request - keeps this interface
+    /// resilient to future additions on <see cref="LaunchRequest"/> without further sig churn.
+    /// </summary>
     Task<int> StartProcessAsync(
-        string versionName,
-        string username,
-        string uuid,
-        string accessToken,
-        int? minimumRamMb,
-        int? maximumRamMb,
+        LaunchRequest request,
         CancellationToken cancellationToken);
 }

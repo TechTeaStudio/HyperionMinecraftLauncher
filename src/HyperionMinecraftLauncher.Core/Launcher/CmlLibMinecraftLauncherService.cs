@@ -331,14 +331,7 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
 
         try
         {
-            var pid = await _underlying.StartProcessAsync(
-                request.VersionName,
-                request.Session.Username,
-                request.Session.Uuid,
-                request.Session.AccessToken,
-                request.MinimumRamMb,
-                request.MaximumRamMb,
-                cancellationToken).ConfigureAwait(false);
+            var pid = await _underlying.StartProcessAsync(request, cancellationToken).ConfigureAwait(false);
 
             _logger.Info($"Minecraft '{request.VersionName}' started (pid {pid}).");
             return new LaunchResult { ProcessId = pid, VersionName = request.VersionName };

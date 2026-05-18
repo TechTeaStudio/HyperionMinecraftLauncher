@@ -341,6 +341,9 @@ internal sealed class FakeUnderlyingLauncher : IUnderlyingLauncher
     public bool StartCalled { get; private set; }
     public bool InstallCalledBeforeStart { get; private set; }
 
+    /// <summary>Captures the last <see cref="LaunchRequest"/> the service handed to <see cref="StartProcessAsync"/>.</summary>
+    public LaunchRequest? LastRequest { get; private set; }
+
     public Task<IReadOnlyList<VersionMetadata>> GetAllVersionsAsync(CancellationToken cancellationToken)
     {
         if (ThrowOnVersions is not null) throw ThrowOnVersions;
@@ -357,17 +360,11 @@ internal sealed class FakeUnderlyingLauncher : IUnderlyingLauncher
         return Task.CompletedTask;
     }
 
-    public Task<int> StartProcessAsync(
-        string versionName,
-        string username,
-        string uuid,
-        string accessToken,
-        int? minimumRamMb,
-        int? maximumRamMb,
-        CancellationToken cancellationToken)
+    public Task<int> StartProcessAsync(LaunchRequest request, CancellationToken cancellationToken)
     {
         StartCalled = true;
         InstallCalledBeforeStart = InstallCalled;
+        LastRequest = request;
 
         if (ThrowOnStart is not null) throw ThrowOnStart;
         return Task.FromResult(ProcessIdToReturn);
