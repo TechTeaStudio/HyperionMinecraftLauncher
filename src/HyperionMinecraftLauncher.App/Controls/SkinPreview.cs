@@ -98,7 +98,7 @@ public sealed class SkinPreview : UserControl
 
     private readonly TextBlock _hint = new()
     {
-        Text = "Drag the head to rotate",
+        Text = "Drag the head to rotate (body follows)",
         FontSize = 10,
         Opacity = 0.55,
         HorizontalAlignment = HorizontalAlignment.Center,
@@ -252,17 +252,35 @@ public sealed class SkinPreview : UserControl
         }
     }
 
+    private bool _lastBodyWasBack;
+    private bool _hasBodyImage;
+
     private void RebuildBody()
     {
         if (_skSkin is null) return;
         try
         {
-            using var body = Skin2DTypeA.MakeSkinImage(_skSkin, null);
+            // MinecraftSkinRender.Image 1.2.0 does NOT ship a 3D body renderer, only a
+            // 3D HEAD renderer. To still give the body a sense of rotation, we flip
+            // between a stock front-view sprite (Skin2DTypeA) and a back-view sprite we
+            // compose locally with the SDK's ExtractSubset / Mix primitives. We pick
+            // whichever face matches the current yaw, so dragging the head past the side
+            // visibly flips the body too.
+            bool showBack = SkinRotation.IsBackFacing(_yaw);
+            // Only re-render the body image when the face actually changes, keeping
+            // pointer-move cheap (the body sprite is much pricier than the 220x220 head).
+            if (_hasBodyImage && showBack == _lastBodyWasBack) return;
+
+            using var body = showBack
+                ? BackBodyComposer.MakeBackImage(_skSkin)
+                : Skin2DTypeA.MakeSkinImage(_skSkin, null);
             _bodyImage.Source = ToAvaloniaBitmap(body);
+            _lastBodyWasBack = showBack;
+            _hasBodyImage = true;
         }
         catch (Exception ex)
         {
-            Log("Skin2DTypeA.MakeSkinImage threw; body slot left empty.", ex);
+            Log("Body render threw; body slot left at previous image.", ex);
         }
     }
 
@@ -283,22 +301,20 @@ public sealed class SkinPreview : UserControl
         // Horizontal drag rotates around the Y axis (yaw - the head turns left / right);
         // vertical drag rotates around the X axis (pitch - the head tilts up / down).
         // RebuildHead passes them in the correct (x=pitch, y=yaw) order to MakeHeadImage.
-        _yaw = WrapDeg(_yaw + dx);
-        _pitch = Math.Clamp(_pitch - dy, 5, 175);
+        var step = SkinRotation.AccumulateStep(_pitch, _yaw, dx, dy);
+        _pitch = step.Pitch;
+        _yaw = step.Yaw;
         _dragStart = now;
         RebuildHead();
+        // RebuildBody short-circuits when the yaw stays on the same side, so dragging
+        // within the front-facing arc costs zero allocations for the body slot.
+        RebuildBody();
     }
 
     private void OnHeadPointerReleased(object? sender, PointerReleasedEventArgs e)
     {
         _dragStart = null;
         e.Pointer.Capture(null);
-    }
-
-    private static int WrapDeg(int v)
-    {
-        v = ((v % 360) + 360) % 360;
-        return v;
     }
 
     private static Bitmap? ToAvaloniaBitmap(SKImage? image)
