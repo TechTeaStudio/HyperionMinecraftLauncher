@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -20,6 +21,15 @@ namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.Browser;
 /// best-effort: structural changes upstream can require selector tweaks. A failure
 /// to parse a single card is swallowed; only a wholesale fetch failure surfaces
 /// as an exception.
+/// </para>
+/// <para>
+/// <strong>Bot detection.</strong> NameMC (and the Cloudflare layer in front of it)
+/// actively block scripted access whose fingerprint differs from a real browser:
+/// a non-browser User-Agent, missing <c>Accept-Language</c>, no <c>Sec-Fetch-*</c>,
+/// or no <c>Accept-Encoding</c> all trigger 403. We mitigate by setting the full
+/// Chrome 124 header set in <see cref="ConfigureHttpClient(HttpClient)"/>. Even so,
+/// the integration is best-effort: a 403 still surfaces and is logged so the user
+/// knows the gallery is temporarily unavailable.
 /// </para>
 /// <para>
 /// The skin "hash" appears in every card href as <c>/skin/{hash}</c>. Combined with
@@ -41,10 +51,31 @@ public sealed class NameMcSkinBrowser : ISkinBrowser
     public const string SearchUrlStem = "https://namemc.com/minecraft-skins";
 
     /// <summary>
-    /// User-Agent string the browser identifies as. Bumped every release alongside
-    /// the launcher version so an upstream block can be diagnosed from access logs.
+    /// User-Agent the browser identifies as. A real Chrome-on-Windows 10 UA: the
+    /// previous launcher-branded UA was rejected by Cloudflare with 403. Bump the
+    /// Chrome major version every couple of months so the fingerprint stays current.
     /// </summary>
-    public const string UserAgent = "HyperionMinecraftLauncher/0.32.1 (contact@techteastudio.cc)";
+    public const string UserAgent =
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
+
+    /// <summary>The <c>Accept</c> header Chrome sends on a top-level document navigation.</summary>
+    public const string AcceptHeader =
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8";
+
+    /// <summary>The <c>Accept-Language</c> header. Plain en-US; NameMC has no localized variants.</summary>
+    public const string AcceptLanguageHeader = "en-US,en;q=0.5";
+
+    /// <summary>The <c>Accept-Encoding</c> header advertising gzip/deflate/brotli.</summary>
+    /// <remarks>
+    /// The HttpClient's underlying handler must also have
+    /// <c>AutomaticDecompression = GZip | Deflate | Brotli</c> set so the response
+    /// body is transparently decompressed. <see cref="ConfigureHttpClient(HttpClient)"/>
+    /// only sets the advertise header; the handler-level flag is the App's responsibility.
+    /// </remarks>
+    public const string AcceptEncodingHeader = "gzip, deflate, br";
+
+    /// <summary>The <c>Referer</c> header. NameMC's bot wall checks for the site's own origin.</summary>
+    public const string RefererHeader = "https://namemc.com/";
 
     /// <summary>Direct CDN for raw skin PNGs (the same one Mojang's profile URLs serve from).</summary>
     public const string TextureCdn = "https://textures.minecraft.net/texture/";
@@ -56,17 +87,58 @@ public sealed class NameMcSkinBrowser : ISkinBrowser
 
     /// <summary>Construct against an arbitrary <see cref="HttpClient"/>.</summary>
     /// <remarks>
-    /// The constructor ensures the standard NameMC User-Agent and an
-    /// <c>Accept: text/html</c> default. Tests pass in a client wired to a mock
-    /// <c>HttpMessageHandler</c> so the parser can be exercised without network.
+    /// The constructor calls <see cref="ConfigureHttpClient(HttpClient)"/> so every
+    /// outbound request carries the Chrome-shaped header set. Tests pass in a client
+    /// wired to a mock <c>HttpMessageHandler</c> so the parser can be exercised
+    /// without network.
     /// </remarks>
     public NameMcSkinBrowser(HttpClient http)
     {
         _http = http ?? throw new ArgumentNullException(nameof(http));
-        if (!_http.DefaultRequestHeaders.UserAgent.TryParseAdd(UserAgent))
-            _http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", UserAgent);
-        if (!_http.DefaultRequestHeaders.Accept.Any())
-            _http.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml");
+        ConfigureHttpClient(_http);
+    }
+
+    /// <summary>
+    /// Apply the full browser-like header set to <paramref name="http"/>. Idempotent:
+    /// existing values for any of these headers are preserved (so the App can
+    /// pre-stamp them before passing the client in, and the constructor's call is a
+    /// no-op).
+    /// </summary>
+    /// <remarks>
+    /// Sets: User-Agent, Accept, Accept-Language, Accept-Encoding, Referer,
+    /// Upgrade-Insecure-Requests, the four Sec-Fetch-* hints Chrome sends on a
+    /// top-level document navigation, and Cache-Control / Pragma no-cache so
+    /// Cloudflare's edge doesn't serve us a stale anti-bot page. Also pins
+    /// <see cref="HttpClient.DefaultRequestVersion"/> to HTTP/2 - real browsers
+    /// negotiate h2 on namemc.com and the bot wall flags HTTP/1.1.
+    /// </remarks>
+    public static void ConfigureHttpClient(HttpClient http)
+    {
+        ArgumentNullException.ThrowIfNull(http);
+
+        var h = http.DefaultRequestHeaders;
+        if (!h.UserAgent.Any())
+        {
+            if (!h.UserAgent.TryParseAdd(UserAgent))
+                h.TryAddWithoutValidation("User-Agent", UserAgent);
+        }
+        if (!h.Accept.Any()) h.TryAddWithoutValidation("Accept", AcceptHeader);
+        if (!h.AcceptLanguage.Any()) h.TryAddWithoutValidation("Accept-Language", AcceptLanguageHeader);
+        if (!h.AcceptEncoding.Any()) h.TryAddWithoutValidation("Accept-Encoding", AcceptEncodingHeader);
+        if (!h.Contains("Referer")) h.TryAddWithoutValidation("Referer", RefererHeader);
+        if (!h.Contains("Upgrade-Insecure-Requests")) h.TryAddWithoutValidation("Upgrade-Insecure-Requests", "1");
+        if (!h.Contains("Sec-Fetch-Dest")) h.TryAddWithoutValidation("Sec-Fetch-Dest", "document");
+        if (!h.Contains("Sec-Fetch-Mode")) h.TryAddWithoutValidation("Sec-Fetch-Mode", "navigate");
+        if (!h.Contains("Sec-Fetch-Site")) h.TryAddWithoutValidation("Sec-Fetch-Site", "none");
+        if (!h.Contains("Sec-Fetch-User")) h.TryAddWithoutValidation("Sec-Fetch-User", "?1");
+        if (!h.Contains("Cache-Control")) h.TryAddWithoutValidation("Cache-Control", "no-cache");
+        if (!h.Contains("Pragma")) h.TryAddWithoutValidation("Pragma", "no-cache");
+
+        // Real browsers negotiate HTTP/2 with NameMC; some Cloudflare rules flag
+        // HTTP/1.1 from non-mobile UAs. Setting Version20 + RequestVersionOrLower so
+        // we still fall back if the server doesn't speak h2.
+        http.DefaultRequestVersion = HttpVersion.Version20;
+        http.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
     }
 
     /// <inheritdoc />
@@ -103,7 +175,25 @@ public sealed class NameMcSkinBrowser : ISkinBrowser
     private async Task<string> GetHtmlAsync(string url, CancellationToken cancellationToken)
     {
         using var response = await _http.GetAsync(url, cancellationToken).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            // Best-effort diagnostics: when NameMC's anti-bot wall fires, the response
+            // headers (Server, CF-Ray, Set-Cookie) are the clearest signal. Embed them
+            // in the thrown exception's message so the caller's log catches it without
+            // needing extra plumbing.
+            var diag = new StringBuilder(256);
+            diag.Append("NameMC ").Append(url).Append(" -> ").Append((int)response.StatusCode)
+                .Append(' ').Append(response.ReasonPhrase ?? string.Empty);
+            foreach (var hh in response.Headers)
+            {
+                if (hh.Key.StartsWith("CF-", StringComparison.OrdinalIgnoreCase) ||
+                    hh.Key.Equals("Server", StringComparison.OrdinalIgnoreCase))
+                {
+                    diag.Append("; ").Append(hh.Key).Append('=').Append(string.Join(',', hh.Value));
+                }
+            }
+            throw new HttpRequestException(diag.ToString(), inner: null, statusCode: response.StatusCode);
+        }
         return await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
     }
 

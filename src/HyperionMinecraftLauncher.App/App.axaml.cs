@@ -165,11 +165,26 @@ public partial class App : Application
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "HyperionMinecraftLauncher", "skins_history");
             var skinHistory = new FileSkinHistoryStore(skinHistoryDir);
-
             // T-namemc (v0.32.1): community skin gallery. NameMC has no official API; the
             // browser parses public namemc.com pages with HtmlAgilityPack. Uses its own
             // HttpClient with a 20 s timeout so slow page loads don't stall other Mojang ops.
-            var skinBrowserHttp = new HttpClient { Timeout = TimeSpan.FromSeconds(20) };
+            //
+            // v0.32.2: NameMC's Cloudflare layer blocks any request whose fingerprint
+            // doesn't look like a real browser - so the handler advertises automatic
+            // decompression (gzip/deflate/brotli) and NameMcSkinBrowser stamps a full
+            // Chrome 124 header set onto every outbound request. Without these two
+            // bits the gallery returns 403 Forbidden for every call.
+            var skinBrowserHandler = new System.Net.Http.SocketsHttpHandler
+            {
+                AutomaticDecompression =
+                    System.Net.DecompressionMethods.GZip |
+                    System.Net.DecompressionMethods.Deflate |
+                    System.Net.DecompressionMethods.Brotli,
+            };
+            var skinBrowserHttp = new HttpClient(skinBrowserHandler, disposeHandler: true)
+            {
+                Timeout = TimeSpan.FromSeconds(20),
+            };
             var skinBrowser = new NameMcSkinBrowser(skinBrowserHttp);
 
             // Mod repositories: Modrinth always-on (no key needed); CurseForge inert until
