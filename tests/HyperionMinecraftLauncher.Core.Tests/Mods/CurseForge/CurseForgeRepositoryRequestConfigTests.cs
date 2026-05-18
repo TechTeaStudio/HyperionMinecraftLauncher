@@ -196,7 +196,7 @@ public class CurseForgeRepositoryRequestConfigTests
         Assert.NotNull(diag);
         Assert.Contains("https://api.curseforge.com/v1/mods/search", diag);
         Assert.Contains("searchFilter=Sodium", diag);
-        Assert.Contains("(key length: 21)", diag);
+        Assert.Contains("(key length: 22)", diag);
         Assert.DoesNotContain("secret-abcdef", diag);
     }
 
