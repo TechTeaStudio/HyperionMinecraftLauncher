@@ -47,3 +47,10 @@ public sealed class AuthenticationFailedException : LauncherException
     public AuthenticationFailedException(string message) : base(message) { }
     public AuthenticationFailedException(string message, Exception inner) : base(message, inner) { }
 }
+
+/// <summary>The Mojang skin/cape API rejected the call (HTTP error, bad body, network failure).</summary>
+public sealed class SkinUploadFailedException : LauncherException
+{
+    public SkinUploadFailedException(string message) : base(message) { }
+    public SkinUploadFailedException(string message, Exception inner) : base(message, inner) { }
+}
