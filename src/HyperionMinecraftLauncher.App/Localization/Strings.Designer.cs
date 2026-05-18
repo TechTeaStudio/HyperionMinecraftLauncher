@@ -136,6 +136,18 @@ public static class Strings
     public static string Skins_RecentReapplyTooltip => L("Skins.RecentReapplyTooltip");
     public static string Skins_DragHint => L("Skins.DragHint");
 
+    // NameMC skin browser (T-namemc, v0.32.1).
+    public static string SkinsBrowser_SectionTitle => L("SkinsBrowser.SectionTitle");
+    public static string SkinsBrowser_SearchWatermark => L("SkinsBrowser.SearchWatermark");
+    public static string SkinsBrowser_ShowTrending => L("SkinsBrowser.ShowTrending");
+    public static string SkinsBrowser_ApplyButton => L("SkinsBrowser.ApplyButton");
+    public static string SkinsBrowser_PoweredBy => L("SkinsBrowser.PoweredBy");
+    public static string SkinsBrowser_FetchFailed => L("SkinsBrowser.FetchFailed");
+    public static string SkinsBrowser_DownloadFailed => L("SkinsBrowser.DownloadFailed");
+    public static string SkinsBrowser_Applying => L("SkinsBrowser.Applying");
+    public static string SkinsBrowser_Loading => L("SkinsBrowser.Loading");
+    public static string SkinsBrowser_NoResults => L("SkinsBrowser.NoResults");
+
     // Servers
     public static string Servers_Title => L("Servers.Title");
     public static string Servers_Subtitle => L("Servers.Subtitle");

@@ -22,6 +22,12 @@
     <PackageReference Include="CmlLib.Core.Installer.NeoForge" Version="4.0.1" />
     <PackageReference Include="fNbt" Version="1.0.0" />
     <!--
+      HtmlAgilityPack drives the NameMC skin browser (T-namemc, v0.32.1).
+      NameMC publishes no official JSON API; the browser parses public HTML pages.
+      Treat any structural change on namemc.com as the trigger to update selectors.
+    -->
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.61" />
+    <!--
       Logging stack for SerilogLauncherLogger. The house Serilog.TechTeaStudio.Wrap
       package exists on nuget.org but its public LoggerOptions does not expose the
       per-file size cap (FileSizeLimitBytes) we need for the 32 MB roll. We use the

@@ -1110,14 +1110,114 @@
           </StackPanel>
         </Border>
 
-        <Border Grid.Row="3" CornerRadius="15"
-                Background="{DynamicResource MaterialPaperBrush}">
-          <controls:SkinPreview x:Name="SkinViewer" />
-        </Border>
+        <!-- Row 3: 3D preview (left) and NameMC community browser (right). -->
+        <Grid Grid.Row="3" ColumnDefinitions="*,8,2*">
+          <Border Grid.Column="0" CornerRadius="15"
+                  Background="{DynamicResource MaterialPaperBrush}">
+            <controls:SkinPreview x:Name="SkinViewer" />
+          </Border>
 
-        <TextBlock Grid.Row="4" Margin="0,6,0,0"
-                   Text="{x:Static loc:Strings.Skins_DragHint}"
-                   Opacity="0.55" FontSize="10" />
+          <!-- ===== NameMC community skin browser (T-namemc, v0.32.1) =====
+               NameMC publishes no official API; the parser walks public HTML pages and
+               can break if the site is restructured. Treat the gallery as a convenience,
+               not a contract. -->
+          <Border Grid.Column="2" CornerRadius="15" Padding="8"
+                  Background="{DynamicResource MaterialPaperBrush}"
+                  IsVisible="{Binding IsSkinBrowserAvailable}">
+            <Grid RowDefinitions="Auto,Auto,*,Auto">
+              <TextBlock Grid.Row="0"
+                         Text="{x:Static loc:Strings.SkinsBrowser_SectionTitle}"
+                         FontWeight="SemiBold" FontSize="12" Margin="0,0,0,6" />
+
+              <!-- Search + "Show trending" controls -->
+              <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="6" Margin="0,0,0,6">
+                <TextBox Width="200"
+                         Text="{Binding SkinSearchText, Mode=TwoWay}"
+                         Watermark="{x:Static loc:Strings.SkinsBrowser_SearchWatermark}"
+                         KeyDown="OnBrowsedSkinSearchKeyDown" />
+                <Button Content="{x:Static loc:Strings.SkinsBrowser_ShowTrending}"
+                        Command="{Binding RefreshTrendingSkinsCommand}"
+                        FontSize="11" Padding="10,4" />
+                <TextBlock Text="{x:Static loc:Strings.SkinsBrowser_Loading}"
+                           FontSize="10" Opacity="0.65" VerticalAlignment="Center"
+                           IsVisible="{Binding IsSkinBrowserBusy}" />
+              </StackPanel>
+
+              <!-- WrapPanel of thumbnails (90x90 each) -->
+              <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled"
+                            VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding BrowsedSkins}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Button Width="90" Height="90" Padding="0" Margin="3"
+                              Click="OnBrowsedSkinCardClicked"
+                              Tag="{Binding}"
+                              ToolTip.Tip="{Binding SourceUrl}">
+                        <Image asyncImageLoader:ImageLoader.Source="{Binding ThumbnailUrl}"
+                               Stretch="UniformToFill"
+                               RenderOptions.BitmapInterpolationMode="None" />
+                      </Button>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+
+              <!-- Selected-card preview + apply -->
+              <Border Grid.Row="3" Margin="0,6,0,0" Padding="6"
+                      CornerRadius="10"
+                      Background="{DynamicResource MaterialPaperBrush}"
+                      IsVisible="{Binding HasSelectedBrowsedSkin}">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                  <Image Grid.Column="0" Width="48" Height="48"
+                         asyncImageLoader:ImageLoader.Source="{Binding SelectedBrowsedSkin.ThumbnailUrl}"
+                         Stretch="UniformToFill"
+                         RenderOptions.BitmapInterpolationMode="None"
+                         Margin="0,0,8,0" />
+                  <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding SelectedBrowsedSkin.UploaderName}"
+                               FontWeight="SemiBold" FontSize="11" TextTrimming="CharacterEllipsis" />
+                    <ItemsControl ItemsSource="{Binding SelectedBrowsedSkin.Tags}">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <StackPanel Orientation="Horizontal" Spacing="4" />
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <Border Padding="4,1" CornerRadius="6"
+                                  Background="{DynamicResource MaterialDividerBrush}">
+                            <TextBlock Text="{Binding}" FontSize="9" Opacity="0.85" />
+                          </Border>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                  <Button Grid.Column="2"
+                          Content="{x:Static loc:Strings.SkinsBrowser_ApplyButton}"
+                          Command="{Binding ApplyBrowsedSkinCommand}"
+                          CommandParameter="{Binding SelectedBrowsedSkin}"
+                          Classes="LaunchBtn"
+                          FontFamily="{StaticResource MinecraftFont}"
+                          FontSize="11" Padding="12,4"
+                          Foreground="White" />
+                </Grid>
+              </Border>
+            </Grid>
+          </Border>
+        </Grid>
+
+        <StackPanel Grid.Row="4" Spacing="2" Margin="0,6,0,0">
+          <TextBlock Text="{x:Static loc:Strings.Skins_DragHint}"
+                     Opacity="0.55" FontSize="10" />
+          <TextBlock Text="{x:Static loc:Strings.SkinsBrowser_PoweredBy}"
+                     Opacity="0.45" FontSize="10"
+                     IsVisible="{Binding IsSkinBrowserAvailable}" />
+        </StackPanel>
       </Grid>
 
       <!-- ==== SERVERS PAGE ==== -->

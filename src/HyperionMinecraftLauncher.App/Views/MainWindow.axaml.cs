@@ -833,6 +833,28 @@ public partial class MainWindow : Window
         await vm.ReapplyHistoricSkinCommand.ExecuteAsync(entry);
     }
 
+    /// <summary>
+    /// NameMC browser (T-namemc, v0.32.1): clicking a thumbnail card sets the preview
+    /// selection. Tag carries the bound <see cref="BrowsedSkin"/> record.
+    /// </summary>
+    private void OnBrowsedSkinCardClicked(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        if (sender is not Button { Tag: TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.Browser.BrowsedSkin skin }) return;
+        vm.SelectedBrowsedSkin = skin;
+    }
+
+    /// <summary>
+    /// Fire the search command when the user presses Enter inside the gallery search box.
+    /// </summary>
+    private async void OnBrowsedSkinSearchKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter) return;
+        if (DataContext is not MainViewModel vm) return;
+        e.Handled = true;
+        await vm.SearchSkinsCommand.ExecuteAsync();
+    }
+
     /// <summary>Servers page "Join" button: open the confirmation dialog, then Quick-Play-launch the picked instance.</summary>
     private async void OnJoinServerClicked(object? sender, RoutedEventArgs e)
     {

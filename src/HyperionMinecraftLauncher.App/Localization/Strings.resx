@@ -128,6 +128,18 @@
   <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>Re-apply this skin</value></data>
   <data name="Skins.DragHint" xml:space="preserve"><value>Drag inside the head preview to rotate.</value></data>
 
+  <!-- Skins page: NameMC community browser (T-namemc, v0.32.1) -->
+  <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Browse skins (NameMC)</value></data>
+  <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>Search skins by name or tag...</value></data>
+  <data name="SkinsBrowser.ShowTrending" xml:space="preserve"><value>Show trending</value></data>
+  <data name="SkinsBrowser.ApplyButton" xml:space="preserve"><value>Apply to my account</value></data>
+  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>Powered by namemc.com - Hyperion is not affiliated with NameMC.</value></data>
+  <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[error] Could not load NameMC gallery: {0}</value></data>
+  <data name="SkinsBrowser.DownloadFailed" xml:space="preserve"><value>[error] Could not download skin: {0}</value></data>
+  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>Downloading skin {0} from NameMC...</value></data>
+  <data name="SkinsBrowser.Loading" xml:space="preserve"><value>Loading gallery...</value></data>
+  <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>No skins matched. Try a different search or hit "Show trending".</value></data>
+
   <!-- Servers page -->
   <data name="Servers.Title" xml:space="preserve"><value>Servers</value></data>
   <data name="Servers.Subtitle" xml:space="preserve"><value>Multiplayer server list (servers.dat NBT). Pings via the Minecraft Server List Ping protocol.</value></data>

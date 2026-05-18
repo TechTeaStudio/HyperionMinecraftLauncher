@@ -120,6 +120,18 @@
   <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>重新应用此皮肤</value></data>
   <data name="Skins.DragHint" xml:space="preserve"><value>在头部预览区域内拖动以旋转。</value></data>
 
+  <!-- Skins page: NameMC community browser (T-namemc, v0.32.1) -->
+  <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>浏览皮肤 (NameMC)</value></data>
+  <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>按名称或标签搜索皮肤...</value></data>
+  <data name="SkinsBrowser.ShowTrending" xml:space="preserve"><value>显示热门</value></data>
+  <data name="SkinsBrowser.ApplyButton" xml:space="preserve"><value>应用到我的账户</value></data>
+  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>由 namemc.com 提供。Hyperion 与 NameMC 无关。</value></data>
+  <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[错误] 无法加载 NameMC 图库：{0}</value></data>
+  <data name="SkinsBrowser.DownloadFailed" xml:space="preserve"><value>[错误] 无法下载皮肤：{0}</value></data>
+  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>正在从 NameMC 下载皮肤 {0}...</value></data>
+  <data name="SkinsBrowser.Loading" xml:space="preserve"><value>加载图库中...</value></data>
+  <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>未找到匹配的皮肤。请尝试其他搜索或点击"显示热门"。</value></data>
+
   <!-- Servers page -->
   <data name="Servers.Title" xml:space="preserve"><value>服务器</value></data>
   <data name="Servers.Subtitle" xml:space="preserve"><value>多人游戏服务器列表（servers.dat NBT）。通过 Minecraft 服务器列表 Ping 协议获取延迟。</value></data>
