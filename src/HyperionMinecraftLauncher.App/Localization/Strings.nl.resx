@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Canonical English source for every user-facing string in Hyperion Minecraft Launcher.
+
+    Conventions:
+      - Keys are UpperCamelCase + dotted scope, e.g. "MainWindow.Title", "Sidebar.Home".
+      - Format strings use positional placeholders {0}, {1}, ... (never named).
+      - Do NOT add triple-hyphen horizontal-rule separators or em-dashes to any translation file:
+        the author tracks these as tells of AI-generated copy. Use hyphens or commas.
+      - Technical identifiers (mod-loader names "Fabric"/"Forge"/etc, IDs, URLs, version numbers)
+        are NOT extracted - they stay as literals in the AXAML.
+
+    To add a new culture: drop "Strings.{culture}.resx" alongside this file with the same keys.
+    Missing keys automatically fall back to the English value here.
+  -->
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- ============================== MainWindow ============================== -->
+  <data name="MainWindow.Title" xml:space="preserve"><value>Hyperion Minecraft Launcher</value></data>
+  <data name="MainWindow.HeaderTitle" xml:space="preserve"><value>Hyperion Minecraft Launcher</value></data>
+
+  <!-- Header / account chip -->
+  <data name="Header.SignInWithMicrosoft" xml:space="preserve"><value>Inloggen met Microsoft</value></data>
+  <data name="Header.AccountsLabel" xml:space="preserve"><value>ACCOUNTS</value></data>
+  <data name="Header.AddAccount" xml:space="preserve"><value>+ Account toevoegen...</value></data>
+  <data name="Header.RemoveThisAccount" xml:space="preserve"><value>Dit account verwijderen</value></data>
+
+  <!-- Window controls -->
+  <data name="WindowChrome.Minimize" xml:space="preserve"><value>Minimaliseren</value></data>
+  <data name="WindowChrome.MaximizeRestore" xml:space="preserve"><value>Maximaliseren / herstellen</value></data>
+  <data name="WindowChrome.Close" xml:space="preserve"><value>Sluiten</value></data>
+  <data name="WindowChrome.Dismiss" xml:space="preserve"><value>Verbergen</value></data>
+
+  <!-- Sidebar -->
+  <data name="Sidebar.CollapseExpand" xml:space="preserve"><value>Zijbalk inklappen / uitklappen</value></data>
+  <data name="Sidebar.Home" xml:space="preserve"><value>Start</value></data>
+  <data name="Sidebar.Installations" xml:space="preserve"><value>Instances</value></data>
+  <data name="Sidebar.Skins" xml:space="preserve"><value>Skins</value></data>
+  <data name="Sidebar.Servers" xml:space="preserve"><value>Servers</value></data>
+  <data name="Sidebar.Headless" xml:space="preserve"><value>Headless</value></data>
+  <data name="Sidebar.HeadlessTooltip" xml:space="preserve"><value>Dedicated headless-servers</value></data>
+  <data name="Sidebar.Mods" xml:space="preserve"><value>Mods</value></data>
+  <data name="Sidebar.News" xml:space="preserve"><value>Nieuws</value></data>
+  <data name="Sidebar.Settings" xml:space="preserve"><value>Instellingen</value></data>
+  <data name="Sidebar.Logs" xml:space="preserve"><value>Logs</value></data>
+  <data name="Sidebar.ParityBuildLabel" xml:space="preserve"><value>v0.8 - parity-build</value></data>
+
+  <!-- Home page -->
+  <data name="Home.Title" xml:space="preserve"><value>Minecraft spelen</value></data>
+  <data name="Home.Subtitle" xml:space="preserve"><value>Kies een geïnstalleerde versie of haal er een uit het manifest.</value></data>
+  <data name="Home.YourInstancesLabel" xml:space="preserve"><value>Jouw instances</value></data>
+  <data name="Home.YourInstancesPlaceholder" xml:space="preserve"><value>(nog geen instances, maak er een aan op de pagina Instances)</value></data>
+  <data name="Home.RescanButton" xml:space="preserve"><value>Opnieuw scannen</value></data>
+  <data name="Home.OrInstallAnother" xml:space="preserve"><value>Of installeer een andere versie</value></data>
+  <data name="Home.SearchVersionWatermark" xml:space="preserve"><value>Versie zoeken...</value></data>
+  <data name="Home.ChipRelease" xml:space="preserve"><value>Release</value></data>
+  <data name="Home.ChipSnapshot" xml:space="preserve"><value>Snapshot</value></data>
+  <data name="Home.ChipOldBeta" xml:space="preserve"><value>Oude beta</value></data>
+  <data name="Home.ChipOldAlpha" xml:space="preserve"><value>Oude alpha</value></data>
+  <data name="Home.ManifestPlaceholder" xml:space="preserve"><value>(klik eerst op "Manifest vernieuwen")</value></data>
+  <data name="Home.RefreshManifestButton" xml:space="preserve"><value>Manifest vernieuwen</value></data>
+  <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>Offline-gebruikersnaam:</value></data>
+  <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
+  <data name="Home.ResumeWorldButton" xml:space="preserve"><value>Wereld hervatten...</value></data>
+  <data name="Home.ResumeWorldTooltip" xml:space="preserve"><value>Quick Play: kies een wereld in .minecraft/saves/ en open hem direct.</value></data>
+  <data name="Home.LaunchButton" xml:space="preserve"><value>Starten</value></data>
+
+  <!-- Installations page -->
+  <data name="Installations.Title" xml:space="preserve"><value>Instances</value></data>
+  <data name="Installations.Subtitle" xml:space="preserve"><value>Hyperion-instances. Elke instance heeft zijn eigen versie, icoon en (op termijn) JVM / game-dir.</value></data>
+  <data name="Installations.NewInstance" xml:space="preserve"><value>+ Nieuwe instance</value></data>
+  <data name="Installations.ImportFromZip" xml:space="preserve"><value>Importeren uit zip...</value></data>
+  <data name="Installations.ImportFromZipTooltip" xml:space="preserve"><value>Een gedeelde instance in Hyperion-zip-formaat importeren</value></data>
+  <data name="Installations.ImportModpack" xml:space="preserve"><value>Modpack importeren...</value></data>
+  <data name="Installations.Refresh" xml:space="preserve"><value>Vernieuwen</value></data>
+  <data name="Installations.DeleteSelected" xml:space="preserve"><value>Geselecteerde verwijderen</value></data>
+  <data name="Installations.AutoBadge" xml:space="preserve"><value>auto</value></data>
+  <data name="Installations.MoreTooltip" xml:space="preserve"><value>Meer...</value></data>
+  <data name="Installations.MenuEditInstance" xml:space="preserve"><value>Instance bewerken...</value></data>
+  <data name="Installations.MenuChangeIcon" xml:space="preserve"><value>Icoon wijzigen...</value></data>
+  <data name="Installations.MenuExportToZip" xml:space="preserve"><value>Exporteren naar zip...</value></data>
+  <data name="Installations.MenuOpenFolder" xml:space="preserve"><value>Map openen</value></data>
+  <data name="Installations.MenuDelete" xml:space="preserve"><value>Verwijderen</value></data>
+
+  <!-- Instance detail tabs -->
+  <data name="InstanceTabs.Screenshots" xml:space="preserve"><value>Screenshots</value></data>
+  <data name="InstanceTabs.Worlds" xml:space="preserve"><value>Werelden</value></data>
+  <data name="InstanceTabs.Servers" xml:space="preserve"><value>Servers</value></data>
+  <data name="InstanceTabs.Crashes" xml:space="preserve"><value>Crashes</value></data>
+  <data name="InstanceTabs.RefreshButton" xml:space="preserve"><value>Vernieuwen</value></data>
+  <data name="InstanceTabs.OpenFolderButton" xml:space="preserve"><value>Map openen</value></data>
+  <data name="InstanceTabs.NoCrashReports" xml:space="preserve"><value>Geen crashrapporten voor deze instance.</value></data>
+  <data name="InstanceTabs.SearchModrinth" xml:space="preserve"><value>Modrinth</value></data>
+  <data name="InstanceTabs.SearchCurseForge" xml:space="preserve"><value>CurseForge</value></data>
+  <data name="InstanceTabs.WorldMenuBackupNow" xml:space="preserve"><value>Nu back-up maken</value></data>
+  <data name="InstanceTabs.WorldMenuRestoreLatest" xml:space="preserve"><value>Laatste back-up terugzetten</value></data>
+  <data name="InstanceTabs.WorldMenuOpenFolder" xml:space="preserve"><value>Map openen</value></data>
+  <data name="InstanceTabs.CrashSeparatorDash" xml:space="preserve"><value>  -  </value></data>
+
+  <!-- Skins page -->
+  <data name="Skins.Title" xml:space="preserve"><value>Skins</value></data>
+  <data name="Skins.Subtitle" xml:space="preserve"><value>Live 3D-preview, plus uploaden en cape kiezen (vereist Microsoft-login).</value></data>
+  <data name="Skins.UploadButton" xml:space="preserve"><value>Nieuwe skin uploaden...</value></data>
+  <data name="Skins.CapeLabel" xml:space="preserve"><value>Cape:</value></data>
+  <data name="Skins.CapeNonePlaceholder" xml:space="preserve"><value>(geen)</value></data>
+  <data name="Skins.ClearCape" xml:space="preserve"><value>Cape afdoen</value></data>
+  <data name="Skins.RecentSkins" xml:space="preserve"><value>Recente skins</value></data>
+  <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>Deze skin opnieuw toepassen</value></data>
+  <data name="Skins.DragHint" xml:space="preserve"><value>Sleep in de hoofdpreview om te draaien.</value></data>
+
+  <!-- Servers page -->
+  <data name="Servers.Title" xml:space="preserve"><value>Servers</value></data>
+  <data name="Servers.Subtitle" xml:space="preserve"><value>Multiplayer-serverlijst (servers.dat NBT). Pings via het Minecraft Server List Ping-protocol.</value></data>
+  <data name="Servers.RefreshServers" xml:space="preserve"><value>Servers vernieuwen</value></data>
+  <data name="Servers.RefreshPings" xml:space="preserve"><value>Pings vernieuwen</value></data>
+  <data name="Servers.JoinButton" xml:space="preserve"><value>Joinen</value></data>
+  <data name="Servers.JoinTooltip" xml:space="preserve"><value>Quick Play: start en verbind met deze server.</value></data>
+
+  <!-- Headless servers page -->
+  <data name="HeadlessServers.Title" xml:space="preserve"><value>Headless-servers</value></data>
+  <data name="HeadlessServers.Subtitle" xml:space="preserve"><value>Dedicated Minecraft-servers die Hyperion op schijf bijhoudt. Server-jar downloaden en JVM starten staan op de roadmap.</value></data>
+  <data name="HeadlessServers.NewServer" xml:space="preserve"><value>+ Nieuwe server</value></data>
+  <data name="HeadlessServers.Refresh" xml:space="preserve"><value>Vernieuwen</value></data>
+  <data name="HeadlessServers.Start" xml:space="preserve"><value>Starten</value></data>
+  <data name="HeadlessServers.Stop" xml:space="preserve"><value>Stoppen</value></data>
+  <data name="HeadlessServers.Delete" xml:space="preserve"><value>Verwijderen</value></data>
+  <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>Placeholder; server-jar downloaden staat op de roadmap.</value></data>
+  <data name="HeadlessServers.FootnotePath" xml:space="preserve"><value>Elke server krijgt zijn eigen map onder %LOCALAPPDATA%/HyperionMinecraftLauncher/headless_servers/{id}/. Bij Aanmaken schrijft de launcher metadata.json, eula.txt en server.properties.</value></data>
+  <data name="HeadlessServers.DashSeparator" xml:space="preserve"><value> - </value></data>
+  <data name="HeadlessServers.MibAndPort" xml:space="preserve"><value> MiB - poort </value></data>
+
+  <!-- Mods page -->
+  <data name="Mods.Title" xml:space="preserve"><value>Mods</value></data>
+  <data name="Mods.Subtitle" xml:space="preserve"><value>Blader door Modrinth of CurseForge en installeer mods direct in de geselecteerde instance.</value></data>
+  <data name="Mods.SourceModrinth" xml:space="preserve"><value>Modrinth</value></data>
+  <data name="Mods.SourceCurseForge" xml:space="preserve"><value>CurseForge</value></data>
+  <data name="Mods.SearchLabel" xml:space="preserve"><value>Zoeken:</value></data>
+  <data name="Mods.SearchWatermark" xml:space="preserve"><value>bv. fabric-api, sodium, JEI</value></data>
+  <data name="Mods.SearchButton" xml:space="preserve"><value>Zoeken</value></data>
+  <data name="Mods.SearchResults" xml:space="preserve"><value>Zoekresultaten</value></data>
+  <data name="Mods.InstallButton" xml:space="preserve"><value>Installeren</value></data>
+  <data name="Mods.InstalledInSelectedInstance" xml:space="preserve"><value>Geïnstalleerd in geselecteerde instance</value></data>
+  <data name="Mods.RefreshButton" xml:space="preserve"><value>Vernieuwen</value></data>
+  <data name="Mods.PickAnInstanceFirst" xml:space="preserve"><value>Kies eerst een instance op de pagina Instances</value></data>
+  <data name="Mods.RightPaneHint" xml:space="preserve"><value>Het rechterpaneel toont wat er in de mods/-map van die instance staat en laat je mods aan- of uitzetten of verwijderen.</value></data>
+  <data name="Mods.RemoveButton" xml:space="preserve"><value>Verwijderen</value></data>
+  <data name="Mods.DownloadsCountFormat" xml:space="preserve"><value>Downloads: {0:N0}</value></data>
+  <data name="Mods.FileSizeBytesFormat" xml:space="preserve"><value>{0:N0} B</value></data>
+
+  <!-- News page -->
+  <data name="News.Title" xml:space="preserve"><value>Nieuws</value></data>
+  <data name="News.Subtitle" xml:space="preserve"><value>Live feed van launchercontent.mojang.com/news.json, dezelfde bron die Mojangs officiële launcher gebruikt.</value></data>
+  <data name="News.RefreshButton" xml:space="preserve"><value>Nieuws vernieuwen</value></data>
+  <data name="News.ReadMore" xml:space="preserve"><value>Lees verder op minecraft.net</value></data>
+
+  <!-- Settings page -->
+  <data name="Settings.Title" xml:space="preserve"><value>Instellingen</value></data>
+  <data name="Settings.Subtitle" xml:space="preserve"><value>Opgeslagen in %LOCALAPPDATA%\HyperionMinecraftLauncher\settings.json. Geheugenlimieten gelden bij de volgende start.</value></data>
+  <data name="Settings.MemoryHeader" xml:space="preserve"><value>Geheugen (JVM heap)</value></data>
+  <data name="Settings.MinimumXmsLabel" xml:space="preserve"><value>Minimum (-Xms):</value></data>
+  <data name="Settings.MaximumXmxLabel" xml:space="preserve"><value>Maximum (-Xmx):</value></data>
+  <data name="Settings.MbUnit" xml:space="preserve"><value> MB</value></data>
+  <data name="Settings.CeilingPrefix" xml:space="preserve"><value>Plafond automatisch bepaald voor deze machine: </value></data>
+  <data name="Settings.CeilingSuffix" xml:space="preserve"><value> MB (~75% van systeem-RAM, max 16 GB).</value></data>
+  <data name="Settings.JvmArgsHeader" xml:space="preserve"><value>Aangepaste JVM-argumenten</value></data>
+  <data name="Settings.JvmArgsWatermark" xml:space="preserve"><value>-XX:+UseG1GC -XX:+UnlockExperimentalVMOptions ...</value></data>
+  <data name="Settings.JvmArgsHint" xml:space="preserve"><value>Worden na de automatisch gegenereerde -Xms/-Xmx-vlaggen toegevoegd. (Worden nog niet doorgegeven aan de process builder van CmlLib, gepland voor een volgende stap.)</value></data>
+  <data name="Settings.GameDirHeader" xml:space="preserve"><value>Spelmap</value></data>
+  <data name="Settings.GameDirWatermark" xml:space="preserve"><value>(laat leeg om de standaard .minecraft van het OS te gebruiken)</value></data>
+  <data name="Settings.BrowseButton" xml:space="preserve"><value>Bladeren</value></data>
+  <data name="Settings.JavaExeHeader" xml:space="preserve"><value>Java-executable</value></data>
+  <data name="Settings.JavaExeWatermark" xml:space="preserve"><value>(laat leeg om CmlLib automatisch te laten detecteren)</value></data>
+  <data name="Settings.LauncherPrefsHeader" xml:space="preserve"><value>Launcher-voorkeuren</value></data>
+  <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>Launcher open houden nadat het spel start</value></data>
+  <data name="Settings.ShowGameLog" xml:space="preserve"><value>Spelstdout / stderr tonen in launcher-log (gepland)</value></data>
+  <data name="Settings.BackupsHeader" xml:space="preserve"><value>Back-ups</value></data>
+  <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>Werelden automatisch back-uppen vóór elke start</value></data>
+  <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>Laatste N per wereld bewaren (0 = alles bewaren):</value></data>
+  <data name="Settings.BackupHint" xml:space="preserve"><value>Elke wereld wordt gezipt naar &lt;gameDir&gt;/backups/{world}-{timestamp}.zip. Een fout tijdens back-up wordt gelogd maar blokkeert de start nooit.</value></data>
+  <data name="Settings.LanguageHeader" xml:space="preserve"><value>Taal</value></data>
+  <data name="Settings.LanguageLabel" xml:space="preserve"><value>Weergavetaal:</value></data>
+  <data name="Settings.LanguageUseSystemDefault" xml:space="preserve"><value>Systeemstandaard gebruiken</value></data>
+  <data name="Settings.LanguageHint" xml:space="preserve"><value>Een taalwissel werkt direct voor nieuw geopende pagina's, en pas na herstart van de launcher voor de hele UI.</value></data>
+  <data name="Settings.SaveButton" xml:space="preserve"><value>Instellingen opslaan</value></data>
+
+  <!-- Logs page -->
+  <data name="Logs.Title" xml:space="preserve"><value>Logs</value></data>
+  <data name="Logs.Subtitle" xml:space="preserve"><value>Het log-bestand van vandaag (dagelijkse rotatie) uit %LOCALAPPDATA%\HyperionMinecraftLauncher\logs\.</value></data>
+  <data name="Logs.FilterWatermark" xml:space="preserve"><value>Log filteren...</value></data>
+  <data name="Logs.RefreshButton" xml:space="preserve"><value>Vernieuwen</value></data>
+  <data name="Logs.OpenLogsFolderButton" xml:space="preserve"><value>Logs-map openen</value></data>
+  <data name="Logs.CopyAllButton" xml:space="preserve"><value>Alles kopiëren</value></data>
+
+  <!-- New Instance dialog -->
+  <data name="NewInstanceDialog.Title" xml:space="preserve"><value>Nieuwe instance</value></data>
+  <data name="NewInstanceDialog.HeaderTitle" xml:space="preserve"><value>Een nieuwe instance maken</value></data>
+  <data name="NewInstanceDialog.InstanceNameLabel" xml:space="preserve"><value>Naam van instance</value></data>
+  <data name="NewInstanceDialog.DefaultInstanceName" xml:space="preserve"><value>Mijn nieuwe instance</value></data>
+  <data name="NewInstanceDialog.MinecraftVersionLabel" xml:space="preserve"><value>Minecraft-versie</value></data>
+  <data name="NewInstanceDialog.SearchVersionWatermark" xml:space="preserve"><value>Versie zoeken...</value></data>
+  <data name="NewInstanceDialog.LoadingManifest" xml:space="preserve"><value>(manifest laden ...)</value></data>
+  <data name="NewInstanceDialog.FiltersSharedHint" xml:space="preserve"><value>Filter-chips en zoekveld zijn gedeeld met de versiekiezer op Start.</value></data>
+  <data name="NewInstanceDialog.ModLoaderLabel" xml:space="preserve"><value>Mod loader</value></data>
+  <data name="NewInstanceDialog.LoaderVersionLabel" xml:space="preserve"><value>Loader-versie</value></data>
+  <data name="NewInstanceDialog.LoaderVersionPlaceholder" xml:space="preserve"><value>(nieuwste)</value></data>
+  <data name="NewInstanceDialog.LoaderHint" xml:space="preserve"><value>Nieuwste bovenaan. Laat leeg om de nieuwste stabiele build te installeren.</value></data>
+  <data name="NewInstanceDialog.LoaderVanilla" xml:space="preserve"><value>Vanilla</value></data>
+  <data name="NewInstanceDialog.LoaderFabric" xml:space="preserve"><value>Fabric</value></data>
+  <data name="NewInstanceDialog.LoaderForge" xml:space="preserve"><value>Forge</value></data>
+  <data name="NewInstanceDialog.LoaderNeoForge" xml:space="preserve"><value>NeoForge</value></data>
+  <data name="NewInstanceDialog.LoaderQuilt" xml:space="preserve"><value>Quilt</value></data>
+  <data name="NewInstanceDialog.IconLabel" xml:space="preserve"><value>Icoon</value></data>
+  <data name="NewInstanceDialog.CreateButton" xml:space="preserve"><value>Aanmaken</value></data>
+
+  <!-- Edit Instance dialog -->
+  <data name="EditInstanceDialog.Title" xml:space="preserve"><value>Instance bewerken</value></data>
+  <data name="EditInstanceDialog.HeaderTitle" xml:space="preserve"><value>Instance bewerken</value></data>
+  <data name="EditInstanceDialog.GeneralSection" xml:space="preserve"><value>Algemeen</value></data>
+  <data name="EditInstanceDialog.JavaMemorySection" xml:space="preserve"><value>Java en geheugen</value></data>
+  <data name="EditInstanceDialog.JavaMemoryHint" xml:space="preserve"><value>Overschrijf de globale Instellingen alleen voor deze instance. Laat een veld leeg / 0 om over te erven.</value></data>
+  <data name="EditInstanceDialog.MinHeapLabel" xml:space="preserve"><value>Minimum heap (-Xms)</value></data>
+  <data name="EditInstanceDialog.MaxHeapLabel" xml:space="preserve"><value>Maximum heap (-Xmx)</value></data>
+  <data name="EditInstanceDialog.JvmArgsLabel" xml:space="preserve"><value>Aangepaste JVM-argumenten</value></data>
+  <data name="EditInstanceDialog.JvmArgsWatermark" xml:space="preserve"><value>(laat leeg om over te nemen uit Instellingen)</value></data>
+  <data name="EditInstanceDialog.GameDirLabel" xml:space="preserve"><value>Spelmap</value></data>
+  <data name="EditInstanceDialog.GameDirWatermark" xml:space="preserve"><value>(laat leeg om de globale .minecraft over te nemen)</value></data>
+  <data name="EditInstanceDialog.BrowseButton" xml:space="preserve"><value>Bladeren...</value></data>
+  <data name="EditInstanceDialog.WindowResolutionLabel" xml:space="preserve"><value>Vensterresolutie</value></data>
+  <data name="EditInstanceDialog.WidthShort" xml:space="preserve"><value>B </value></data>
+  <data name="EditInstanceDialog.HeightShort" xml:space="preserve"><value>H </value></data>
+  <data name="EditInstanceDialog.ResolutionHint" xml:space="preserve"><value>Standaard is 854 x 480. Beide nul = overerven (Minecrafts eigen standaard).</value></data>
+  <data name="EditInstanceDialog.SaveButton" xml:space="preserve"><value>Opslaan</value></data>
+  <data name="EditInstanceDialog.InstanceNameLabel" xml:space="preserve"><value>Naam van instance</value></data>
+  <data name="EditInstanceDialog.IconLabel" xml:space="preserve"><value>Icoon</value></data>
+
+  <!-- Edit Instance Icon dialog -->
+  <data name="EditInstanceIconDialog.Title" xml:space="preserve"><value>Icoon wijzigen</value></data>
+  <data name="EditInstanceIconDialog.HeaderTitle" xml:space="preserve"><value>Icoon wijzigen</value></data>
+  <data name="EditInstanceIconDialog.Subtitle" xml:space="preserve"><value>Kies een nieuw icoon voor deze instance.</value></data>
+  <data name="EditInstanceIconDialog.SaveButton" xml:space="preserve"><value>Opslaan</value></data>
+
+  <!-- Common dialog actions -->
+  <data name="Common.Cancel" xml:space="preserve"><value>Annuleren</value></data>
+  <data name="Common.Save" xml:space="preserve"><value>Opslaan</value></data>
+  <data name="Common.Create" xml:space="preserve"><value>Aanmaken</value></data>
+  <data name="Common.OK" xml:space="preserve"><value>OK</value></data>
+  <data name="Common.Yes" xml:space="preserve"><value>Ja</value></data>
+  <data name="Common.No" xml:space="preserve"><value>Nee</value></data>
+  <data name="Common.Close" xml:space="preserve"><value>Sluiten</value></data>
+  <data name="Common.Hide" xml:space="preserve"><value>Verbergen</value></data>
+  <data name="Common.Browse" xml:space="preserve"><value>Bladeren</value></data>
+
+  <!-- DeviceCode dialog -->
+  <data name="DeviceCodeDialog.Title" xml:space="preserve"><value>Inloggen met Microsoft</value></data>
+  <data name="DeviceCodeDialog.HeaderTitle" xml:space="preserve"><value>Inloggen met Microsoft</value></data>
+  <data name="DeviceCodeDialog.OpenPagePrompt" xml:space="preserve"><value>Open deze pagina in je browser:</value></data>
+  <data name="DeviceCodeDialog.EnterCodePrompt" xml:space="preserve"><value>En voer deze code in:</value></data>
+  <data name="DeviceCodeDialog.Footer" xml:space="preserve"><value>De browser zou automatisch geopend moeten zijn. De launcher peilt Microsoft, zodra je klaar bent met inloggen sluit dit venster zichzelf.</value></data>
+  <data name="DeviceCodeDialog.CopyCode" xml:space="preserve"><value>Code kopiëren</value></data>
+  <data name="DeviceCodeDialog.OpenBrowser" xml:space="preserve"><value>Browser openen</value></data>
+
+  <!-- JoinServer dialog -->
+  <data name="JoinServerDialog.Title" xml:space="preserve"><value>Server joinen</value></data>
+  <data name="JoinServerDialog.HeaderTitle" xml:space="preserve"><value>Quick Play: server joinen</value></data>
+  <data name="JoinServerDialog.PickInstance" xml:space="preserve"><value>Instance kiezen</value></data>
+  <data name="JoinServerDialog.NoInstancesPlaceholder" xml:space="preserve"><value>(geen instances)</value></data>
+  <data name="JoinServerDialog.JoinButton" xml:space="preserve"><value>Joinen</value></data>
+
+  <!-- Worlds dialog -->
+  <data name="WorldsDialog.Title" xml:space="preserve"><value>Wereld hervatten</value></data>
+  <data name="WorldsDialog.HeaderTitle" xml:space="preserve"><value>Quick Play: wereld hervatten</value></data>
+  <data name="WorldsDialog.ResumeButton" xml:space="preserve"><value>Hervatten</value></data>
+
+  <!-- NewHeadlessServer dialog -->
+  <data name="NewHeadlessServerDialog.Title" xml:space="preserve"><value>Nieuwe headless-server</value></data>
+  <data name="NewHeadlessServerDialog.HeaderTitle" xml:space="preserve"><value>Een nieuwe headless-server aanmaken</value></data>
+  <data name="NewHeadlessServerDialog.Hint" xml:space="preserve"><value>De server-jar download staat op de roadmap. Voor nu schrijft de launcher metadata, eula.txt en een minimale server.properties, zodat de map klaar is wanneer de pipeline wordt aangesloten.</value></data>
+  <data name="NewHeadlessServerDialog.ServerNameLabel" xml:space="preserve"><value>Servernaam</value></data>
+  <data name="NewHeadlessServerDialog.DefaultServerName" xml:space="preserve"><value>Mijn dedicated server</value></data>
+  <data name="NewHeadlessServerDialog.MinecraftVersionLabel" xml:space="preserve"><value>Minecraft-versie</value></data>
+  <data name="NewHeadlessServerDialog.LoadingManifestShort" xml:space="preserve"><value>(manifest laden...)</value></data>
+  <data name="NewHeadlessServerDialog.MaxHeapLabel" xml:space="preserve"><value>JVM max heap (MiB)</value></data>
+  <data name="NewHeadlessServerDialog.PortLabel" xml:space="preserve"><value>Poort</value></data>
+
+  <!-- SkinVariant dialog -->
+  <data name="SkinVariantDialog.Title" xml:space="preserve"><value>Skin-variant kiezen</value></data>
+  <data name="SkinVariantDialog.HeaderTitle" xml:space="preserve"><value>Skin-variant kiezen</value></data>
+  <data name="SkinVariantDialog.Question" xml:space="preserve"><value>Welke armbreedte gebruikt deze skin?</value></data>
+  <data name="SkinVariantDialog.Hint" xml:space="preserve"><value>Classic = 4-pixel armen (Steve). Slim = 3-pixel armen (Alex).</value></data>
+  <data name="SkinVariantDialog.Classic" xml:space="preserve"><value>Classic</value></data>
+  <data name="SkinVariantDialog.Slim" xml:space="preserve"><value>Slim</value></data>
+
+  <!-- ImportModpack dialog -->
+  <data name="ImportModpackDialog.Title" xml:space="preserve"><value>Modpack importeren</value></data>
+  <data name="ImportModpackDialog.HeaderTitle" xml:space="preserve"><value>Modpack importeren</value></data>
+  <data name="ImportModpackDialog.ArchiveLabel" xml:space="preserve"><value>Archief</value></data>
+  <data name="ImportModpackDialog.NoArchivePicked" xml:space="preserve"><value>(geen bestand gekozen)</value></data>
+  <data name="ImportModpackDialog.InstanceNameLabel" xml:space="preserve"><value>Naam van instance</value></data>
+  <data name="ImportModpackDialog.InstanceNameWatermark" xml:space="preserve"><value>(neemt de pack-naam over als dit leeg is)</value></data>
+  <data name="ImportModpackDialog.Hint" xml:space="preserve"><value>Het archief wordt automatisch herkend als Modrinth .mrpack of CurseForge .zip en geïmporteerd in een nieuwe instance-map.</value></data>
+  <data name="ImportModpackDialog.ImportButton" xml:space="preserve"><value>Importeren</value></data>
+
+  <!-- ViewModel log messages -->
+  <data name="Log.AutoRefreshingOnStartup" xml:space="preserve"><value>Automatisch vernieuwen bij start ...</value></data>
+  <data name="Log.SilentMsSignInAttempt" xml:space="preserve"><value>Stille Microsoft-login (gecachte refresh-token) ...</value></data>
+  <data name="Log.AutoSignedInAs" xml:space="preserve"><value>Automatisch ingelogd als '{0}'.</value></data>
+  <data name="Log.SilentSignInSkipped" xml:space="preserve"><value>Stille login overgeslagen: {0}</value></data>
+  <data name="Log.LoadingVersionManifest" xml:space="preserve"><value>Versiemanifest laden ...</value></data>
+  <data name="Log.LoadedNVersions" xml:space="preserve"><value>{0} versies geladen.</value></data>
+  <data name="Log.LoadingInstances" xml:space="preserve"><value>Instances laden ...</value></data>
+  <data name="Log.FetchingNews" xml:space="preserve"><value>Minecraft-nieuws ophalen ...</value></data>
+  <data name="Log.LoadedNNewsArticles" xml:space="preserve"><value>{0} nieuwsartikelen geladen.</value></data>
+  <data name="Log.ReadingServersDat" xml:space="preserve"><value>servers.dat lezen ...</value></data>
+  <data name="Log.LoadedNServers" xml:space="preserve"><value>{0} servers geladen.</value></data>
+  <data name="Log.ReadingLauncherProfiles" xml:space="preserve"><value>launcher_profiles.json lezen ...</value></data>
+  <data name="Log.LoadedNProfiles" xml:space="preserve"><value>{0} profielen geladen uit launcher_profiles.json.</value></data>
+  <data name="Log.ScanningInstalledVersions" xml:space="preserve"><value>Geïnstalleerde versies scannen ...</value></data>
+  <data name="Log.FoundNInstalledVersions" xml:space="preserve"><value>{0} geïnstalleerde versies gevonden.</value></data>
+  <data name="Log.SigningInWithMicrosoft" xml:space="preserve"><value>Inloggen met Microsoft ...</value></data>
+  <data name="Log.SignedInAs" xml:space="preserve"><value>Ingelogd als '{0}'.</value></data>
+  <data name="Log.MicrosoftSignInPrompt" xml:space="preserve"><value>Microsoft-login: voer code {0} in op {1}</value></data>
+  <data name="Log.SignedOut" xml:space="preserve"><value>Uitgelogd.</value></data>
+  <data name="Log.SavingSettings" xml:space="preserve"><value>Instellingen opslaan ...</value></data>
+  <data name="Log.SettingsSaved" xml:space="preserve"><value>Instellingen opgeslagen (Xms={0}M, Xmx={1}M).</value></data>
+  <data name="Log.CouldNotSaveSettings" xml:space="preserve"><value>[error] Kon instellingen niet opslaan: {0}</value></data>
+  <data name="Log.SignInCancelled" xml:space="preserve"><value>Inloggen geannuleerd.</value></data>
+  <data name="Log.SignInFailed" xml:space="preserve"><value>[error] {0}</value></data>
+  <data name="Log.Error" xml:space="preserve"><value>[error] {0}</value></data>
+  <data name="Log.Warn" xml:space="preserve"><value>[warn] {0}</value></data>
+  <data name="Log.ModsNoRepository" xml:space="preserve"><value>[mods] Geen repository geconfigureerd voor de geselecteerde bron.</value></data>
+  <data name="Log.ModsSearching" xml:space="preserve"><value>Zoeken in {0} naar '{1}' ...</value></data>
+  <data name="Log.ModsResultsCount" xml:space="preserve"><value>[mods] {0} resultaten.</value></data>
+  <data name="Log.ModsNoRepositoryForInstall" xml:space="preserve"><value>[mods] Geen repository beschikbaar om deze mod te installeren.</value></data>
+  <data name="Log.ModsResolvingFiles" xml:space="preserve"><value>Bestanden oplossen voor '{0}' ({1} / {2}) ...</value></data>
+  <data name="Log.ModsNoMatchingFiles" xml:space="preserve"><value>[mods] Geen passende bestanden voor deze instance.</value></data>
+  <data name="Log.ModsInstalling" xml:space="preserve"><value>'{0}' installeren in '{1}' ...</value></data>
+  <data name="Log.ModsInstallComplete" xml:space="preserve"><value>[mods] Installatie voltooid.</value></data>
+  <data name="Log.ModsInstalledInInstance" xml:space="preserve"><value>[mods] {0} geïnstalleerd in '{1}'.</value></data>
+  <data name="Log.ModsRemoved" xml:space="preserve"><value>[mods] Verwijderd: '{0}'.</value></data>
+
+  <!-- Error messages -->
+  <data name="Error.NoSession" xml:space="preserve"><value>[error] Skin-bewerkingen vereisen een Microsoft-account.</value></data>
+  <data name="Error.SkinPickerUnavailable" xml:space="preserve"><value>[error] Skin-kiezer is niet beschikbaar.</value></data>
+  <data name="Error.CapeOpsRequireMsAccount" xml:space="preserve"><value>[error] Cape-bewerkingen vereisen een Microsoft-account.</value></data>
+  <data name="Error.SkinUploadCancelled" xml:space="preserve"><value>Skin-upload geannuleerd.</value></data>
+  <data name="Error.CannotDeleteAutoImported" xml:space="preserve"><value>Een auto-geïmporteerde instance kan niet worden verwijderd (deze staat in .minecraft/versions/).</value></data>
+  <data name="Error.CannotChangeAutoImportedIcon" xml:space="preserve"><value>Het icoon van een auto-geïmporteerde instance kan niet worden gewijzigd.</value></data>
+  <data name="Error.CannotEditAutoImported" xml:space="preserve"><value>Een auto-geïmporteerde instance kan niet worden bewerkt.</value></data>
+  <data name="Error.ModpackImporterDisabled" xml:space="preserve"><value>[error] Modpack-import is uitgeschakeld in deze build (geen importer aangesloten).</value></data>
+  <data name="Error.ModpackImportCancelled" xml:space="preserve"><value>Modpack-import geannuleerd.</value></data>
+  <data name="Error.InstanceExportUnavailable" xml:space="preserve"><value>[error] Instance-export is niet beschikbaar.</value></data>
+  <data name="Error.CannotExportAutoImported" xml:space="preserve"><value>[error] Een auto-geïmporteerde instance kan niet worden geëxporteerd.</value></data>
+  <data name="Error.ExportPickerUnavailable" xml:space="preserve"><value>[error] Export-bestandskiezer is niet beschikbaar.</value></data>
+  <data name="Error.InstanceExportCancelled" xml:space="preserve"><value>Instance-export geannuleerd.</value></data>
+  <data name="Error.InstanceImportUnavailable" xml:space="preserve"><value>[error] Instance-import is niet beschikbaar.</value></data>
+  <data name="Error.ImportPickerUnavailable" xml:space="preserve"><value>[error] Import-bestandskiezer is niet beschikbaar.</value></data>
+  <data name="Error.InstanceImportCancelled" xml:space="preserve"><value>Instance-import geannuleerd.</value></data>
+</root>
+</content>
+</invoke>

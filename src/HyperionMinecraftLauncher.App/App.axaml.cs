@@ -229,7 +229,7 @@ public partial class App : Application
             var localizationService = new ResxLocalizationService(
                 TechTeaStudio.HyperionMinecraftLauncher.App.Localization.Strings.ResourceManager,
                 initialLocale,
-                new[] { "en", "ru", "es", "pt-BR", "de", "fr", "zh-Hans", "ja" });
+                new[] { "en", "ru", "uk", "pl", "es", "pt-BR", "de", "fr", "it", "nl", "tr", "zh-Hans", "ja", "ko" });
 
             var viewModel = new MainViewModel(
                 service, logger, microsoftAuth, settingsStore,
