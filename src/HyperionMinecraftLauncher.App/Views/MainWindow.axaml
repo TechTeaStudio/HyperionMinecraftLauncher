@@ -32,91 +32,62 @@
         RenderOptions.EdgeMode="Aliased">
 
   <Window.Resources>
-    <!-- Liquid-glass: overrides the App.axaml Material palette with semi-transparent
-         variants so the LG.WindowBackground gradient + acrylic tint show through cards
-         and chrome. The originals still live in App.axaml so child windows that don't
-         import the LG theme keep working.
+    <!-- Minecraft palette overrides (v0.32.0): retunes the Material brushes so the
+         entire window reads against the warm-dark Minecraft bed (#171615) instead
+         of the previous purple translucent ramp. The originals still live in
+         App.axaml so child windows that don't merge the Minecraft palette keep
+         working.
 
-         Mapping: Paper / CardBackground both alias to the glass surface gradient (cards).
-         Background -> a slightly darker translucent fill for inset content like log boxes.
-         PrimaryDark -> kept transparent so the header bar / sidebar pull through the
-         falling-light overlay. Divider -> LG.Divider. -->
-    <LinearGradientBrush x:Key="MaterialPaperBrush" StartPoint="0%,0%" EndPoint="100%,100%">
-      <GradientStop Offset="0"   Color="#2EFFFFFF" />
-      <GradientStop Offset="0.5" Color="#3D6C6C73" />
-      <GradientStop Offset="1"   Color="#381A1A28" />
-    </LinearGradientBrush>
-    <LinearGradientBrush x:Key="MaterialCardBackgroundBrush" StartPoint="0%,0%" EndPoint="100%,100%">
-      <GradientStop Offset="0"   Color="#2EFFFFFF" />
-      <GradientStop Offset="0.5" Color="#3D6C6C73" />
-      <GradientStop Offset="1"   Color="#381A1A28" />
-    </LinearGradientBrush>
-    <SolidColorBrush x:Key="MaterialBackgroundBrush"     Color="#330D0D1B" />
-    <SolidColorBrush x:Key="MaterialPrimaryDarkBrush"    Color="#400D0D1B" />
-    <SolidColorBrush x:Key="MaterialDividerBrush"        Color="#22FFFFFF" />
+         Mapping (matches LG.* in MinecraftPalette.axaml):
+           Paper / CardBackground -> flat #262423 (bg-surface, the tile colour).
+           Background             -> flat #312D2C (bg-surface-alt, the slightly
+                                     darker inset for log boxes / nested fills).
+           PrimaryDark            -> flat #202020 (bg-window, header strip).
+           PrimaryMid / Light     -> Minecraft green so "primary" buttons / chips
+                                     tint with the accent.
+           Divider                -> #3D3938 (border-soft). -->
+    <SolidColorBrush x:Key="MaterialPaperBrush"          Color="#262423" />
+    <SolidColorBrush x:Key="MaterialCardBackgroundBrush" Color="#262423" />
+    <SolidColorBrush x:Key="MaterialBackgroundBrush"     Color="#312D2C" />
+    <SolidColorBrush x:Key="MaterialPrimaryDarkBrush"    Color="#202020" />
+    <SolidColorBrush x:Key="MaterialDividerBrush"        Color="#3D3938" />
 
-    <!-- Mid/Light "primary" was Minecraft grass-green; in the LG theme the brand
-         accent moves to the surfaceSelected lavender so chips and "primary" buttons
-         tint with the bubble's signature colour instead of clashing with it. -->
-    <SolidColorBrush x:Key="MaterialPrimaryMidBrush"     Color="#ACAECC" />
-    <SolidColorBrush x:Key="MaterialPrimaryLightBrush"   Color="#C8CAE6" />
+    <SolidColorBrush x:Key="MaterialPrimaryMidBrush"     Color="#3C8527" />
+    <SolidColorBrush x:Key="MaterialPrimaryLightBrush"   Color="#6CC349" />
   </Window.Resources>
 
 
   <Panel>
-    <!-- Acrylic underlay - paints a tinted, blurred frame behind the launcher chrome.
-         The TintColor was retuned to the LG.Background.Top swatch so the system blur
-         (when available) reads as the same near-black violet as the gradient on top.
-         When the OS doesn't support acrylic / mica / blur, the gradient overlay below
-         carries the whole look on its own. -->
+    <!-- Acrylic underlay - paints a flat tinted frame behind the launcher chrome.
+         TintColor is the warm-dark Minecraft window bed (#171615) so the system
+         blur (when available) reads as the same near-black brown as the flat
+         background brush on top. When the OS doesn't support acrylic / mica /
+         blur, the flat brush below carries the whole look on its own. -->
     <ExperimentalAcrylicBorder IsHitTestVisible="False">
       <ExperimentalAcrylicBorder.Material>
         <ExperimentalAcrylicMaterial
           BackgroundSource="Digger"
-          TintColor="#0D0D1B"
+          TintColor="#171615"
           TintOpacity="1"
           MaterialOpacity="0.85" />
       </ExperimentalAcrylicBorder.Material>
     </ExperimentalAcrylicBorder>
 
-    <!-- LG vertical background gradient (#0D0D1B -> #1A1A28). Sits over the acrylic
-         so the launcher has the same colour bed on every platform; the acrylic is
-         what gives it depth where the host OS supports it. -->
+    <!-- Flat Minecraft window background (#171615). Sits over the acrylic so the
+         launcher has the same colour bed on every platform; the acrylic is what
+         gives it depth where the host OS supports it. The previous purple
+         top-to-bottom gradient and falling-light wedge were removed in v0.32. -->
     <Border Background="{DynamicResource LG.WindowBackground}"
             IsHitTestVisible="False" />
-
-    <!-- =================== FALLING-LIGHT OVERLAY ===================
-         Static diagonal white wedge in the top-right corner, blurred by Effect Blur
-         so the boundary fades into the dark gradient. Rotated -28.28deg per the
-         Flutter spec (RenderTransformOrigin pins the rotation to the centre of the
-         brush rectangle). The Border is sized larger than the window's top-right
-         quadrant so the rotated wedge has enough off-window slack on every side and
-         doesn't show a hard edge mid-window.
-
-         Hit-test disabled - this is purely decorative. -->
-    <Border Width="900" Height="500"
-            HorizontalAlignment="Right" VerticalAlignment="Top"
-            Margin="0,-160,-200,0"
-            IsHitTestVisible="False"
-            Background="{DynamicResource LG.FallingLightGradient}"
-            RenderTransformOrigin="50%,50%">
-      <Border.RenderTransform>
-        <RotateTransform Angle="-28.28" />
-      </Border.RenderTransform>
-      <Border.Effect>
-        <BlurEffect Radius="60" />
-      </Border.Effect>
-    </Border>
 
   <Grid ColumnDefinitions="Auto,*" RowDefinitions="48,Auto,*">
 
     <!-- =================== HEADER (drag region + window controls) =================== -->
-    <!-- Header is a thin glass strip: a translucent dark wash over the falling-light
-         overlay, with a single-pixel rim along the bottom edge. The colourful "primary-
-         dark" green is replaced by the LG translucent fill so the new background shows
-         through. -->
-    <Border Grid.ColumnSpan="2" Background="#400D0D1B"
-            BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="0,0,0,1"
+    <!-- Header is the Minecraft system panel (#202020, bg-window) with a hard
+         single-pixel dark-soft separator along the bottom edge so it reads as a
+         distinct strip above the page body. -->
+    <Border Grid.ColumnSpan="2" Background="#202020"
+            BorderBrush="{DynamicResource LG.Divider}" BorderThickness="0,0,0,1"
             PointerPressed="OnTitleBarPressed">
       <Grid Margin="12,0,0,0" ColumnDefinitions="Auto,*,Auto,Auto">
 
@@ -132,15 +103,17 @@
 
         <!-- Account chip (middle-right). The chip itself is a Button whose Flyout lists
              every cached account; clicking a row switches; the footer holds Add / Remove.
-             Empty-state shows "Sign in with Microsoft" as the chip label and Add account in the flyout. -->
+             Empty-state shows "Sign in with Microsoft" as the chip label and Add account in the flyout.
+             Background uses the bg-surface-profile #464242 so the chip reads as the
+             dedicated "profile" tile from the Mojang launcher palette. -->
         <Button x:Name="AccountChipButton"
                 Grid.Column="2"
                 Classes="AccountChip"
                 Padding="8,4" Margin="0,0,8,0"
-                Background="{DynamicResource LG.BubbleFillCombined}"
-                BorderBrush="{DynamicResource LG.GlassRimStrong}"
+                Background="#464242"
+                BorderBrush="{DynamicResource LG.GlassRim}"
                 BorderThickness="1"
-                CornerRadius="16">
+                CornerRadius="4">
           <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
             <Image Source="{Binding AvatarBitmap}"
                    Classes="Avatar"
@@ -245,11 +218,14 @@
 
     <!-- =================== LAUNCHER UPDATE BANNER (T16) =================== -->
     <!-- Visible only when MainViewModel.AvailableUpdate is set. Clicking the banner body
-         opens the release URL in the default browser; the X dismisses for this session. -->
+         opens the release URL in the default browser; the X dismisses for this session.
+         Background is the Minecraft primary green #3C8527 so the banner pops against
+         the warm-dark page bed and the white "click to open release page" caption is
+         unambiguously readable. -->
     <Border Grid.Row="1" Grid.ColumnSpan="2"
             IsVisible="{Binding HasUpdateAvailable}"
-            Background="{DynamicResource MaterialPrimaryMidBrush}"
-            BorderBrush="{DynamicResource MaterialPrimaryDarkBrush}"
+            Background="#3C8527"
+            BorderBrush="#2A641C"
             BorderThickness="0,0,0,1"
             Padding="0">
       <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
@@ -291,7 +267,7 @@
          separates it from the content area. -->
     <Border Grid.Row="2" Grid.Column="0" Name="SidebarBorder"
             Width="{Binding SidebarWidth}"
-            Background="{DynamicResource LG.GlassSurface}"
+            Background="{DynamicResource LG.SurfaceVariant}"
             BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="0,0,1,0"
             ClipToBounds="True">
       <Border.Transitions>
