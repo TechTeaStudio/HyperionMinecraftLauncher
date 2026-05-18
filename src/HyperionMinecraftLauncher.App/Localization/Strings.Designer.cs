@@ -138,7 +138,7 @@ public static class Strings
     public static string Skins_RecentReapplyTooltip => L("Skins.RecentReapplyTooltip");
     public static string Skins_DragHint => L("Skins.DragHint");
 
-    // NameMC skin browser (T-namemc, v0.32.1).
+    // Community skin browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3).
     public static string SkinsBrowser_SectionTitle => L("SkinsBrowser.SectionTitle");
     public static string SkinsBrowser_SearchWatermark => L("SkinsBrowser.SearchWatermark");
     public static string SkinsBrowser_ShowTrending => L("SkinsBrowser.ShowTrending");

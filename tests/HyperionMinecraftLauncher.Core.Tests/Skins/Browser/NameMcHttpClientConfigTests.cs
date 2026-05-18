@@ -3,6 +3,11 @@ using System.Net;
 using System.Net.Http;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.Browser;
 
+// v0.32.3: NameMcSkinBrowser is [Obsolete]. The header tests are still relevant -
+// they pin Chrome 124 fingerprint shape so any future namemc.com revival from a
+// proxy / server-side helper inherits the work F2 did.
+#pragma warning disable CS0618
+
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Tests.Skins.Browser;
 
 /// <summary>

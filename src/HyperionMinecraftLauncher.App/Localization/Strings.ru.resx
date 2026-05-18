@@ -120,15 +120,15 @@
   <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>Применить этот скин повторно</value></data>
   <data name="Skins.DragHint" xml:space="preserve"><value>Перетащите внутри превью головы, чтобы повернуть.</value></data>
 
-  <!-- Skins page: NameMC community browser (T-namemc, v0.32.1) -->
-  <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Каталог скинов (NameMC)</value></data>
+  <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
+  <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Каталог скинов</value></data>
   <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>Поиск по имени или тегу...</value></data>
   <data name="SkinsBrowser.ShowTrending" xml:space="preserve"><value>Показать популярные</value></data>
   <data name="SkinsBrowser.ApplyButton" xml:space="preserve"><value>Применить к моему аккаунту</value></data>
-  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>Источник: namemc.com. Hyperion не связан с NameMC.</value></data>
-  <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[ошибка] Не удалось загрузить галерею NameMC: {0}</value></data>
+  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>Источник: api.mineskin.org. Hyperion не связан с MineSkin.</value></data>
+  <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[ошибка] Не удалось загрузить галерею скинов: {0}</value></data>
   <data name="SkinsBrowser.DownloadFailed" xml:space="preserve"><value>[ошибка] Не удалось скачать скин: {0}</value></data>
-  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>Скачиваем скин {0} с NameMC...</value></data>
+  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>Скачиваем скин {0} с MineSkin...</value></data>
   <data name="SkinsBrowser.Loading" xml:space="preserve"><value>Загружаем галерею...</value></data>
   <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>Ничего не нашлось. Измените запрос или нажмите "Показать популярные".</value></data>
 

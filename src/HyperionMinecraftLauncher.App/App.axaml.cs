@@ -175,15 +175,18 @@ public partial class App : Application
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "HyperionMinecraftLauncher", "skins_history");
             var skinHistory = new FileSkinHistoryStore(skinHistoryDir);
-            // T-namemc (v0.32.1): community skin gallery. NameMC has no official API; the
-            // browser parses public namemc.com pages with HtmlAgilityPack. Uses its own
-            // HttpClient with a 20 s timeout so slow page loads don't stall other Mojang ops.
+            // Community skin gallery. Originally backed by NameMC (T-namemc, v0.32.1) and
+            // then again with Chrome-shaped headers in v0.32.2, but NameMC's Cloudflare
+            // layer now serves a JavaScript challenge (cf-mitigated=challenge) to every
+            // scripted request - pure HTTP cannot bypass it without a headless browser.
             //
-            // v0.32.2: NameMC's Cloudflare layer blocks any request whose fingerprint
-            // doesn't look like a real browser - so the handler advertises automatic
-            // decompression (gzip/deflate/brotli) and NameMcSkinBrowser stamps a full
-            // Chrome 124 header set onto every outbound request. Without these two
-            // bits the gallery returns 403 Forbidden for every call.
+            // v0.32.3 (G2): pivot to MineSkin's v2 REST endpoint
+            // (https://api.mineskin.org/v2/skins) which returns clean JSON with no anti-
+            // bot wall. The NameMcSkinBrowser class is still in the codebase (marked
+            // [Obsolete]) so the parser-shape tests still execute and so a future provider
+            // can plug back in if MineSkin ever goes away. The HttpClient keeps automatic
+            // decompression and the browser-like headers from F2: harmless for MineSkin
+            // and useful for any direct textures.minecraft.net fetches.
             var skinBrowserHandler = new System.Net.Http.SocketsHttpHandler
             {
                 AutomaticDecompression =
@@ -195,7 +198,7 @@ public partial class App : Application
             {
                 Timeout = TimeSpan.FromSeconds(20),
             };
-            var skinBrowser = new NameMcSkinBrowser(skinBrowserHttp);
+            var skinBrowser = new MineSkinBrowser(skinBrowserHttp);
 
             // Mod repositories: Modrinth always-on (no key needed); CurseForge inert until
             // the user pastes a key into Settings. Both share their own HttpClient with a

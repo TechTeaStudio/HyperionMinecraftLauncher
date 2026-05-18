@@ -16,6 +16,13 @@ namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.Browser;
 /// </summary>
 /// <remarks>
 /// <para>
+/// <strong>Deprecated in v0.32.3.</strong> NameMC's Cloudflare layer now issues a
+/// JavaScript challenge (<c>cf-mitigated=challenge</c>) to every scripted request -
+/// pure HTTP cannot bypass it without a headless browser. The class is kept here for
+/// reference and so the parser-shape tests still execute, but the live launcher
+/// wires <see cref="MineSkinBrowser"/> instead. See <c>App.axaml.cs</c> for the DI swap.
+/// </para>
+/// <para>
 /// NameMC publishes <strong>no official API</strong>. This implementation parses
 /// the HTML of the public trending and search pages with HtmlAgilityPack and is
 /// best-effort: structural changes upstream can require selector tweaks. A failure
@@ -42,6 +49,7 @@ namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.Browser;
 /// </list>
 /// </para>
 /// </remarks>
+[Obsolete("NameMC blocks scripted access via Cloudflare; use MineSkinBrowser instead.")]
 public sealed class NameMcSkinBrowser : ISkinBrowser
 {
     /// <summary>Public landing-page URL the parser targets for "Show trending".</summary>

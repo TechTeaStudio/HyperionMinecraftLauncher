@@ -272,7 +272,7 @@ Picked up in priority order. Tracked under the `feat/post-v0.32` umbrella.
 - **Resource packs.** Per-instance `resourcepacks/` list with enable / disable / remove and drag-drop install. Prism has this; we expose only Screenshots / Worlds / Servers today.
 - **Shader packs.** Same shape for `shaderpacks/`.
 - **Data packs.** Per-instance `datapacks/` (under each saved world) browser.
-- **Skin gallery / Mojang skin packs.** We have user-PNG upload, history, cape switcher, but no marketplace-style browser.
+- **Skin gallery / Mojang skin packs.** v0.32.3 pivots the community gallery from NameMC (Cloudflare killed pure-HTTP access via a JS challenge) to the public MineSkin v2 REST endpoint. The integration is best-effort: anonymous-tier filtering is server-side ignored, so search runs client-side over a larger page. A future server-side proxy or a paid MineSkin key would unlock proper search + tags + variant metadata. NameMC support stays in-tree as `[Obsolete]` so it can be revived once a CF-solver or proxy lands.
 
 ### CurseForge usability
 - **In-app API-key onboarding.** Today the CurseForge mod browser is inert until the user pastes a key from `console.curseforge.com` into Settings. Add an onboarding affordance that opens the registration page in the browser and surfaces the key field next to it. Document the keying limitation in the empty-state of the CurseForge tab.

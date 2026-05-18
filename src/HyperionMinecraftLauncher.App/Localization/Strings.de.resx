@@ -120,15 +120,15 @@
   <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>Diesen Skin erneut anwenden</value></data>
   <data name="Skins.DragHint" xml:space="preserve"><value>Ziehe in der Kopfvorschau, um zu drehen.</value></data>
 
-  <!-- Skins page: NameMC community browser (T-namemc, v0.32.1) -->
-  <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Skins durchsuchen (NameMC)</value></data>
+  <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
+  <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Skins durchsuchen</value></data>
   <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>Skins nach Name oder Tag suchen...</value></data>
   <data name="SkinsBrowser.ShowTrending" xml:space="preserve"><value>Beliebte anzeigen</value></data>
   <data name="SkinsBrowser.ApplyButton" xml:space="preserve"><value>Auf mein Konto anwenden</value></data>
-  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>Bereitgestellt von namemc.com. Hyperion ist nicht mit NameMC verbunden.</value></data>
-  <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[Fehler] NameMC-Galerie konnte nicht geladen werden: {0}</value></data>
+  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>Bereitgestellt von api.mineskin.org. Hyperion ist nicht mit MineSkin verbunden.</value></data>
+  <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[Fehler] Skin-Galerie konnte nicht geladen werden: {0}</value></data>
   <data name="SkinsBrowser.DownloadFailed" xml:space="preserve"><value>[Fehler] Skin konnte nicht heruntergeladen werden: {0}</value></data>
-  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>Skin {0} wird von NameMC heruntergeladen...</value></data>
+  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>Skin {0} wird von MineSkin heruntergeladen...</value></data>
   <data name="SkinsBrowser.Loading" xml:space="preserve"><value>Galerie wird geladen...</value></data>
   <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>Keine Skins gefunden. Versuche eine andere Suche oder klicke auf "Beliebte anzeigen".</value></data>
 

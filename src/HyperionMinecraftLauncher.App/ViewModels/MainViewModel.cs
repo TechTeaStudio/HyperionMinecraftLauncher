@@ -2734,8 +2734,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     /// <summary>
     /// Latest community gallery surfaced by the configured <see cref="ISkinBrowser"/>
-    /// (NameMC by default). Populated by <see cref="RefreshTrendingSkinsCommand"/> and
-    /// <see cref="SearchSkinsCommand"/>; empty when no browser is wired or the user
+    /// (MineSkin v2 in v0.32.3+). Populated by <see cref="RefreshTrendingSkinsCommand"/>
+    /// and <see cref="SearchSkinsCommand"/>; empty when no browser is wired or the user
     /// hasn't opened the Skins page yet.
     /// </summary>
     public ObservableCollection<BrowsedSkin> BrowsedSkins { get; }
@@ -3027,12 +3027,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    // ---- NameMC skin browser (T-namemc, v0.32.1) ----
+    // ---- Community skin browser (T-namemc, v0.32.1; pivoted to MineSkin in v0.32.3) ----
 
     /// <summary>Default cap on the number of browsed-skin cards loaded into the gallery.</summary>
     /// <remarks>
-    /// NameMC's trending grid is paginated; we surface the first page only. 60 cards is the
-    /// rough fit for the WrapPanel on a 1080p main window without scroll fatigue.
+    /// The configured provider is paginated; we surface the first page only. 60 cards is
+    /// the rough fit for the WrapPanel on a 1080p main window without scroll fatigue.
     /// </remarks>
     public const int BrowsedSkinLimit = 60;
 
@@ -3050,12 +3050,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             var skins = await _skinBrowser.ListTrendingAsync(BrowsedSkinLimit, CancellationToken.None).ConfigureAwait(false);
             await ReplaceBrowsedSkinsAsync(skins).ConfigureAwait(false);
-            _logger.Info($"NameMC: loaded {skins.Count} trending skins.");
+            _logger.Info($"SkinBrowser: loaded {skins.Count} trending skins.");
         }
         catch (Exception ex)
         {
             Append(string.Format(Strings.SkinsBrowser_FetchFailed, ex.Message));
-            _logger.Warn($"NameMC trending fetch failed: {ex.GetType().Name}: {ex.Message}");
+            _logger.Warn($"SkinBrowser trending fetch failed: {ex.GetType().Name}: {ex.Message}");
         }
         finally
         {
@@ -3084,12 +3084,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             var skins = await _skinBrowser.SearchAsync(query, BrowsedSkinLimit, CancellationToken.None).ConfigureAwait(false);
             await ReplaceBrowsedSkinsAsync(skins).ConfigureAwait(false);
-            _logger.Info($"NameMC: search '{query}' returned {skins.Count} skins.");
+            _logger.Info($"SkinBrowser: search '{query}' returned {skins.Count} skins.");
         }
         catch (Exception ex)
         {
             Append(string.Format(Strings.SkinsBrowser_FetchFailed, ex.Message));
-            _logger.Warn($"NameMC search '{query}' failed: {ex.GetType().Name}: {ex.Message}");
+            _logger.Warn($"SkinBrowser search '{query}' failed: {ex.GetType().Name}: {ex.Message}");
         }
         finally
         {
@@ -3123,7 +3123,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             catch (Exception ex)
             {
                 Append(string.Format(Strings.SkinsBrowser_DownloadFailed, ex.Message));
-                _logger.Warn($"NameMC download failed for {skin.Id}: {ex.Message}");
+                _logger.Warn($"SkinBrowser download failed for {skin.Id}: {ex.Message}");
                 return;
             }
 
