@@ -4,12 +4,16 @@ using Avalonia.Markup.Xaml;
 using TechTeaStudio.HyperionMinecraftLauncher.App.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 using TechTeaStudio.HyperionMinecraftLauncher.App.Views;
+using System;
+using System.IO;
 using System.Net.Http;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Settings;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.History;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App;
 
@@ -42,7 +46,15 @@ public partial class App : Application
                 new CmlLibUnderlyingLauncher(), logger, microsoftAuth,
                 newsClient: newsClient);
 
-            var viewModel = new MainViewModel(service, logger, microsoftAuth, settingsStore);
+            // Skin upload + cape + history services. Reuse the launcher's shared HttpClient.
+            var skinService = new MojangSkinService(httpClient);
+            var skinHistoryDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "HyperionMinecraftLauncher", "skins_history");
+            var skinHistory = new FileSkinHistoryStore(skinHistoryDir);
+
+            var viewModel = new MainViewModel(
+                service, logger, microsoftAuth, settingsStore, skinService, skinHistory);
 
             desktop.MainWindow = new MainWindow
             {

@@ -347,16 +347,81 @@
       </Grid>
 
       <!-- ==== SKINS PAGE ==== -->
-      <Grid IsVisible="{Binding IsSkinsSelected}" Classes="Page" RowDefinitions="Auto,*">
+      <Grid IsVisible="{Binding IsSkinsSelected}" Classes="Page" RowDefinitions="Auto,Auto,Auto,*,Auto">
         <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
           <TextBlock Text="Skins" FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
-          <TextBlock Text="Live 3D preview. Click and drag inside the viewer to rotate. Upload + cape support planned."
+          <TextBlock Text="Live 3D preview, plus upload + cape selection (requires Microsoft sign-in)."
                      Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
         </StackPanel>
-        <Border Grid.Row="1" CornerRadius="6"
+
+        <!-- Upload + cape picker row -->
+        <Border Grid.Row="1" Padding="10" Margin="0,0,0,6" CornerRadius="6"
+                Background="{DynamicResource MaterialPaperBrush}">
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <Button Content="Upload new skin..."
+                    Command="{Binding UploadSkinCommand}"
+                    FontFamily="{StaticResource MinecraftFont}" FontSize="12"
+                    Padding="14,5"
+                    Background="{DynamicResource MaterialPrimaryMidBrush}"
+                    Foreground="White" />
+            <Border Width="1" Background="{DynamicResource MaterialDividerBrush}" Margin="2,0" />
+            <TextBlock Text="Cape:" VerticalAlignment="Center" FontSize="12"
+                       IsVisible="{Binding HasOwnedCapes}" />
+            <ComboBox MinWidth="180"
+                      ItemsSource="{Binding OwnedCapes}"
+                      SelectedItem="{Binding SelectedActiveCape, Mode=TwoWay}"
+                      PlaceholderText="(none)"
+                      IsVisible="{Binding HasOwnedCapes}">
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Alias}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Button Content="Clear cape"
+                    Command="{Binding ClearActiveCapeCommand}"
+                    FontSize="11" Padding="10,4"
+                    IsVisible="{Binding HasOwnedCapes}" />
+          </StackPanel>
+        </Border>
+
+        <!-- Recent skins gallery (history) -->
+        <Border Grid.Row="2" Padding="6,8" Margin="0,0,0,6" CornerRadius="6"
+                Background="{DynamicResource MaterialPaperBrush}">
+          <StackPanel Spacing="4">
+            <TextBlock Text="Recent skins" FontWeight="SemiBold" FontSize="12" />
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+              <ItemsControl ItemsSource="{Binding SkinHistory}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" Spacing="6" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <Button Width="64" Height="64" Padding="0"
+                            ToolTip.Tip="Re-apply this skin"
+                            Click="OnReapplyHistoricSkinClicked"
+                            Tag="{Binding}">
+                      <Image Source="{Binding FilePath}"
+                             Stretch="UniformToFill"
+                             RenderOptions.BitmapInterpolationMode="None" />
+                    </Button>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Row="3" CornerRadius="6"
                 Background="{DynamicResource MaterialPaperBrush}">
           <controls:SkinPreview x:Name="SkinViewer" />
         </Border>
+
+        <TextBlock Grid.Row="4" Margin="0,6,0,0"
+                   Text="Drag inside the head preview to rotate."
+                   Opacity="0.55" FontSize="10" />
       </Grid>
 
       <!-- ==== SERVERS PAGE ==== -->

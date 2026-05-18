@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -16,6 +18,8 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Settings;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.History;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
@@ -37,6 +41,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private readonly ILauncherLogger _logger;
     private readonly IMicrosoftAuthService? _microsoftAuth;
     private readonly ILauncherSettingsStore? _settingsStore;
+    private readonly ISkinService? _skinService;
+    private readonly ISkinHistoryStore? _skinHistory;
+    private SkinPickRequest? _skinPickRequest;
 
     // Settings-page state (mirrored from LauncherSettings on load, written back on Save).
     private int _minMemoryMb;
@@ -58,18 +65,27 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private AuthResult? _currentSession;
     private NavSection _selectedSection = NavSection.Home;
     private Bitmap? _avatarBitmap;
+    private IReadOnlyList<OwnedSkin> _ownedSkins = Array.Empty<OwnedSkin>();
+    private IReadOnlyList<OwnedCape> _ownedCapes = Array.Empty<OwnedCape>();
+    private OwnedCape? _selectedActiveCape;
+    private bool _suppressCapeSelectionWrite;
 
-    /// <summary>Construct with the launcher service and (optional) Microsoft auth provider + settings store.</summary>
+    /// <summary>Construct with the launcher service and (optional) Microsoft auth provider + settings store + skin services.</summary>
     public MainViewModel(
         IMinecraftLauncherService service,
         ILauncherLogger logger,
         IMicrosoftAuthService? microsoftAuth = null,
-        ILauncherSettingsStore? settingsStore = null)
+        ILauncherSettingsStore? settingsStore = null,
+        ISkinService? skinService = null,
+        ISkinHistoryStore? skinHistory = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _microsoftAuth = microsoftAuth;
         _settingsStore = settingsStore;
+        _skinService = skinService;
+        _skinHistory = skinHistory;
+        SkinHistory = new ObservableCollection<SkinHistoryEntry>();
         _maxAllowedMemoryMb = SystemRam.RecommendedMaxHeapMb();
 
         // MSAL device-code prompts come from a background thread; surface them in the UI log.
@@ -102,6 +118,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
         LaunchCommand = new AsyncRelayCommand(LaunchAsync, CanLaunch);
         SignInMicrosoftCommand = new AsyncRelayCommand(SignInMicrosoftAsync, () => !IsBusy && !IsSignedInOnline);
         SignOutCommand = new AsyncRelayCommand(SignOutAsync, () => !IsBusy && IsSignedInOnline);
+        UploadSkinCommand = new AsyncRelayCommand(UploadSkinAsync, () => !IsBusy && IsSignedInOnline && _skinService is not null);
+        SetActiveCapeCommand = new AsyncRelayCommand(SetActiveCapeFromSelectionAsync, () => !IsBusy && IsSignedInOnline && _skinService is not null);
+        ClearActiveCapeCommand = new AsyncRelayCommand(ClearActiveCapeAsync, () => !IsBusy && IsSignedInOnline && _skinService is not null);
+        ReapplyHistoricSkinCommand = new AsyncRelayCommand<SkinHistoryEntry>(ReapplyHistoricSkinAsync, e => !IsBusy && IsSignedInOnline && _skinService is not null && e is not null);
     }
 
     // ---- Account ----
@@ -144,6 +164,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 SignInMicrosoftCommand.RaiseCanExecuteChanged();
                 SignOutCommand.RaiseCanExecuteChanged();
                 LaunchCommand.RaiseCanExecuteChanged();
+                UploadSkinCommand.RaiseCanExecuteChanged();
+                SetActiveCapeCommand.RaiseCanExecuteChanged();
+                ClearActiveCapeCommand.RaiseCanExecuteChanged();
+                ReapplyHistoricSkinCommand.RaiseCanExecuteChanged();
             }
         }
     }
@@ -357,6 +381,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 LaunchCommand.RaiseCanExecuteChanged();
                 SignInMicrosoftCommand.RaiseCanExecuteChanged();
                 SignOutCommand.RaiseCanExecuteChanged();
+                UploadSkinCommand.RaiseCanExecuteChanged();
+                SetActiveCapeCommand.RaiseCanExecuteChanged();
+                ClearActiveCapeCommand.RaiseCanExecuteChanged();
+                ReapplyHistoricSkinCommand.RaiseCanExecuteChanged();
             }
         }
     }
@@ -402,6 +430,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncRelayCommand LaunchCommand { get; }
     public AsyncRelayCommand SignInMicrosoftCommand { get; }
     public AsyncRelayCommand SignOutCommand { get; }
+    public AsyncRelayCommand UploadSkinCommand { get; }
+    public AsyncRelayCommand SetActiveCapeCommand { get; }
+    public AsyncRelayCommand ClearActiveCapeCommand { get; }
+    public AsyncRelayCommand<SkinHistoryEntry> ReapplyHistoricSkinCommand { get; }
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -452,6 +484,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 Append("Silent Microsoft sign-in (cached refresh token) ...");
                 CurrentSession = await _microsoftAuth.SignInSilentlyAsync(CancellationToken.None);
                 Append($"Auto-signed in as '{CurrentSession.Username}'.");
+                // Populate OwnedSkins + OwnedCapes from the Mojang profile so the Skins
+                // page is fully populated before the user clicks anywhere.
+                await TryRefreshProfileAsync(CurrentSession.AccessToken);
             }
             catch (Exception ex)
             {
@@ -460,6 +495,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 Append($"Silent sign-in skipped: {ex.Message}");
             }
         }
+
+        // Skin history is local-only and works without a Microsoft session.
+        await ReloadHistoryAsync();
 
         Append("Auto-refreshing on startup ...");
         await RefreshInstancesAsync();
@@ -728,6 +766,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
             CurrentSession = auth;
             Append($"Signed in as '{auth.Username}'.");
             _logger.Info($"UI: Microsoft sign-in succeeded for '{auth.Username}'.");
+
+            // Populate OwnedSkins / OwnedCapes from the Mojang profile so the Skins page
+            // is ready to use without an extra click.
+            if (!auth.IsOffline)
+                await TryRefreshProfileAsync(auth.AccessToken);
         }
         catch (LauncherException ex)
         {
@@ -750,12 +793,314 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 await _microsoftAuth.SignOutAsync(CancellationToken.None);
             }
             CurrentSession = null;
+            // Drop the now-stale profile data; the Skins page will show empty pickers.
+            OwnedSkins = Array.Empty<OwnedSkin>();
+            OwnedCapes = Array.Empty<OwnedCape>();
+            _suppressCapeSelectionWrite = true;
+            try { SelectedActiveCape = null; }
+            finally { _suppressCapeSelectionWrite = false; }
             Append("Signed out.");
             _logger.Info("UI: signed out.");
         }
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    // ---- Skins ----
+
+    /// <summary>The list of skins on the player's Mojang profile. Populated on sign-in.</summary>
+    public IReadOnlyList<OwnedSkin> OwnedSkins
+    {
+        get => _ownedSkins;
+        private set
+        {
+            if (SetField(ref _ownedSkins, value ?? Array.Empty<OwnedSkin>()))
+                OnPropertyChanged(nameof(HasOwnedCapes));
+        }
+    }
+
+    /// <summary>The capes the player owns. <see cref="HasOwnedCapes"/> drives the picker visibility.</summary>
+    public IReadOnlyList<OwnedCape> OwnedCapes
+    {
+        get => _ownedCapes;
+        private set
+        {
+            if (SetField(ref _ownedCapes, value ?? Array.Empty<OwnedCape>()))
+                OnPropertyChanged(nameof(HasOwnedCapes));
+        }
+    }
+
+    /// <summary>True when the player owns at least one cape (controls cape-picker visibility).</summary>
+    public bool HasOwnedCapes => _ownedCapes.Count > 0;
+
+    /// <summary>
+    /// Bound to the cape picker on the Skins page. Setting this to a cape triggers
+    /// <see cref="SetActiveCapeCommand"/>; setting it to <c>null</c> triggers
+    /// <see cref="ClearActiveCapeCommand"/>. Programmatic updates (the View-Model itself
+    /// re-syncs after a server roundtrip) suppress that auto-fire to avoid loops.
+    /// </summary>
+    public OwnedCape? SelectedActiveCape
+    {
+        get => _selectedActiveCape;
+        set
+        {
+            if (!SetField(ref _selectedActiveCape, value)) return;
+            if (_suppressCapeSelectionWrite) return;
+            // Fire-and-forget; errors surface in the log via the underlying methods.
+            if (value is null)
+                _ = ClearActiveCapeAsync();
+            else
+                _ = SetActiveCapeAsync(value.Id);
+        }
+    }
+
+    /// <summary>Most-recent-first list of skin history entries (capped at <see cref="FileSkinHistoryStore.Capacity"/>).</summary>
+    public ObservableCollection<SkinHistoryEntry> SkinHistory { get; }
+
+    /// <summary>
+    /// Inject the View's file-picker + variant-prompt delegate. The View calls this from
+    /// its <c>Window.Opened</c> handler once the <c>TopLevel</c> is available; the
+    /// view-model owns no Avalonia dependency itself.
+    /// </summary>
+    public void SetSkinPickRequest(SkinPickRequest? request)
+    {
+        _skinPickRequest = request;
+    }
+
+    private async Task UploadSkinAsync()
+    {
+        if (_skinService is null || _currentSession is not { IsOffline: false } online)
+        {
+            Append("[error] Skin operations require a Microsoft account.");
+            return;
+        }
+        if (_skinPickRequest is null)
+        {
+            Append("[error] Skin picker is not available.");
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            SkinPickResult? picked;
+            try
+            {
+                picked = await _skinPickRequest(CancellationToken.None).ConfigureAwait(true);
+            }
+            catch (Exception ex)
+            {
+                Append($"[error] Could not pick skin: {ex.Message}");
+                return;
+            }
+            if (picked is null)
+            {
+                Append("Skin upload cancelled.");
+                return;
+            }
+
+            await UploadAndArchiveAsync(online.AccessToken, picked.PngBytes, picked.Variant).ConfigureAwait(false);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task UploadAndArchiveAsync(string accessToken, byte[] pngBytes, SkinVariant variant)
+    {
+        if (_skinService is null) return;
+        try
+        {
+            Append($"Uploading skin ({variant}) ...");
+            await _skinService.UploadSkinAsync(accessToken, pngBytes, variant, CancellationToken.None).ConfigureAwait(false);
+            Append($"Skin upload succeeded ({variant}).");
+            _logger.Info($"UI: skin upload succeeded ({variant}).");
+
+            if (_skinHistory is not null)
+            {
+                try
+                {
+                    await _skinHistory.AppendAsync(pngBytes, variant, CancellationToken.None).ConfigureAwait(false);
+                    await ReloadHistoryAsync().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warn($"Could not append skin to history: {ex.Message}");
+                }
+            }
+
+            await TryRefreshProfileAsync(accessToken).ConfigureAwait(false);
+        }
+        catch (LauncherException ex)
+        {
+            Append($"[error] {ex.Message}");
+            _logger.Warn($"Skin upload surfaced LauncherException to UI: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Skin upload failed: {ex.Message}");
+        }
+    }
+
+    private async Task SetActiveCapeFromSelectionAsync()
+    {
+        var id = _selectedActiveCape?.Id;
+        if (string.IsNullOrEmpty(id))
+        {
+            await ClearActiveCapeAsync().ConfigureAwait(false);
+            return;
+        }
+        await SetActiveCapeAsync(id).ConfigureAwait(false);
+    }
+
+    private async Task SetActiveCapeAsync(string capeId)
+    {
+        if (_skinService is null || _currentSession is not { IsOffline: false } online)
+        {
+            Append("[error] Cape operations require a Microsoft account.");
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            Append($"Activating cape '{capeId}' ...");
+            await _skinService.SetActiveCapeAsync(online.AccessToken, capeId, CancellationToken.None).ConfigureAwait(false);
+            Append("Cape activated.");
+            await TryRefreshProfileAsync(online.AccessToken).ConfigureAwait(false);
+        }
+        catch (LauncherException ex)
+        {
+            Append($"[error] {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task ClearActiveCapeAsync()
+    {
+        if (_skinService is null || _currentSession is not { IsOffline: false } online)
+        {
+            Append("[error] Cape operations require a Microsoft account.");
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            Append("Clearing active cape ...");
+            await _skinService.ClearActiveCapeAsync(online.AccessToken, CancellationToken.None).ConfigureAwait(false);
+            Append("Cape cleared.");
+            await TryRefreshProfileAsync(online.AccessToken).ConfigureAwait(false);
+        }
+        catch (LauncherException ex)
+        {
+            Append($"[error] {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task ReapplyHistoricSkinAsync(SkinHistoryEntry? entry)
+    {
+        if (entry is null) return;
+        if (_skinService is null || _currentSession is not { IsOffline: false } online)
+        {
+            Append("[error] Skin operations require a Microsoft account.");
+            return;
+        }
+
+        byte[] bytes;
+        try
+        {
+            bytes = await File.ReadAllBytesAsync(entry.FilePath, CancellationToken.None).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not read history skin: {ex.Message}");
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            await UploadAndArchiveAsync(online.AccessToken, bytes, entry.Variant).ConfigureAwait(false);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// Fetch the player profile (skins + capes) and push it into the OwnedSkins / OwnedCapes
+    /// collections + SelectedActiveCape. Surfaces failures through the log; never throws.
+    /// </summary>
+    public async Task TryRefreshProfileAsync(string accessToken)
+    {
+        if (_skinService is null) return;
+        if (string.IsNullOrWhiteSpace(accessToken)) return;
+        try
+        {
+            var profile = await _skinService.GetProfileAsync(accessToken, CancellationToken.None).ConfigureAwait(false);
+            OwnedSkins = profile.Skins;
+            OwnedCapes = profile.Capes;
+
+            // Suppress the setter's auto-fire while we re-sync from the server snapshot.
+            _suppressCapeSelectionWrite = true;
+            try
+            {
+                SelectedActiveCape = profile.Capes.FirstOrDefault(c =>
+                    string.Equals(c.State, "ACTIVE", StringComparison.OrdinalIgnoreCase));
+            }
+            finally
+            {
+                _suppressCapeSelectionWrite = false;
+            }
+        }
+        catch (LauncherException ex)
+        {
+            Append($"[error] Could not load profile: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn($"GetProfile threw {ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    /// <summary>Pull the on-disk skin-history index into the <see cref="SkinHistory"/> collection.</summary>
+    public async Task ReloadHistoryAsync()
+    {
+        if (_skinHistory is null) return;
+        try
+        {
+            var entries = await _skinHistory.ListAsync(CancellationToken.None).ConfigureAwait(false);
+
+            void Apply()
+            {
+                SkinHistory.Clear();
+                foreach (var e in entries) SkinHistory.Add(e);
+            }
+
+            // In production we always have an Avalonia dispatcher; in xunit we don't, in
+            // which case the platform field is null and Dispatcher.UIThread.Post would hang.
+            // Probe via reflection (CheckAccess on a null platform returns true).
+            var dispatcher = Avalonia.Threading.Dispatcher.UIThread;
+            if (dispatcher.CheckAccess())
+                Apply();
+            else
+                await dispatcher.InvokeAsync(Apply);
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn($"Could not load skin history: {ex.Message}");
         }
     }
 
