@@ -253,6 +253,78 @@ public sealed class MainViewModel : INotifyPropertyChanged
         StopHeadlessServerCommand = new AsyncRelayCommand(
             StopSelectedHeadlessServerAsync,
             () => !IsBusy && SelectedHeadlessServer is not null);
+
+        // Per-world backup actions on the Worlds tab "..." menu. Parameter is the
+        // WorldEntry's FolderName so the XAML can bind directly to {Binding FolderName}.
+        BackupWorldCommand = new AsyncParameterRelayCommand<string>(
+            BackupWorldAsync,
+            n => !IsBusy && _backupService is not null && SelectedInstance is not null && !string.IsNullOrEmpty(n));
+        RestoreLatestBackupCommand = new AsyncParameterRelayCommand<string>(
+            RestoreLatestBackupAsync,
+            n => !IsBusy && _backupService is not null && SelectedInstance is not null && !string.IsNullOrEmpty(n));
+    }
+
+    /// <summary>"Backup now" entry on the Worlds tab. Parameter = world folder name.</summary>
+    public AsyncParameterRelayCommand<string> BackupWorldCommand { get; private set; } = null!;
+
+    /// <summary>"Restore latest backup" entry on the Worlds tab. Parameter = world folder name.</summary>
+    public AsyncParameterRelayCommand<string> RestoreLatestBackupCommand { get; private set; } = null!;
+
+    private async Task BackupWorldAsync(string? worldFolderName)
+    {
+        if (_backupService is null || SelectedInstance is not { } inst || string.IsNullOrEmpty(worldFolderName)) return;
+        try
+        {
+            Append($"[backup] Snapshotting '{worldFolderName}' ...");
+            var entry = await _backupService.BackupWorldAsync(inst, worldFolderName, CancellationToken.None).ConfigureAwait(true);
+            if (entry is null)
+            {
+                Append($"[warn] '{worldFolderName}' has no files to back up.");
+                return;
+            }
+            var mb = entry.SizeBytes / 1024.0 / 1024.0;
+            var label = mb >= 1
+                ? $"{mb.ToString("0.#", CultureInfo.InvariantCulture)} MB"
+                : $"{(entry.SizeBytes / 1024.0).ToString("0.#", CultureInfo.InvariantCulture)} KB";
+            Append($"[backup] {Path.GetFileName(entry.ArchivePath)} ({label})");
+            if (_autoBackupKeepLatest > 0)
+                await _backupService.PruneAsync(inst, _autoBackupKeepLatest, CancellationToken.None).ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Backup '{worldFolderName}' failed: {ex.Message}");
+        }
+    }
+
+    private async Task RestoreLatestBackupAsync(string? worldFolderName)
+    {
+        if (_backupService is null || SelectedInstance is not { } inst || string.IsNullOrEmpty(worldFolderName)) return;
+        try
+        {
+            var all = await _backupService.ListBackupsAsync(inst, CancellationToken.None).ConfigureAwait(true);
+            BackupEntry? latest = null;
+            foreach (var e in all)
+            {
+                if (string.Equals(e.SourceWorldName, worldFolderName, StringComparison.OrdinalIgnoreCase)
+                    && (latest is null || e.CreatedAt > latest.CreatedAt))
+                    latest = e;
+            }
+            if (latest is null)
+            {
+                Append($"[warn] No backups found for '{worldFolderName}'.");
+                return;
+            }
+            Append($"[backup] Restoring '{worldFolderName}' from {Path.GetFileName(latest.ArchivePath)} ...");
+            await _backupService.RestoreAsync(latest, CancellationToken.None).ConfigureAwait(true);
+            Append($"[backup] Restored as '{worldFolderName}-restored-...'. The original world folder is untouched.");
+            // Refresh the worlds list so the new -restored-* folder shows up immediately.
+            if (RefreshInstanceWorldsCommand.CanExecute(null))
+                await RefreshInstanceWorldsCommand.ExecuteAsync().ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Restore '{worldFolderName}' failed: {ex.Message}");
+        }
     }
 
     // ---- Account ----
