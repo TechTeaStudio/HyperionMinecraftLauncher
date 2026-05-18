@@ -27,6 +27,10 @@ public enum NavSection
     /// <summary>Server list editor (<c>servers.dat</c>). Planned for a later release.</summary>
     Servers,
 
+    /// <summary>Headless dedicated server manager. Creates Hyperion-tracked server folders;
+    /// the server-jar download + process spawn is wired in v0.29.</summary>
+    HeadlessServers,
+
     /// <summary>Modrinth + CurseForge mod browser, per-instance install / enable / remove.</summary>
     Mods,
 

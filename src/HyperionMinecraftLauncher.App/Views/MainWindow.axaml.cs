@@ -192,6 +192,7 @@ public partial class MainWindow : Window
     private void OnNavInstallations(object? sender, RoutedEventArgs e) => SetSection(NavSection.Installations);
     private void OnNavSkins(object? sender, RoutedEventArgs e) => SetSection(NavSection.Skins);
     private void OnNavServers(object? sender, RoutedEventArgs e) => SetSection(NavSection.Servers);
+    private void OnNavHeadlessServers(object? sender, RoutedEventArgs e) => SetSection(NavSection.HeadlessServers);
     private void OnNavMods(object? sender, RoutedEventArgs e)
     {
         SetSection(NavSection.Mods);
@@ -269,6 +270,32 @@ public partial class MainWindow : Window
         if (dialog.Confirmed && dialog.SelectedVersion is { } v)
         {
             await vm.CreateInstanceAsync(dialog.SelectedName, v.Name, dialog.SelectedIconKey, dialog.SelectedLoader);
+        }
+    }
+
+    /// <summary>
+    /// Opens the New Headless Server dialog (v0.28 T11). On confirm, the view-model creates
+    /// the on-disk folder under LOCALAPPDATA and inserts the entry into the bound list.
+    /// </summary>
+    private async void OnNewHeadlessServerClicked(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+
+        if (vm.AvailableVersions.Count == 0)
+            await vm.RefreshVersionsCommand.ExecuteAsync();
+
+        var dialog = NewHeadlessServerDialog.WithViewModel(vm);
+        await dialog.ShowDialog(this);
+
+        if (dialog.Confirmed && dialog.SelectedVersion is { } v)
+        {
+            await vm.CreateHeadlessServerAsync(new TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Headless.HeadlessServerCreateRequest
+            {
+                Name = dialog.SelectedName,
+                VersionId = v.Name,
+                RamMb = dialog.SelectedRamMb,
+                Port = dialog.SelectedPort,
+            });
         }
     }
 

@@ -1,0 +1,104 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:versions="using:TechTeaStudio.HyperionMinecraftLauncher.Core.Versions"
+        xmlns:vm="using:TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels"
+        mc:Ignorable="d"
+        x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.NewHeadlessServerDialog"
+        x:DataType="vm:MainViewModel"
+        Title="New Headless Server"
+        Width="520" Height="440"
+        CanResize="False"
+        SystemDecorations="None"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource MaterialPaperBrush}"
+        FontFamily="Inter, Segoe UI, system-ui"
+        RenderOptions.BitmapInterpolationMode="None">
+
+  <Border BorderBrush="{DynamicResource MaterialPrimaryMidBrush}" BorderThickness="1" CornerRadius="6">
+    <Grid RowDefinitions="36,*,Auto">
+
+      <!-- Title bar -->
+      <Border Grid.Row="0" Background="{DynamicResource MaterialPrimaryDarkBrush}"
+              PointerPressed="OnTitleBarPressed">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0" Text="Create a new headless server"
+                     FontFamily="{StaticResource MinecraftFont}" FontSize="13"
+                     Foreground="White" VerticalAlignment="Center" Margin="12,0" />
+          <Button Grid.Column="1" Click="OnCancel" Width="36" Height="36"
+                  Background="Transparent" BorderThickness="0" CornerRadius="0">
+            <Path Data="M 0,0 L 10,10 M 10,0 L 0,10" Stroke="White" StrokeThickness="1.2"
+                  Width="10" Height="10" />
+          </Button>
+        </Grid>
+      </Border>
+
+      <!-- Body -->
+      <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="22,16">
+        <StackPanel Spacing="14">
+
+          <TextBlock Text="The server-jar download lands in v0.29. For now the launcher writes the metadata, eula.txt and a minimal server.properties so the folder is ready when the pipeline is wired up."
+                     FontSize="11" Opacity="0.65" TextWrapping="Wrap" />
+
+          <!-- Name -->
+          <StackPanel Spacing="4">
+            <TextBlock Text="Server name" FontSize="12" Opacity="0.85" />
+            <TextBox x:Name="NameBox" Text="My dedicated server"
+                     Watermark="My dedicated server" FontSize="13" />
+          </StackPanel>
+
+          <!-- Version dropdown - reuses the main view-model's filtered manifest list. -->
+          <StackPanel Spacing="4">
+            <TextBlock Text="Minecraft version" FontSize="12" Opacity="0.85" />
+            <ComboBox x:Name="VersionBox"
+                      ItemsSource="{Binding FilteredVersions}"
+                      SelectedItem="{Binding SelectedVersion, Mode=TwoWay}"
+                      PlaceholderText="(loading manifest...)"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate DataType="versions:VersionMetadata">
+                  <TextBlock Text="{Binding DisplayText}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+          </StackPanel>
+
+          <!-- RAM slider -->
+          <StackPanel Spacing="4">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Grid.Column="0" Text="JVM max heap (MiB)" FontSize="12" Opacity="0.85" />
+              <TextBlock Grid.Column="1" x:Name="RamValueLabel" Text="2048" FontSize="12" Opacity="0.85" />
+            </Grid>
+            <Slider x:Name="RamSlider" Minimum="512" Maximum="8192" SmallChange="256" LargeChange="512"
+                    TickFrequency="512" IsSnapToTickEnabled="True"
+                    Value="2048"
+                    ValueChanged="OnRamSliderChanged" />
+          </StackPanel>
+
+          <!-- Port -->
+          <StackPanel Spacing="4">
+            <TextBlock Text="Port" FontSize="12" Opacity="0.85" />
+            <NumericUpDown x:Name="PortBox" Minimum="1" Maximum="65535" Value="25565"
+                           Increment="1" FormatString="0" />
+          </StackPanel>
+
+        </StackPanel>
+      </ScrollViewer>
+
+      <!-- Footer -->
+      <Grid Grid.Row="2" Margin="22,4,22,16" ColumnDefinitions="*,Auto,Auto">
+        <Button Grid.Column="1" Content="Cancel" Click="OnCancel"
+                Padding="14,5" FontSize="12" Margin="0,0,8,0" />
+        <Button Grid.Column="2" Content="Create"
+                Click="OnCreate"
+                FontFamily="{StaticResource MinecraftFont}" FontSize="13"
+                Padding="14,5"
+                Background="{DynamicResource MaterialPrimaryMidBrush}" Foreground="White" />
+      </Grid>
+    </Grid>
+  </Border>
+</Window>
