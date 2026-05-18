@@ -5,12 +5,19 @@
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>TechTeaStudio.HyperionMinecraftLauncher.App</RootNamespace>
     <AssemblyName>HyperionMinecraftLauncher</AssemblyName>
-    <Version>0.29.0</Version>
+    <Version>0.30.0</Version>
     <Description>Avalonia desktop front-end for the Minecraft launcher.</Description>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <!-- T18: Opt-in Native AOT configuration. Avalonia 11.2 + MSAL + CmlLib have not been validated for full Native AOT; this config is for future experimentation only. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'ReleaseAot'">
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <StripSymbols>true</StripSymbols>
   </PropertyGroup>
 
   <ItemGroup>

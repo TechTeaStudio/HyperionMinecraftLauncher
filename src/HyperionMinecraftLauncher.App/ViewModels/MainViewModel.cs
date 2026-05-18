@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -10,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Diagnostics;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
@@ -952,13 +954,24 @@ public sealed class MainViewModel : INotifyPropertyChanged
         try { _presence.SetIdle(); }
         catch (Exception ex) { _logger.Warn($"Presence SetIdle failed: {ex.Message}"); }
 
-        // 0) If MSAL still holds a refresh token from the last session, restore the user
-        //    silently so they don't have to re-enter a device code on every launch.
-        // 0) Populate the cached-accounts roster + decide who the active account is.
-        await RefreshAccountsAsync(CancellationToken.None).ConfigureAwait(false);
+        // T18: Dependency tree for parallel startup -
+        //   {versions, instances+installedVersions, profiles, servers, news, accounts, skinHistory}
+        //   run concurrently (no shared state writes); ms-auth silent sign-in then runs sequentially
+        //   after the batch (it consumes _activeAccount from the accounts refresh).
+        Append("Auto-refreshing on startup ...");
+        await Task.WhenAll(
+            TimedAsync("versions", RefreshVersionsAsync),
+            TimedAsync("instances", RefreshInstancesAsync),
+            TimedAsync("profiles", RefreshProfilesAsync),
+            TimedAsync("servers", RefreshServersAsync),
+            TimedAsync("news", RefreshNewsAsync),
+            TimedAsync("accounts", () => RefreshAccountsAsync(CancellationToken.None)),
+            TimedAsync("skin-history", ReloadHistoryAsync)).ConfigureAwait(true);
 
-        // 0a) If we still hold a refresh token for the active account, restore the user
-        //     silently so they don't have to re-enter a device code on every launch.
+        // Silent Microsoft sign-in is intentionally sequential at the end: it needs the
+        // accounts roster populated above to pick the right cached account, and we don't
+        // want it competing for the UI thread before the page is visibly populated.
+        var msAuthSw = Stopwatch.StartNew();
         if (_microsoftAuth is { HasCachedAccount: true })
         {
             try
@@ -982,16 +995,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 Append($"Silent sign-in skipped: {ex.Message}");
             }
         }
-
-        // Skin history is local-only and works without a Microsoft session.
-        await ReloadHistoryAsync();
-
-        Append("Auto-refreshing on startup ...");
-        await RefreshInstancesAsync();
-        await RefreshProfilesAsync();
-        await RefreshServersAsync();
-        await RefreshNewsAsync();
-        await RefreshVersionsAsync();
+        msAuthSw.Stop();
+        StartupTimeline.Record("ms-auth", msAuthSw.ElapsedMilliseconds);
+        StartupTimeline.ReportTo(_logger);
 
         // T16: launcher update probe. Best-effort, runs after the heavy refreshes so a slow
         // GitHub round-trip doesn't delay the visible content. Disabled toggles or a missing
@@ -1012,6 +1018,29 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 // The checker contract says it shouldn't throw; defend against future drift anyway.
                 _logger.Warn($"Update check failed: {ex.Message}");
             }
+        }
+    }
+
+    /// <summary>
+    /// T18: wrap a refresh step in a stopwatch + StartupTimeline.Record call. Any exception
+    /// from the step is caught here so one slow/broken refresh can't fail the whole Task.WhenAll;
+    /// the inner Refresh* methods already surface their own [error] line via Append.
+    /// </summary>
+    private static async Task TimedAsync(string label, Func<Task> step)
+    {
+        var sw = Stopwatch.StartNew();
+        try { await step().ConfigureAwait(true); }
+        catch
+        {
+            // Inner refresh methods are expected to handle their own LauncherException. Anything
+            // that still escapes here is a bug worth surfacing - but we still want the timeline
+            // line to be emitted, so swallow it and let the inner method's Append/log carry the
+            // error. (Re-raising would tear the whole Task.WhenAll down for one bad step.)
+        }
+        finally
+        {
+            sw.Stop();
+            StartupTimeline.Record(label, sw.ElapsedMilliseconds);
         }
     }
 
@@ -1326,6 +1355,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
             Append("Fetching Minecraft news ...");
             var news = await _service.ListNewsAsync(CancellationToken.None);
 
+            // T18: Mojang's feed is already newest-first, so we DON'T re-sort here. If you add an
+            // OrderByDescending(n => n.PublishedAt) "to be safe", you'll add an LINQ enumeration
+            // on every refresh for zero behavioural change. Trust the upstream order.
             News.Clear();
             foreach (var n in news)
                 News.Add(n);

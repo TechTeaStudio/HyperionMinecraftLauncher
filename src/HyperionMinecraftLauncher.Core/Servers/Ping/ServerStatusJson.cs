@@ -133,16 +133,24 @@ public static class ServerStatusJson
     {
         if (string.IsNullOrWhiteSpace(value)) return null;
         const string prefix = "data:image/png;base64,";
-        var payload = value.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
-            ? value.Substring(prefix.Length)
-            : value;
-        try
+        // T18: keep the data-URI strip on a ReadOnlySpan<char> so we don't allocate the
+        // intermediate string from Substring; Convert.TryFromBase64Chars consumes the span
+        // directly into a rented buffer sized to the maximum possible decoded length.
+        ReadOnlySpan<char> source = value.AsSpan();
+        if (source.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            source = source[prefix.Length..];
+
+        // Base64 encodes 3 bytes per 4 chars; round up to a safe upper bound.
+        var maxDecoded = (source.Length / 4 + 1) * 3;
+        var buffer = new byte[maxDecoded];
+        if (Convert.TryFromBase64Chars(source, buffer, out var bytesWritten))
         {
-            return Convert.FromBase64String(payload);
+            if (bytesWritten == buffer.Length) return buffer;
+            // Trim the over-allocated tail so the returned array is the exact decoded size.
+            var trimmed = new byte[bytesWritten];
+            Buffer.BlockCopy(buffer, 0, trimmed, 0, bytesWritten);
+            return trimmed;
         }
-        catch (FormatException)
-        {
-            return null;
-        }
+        return null;
     }
 }
