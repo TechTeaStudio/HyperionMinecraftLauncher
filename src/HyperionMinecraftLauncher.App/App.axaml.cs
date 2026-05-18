@@ -13,6 +13,9 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods.CurseForge;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods.Modrinth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Presence;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping;
@@ -60,10 +63,10 @@ public partial class App : Application
             // here for the same reason MainViewModel does: the file is tiny and the wiring has to know
             // the flag before constructing the VM. Disabled / load-failed both fall back to no-op so
             // launcher startup never depends on Discord being installed.
+            var initialSettings = settingsStore.LoadAsync(CancellationToken.None).GetAwaiter().GetResult();
             IPresenceService presence;
             try
             {
-                var initialSettings = settingsStore.LoadAsync(CancellationToken.None).GetAwaiter().GetResult();
                 presence = initialSettings.DiscordRpcEnabled
                     ? new DiscordPresenceService(logger)
                     : new NullPresenceService();
@@ -84,9 +87,19 @@ public partial class App : Application
                 "HyperionMinecraftLauncher", "skins_history");
             var skinHistory = new FileSkinHistoryStore(skinHistoryDir);
 
+            // Mod repositories: Modrinth always-on (no key needed); CurseForge inert until
+            // the user pastes a key into Settings. Both share their own HttpClient with a
+            // 20 s timeout so big project pages don't hang the UI.
+            var modsHttp = new System.Net.Http.HttpClient { Timeout = System.TimeSpan.FromSeconds(20) };
+            var modrinthRepo = new ModrinthRepository(modsHttp);
+            var curseForgeHttp = new System.Net.Http.HttpClient { Timeout = System.TimeSpan.FromSeconds(20) };
+            var curseForgeRepo = new CurseForgeRepository(curseForgeHttp, initialSettings.CurseForgeApiKey, logger);
+            var instanceModManager = new FileSystemInstanceModManager();
+
             var viewModel = new MainViewModel(
                 service, logger, microsoftAuth, settingsStore,
-                presence, instanceBrowser, skinService, skinHistory);
+                presence, instanceBrowser, skinService, skinHistory,
+                modrinthRepo, curseForgeRepo, instanceModManager);
 
             var mainWindow = new MainWindow
             {

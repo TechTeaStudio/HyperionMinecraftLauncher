@@ -83,6 +83,27 @@
                        FontSize="10" Opacity="0.55" TextWrapping="Wrap" />
           </StackPanel>
 
+          <!-- Loader picker (chips: Vanilla / Fabric / Forge / NeoForge / Quilt). Mod-loader auto-install
+               is out of scope for this release; the chip just labels the instance so the Mods page can filter. -->
+          <StackPanel Spacing="4">
+            <TextBlock Text="Mod loader" FontSize="12" Opacity="0.85" />
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <RadioButton GroupName="LoaderChoice" Content="Vanilla" Tag="None"
+                           IsChecked="True" Click="OnLoaderClicked"
+                           Padding="10,4" FontSize="11" />
+              <RadioButton GroupName="LoaderChoice" Content="Fabric" Tag="Fabric"
+                           Click="OnLoaderClicked" Padding="10,4" FontSize="11" />
+              <RadioButton GroupName="LoaderChoice" Content="Forge" Tag="Forge"
+                           Click="OnLoaderClicked" Padding="10,4" FontSize="11" />
+              <RadioButton GroupName="LoaderChoice" Content="NeoForge" Tag="NeoForge"
+                           Click="OnLoaderClicked" Padding="10,4" FontSize="11" />
+              <RadioButton GroupName="LoaderChoice" Content="Quilt" Tag="Quilt"
+                           Click="OnLoaderClicked" Padding="10,4" FontSize="11" />
+            </StackPanel>
+            <TextBlock Text="The loader is stored as metadata only - installing Fabric/Forge/etc. itself is on the roadmap."
+                       FontSize="10" Opacity="0.55" TextWrapping="Wrap" />
+          </StackPanel>
+
           <!-- Icon picker -->
           <StackPanel Spacing="4">
             <TextBlock Text="Icon" FontSize="12" Opacity="0.85" />

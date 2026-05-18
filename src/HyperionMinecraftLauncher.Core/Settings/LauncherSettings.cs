@@ -37,4 +37,13 @@ public sealed record LauncherSettings
     /// Default <c>true</c>; falls back to a no-op when Discord isn't running.
     /// </summary>
     public bool DiscordRpcEnabled { get; init; } = true;
+
+    /// <summary>
+    /// CurseForge API key. Default is empty - CurseForge requires per-developer keys and we
+    /// don't ship one. When empty the launcher silently disables CurseForge search and any
+    /// attempt to download a CurseForge file throws a "key not configured" error. Users who
+    /// register their own free key at <c>https://console.curseforge.com</c> can paste it into
+    /// Settings to light up the integration.
+    /// </summary>
+    public string CurseForgeApiKey { get; init; } = string.Empty;
 }

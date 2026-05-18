@@ -18,6 +18,7 @@ using SkiaSharp;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.History;
 using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
@@ -188,9 +189,45 @@ public partial class MainWindow : Window
     private void OnNavInstallations(object? sender, RoutedEventArgs e) => SetSection(NavSection.Installations);
     private void OnNavSkins(object? sender, RoutedEventArgs e) => SetSection(NavSection.Skins);
     private void OnNavServers(object? sender, RoutedEventArgs e) => SetSection(NavSection.Servers);
+    private void OnNavMods(object? sender, RoutedEventArgs e)
+    {
+        SetSection(NavSection.Mods);
+        // Auto-refresh the installed list when an instance is selected; cheap on startup
+        // when the mods folder doesn't exist yet (returns empty).
+        if (DataContext is MainViewModel vm && vm.RefreshInstalledModsCommand.CanExecute(null))
+            _ = vm.RefreshInstalledModsCommand.ExecuteAsync();
+    }
     private void OnNavNews(object? sender, RoutedEventArgs e) => SetSection(NavSection.News);
     private void OnNavSettings(object? sender, RoutedEventArgs e) => SetSection(NavSection.Settings);
     private void OnNavLogs(object? sender, RoutedEventArgs e) => SetSection(NavSection.Logs);
+
+    private void OnModSourceModrinth(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is MainViewModel vm) vm.SelectedModSource = ModSource.Modrinth;
+    }
+    private void OnModSourceCurseForge(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is MainViewModel vm) vm.SelectedModSource = ModSource.CurseForge;
+    }
+
+    private void OnInstalledModToggleClicked(object? sender, RoutedEventArgs e)
+    {
+        // The CheckBox toggle event runs after the IsChecked flip. We use the Tag (filename)
+        // to map the click back to the right LocalMod, set it as selected, then fire the
+        // toggle command - this keeps the heavy lifting in the view-model.
+        if (sender is not CheckBox { Tag: string filename }) return;
+        if (DataContext is not MainViewModel vm) return;
+        foreach (var m in vm.InstalledMods)
+        {
+            if (m.Filename == filename)
+            {
+                vm.SelectedInstalledMod = m;
+                if (vm.ToggleInstalledModCommand.CanExecute(null))
+                    _ = vm.ToggleInstalledModCommand.ExecuteAsync();
+                break;
+            }
+        }
+    }
 
     private void SetSection(NavSection section)
     {
@@ -228,7 +265,7 @@ public partial class MainWindow : Window
 
         if (dialog.Confirmed && dialog.SelectedVersion is { } v)
         {
-            await vm.CreateInstanceAsync(dialog.SelectedName, v.Name, dialog.SelectedIconKey);
+            await vm.CreateInstanceAsync(dialog.SelectedName, v.Name, dialog.SelectedIconKey, dialog.SelectedLoader);
         }
     }
 
