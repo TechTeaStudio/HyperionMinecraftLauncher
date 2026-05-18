@@ -369,7 +369,9 @@ public partial class MainWindow : Window
 
         if (dialog.Confirmed && dialog.SelectedVersion is { } v)
         {
-            await vm.CreateInstanceAsync(dialog.SelectedName, v.Name, dialog.SelectedIconKey, dialog.SelectedLoader);
+            await vm.CreateInstanceAsync(
+                dialog.SelectedName, v.Name, dialog.SelectedIconKey,
+                dialog.SelectedLoader, dialog.SelectedLoaderVersion);
         }
     }
 

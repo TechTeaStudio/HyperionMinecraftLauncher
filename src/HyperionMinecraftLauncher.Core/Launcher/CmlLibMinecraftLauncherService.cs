@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using CmlLib.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.Loaders;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
@@ -36,6 +37,7 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     private readonly INewsClient _newsClient;
     private readonly IInstanceStore _instanceStore;
     private readonly IJavaRuntimeManager _javaRuntimeManager;
+    private readonly IModLoaderInstaller? _modLoaderInstaller;
 
     /// <summary>Primary constructor used by the App and by tests.</summary>
     /// <param name="microsoftAuth">Optional Microsoft sign-in provider. When omitted, <see cref="AuthMode.Microsoft"/>
@@ -62,7 +64,8 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         INewsClient? newsClient = null,
         IInstanceStore? instanceStore = null,
         IServerPinger? serverPinger = null,
-        IJavaRuntimeManager? javaRuntimeManager = null)
+        IJavaRuntimeManager? javaRuntimeManager = null,
+        IModLoaderInstaller? modLoaderInstaller = null)
     {
         _underlying = underlying ?? throw new ArgumentNullException(nameof(underlying));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -75,6 +78,7 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         _newsClient = newsClient ?? new MojangNewsClient();
         _instanceStore = instanceStore ?? new FileInstanceStore();
         _javaRuntimeManager = javaRuntimeManager ?? new NullJavaRuntimeManager();
+        _modLoaderInstaller = modLoaderInstaller;
     }
 
     /// <summary>
@@ -397,6 +401,63 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         }
 
         _logger.Info($"Installing Minecraft '{request.VersionName}' for user '{request.Session.Username}' ...");
+
+        // T21a (v0.30.0): mod-loader install runs before everything else. The installer
+        // returns a modded version-id (e.g. "1.21.5-fabric-0.16.10") which we then feed to
+        // the regular CmlLib install pipeline below - that path will download the loader's
+        // library set defined in the new version's JSON manifest. The block is skipped for
+        // vanilla (Loader == None) and for builds with no _modLoaderInstaller configured.
+        if (request.Loader != ModLoader.None && _modLoaderInstaller is not null)
+        {
+            var loaderLabel = string.IsNullOrEmpty(request.LoaderVersion)
+                ? $"{request.Loader} (latest)"
+                : $"{request.Loader} {request.LoaderVersion}";
+            var stage = $"Installing {loaderLabel}";
+            progress?.Report(new LaunchProgress { Stage = stage, Fraction = 0 });
+            _logger.Info($"Mod loader: {stage} on top of {request.VersionName} ...");
+            try
+            {
+                var loaderProgress = progress is null ? null : new Progress<double>(f =>
+                    progress.Report(new LaunchProgress { Stage = stage, Fraction = f }));
+                var moddedId = await _modLoaderInstaller
+                    .InstallAsync(request.Loader, request.VersionName, request.LoaderVersion, loaderProgress, cancellationToken)
+                    .ConfigureAwait(false);
+                if (!string.IsNullOrEmpty(moddedId) && !string.Equals(moddedId, request.VersionName, StringComparison.Ordinal))
+                {
+                    _logger.Info($"Mod loader installed: '{request.VersionName}' -> '{moddedId}'.");
+                    request = request with { VersionName = moddedId };
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (NotSupportedException ex)
+            {
+                var wrapped = new InstallationFailedException(
+                    $"Mod loader '{request.Loader}' is not supported by this launcher build: {ex.Message}", ex);
+                _logger.Error($"Loader install failed (unsupported) for '{request.VersionName}'.", wrapped);
+                throw wrapped;
+            }
+            catch (HttpRequestException ex)
+            {
+                var wrapped = new InstallationFailedException(
+                    $"Network error while installing {request.Loader}. Check your connection and retry.", ex);
+                _logger.Error($"Loader install failed (network) for '{request.VersionName}'.", wrapped);
+                throw wrapped;
+            }
+            catch (LauncherException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                var wrapped = new InstallationFailedException(
+                    $"Unexpected error while installing {request.Loader}: {ex.Message}", ex);
+                _logger.Error($"Loader install failed for '{request.VersionName}'.", wrapped);
+                throw wrapped;
+            }
+        }
 
         // Auto-download the matching Adoptium Temurin JRE if the request specifies a requirement
         // AND no explicit JavaPath was already set. We patch the request in place via 'with' so

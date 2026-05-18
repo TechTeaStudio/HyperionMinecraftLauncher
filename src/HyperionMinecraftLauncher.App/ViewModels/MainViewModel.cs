@@ -17,6 +17,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.CrashReports;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.Loaders;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Export;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
@@ -81,6 +82,13 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private double _modpackImportProgress;
     private bool _isImportingModpack;
     private string _modpackImportStatus = string.Empty;
+
+    // T21a, v0.30.0: mod-loader install pipeline. The installer downloads + writes the
+    // matching version folder under .minecraft/versions/; the version fetcher queries the
+    // available loader versions for the New Instance dialog. Both are optional - tests and
+    // CLI contexts can leave them null and lose only the loader features.
+    private readonly IModLoaderInstaller? _modLoaderInstaller;
+    private readonly IModLoaderVersionFetcher? _modLoaderVersionFetcher;
 
     // Settings-page state (mirrored from LauncherSettings on load, written back on Save).
     private int _minMemoryMb;
@@ -162,7 +170,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
         ICrashReportListener? crashReportListener = null,
         IInstanceExporter? instanceExporter = null,
         IInstanceImporter? instanceImporter = null,
-        IModpackImporter? modpackImporter = null)
+        IModpackImporter? modpackImporter = null,
+        IModLoaderInstaller? modLoaderInstaller = null,
+        IModLoaderVersionFetcher? modLoaderVersionFetcher = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -184,6 +194,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _backupService = backupService;
         _instanceExporter = instanceExporter;
         _instanceImporter = instanceImporter;
+        _modLoaderInstaller = modLoaderInstaller;
+        _modLoaderVersionFetcher = modLoaderVersionFetcher;
         HeadlessServers = new ObservableCollection<HeadlessServer>();
         _modpackImporter = modpackImporter;
         _maxAllowedMemoryMb = SystemRam.RecommendedMaxHeapMb();
@@ -1468,7 +1480,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
     }
 
     /// <summary>Add a freshly-built instance to the store and the in-memory list. Returns the saved record.</summary>
-    public async Task<Instance> CreateInstanceAsync(string name, string versionId, string iconKey, ModLoader loader = ModLoader.None)
+    /// <param name="loaderVersion">Loader-specific version string. Stored on the new
+    /// <see cref="Instance.LoaderVersion"/>. Ignored when <paramref name="loader"/> is
+    /// <see cref="ModLoader.None"/>. Picked from the New Instance dialog's loader-version
+    /// ComboBox in v0.30.0 (T21a).</param>
+    public async Task<Instance> CreateInstanceAsync(string name, string versionId, string iconKey, ModLoader loader = ModLoader.None, string? loaderVersion = null)
     {
         var instance = new Instance
         {
@@ -1477,10 +1493,14 @@ public sealed class MainViewModel : INotifyPropertyChanged
             VersionId = versionId,
             IconKey = iconKey,
             Loader = loader,
+            LoaderVersion = loader == ModLoader.None ? null : loaderVersion,
         };
         await _service.SaveInstanceAsync(instance, CancellationToken.None);
         Instances.Insert(0, instance);
-        Append($"Created instance '{name}' for version {versionId}{(loader == ModLoader.None ? string.Empty : $" ({loader})")}.");
+        var loaderSuffix = loader == ModLoader.None
+            ? string.Empty
+            : (string.IsNullOrEmpty(loaderVersion) ? $" ({loader})" : $" ({loader} {loaderVersion})");
+        Append($"Created instance '{name}' for version {versionId}{loaderSuffix}.");
         return instance;
     }
 
@@ -1564,6 +1584,34 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             IsImportingModpack = false;
             IsBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// Query the available loader versions for <paramref name="loader"/> on
+    /// <paramref name="minecraftVersion"/>. Used by the New Instance dialog to fill the
+    /// loader-version ComboBox after the user picks a non-Vanilla loader chip.
+    /// Returns an empty list when the version fetcher is not configured (headless / test
+    /// contexts) or the underlying probe failed.
+    /// </summary>
+    public async Task<IReadOnlyList<string>> ListLoaderVersionsAsync(ModLoader loader, string minecraftVersion, CancellationToken cancellationToken)
+    {
+        if (_modLoaderVersionFetcher is null) return Array.Empty<string>();
+        if (loader == ModLoader.None || string.IsNullOrWhiteSpace(minecraftVersion)) return Array.Empty<string>();
+        try
+        {
+            return await _modLoaderVersionFetcher.ListLoaderVersionsAsync(loader, minecraftVersion, cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            // Network / API hiccups shouldn't crash the dialog - show the chip without a
+            // version list and let the user pick "latest" instead.
+            _logger.Warn($"Could not list {loader} versions for {minecraftVersion}: {ex.Message}");
+            return Array.Empty<string>();
         }
     }
 
@@ -2425,6 +2473,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
             {
                 await BackupInstanceWorldsAsync(toBackup, CancellationToken.None).ConfigureAwait(true);
             }
+            // T21a, v0.30.0: forward the instance's mod loader so CmlLibMinecraftLauncherService
+            // can run IModLoaderInstaller before the regular install. Vanilla instances (or any
+            // launch path with no instance, e.g. direct version pick) leave Loader == None and
+            // the launcher service short-circuits the loader-install block entirely.
+            var loader = instance?.Loader ?? ModLoader.None;
+            var loaderVersion = instance?.LoaderVersion;
 
             Append($"Launching {versionName} (Xms={MinMemoryMb}M, Xmx={MaxMemoryMb}M) ...");
             // Per-instance overrides win over the global Settings page values; blank or zero
@@ -2446,6 +2500,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
                     QuickPlay = quickPlay,
                     JavaRequirement = javaRequirement,
                     JavaPath = javaOverride,
+                    Loader = loader,
+                    LoaderVersion = loaderVersion,
                 },
                 progress,
                 CancellationToken.None);

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
@@ -29,8 +30,23 @@ public partial class NewInstanceDialog : Window
     /// <summary>Mod loader the user picked; defaults to vanilla.</summary>
     public ModLoader SelectedLoader { get; private set; } = ModLoader.None;
 
+    /// <summary>
+    /// Loader version the user picked. <c>null</c> when (a) the loader is Vanilla, or (b) the
+    /// user left the ComboBox empty -- in which case the installer picks the newest stable
+    /// build at install time.
+    /// </summary>
+    public string? SelectedLoaderVersion =>
+        LoaderVersionBox.SelectedItem as string;
+
     /// <summary>Set to true only when the user clicked Create with a valid version.</summary>
     public bool Confirmed { get; private set; }
+
+    /// <summary>
+    /// Last in-flight loader-versions query token. We cancel any pending request before
+    /// kicking off a new one so a fast click between Forge -> Fabric doesn't race two
+    /// network calls and apply the older one second.
+    /// </summary>
+    private CancellationTokenSource? _loaderVersionCts;
 
     public NewInstanceDialog()
     {
@@ -72,10 +88,63 @@ public partial class NewInstanceDialog : Window
             SelectedIconKey = key;
     }
 
-    private void OnLoaderClicked(object? sender, RoutedEventArgs e)
+    private async void OnLoaderClicked(object? sender, RoutedEventArgs e)
     {
-        if (sender is RadioButton { Tag: string name } && Enum.TryParse<ModLoader>(name, ignoreCase: true, out var loader))
-            SelectedLoader = loader;
+        if (sender is not RadioButton { Tag: string name }) return;
+        if (!Enum.TryParse<ModLoader>(name, ignoreCase: true, out var loader)) return;
+        SelectedLoader = loader;
+
+        // Vanilla -> nothing to install, hide the picker entirely.
+        if (loader == ModLoader.None)
+        {
+            LoaderVersionPanel.IsVisible = false;
+            LoaderVersionBox.ItemsSource = null;
+            LoaderVersionBox.SelectedItem = null;
+            return;
+        }
+
+        LoaderVersionPanel.IsVisible = true;
+        LoaderVersionBox.ItemsSource = null;
+        LoaderVersionBox.SelectedItem = null;
+        LoaderVersionHint.Text = $"Loading {loader} versions ...";
+
+        // Cancel any prior in-flight request.
+        var prevCts = _loaderVersionCts;
+        _loaderVersionCts = new CancellationTokenSource();
+        prevCts?.Cancel();
+        prevCts?.Dispose();
+        var ct = _loaderVersionCts.Token;
+
+        if (DataContext is not MainViewModel vm || SelectedVersion is not { } version)
+        {
+            LoaderVersionHint.Text = "Pick a Minecraft version first.";
+            return;
+        }
+
+        try
+        {
+            var versions = await vm.ListLoaderVersionsAsync(loader, version.Name, ct).ConfigureAwait(true);
+            if (ct.IsCancellationRequested) return;
+            if (versions.Count == 0)
+            {
+                LoaderVersionBox.ItemsSource = Array.Empty<string>();
+                LoaderVersionHint.Text = $"No {loader} versions found for {version.Name} (will install latest).";
+                return;
+            }
+
+            LoaderVersionBox.ItemsSource = versions;
+            // Default to newest (first entry in the list per IModLoaderVersionFetcher contract).
+            LoaderVersionBox.SelectedIndex = 0;
+            LoaderVersionHint.Text = $"{versions.Count} {loader} build(s) available. Newest selected.";
+        }
+        catch (OperationCanceledException)
+        {
+            // Superseded by a newer click; the next click already cleared the hint.
+        }
+        catch (Exception ex)
+        {
+            LoaderVersionHint.Text = $"Could not load {loader} versions: {ex.Message}";
+        }
     }
 
     private void OnCancel(object? sender, RoutedEventArgs e) => Close();

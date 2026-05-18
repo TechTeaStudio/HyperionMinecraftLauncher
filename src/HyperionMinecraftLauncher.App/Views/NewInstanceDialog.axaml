@@ -85,8 +85,10 @@
                        FontSize="10" Opacity="0.55" TextWrapping="Wrap" />
           </StackPanel>
 
-          <!-- Loader picker (chips: Vanilla / Fabric / Forge / NeoForge / Quilt). Mod-loader auto-install
-               is out of scope for this release; the chip just labels the instance so the Mods page can filter. -->
+          <!-- Loader picker (chips: Vanilla / Fabric / Forge / NeoForge / Quilt). v0.30.0 (T21a):
+               when a non-Vanilla chip is picked, the LoaderVersionBox below populates with the
+               available loader builds for the selected Minecraft version and the chosen build
+               is installed automatically before the first launch. -->
           <StackPanel Spacing="4">
             <TextBlock Text="Mod loader" FontSize="12" Opacity="0.85" />
             <StackPanel Orientation="Horizontal" Spacing="6">
@@ -102,8 +104,17 @@
               <RadioButton GroupName="LoaderChoice" Content="Quilt" Tag="Quilt"
                            Click="OnLoaderClicked" Padding="10,4" FontSize="11" />
             </StackPanel>
-            <TextBlock Text="The loader is stored as metadata only - installing Fabric/Forge/etc. itself is on the roadmap."
-                       FontSize="10" Opacity="0.55" TextWrapping="Wrap" />
+
+            <!-- Loader version dropdown: hidden by default, shown once a non-Vanilla loader chip is
+                 picked. Populated by NewInstanceDialog.OnLoaderClicked via MainViewModel.ListLoaderVersionsAsync. -->
+            <StackPanel x:Name="LoaderVersionPanel" Spacing="3" Margin="0,4,0,0" IsVisible="False">
+              <TextBlock Text="Loader version" FontSize="11" Opacity="0.75" />
+              <ComboBox x:Name="LoaderVersionBox" PlaceholderText="(latest)"
+                        HorizontalAlignment="Stretch" />
+              <TextBlock x:Name="LoaderVersionHint" FontSize="10" Opacity="0.55"
+                         TextWrapping="Wrap"
+                         Text="Newest first. Leave empty to install the latest stable build." />
+            </StackPanel>
           </StackPanel>
 
           <!-- Icon picker -->

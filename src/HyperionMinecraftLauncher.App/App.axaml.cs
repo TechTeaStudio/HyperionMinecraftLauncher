@@ -16,6 +16,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Diagnostics;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.CrashReports;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Export;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.Loaders;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
@@ -84,11 +85,29 @@ public partial class App : Application
                 AdoptiumJavaRuntimeManager.DetectOs(),
                 AdoptiumJavaRuntimeManager.DetectArch());
 
+            // T21a (v0.30.0): mod-loader install pipeline. We hand the CmlLib installers
+            // the same MinecraftLauncher that powers the underlying launch path so Forge /
+            // NeoForge / Fabric / Quilt install into the same .minecraft tree the user
+            // already has set up. The HttpClient is shared with the rest of the launcher to
+            // honour the same 15 s timeout.
+            var minecraftLauncher = new CmlLib.Core.MinecraftLauncher();
+            var modLoaderInstaller = new CmlLibModLoaderInstaller(
+                forge: new CmlLibForgeUnderlying(minecraftLauncher),
+                neoForge: new CmlLibNeoForgeUnderlying(minecraftLauncher),
+                fabric: new CmlLibFabricUnderlying(httpClient, minecraftLauncher),
+                quilt: new CmlLibQuiltUnderlying(httpClient, minecraftLauncher));
+            var modLoaderVersionFetcher = new CmlLibModLoaderVersionFetcher(
+                forge: new CmlLibForgeVersionFetcher(httpClient),
+                neoForge: new CmlLibNeoForgeVersionFetcher(httpClient),
+                fabric: new CmlLibFabricVersionFetcher(httpClient),
+                quilt: new CmlLibQuiltVersionFetcher(httpClient));
+
             var service = new CmlLibMinecraftLauncherService(
-                new CmlLibUnderlyingLauncher(), logger, microsoftAuth,
+                new CmlLibUnderlyingLauncher(minecraftLauncher), logger, microsoftAuth,
                 newsClient: newsClient,
                 serverPinger: serverPinger,
-                javaRuntimeManager: javaRuntimeManager);
+                javaRuntimeManager: javaRuntimeManager,
+                modLoaderInstaller: modLoaderInstaller);
 
             // Discord Rich Presence - obeys the LauncherSettings toggle. Read settings synchronously
             // here for the same reason MainViewModel does: the file is tiny and the wiring has to know
@@ -162,7 +181,8 @@ public partial class App : Application
                 presence, instanceBrowser, skinService, skinHistory,
                 modrinthRepo, curseForgeRepo, instanceModManager, accountStore,
                 updateChecker, headlessServerStore, backupService, crashReportListener,
-                instanceExporter, instanceImporter, modpackImporter);
+                instanceExporter, instanceImporter, modpackImporter,
+                modLoaderInstaller, modLoaderVersionFetcher);
 
             var mainWindow = new MainWindow
             {
