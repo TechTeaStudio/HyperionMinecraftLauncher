@@ -532,7 +532,7 @@
       </Grid>
 
       <!-- ==== INSTALLATIONS PAGE ==== -->
-      <Grid IsVisible="{Binding IsInstallationsSelected}" Classes="Page" RowDefinitions="Auto,Auto,*,Auto">
+      <Grid IsVisible="{Binding IsInstallationsSelected}" Classes="Page" RowDefinitions="Auto,Auto,Auto,*,Auto">
         <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
           <TextBlock Text="Installations"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
@@ -550,6 +550,11 @@
                   Command="{Binding ImportInstanceCommand}"
                   ToolTip.Tip="Import a shared Hyperion-format instance zip"
                   Padding="10,5" />
+          <Button Content="Import modpack..."
+                  Click="OnImportModpackClicked"
+                  IsVisible="{Binding CanImportModpack}"
+                  FontSize="11"
+                  Padding="10,5" />
           <Button Content="Refresh" FontSize="11"
                   Command="{Binding RefreshInstancesCommand}"
                   Padding="10,5" />
@@ -557,7 +562,19 @@
                   Command="{Binding DeleteInstanceCommand}"
                   Padding="10,5" />
         </StackPanel>
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+        <!-- Modpack import strip: only visible while an import is running. -->
+        <Border Grid.Row="2" Margin="0,0,0,8" Padding="10,6"
+                CornerRadius="10"
+                Background="#33FFFFFF"
+                BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="1"
+                IsVisible="{Binding IsImportingModpack}">
+          <StackPanel Spacing="3">
+            <TextBlock Text="{Binding ModpackImportStatus}" FontSize="11" Foreground="White" />
+            <ProgressBar Value="{Binding ModpackImportProgress}" Minimum="0" Maximum="1"
+                         Height="6" />
+          </StackPanel>
+        </Border>
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
           <ListBox ItemsSource="{Binding Instances}"
                    SelectedItem="{Binding SelectedInstance, Mode=TwoWay}"
                    Background="Transparent" BorderThickness="0"
@@ -658,7 +675,7 @@
         </ScrollViewer>
 
         <!-- Per-instance detail panel: screenshots / worlds / servers, scoped to the selected instance's gameDir. -->
-        <Border Grid.Row="3" Margin="0,8,0,0" Padding="8" CornerRadius="15"
+        <Border Grid.Row="4" Margin="0,8,0,0" Padding="8" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}"
                 BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1"
                 MinHeight="220"

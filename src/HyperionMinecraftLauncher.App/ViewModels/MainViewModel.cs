@@ -23,6 +23,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods.Modpacks;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Presence;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
@@ -76,6 +77,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private readonly IInstanceImporter? _instanceImporter;
     private InstanceExportZipPickRequest? _exportZipPickRequest;
     private InstanceImportZipPickRequest? _importZipPickRequest;
+    private readonly IModpackImporter? _modpackImporter;
+    private double _modpackImportProgress;
+    private bool _isImportingModpack;
+    private string _modpackImportStatus = string.Empty;
 
     // Settings-page state (mirrored from LauncherSettings on load, written back on Save).
     private int _minMemoryMb;
@@ -156,7 +161,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IBackupService? backupService = null,
         ICrashReportListener? crashReportListener = null,
         IInstanceExporter? instanceExporter = null,
-        IInstanceImporter? instanceImporter = null)
+        IInstanceImporter? instanceImporter = null,
+        IModpackImporter? modpackImporter = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -179,6 +185,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _instanceExporter = instanceExporter;
         _instanceImporter = instanceImporter;
         HeadlessServers = new ObservableCollection<HeadlessServer>();
+        _modpackImporter = modpackImporter;
         _maxAllowedMemoryMb = SystemRam.RecommendedMaxHeapMb();
 
         // MSAL device-code prompts come from a background thread; surface them in the UI log.
@@ -1475,6 +1482,89 @@ public sealed class MainViewModel : INotifyPropertyChanged
         Instances.Insert(0, instance);
         Append($"Created instance '{name}' for version {versionId}{(loader == ModLoader.None ? string.Empty : $" ({loader})")}.");
         return instance;
+    }
+
+    /// <summary>True once <see cref="ImportModpackAsync"/> has been called and not yet finished. Drives the modal progress UI.</summary>
+    public bool IsImportingModpack
+    {
+        get => _isImportingModpack;
+        private set => SetField(ref _isImportingModpack, value);
+    }
+
+    /// <summary>0.0..1.0 progress of an in-flight modpack import. Snapped to 1.0 on completion.</summary>
+    public double ModpackImportProgress
+    {
+        get => _modpackImportProgress;
+        private set => SetField(ref _modpackImportProgress, value);
+    }
+
+    /// <summary>Last status line emitted by an in-flight modpack import (filename, loader, error message).</summary>
+    public string ModpackImportStatus
+    {
+        get => _modpackImportStatus;
+        private set => SetField(ref _modpackImportStatus, value ?? string.Empty);
+    }
+
+    /// <summary>True when a modpack importer is wired in (App-layer DI). Hides the button when not available.</summary>
+    public bool CanImportModpack => _modpackImporter is not null;
+
+    /// <summary>
+    /// Drive a single modpack import end-to-end: dispatch by format detection, surface progress
+    /// through the bound properties, persist the freshly-built <see cref="Instance"/> via the
+    /// launcher service, and insert it at the top of <see cref="Instances"/>. Returns the new
+    /// instance on success or null on cancellation / failure (with a log entry either way).
+    /// </summary>
+    public async Task<Instance?> ImportModpackAsync(string archivePath, string? targetInstanceName, CancellationToken cancellationToken = default)
+    {
+        if (_modpackImporter is null)
+        {
+            Append("[error] Modpack import is disabled in this build (no importer wired).");
+            return null;
+        }
+        if (string.IsNullOrWhiteSpace(archivePath) || !File.Exists(archivePath))
+        {
+            Append($"[error] Modpack archive not found: {archivePath}");
+            return null;
+        }
+
+        IsImportingModpack = true;
+        ModpackImportProgress = 0;
+        ModpackImportStatus = $"Importing {Path.GetFileName(archivePath)} ...";
+        IsBusy = true;
+        try
+        {
+            var progress = new Progress<double>(p =>
+            {
+                // Snap negative / overshoot values back into range so the bar binding stays sane.
+                ModpackImportProgress = p < 0 ? 0 : (p > 1 ? 1 : p);
+            });
+            var instance = await _modpackImporter.ImportAsync(archivePath, targetInstanceName, progress, cancellationToken).ConfigureAwait(true);
+            await _service.SaveInstanceAsync(instance, cancellationToken).ConfigureAwait(true);
+            Instances.Insert(0, instance);
+            SelectedInstance = instance;
+            ModpackImportProgress = 1.0;
+            ModpackImportStatus = $"Imported '{instance.Name}' (version {instance.VersionId}{(instance.Loader == ModLoader.None ? string.Empty : $", {instance.Loader}")}).";
+            Append(ModpackImportStatus);
+            _logger.Info($"Modpack import complete: id={instance.Id}, version={instance.VersionId}, loader={instance.Loader}, gameDir={instance.GameDirectory}");
+            return instance;
+        }
+        catch (OperationCanceledException)
+        {
+            Append("Modpack import cancelled.");
+            return null;
+        }
+        catch (Exception ex)
+        {
+            ModpackImportStatus = $"Import failed: {ex.Message}";
+            Append($"[error] Modpack import failed: {ex.Message}");
+            _logger.Error("Modpack import failed.", ex);
+            return null;
+        }
+        finally
+        {
+            IsImportingModpack = false;
+            IsBusy = false;
+        }
     }
 
     /// <summary>
