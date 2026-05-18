@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Canonical English source for every user-facing string in Hyperion Minecraft Launcher.
+
+    Conventions:
+      - Keys are UpperCamelCase + dotted scope, e.g. "MainWindow.Title", "Sidebar.Home".
+      - Format strings use positional placeholders {0}, {1}, ... (never named).
+      - Do NOT add triple-hyphen horizontal-rule separators or em-dashes to any translation file:
+        the author tracks these as tells of AI-generated copy. Use hyphens or commas.
+      - Technical identifiers (mod-loader names "Fabric"/"Forge"/etc, IDs, URLs, version numbers)
+        are NOT extracted - they stay as literals in the AXAML.
+
+    To add a new culture: drop "Strings.{culture}.resx" alongside this file with the same keys.
+    Missing keys automatically fall back to the English value here.
+  -->
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- ============================== MainWindow ============================== -->
+  <data name="MainWindow.Title" xml:space="preserve"><value>Hyperion Minecraft Launcher</value></data>
+  <data name="MainWindow.HeaderTitle" xml:space="preserve"><value>Hyperion Minecraft Launcher</value></data>
+
+  <!-- Header / account chip -->
+  <data name="Header.SignInWithMicrosoft" xml:space="preserve"><value>Microsoft ile giriş yap</value></data>
+  <data name="Header.AccountsLabel" xml:space="preserve"><value>HESAPLAR</value></data>
+  <data name="Header.AddAccount" xml:space="preserve"><value>+ Hesap ekle...</value></data>
+  <data name="Header.RemoveThisAccount" xml:space="preserve"><value>Bu hesabı kaldır</value></data>
+
+  <!-- Window controls -->
+  <data name="WindowChrome.Minimize" xml:space="preserve"><value>Simge durumuna küçült</value></data>
+  <data name="WindowChrome.MaximizeRestore" xml:space="preserve"><value>Büyüt / geri yükle</value></data>
+  <data name="WindowChrome.Close" xml:space="preserve"><value>Kapat</value></data>
+  <data name="WindowChrome.Dismiss" xml:space="preserve"><value>Gizle</value></data>
+
+  <!-- Sidebar -->
+  <data name="Sidebar.CollapseExpand" xml:space="preserve"><value>Kenar çubuğunu daralt / genişlet</value></data>
+  <data name="Sidebar.Home" xml:space="preserve"><value>Ana sayfa</value></data>
+  <data name="Sidebar.Installations" xml:space="preserve"><value>Instance'lar</value></data>
+  <data name="Sidebar.Skins" xml:space="preserve"><value>Skinler</value></data>
+  <data name="Sidebar.Servers" xml:space="preserve"><value>Sunucular</value></data>
+  <data name="Sidebar.Headless" xml:space="preserve"><value>Headless</value></data>
+  <data name="Sidebar.HeadlessTooltip" xml:space="preserve"><value>Adanmış headless sunucular</value></data>
+  <data name="Sidebar.Mods" xml:space="preserve"><value>Modlar</value></data>
+  <data name="Sidebar.News" xml:space="preserve"><value>Haberler</value></data>
+  <data name="Sidebar.Settings" xml:space="preserve"><value>Ayarlar</value></data>
+  <data name="Sidebar.Logs" xml:space="preserve"><value>Kayıtlar</value></data>
+  <data name="Sidebar.ParityBuildLabel" xml:space="preserve"><value>v0.8 - parity build</value></data>
+
+  <!-- Home page -->
+  <data name="Home.Title" xml:space="preserve"><value>Minecraft oyna</value></data>
+  <data name="Home.Subtitle" xml:space="preserve"><value>Yüklü bir sürüm seç veya manifestten bir tane getir.</value></data>
+  <data name="Home.YourInstancesLabel" xml:space="preserve"><value>Instance'ların</value></data>
+  <data name="Home.YourInstancesPlaceholder" xml:space="preserve"><value>(henüz instance yok, Instance'lar sayfasında bir tane oluştur)</value></data>
+  <data name="Home.RescanButton" xml:space="preserve"><value>Yeniden tara</value></data>
+  <data name="Home.OrInstallAnother" xml:space="preserve"><value>Veya başka bir sürüm yükle</value></data>
+  <data name="Home.SearchVersionWatermark" xml:space="preserve"><value>Sürüm ara...</value></data>
+  <data name="Home.ChipRelease" xml:space="preserve"><value>Release</value></data>
+  <data name="Home.ChipSnapshot" xml:space="preserve"><value>Snapshot</value></data>
+  <data name="Home.ChipOldBeta" xml:space="preserve"><value>Eski beta</value></data>
+  <data name="Home.ChipOldAlpha" xml:space="preserve"><value>Eski alpha</value></data>
+  <data name="Home.ManifestPlaceholder" xml:space="preserve"><value>(önce "Manifesti yenile" düğmesine tıkla)</value></data>
+  <data name="Home.RefreshManifestButton" xml:space="preserve"><value>Manifesti yenile</value></data>
+  <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>Çevrimdışı kullanıcı adı:</value></data>
+  <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
+  <data name="Home.ResumeWorldButton" xml:space="preserve"><value>Dünyaya devam et...</value></data>
+  <data name="Home.ResumeWorldTooltip" xml:space="preserve"><value>Quick Play: .minecraft/saves/ altındaki bir dünyayı seç ve doğrudan aç.</value></data>
+  <data name="Home.LaunchButton" xml:space="preserve"><value>Başlat</value></data>
+
+  <!-- Installations page -->
+  <data name="Installations.Title" xml:space="preserve"><value>Instance'lar</value></data>
+  <data name="Installations.Subtitle" xml:space="preserve"><value>Hyperion instance'ları. Her birinin kendi sürümü, simgesi ve (ileride) JVM / game-dir'i olur.</value></data>
+  <data name="Installations.NewInstance" xml:space="preserve"><value>+ Yeni instance</value></data>
+  <data name="Installations.ImportFromZip" xml:space="preserve"><value>Zip'ten içe aktar...</value></data>
+  <data name="Installations.ImportFromZipTooltip" xml:space="preserve"><value>Paylaşılan bir Hyperion biçimindeki instance zip'ini içe aktar</value></data>
+  <data name="Installations.ImportModpack" xml:space="preserve"><value>Modpack içe aktar...</value></data>
+  <data name="Installations.Refresh" xml:space="preserve"><value>Yenile</value></data>
+  <data name="Installations.DeleteSelected" xml:space="preserve"><value>Seçilenleri sil</value></data>
+  <data name="Installations.AutoBadge" xml:space="preserve"><value>oto</value></data>
+  <data name="Installations.MoreTooltip" xml:space="preserve"><value>Daha fazla...</value></data>
+  <data name="Installations.MenuEditInstance" xml:space="preserve"><value>Instance'ı düzenle...</value></data>
+  <data name="Installations.MenuChangeIcon" xml:space="preserve"><value>Simgeyi değiştir...</value></data>
+  <data name="Installations.MenuExportToZip" xml:space="preserve"><value>Zip'e aktar...</value></data>
+  <data name="Installations.MenuOpenFolder" xml:space="preserve"><value>Klasörü aç</value></data>
+  <data name="Installations.MenuDelete" xml:space="preserve"><value>Sil</value></data>
+
+  <!-- Instance detail tabs -->
+  <data name="InstanceTabs.Screenshots" xml:space="preserve"><value>Ekran görüntüleri</value></data>
+  <data name="InstanceTabs.Worlds" xml:space="preserve"><value>Dünyalar</value></data>
+  <data name="InstanceTabs.Servers" xml:space="preserve"><value>Sunucular</value></data>
+  <data name="InstanceTabs.Crashes" xml:space="preserve"><value>Çökmeler</value></data>
+  <data name="InstanceTabs.RefreshButton" xml:space="preserve"><value>Yenile</value></data>
+  <data name="InstanceTabs.OpenFolderButton" xml:space="preserve"><value>Klasörü aç</value></data>
+  <data name="InstanceTabs.NoCrashReports" xml:space="preserve"><value>Bu instance için çökme raporu yok.</value></data>
+  <data name="InstanceTabs.SearchModrinth" xml:space="preserve"><value>Modrinth</value></data>
+  <data name="InstanceTabs.SearchCurseForge" xml:space="preserve"><value>CurseForge</value></data>
+  <data name="InstanceTabs.WorldMenuBackupNow" xml:space="preserve"><value>Şimdi yedekle</value></data>
+  <data name="InstanceTabs.WorldMenuRestoreLatest" xml:space="preserve"><value>En son yedeği geri yükle</value></data>
+  <data name="InstanceTabs.WorldMenuOpenFolder" xml:space="preserve"><value>Klasörü aç</value></data>
+  <data name="InstanceTabs.CrashSeparatorDash" xml:space="preserve"><value>  -  </value></data>
+
+  <!-- Skins page -->
+  <data name="Skins.Title" xml:space="preserve"><value>Skinler</value></data>
+  <data name="Skins.Subtitle" xml:space="preserve"><value>Canlı 3D önizleme, ayrıca yükleme ve pelerin seçimi (Microsoft girişi gerekir).</value></data>
+  <data name="Skins.UploadButton" xml:space="preserve"><value>Yeni skin yükle...</value></data>
+  <data name="Skins.CapeLabel" xml:space="preserve"><value>Pelerin:</value></data>
+  <data name="Skins.CapeNonePlaceholder" xml:space="preserve"><value>(yok)</value></data>
+  <data name="Skins.ClearCape" xml:space="preserve"><value>Pelerini çıkar</value></data>
+  <data name="Skins.RecentSkins" xml:space="preserve"><value>Son skinler</value></data>
+  <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>Bu skini tekrar uygula</value></data>
+  <data name="Skins.DragHint" xml:space="preserve"><value>Döndürmek için kafa önizlemesi içinde sürükle.</value></data>
+
+  <!-- Servers page -->
+  <data name="Servers.Title" xml:space="preserve"><value>Sunucular</value></data>
+  <data name="Servers.Subtitle" xml:space="preserve"><value>Çok oyunculu sunucu listesi (servers.dat NBT). Minecraft Server List Ping protokolüyle ping.</value></data>
+  <data name="Servers.RefreshServers" xml:space="preserve"><value>Sunucuları yenile</value></data>
+  <data name="Servers.RefreshPings" xml:space="preserve"><value>Pingleri yenile</value></data>
+  <data name="Servers.JoinButton" xml:space="preserve"><value>Katıl</value></data>
+  <data name="Servers.JoinTooltip" xml:space="preserve"><value>Quick Play: bu sunucuyu başlat ve bağlan.</value></data>
+
+  <!-- Headless servers page -->
+  <data name="HeadlessServers.Title" xml:space="preserve"><value>Headless sunucular</value></data>
+  <data name="HeadlessServers.Subtitle" xml:space="preserve"><value>Hyperion'ın diskte takip ettiği adanmış Minecraft sunucuları. server.jar indirme ve JVM başlatma yol haritasında.</value></data>
+  <data name="HeadlessServers.NewServer" xml:space="preserve"><value>+ Yeni sunucu</value></data>
+  <data name="HeadlessServers.Refresh" xml:space="preserve"><value>Yenile</value></data>
+  <data name="HeadlessServers.Start" xml:space="preserve"><value>Başlat</value></data>
+  <data name="HeadlessServers.Stop" xml:space="preserve"><value>Durdur</value></data>
+  <data name="HeadlessServers.Delete" xml:space="preserve"><value>Sil</value></data>
+  <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>Yer tutucu; server.jar indirme yol haritasında.</value></data>
+  <data name="HeadlessServers.FootnotePath" xml:space="preserve"><value>Her sunucunun %LOCALAPPDATA%/HyperionMinecraftLauncher/headless_servers/{id}/ altında kendi klasörü olur. Oluşturma sırasında launcher metadata.json, eula.txt ve server.properties yazar.</value></data>
+  <data name="HeadlessServers.DashSeparator" xml:space="preserve"><value> - </value></data>
+  <data name="HeadlessServers.MibAndPort" xml:space="preserve"><value> MiB - port </value></data>
+
+  <!-- Mods page -->
+  <data name="Mods.Title" xml:space="preserve"><value>Modlar</value></data>
+  <data name="Mods.Subtitle" xml:space="preserve"><value>Modrinth veya CurseForge'a göz at ve modları doğrudan seçili instance'a yükle.</value></data>
+  <data name="Mods.SourceModrinth" xml:space="preserve"><value>Modrinth</value></data>
+  <data name="Mods.SourceCurseForge" xml:space="preserve"><value>CurseForge</value></data>
+  <data name="Mods.SearchLabel" xml:space="preserve"><value>Ara:</value></data>
+  <data name="Mods.SearchWatermark" xml:space="preserve"><value>örn. fabric-api, sodium, JEI</value></data>
+  <data name="Mods.SearchButton" xml:space="preserve"><value>Ara</value></data>
+  <data name="Mods.SearchResults" xml:space="preserve"><value>Arama sonuçları</value></data>
+  <data name="Mods.InstallButton" xml:space="preserve"><value>Yükle</value></data>
+  <data name="Mods.InstalledInSelectedInstance" xml:space="preserve"><value>Seçili instance'a yüklendi</value></data>
+  <data name="Mods.RefreshButton" xml:space="preserve"><value>Yenile</value></data>
+  <data name="Mods.PickAnInstanceFirst" xml:space="preserve"><value>Önce Instance'lar sayfasından bir instance seç</value></data>
+  <data name="Mods.RightPaneHint" xml:space="preserve"><value>Sağdaki panel ilgili instance'ın mods/ klasöründe ne olduğunu gösterir ve modları açıp kapatmana veya silmene izin verir.</value></data>
+  <data name="Mods.RemoveButton" xml:space="preserve"><value>Kaldır</value></data>
+  <data name="Mods.DownloadsCountFormat" xml:space="preserve"><value>İndirme: {0:N0}</value></data>
+  <data name="Mods.FileSizeBytesFormat" xml:space="preserve"><value>{0:N0} B</value></data>
+
+  <!-- News page -->
+  <data name="News.Title" xml:space="preserve"><value>Haberler</value></data>
+  <data name="News.Subtitle" xml:space="preserve"><value>launchercontent.mojang.com/news.json'dan canlı akış, Mojang'ın resmi launcher'ının kullandığı kaynak.</value></data>
+  <data name="News.RefreshButton" xml:space="preserve"><value>Haberleri yenile</value></data>
+  <data name="News.ReadMore" xml:space="preserve"><value>minecraft.net'te devamını oku</value></data>
+
+  <!-- Settings page -->
+  <data name="Settings.Title" xml:space="preserve"><value>Ayarlar</value></data>
+  <data name="Settings.Subtitle" xml:space="preserve"><value>%LOCALAPPDATA%\HyperionMinecraftLauncher\settings.json içine kaydedilir. Bellek sınırları bir sonraki başlatmada uygulanır.</value></data>
+  <data name="Settings.MemoryHeader" xml:space="preserve"><value>Bellek (JVM heap)</value></data>
+  <data name="Settings.MinimumXmsLabel" xml:space="preserve"><value>Minimum (-Xms):</value></data>
+  <data name="Settings.MaximumXmxLabel" xml:space="preserve"><value>Maksimum (-Xmx):</value></data>
+  <data name="Settings.MbUnit" xml:space="preserve"><value> MB</value></data>
+  <data name="Settings.CeilingPrefix" xml:space="preserve"><value>Bu makine için otomatik algılanan tavan: </value></data>
+  <data name="Settings.CeilingSuffix" xml:space="preserve"><value> MB (sistem RAM'inin yaklaşık %75'i, 16 GB ile sınırlı).</value></data>
+  <data name="Settings.JvmArgsHeader" xml:space="preserve"><value>Özel JVM argümanları</value></data>
+  <data name="Settings.JvmArgsWatermark" xml:space="preserve"><value>-XX:+UseG1GC -XX:+UnlockExperimentalVMOptions ...</value></data>
+  <data name="Settings.JvmArgsHint" xml:space="preserve"><value>Otomatik oluşturulan -Xms/-Xmx bayraklarından sonra eklenir. (Henüz CmlLib process builder'a iletilmiyor, sonraki adıma planlandı.)</value></data>
+  <data name="Settings.GameDirHeader" xml:space="preserve"><value>Oyun dizini</value></data>
+  <data name="Settings.GameDirWatermark" xml:space="preserve"><value>(işletim sisteminin varsayılan .minecraft'ı için boş bırak)</value></data>
+  <data name="Settings.BrowseButton" xml:space="preserve"><value>Gözat</value></data>
+  <data name="Settings.JavaExeHeader" xml:space="preserve"><value>Java çalıştırılabilir dosyası</value></data>
+  <data name="Settings.JavaExeWatermark" xml:space="preserve"><value>(CmlLib'in otomatik bulması için boş bırak)</value></data>
+  <data name="Settings.LauncherPrefsHeader" xml:space="preserve"><value>Launcher tercihleri</value></data>
+  <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>Oyun başladıktan sonra launcher'ı açık tut</value></data>
+  <data name="Settings.ShowGameLog" xml:space="preserve"><value>Oyunun stdout / stderr çıktısını launcher kayıtlarında göster (planlandı)</value></data>
+  <data name="Settings.BackupsHeader" xml:space="preserve"><value>Yedekler</value></data>
+  <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>Her başlatmadan önce dünyaları otomatik yedekle</value></data>
+  <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>Dünya başına en son N tanesini sakla (0 = hepsini sakla):</value></data>
+  <data name="Settings.BackupHint" xml:space="preserve"><value>Her dünya &lt;gameDir&gt;/backups/{world}-{timestamp}.zip içinde sıkıştırılır. Yedek sırasında oluşan bir hata kaydedilir ama başlatmayı engellemez.</value></data>
+  <data name="Settings.LanguageHeader" xml:space="preserve"><value>Dil</value></data>
+  <data name="Settings.LanguageLabel" xml:space="preserve"><value>Görüntü dili:</value></data>
+  <data name="Settings.LanguageUseSystemDefault" xml:space="preserve"><value>Sistem varsayılanını kullan</value></data>
+  <data name="Settings.LanguageHint" xml:space="preserve"><value>Dil değişikliği yeni açılan sayfalarda hemen, tüm arayüzde launcher yeniden başlatıldıktan sonra etkili olur.</value></data>
+  <data name="Settings.SaveButton" xml:space="preserve"><value>Ayarları kaydet</value></data>
+
+  <!-- Logs page -->
+  <data name="Logs.Title" xml:space="preserve"><value>Kayıtlar</value></data>
+  <data name="Logs.Subtitle" xml:space="preserve"><value>%LOCALAPPDATA%\HyperionMinecraftLauncher\logs\ konumundaki bugünün günlük dönüşümlü log dosyası.</value></data>
+  <data name="Logs.FilterWatermark" xml:space="preserve"><value>Kayıt filtrele...</value></data>
+  <data name="Logs.RefreshButton" xml:space="preserve"><value>Yenile</value></data>
+  <data name="Logs.OpenLogsFolderButton" xml:space="preserve"><value>Kayıt klasörünü aç</value></data>
+  <data name="Logs.CopyAllButton" xml:space="preserve"><value>Tümünü kopyala</value></data>
+
+  <!-- New Instance dialog -->
+  <data name="NewInstanceDialog.Title" xml:space="preserve"><value>Yeni instance</value></data>
+  <data name="NewInstanceDialog.HeaderTitle" xml:space="preserve"><value>Yeni bir instance oluştur</value></data>
+  <data name="NewInstanceDialog.InstanceNameLabel" xml:space="preserve"><value>Instance adı</value></data>
+  <data name="NewInstanceDialog.DefaultInstanceName" xml:space="preserve"><value>Yeni instance'ım</value></data>
+  <data name="NewInstanceDialog.MinecraftVersionLabel" xml:space="preserve"><value>Minecraft sürümü</value></data>
+  <data name="NewInstanceDialog.SearchVersionWatermark" xml:space="preserve"><value>Sürüm ara...</value></data>
+  <data name="NewInstanceDialog.LoadingManifest" xml:space="preserve"><value>(manifest yükleniyor ...)</value></data>
+  <data name="NewInstanceDialog.FiltersSharedHint" xml:space="preserve"><value>Filtre çipleri ve arama Ana sayfa seçicisiyle paylaşılır.</value></data>
+  <data name="NewInstanceDialog.ModLoaderLabel" xml:space="preserve"><value>Mod loader</value></data>
+  <data name="NewInstanceDialog.LoaderVersionLabel" xml:space="preserve"><value>Loader sürümü</value></data>
+  <data name="NewInstanceDialog.LoaderVersionPlaceholder" xml:space="preserve"><value>(en yenisi)</value></data>
+  <data name="NewInstanceDialog.LoaderHint" xml:space="preserve"><value>En yeniler üstte. En yeni kararlı sürümü kurmak için boş bırak.</value></data>
+  <data name="NewInstanceDialog.LoaderVanilla" xml:space="preserve"><value>Vanilla</value></data>
+  <data name="NewInstanceDialog.LoaderFabric" xml:space="preserve"><value>Fabric</value></data>
+  <data name="NewInstanceDialog.LoaderForge" xml:space="preserve"><value>Forge</value></data>
+  <data name="NewInstanceDialog.LoaderNeoForge" xml:space="preserve"><value>NeoForge</value></data>
+  <data name="NewInstanceDialog.LoaderQuilt" xml:space="preserve"><value>Quilt</value></data>
+  <data name="NewInstanceDialog.IconLabel" xml:space="preserve"><value>Simge</value></data>
+  <data name="NewInstanceDialog.CreateButton" xml:space="preserve"><value>Oluştur</value></data>
+
+  <!-- Edit Instance dialog -->
+  <data name="EditInstanceDialog.Title" xml:space="preserve"><value>Instance'ı düzenle</value></data>
+  <data name="EditInstanceDialog.HeaderTitle" xml:space="preserve"><value>Instance'ı düzenle</value></data>
+  <data name="EditInstanceDialog.GeneralSection" xml:space="preserve"><value>Genel</value></data>
+  <data name="EditInstanceDialog.JavaMemorySection" xml:space="preserve"><value>Java ve bellek</value></data>
+  <data name="EditInstanceDialog.JavaMemoryHint" xml:space="preserve"><value>Yalnızca bu instance için global Ayarlar değerlerini geçersiz kıl. Alanı boş ya da 0 bırak = devral.</value></data>
+  <data name="EditInstanceDialog.MinHeapLabel" xml:space="preserve"><value>Minimum heap (-Xms)</value></data>
+  <data name="EditInstanceDialog.MaxHeapLabel" xml:space="preserve"><value>Maksimum heap (-Xmx)</value></data>
+  <data name="EditInstanceDialog.JvmArgsLabel" xml:space="preserve"><value>Özel JVM argümanları</value></data>
+  <data name="EditInstanceDialog.JvmArgsWatermark" xml:space="preserve"><value>(Ayarlardan devralmak için boş bırak)</value></data>
+  <data name="EditInstanceDialog.GameDirLabel" xml:space="preserve"><value>Oyun dizini</value></data>
+  <data name="EditInstanceDialog.GameDirWatermark" xml:space="preserve"><value>(global .minecraft'ı devralmak için boş bırak)</value></data>
+  <data name="EditInstanceDialog.BrowseButton" xml:space="preserve"><value>Gözat...</value></data>
+  <data name="EditInstanceDialog.WindowResolutionLabel" xml:space="preserve"><value>Pencere çözünürlüğü</value></data>
+  <data name="EditInstanceDialog.WidthShort" xml:space="preserve"><value>G </value></data>
+  <data name="EditInstanceDialog.HeightShort" xml:space="preserve"><value>Y </value></data>
+  <data name="EditInstanceDialog.ResolutionHint" xml:space="preserve"><value>Varsayılan 854 x 480. İki değer de sıfır = devral (Minecraft'ın kendi varsayılanı).</value></data>
+  <data name="EditInstanceDialog.SaveButton" xml:space="preserve"><value>Kaydet</value></data>
+  <data name="EditInstanceDialog.InstanceNameLabel" xml:space="preserve"><value>Instance adı</value></data>
+  <data name="EditInstanceDialog.IconLabel" xml:space="preserve"><value>Simge</value></data>
+
+  <!-- Edit Instance Icon dialog -->
+  <data name="EditInstanceIconDialog.Title" xml:space="preserve"><value>Simgeyi değiştir</value></data>
+  <data name="EditInstanceIconDialog.HeaderTitle" xml:space="preserve"><value>Simgeyi değiştir</value></data>
+  <data name="EditInstanceIconDialog.Subtitle" xml:space="preserve"><value>Bu instance için yeni bir simge seç.</value></data>
+  <data name="EditInstanceIconDialog.SaveButton" xml:space="preserve"><value>Kaydet</value></data>
+
+  <!-- Common dialog actions -->
+  <data name="Common.Cancel" xml:space="preserve"><value>İptal</value></data>
+  <data name="Common.Save" xml:space="preserve"><value>Kaydet</value></data>
+  <data name="Common.Create" xml:space="preserve"><value>Oluştur</value></data>
+  <data name="Common.OK" xml:space="preserve"><value>Tamam</value></data>
+  <data name="Common.Yes" xml:space="preserve"><value>Evet</value></data>
+  <data name="Common.No" xml:space="preserve"><value>Hayır</value></data>
+  <data name="Common.Close" xml:space="preserve"><value>Kapat</value></data>
+  <data name="Common.Hide" xml:space="preserve"><value>Gizle</value></data>
+  <data name="Common.Browse" xml:space="preserve"><value>Gözat</value></data>
+
+  <!-- DeviceCode dialog -->
+  <data name="DeviceCodeDialog.Title" xml:space="preserve"><value>Microsoft ile giriş yap</value></data>
+  <data name="DeviceCodeDialog.HeaderTitle" xml:space="preserve"><value>Microsoft ile giriş yap</value></data>
+  <data name="DeviceCodeDialog.OpenPagePrompt" xml:space="preserve"><value>Bu sayfayı tarayıcında aç:</value></data>
+  <data name="DeviceCodeDialog.EnterCodePrompt" xml:space="preserve"><value>Ve bu kodu gir:</value></data>
+  <data name="DeviceCodeDialog.Footer" xml:space="preserve"><value>Tarayıcı otomatik açılmış olmalı. Launcher Microsoft'u sorguluyor, girişi bitirir bitirmez bu pencere kendiliğinden kapanır.</value></data>
+  <data name="DeviceCodeDialog.CopyCode" xml:space="preserve"><value>Kodu kopyala</value></data>
+  <data name="DeviceCodeDialog.OpenBrowser" xml:space="preserve"><value>Tarayıcıyı aç</value></data>
+
+  <!-- JoinServer dialog -->
+  <data name="JoinServerDialog.Title" xml:space="preserve"><value>Sunucuya katıl</value></data>
+  <data name="JoinServerDialog.HeaderTitle" xml:space="preserve"><value>Quick Play: sunucuya katıl</value></data>
+  <data name="JoinServerDialog.PickInstance" xml:space="preserve"><value>Instance seç</value></data>
+  <data name="JoinServerDialog.NoInstancesPlaceholder" xml:space="preserve"><value>(instance yok)</value></data>
+  <data name="JoinServerDialog.JoinButton" xml:space="preserve"><value>Katıl</value></data>
+
+  <!-- Worlds dialog -->
+  <data name="WorldsDialog.Title" xml:space="preserve"><value>Dünyaya devam et</value></data>
+  <data name="WorldsDialog.HeaderTitle" xml:space="preserve"><value>Quick Play: dünyaya devam et</value></data>
+  <data name="WorldsDialog.ResumeButton" xml:space="preserve"><value>Devam et</value></data>
+
+  <!-- NewHeadlessServer dialog -->
+  <data name="NewHeadlessServerDialog.Title" xml:space="preserve"><value>Yeni headless sunucu</value></data>
+  <data name="NewHeadlessServerDialog.HeaderTitle" xml:space="preserve"><value>Yeni headless sunucu oluştur</value></data>
+  <data name="NewHeadlessServerDialog.Hint" xml:space="preserve"><value>server.jar indirme yol haritasında. Şimdilik launcher metadata, eula.txt ve minimal bir server.properties yazıyor; böylece pipeline bağlandığında klasör hazır olur.</value></data>
+  <data name="NewHeadlessServerDialog.ServerNameLabel" xml:space="preserve"><value>Sunucu adı</value></data>
+  <data name="NewHeadlessServerDialog.DefaultServerName" xml:space="preserve"><value>Adanmış sunucum</value></data>
+  <data name="NewHeadlessServerDialog.MinecraftVersionLabel" xml:space="preserve"><value>Minecraft sürümü</value></data>
+  <data name="NewHeadlessServerDialog.LoadingManifestShort" xml:space="preserve"><value>(manifest yükleniyor...)</value></data>
+  <data name="NewHeadlessServerDialog.MaxHeapLabel" xml:space="preserve"><value>JVM maks heap (MiB)</value></data>
+  <data name="NewHeadlessServerDialog.PortLabel" xml:space="preserve"><value>Port</value></data>
+
+  <!-- SkinVariant dialog -->
+  <data name="SkinVariantDialog.Title" xml:space="preserve"><value>Skin varyantını seç</value></data>
+  <data name="SkinVariantDialog.HeaderTitle" xml:space="preserve"><value>Skin varyantını seç</value></data>
+  <data name="SkinVariantDialog.Question" xml:space="preserve"><value>Bu skin hangi kol genişliğini kullanıyor?</value></data>
+  <data name="SkinVariantDialog.Hint" xml:space="preserve"><value>Classic = 4 piksel kollar (Steve). Slim = 3 piksel kollar (Alex).</value></data>
+  <data name="SkinVariantDialog.Classic" xml:space="preserve"><value>Classic</value></data>
+  <data name="SkinVariantDialog.Slim" xml:space="preserve"><value>Slim</value></data>
+
+  <!-- ImportModpack dialog -->
+  <data name="ImportModpackDialog.Title" xml:space="preserve"><value>Modpack içe aktar</value></data>
+  <data name="ImportModpackDialog.HeaderTitle" xml:space="preserve"><value>Modpack içe aktar</value></data>
+  <data name="ImportModpackDialog.ArchiveLabel" xml:space="preserve"><value>Arşiv</value></data>
+  <data name="ImportModpackDialog.NoArchivePicked" xml:space="preserve"><value>(dosya seçilmedi)</value></data>
+  <data name="ImportModpackDialog.InstanceNameLabel" xml:space="preserve"><value>Instance adı</value></data>
+  <data name="ImportModpackDialog.InstanceNameWatermark" xml:space="preserve"><value>(boşsa pack adı kullanılır)</value></data>
+  <data name="ImportModpackDialog.Hint" xml:space="preserve"><value>Arşiv otomatik olarak Modrinth .mrpack veya CurseForge .zip olarak algılanır ve yeni bir instance klasörüne içe aktarılır.</value></data>
+  <data name="ImportModpackDialog.ImportButton" xml:space="preserve"><value>İçe aktar</value></data>
+
+  <!-- ViewModel log messages -->
+  <data name="Log.AutoRefreshingOnStartup" xml:space="preserve"><value>Başlangıçta otomatik yenileme ...</value></data>
+  <data name="Log.SilentMsSignInAttempt" xml:space="preserve"><value>Sessiz Microsoft girişi (önbelleğe alınmış refresh token) ...</value></data>
+  <data name="Log.AutoSignedInAs" xml:space="preserve"><value>'{0}' olarak otomatik giriş yapıldı.</value></data>
+  <data name="Log.SilentSignInSkipped" xml:space="preserve"><value>Sessiz giriş atlandı: {0}</value></data>
+  <data name="Log.LoadingVersionManifest" xml:space="preserve"><value>Sürüm manifesti yükleniyor ...</value></data>
+  <data name="Log.LoadedNVersions" xml:space="preserve"><value>{0} sürüm yüklendi.</value></data>
+  <data name="Log.LoadingInstances" xml:space="preserve"><value>Instance'lar yükleniyor ...</value></data>
+  <data name="Log.FetchingNews" xml:space="preserve"><value>Minecraft haberleri alınıyor ...</value></data>
+  <data name="Log.LoadedNNewsArticles" xml:space="preserve"><value>{0} haber yüklendi.</value></data>
+  <data name="Log.ReadingServersDat" xml:space="preserve"><value>servers.dat okunuyor ...</value></data>
+  <data name="Log.LoadedNServers" xml:space="preserve"><value>{0} sunucu yüklendi.</value></data>
+  <data name="Log.ReadingLauncherProfiles" xml:space="preserve"><value>launcher_profiles.json okunuyor ...</value></data>
+  <data name="Log.LoadedNProfiles" xml:space="preserve"><value>launcher_profiles.json'dan {0} profil yüklendi.</value></data>
+  <data name="Log.ScanningInstalledVersions" xml:space="preserve"><value>Yüklü sürümler taranıyor ...</value></data>
+  <data name="Log.FoundNInstalledVersions" xml:space="preserve"><value>{0} yüklü sürüm bulundu.</value></data>
+  <data name="Log.SigningInWithMicrosoft" xml:space="preserve"><value>Microsoft ile giriş yapılıyor ...</value></data>
+  <data name="Log.SignedInAs" xml:space="preserve"><value>'{0}' olarak giriş yapıldı.</value></data>
+  <data name="Log.MicrosoftSignInPrompt" xml:space="preserve"><value>Microsoft girişi: {1} adresine {0} kodunu gir</value></data>
+  <data name="Log.SignedOut" xml:space="preserve"><value>Çıkış yapıldı.</value></data>
+  <data name="Log.SavingSettings" xml:space="preserve"><value>Ayarlar kaydediliyor ...</value></data>
+  <data name="Log.SettingsSaved" xml:space="preserve"><value>Ayarlar kaydedildi (Xms={0}M, Xmx={1}M).</value></data>
+  <data name="Log.CouldNotSaveSettings" xml:space="preserve"><value>[error] Ayarlar kaydedilemedi: {0}</value></data>
+  <data name="Log.SignInCancelled" xml:space="preserve"><value>Giriş iptal edildi.</value></data>
+  <data name="Log.SignInFailed" xml:space="preserve"><value>[error] {0}</value></data>
+  <data name="Log.Error" xml:space="preserve"><value>[error] {0}</value></data>
+  <data name="Log.Warn" xml:space="preserve"><value>[warn] {0}</value></data>
+  <data name="Log.ModsNoRepository" xml:space="preserve"><value>[mods] Seçili kaynak için yapılandırılmış bir depo yok.</value></data>
+  <data name="Log.ModsSearching" xml:space="preserve"><value>{0} üzerinde '{1}' aranıyor ...</value></data>
+  <data name="Log.ModsResultsCount" xml:space="preserve"><value>[mods] {0} sonuç.</value></data>
+  <data name="Log.ModsNoRepositoryForInstall" xml:space="preserve"><value>[mods] Bu modu yüklemek için kullanılabilir bir depo yok.</value></data>
+  <data name="Log.ModsResolvingFiles" xml:space="preserve"><value>'{0}' için dosyalar çözümleniyor ({1} / {2}) ...</value></data>
+  <data name="Log.ModsNoMatchingFiles" xml:space="preserve"><value>[mods] Bu instance için eşleşen dosya yok.</value></data>
+  <data name="Log.ModsInstalling" xml:space="preserve"><value>'{0}' '{1}' içine yükleniyor ...</value></data>
+  <data name="Log.ModsInstallComplete" xml:space="preserve"><value>[mods] Yükleme tamamlandı.</value></data>
+  <data name="Log.ModsInstalledInInstance" xml:space="preserve"><value>[mods] {0} '{1}' içine yüklendi.</value></data>
+  <data name="Log.ModsRemoved" xml:space="preserve"><value>[mods] Kaldırıldı: '{0}'.</value></data>
+
+  <!-- Error messages -->
+  <data name="Error.NoSession" xml:space="preserve"><value>[error] Skin işlemleri için Microsoft hesabı gerekir.</value></data>
+  <data name="Error.SkinPickerUnavailable" xml:space="preserve"><value>[error] Skin seçicisi kullanılamıyor.</value></data>
+  <data name="Error.CapeOpsRequireMsAccount" xml:space="preserve"><value>[error] Pelerin işlemleri için Microsoft hesabı gerekir.</value></data>
+  <data name="Error.SkinUploadCancelled" xml:space="preserve"><value>Skin yüklemesi iptal edildi.</value></data>
+  <data name="Error.CannotDeleteAutoImported" xml:space="preserve"><value>Otomatik içe aktarılmış bir instance silinemez (.minecraft/versions/ altında bulunur).</value></data>
+  <data name="Error.CannotChangeAutoImportedIcon" xml:space="preserve"><value>Otomatik içe aktarılmış bir instance'ın simgesi değiştirilemez.</value></data>
+  <data name="Error.CannotEditAutoImported" xml:space="preserve"><value>Otomatik içe aktarılmış bir instance düzenlenemez.</value></data>
+  <data name="Error.ModpackImporterDisabled" xml:space="preserve"><value>[error] Bu derlemede modpack içe aktarma devre dışı (importer bağlı değil).</value></data>
+  <data name="Error.ModpackImportCancelled" xml:space="preserve"><value>Modpack içe aktarma iptal edildi.</value></data>
+  <data name="Error.InstanceExportUnavailable" xml:space="preserve"><value>[error] Instance dışa aktarma kullanılamıyor.</value></data>
+  <data name="Error.CannotExportAutoImported" xml:space="preserve"><value>[error] Otomatik içe aktarılmış bir instance dışa aktarılamaz.</value></data>
+  <data name="Error.ExportPickerUnavailable" xml:space="preserve"><value>[error] Dışa aktarma dosya seçici kullanılamıyor.</value></data>
+  <data name="Error.InstanceExportCancelled" xml:space="preserve"><value>Instance dışa aktarma iptal edildi.</value></data>
+  <data name="Error.InstanceImportUnavailable" xml:space="preserve"><value>[error] Instance içe aktarma kullanılamıyor.</value></data>
+  <data name="Error.ImportPickerUnavailable" xml:space="preserve"><value>[error] İçe aktarma dosya seçici kullanılamıyor.</value></data>
+  <data name="Error.InstanceImportCancelled" xml:space="preserve"><value>Instance içe aktarma iptal edildi.</value></data>
+</root>
+</content>
+</invoke>
