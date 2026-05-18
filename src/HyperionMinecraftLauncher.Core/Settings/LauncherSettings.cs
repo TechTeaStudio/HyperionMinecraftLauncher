@@ -46,4 +46,12 @@ public sealed record LauncherSettings
     /// Settings to light up the integration.
     /// </summary>
     public string CurseForgeApiKey { get; init; } = string.Empty;
+
+    /// <summary>
+    /// If true, the launcher polls the GitHub Releases endpoint on startup and surfaces a
+    /// banner when a newer version is available. The check is best-effort and never blocks
+    /// startup; the user clicks through to the release page in the default browser (no
+    /// auto-install). Default <c>true</c>.
+    /// </summary>
+    public bool AutoUpdateCheckEnabled { get; init; } = true;
 }
