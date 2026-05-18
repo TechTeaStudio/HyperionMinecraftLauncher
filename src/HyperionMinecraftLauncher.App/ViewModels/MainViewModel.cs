@@ -295,6 +295,16 @@ public sealed class MainViewModel : INotifyPropertyChanged
         OpenReleasePageCommand = new AsyncRelayCommand(OpenReleasePageAsync, () => AvailableUpdate is not null);
         DismissUpdateCommand = new AsyncRelayCommand(DismissUpdateAsync, () => AvailableUpdate is not null);
 
+        // Bug 5 (v0.32.0): manual "Check for updates" button on the Settings page. The
+        // startup probe was the only entry point before; it relied on the user having
+        // auto-checks enabled AND a strictly-newer GitHub release existing, so the
+        // banner never surfaced in practice. This command runs the same checker on
+        // demand and either populates AvailableUpdate (banner appears) or appends a
+        // confirmation log line so the user always gets a response.
+        CheckForUpdatesCommand = new AsyncRelayCommand(
+            CheckForUpdatesAsync,
+            () => !IsBusy && _updateChecker is not null);
+
         // Bug 3 (v0.32.0): the per-instance detail panel had no dismiss affordance, so once
         // a tile was clicked the user was stuck looking at it. This command nulls
         // SelectedInstance, which collapses the whole Border via the HasSelectedInstance
@@ -1041,6 +1051,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 SwitchAccountCommand.RaiseCanExecuteChanged();
                 AddAccountCommand.RaiseCanExecuteChanged();
                 RemoveAccountCommand.RaiseCanExecuteChanged();
+                CheckForUpdatesCommand?.RaiseCanExecuteChanged();
             }
         }
     }
@@ -3096,6 +3107,44 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     /// <summary>X button on the banner clears <see cref="AvailableUpdate"/> for this session.</summary>
     public AsyncRelayCommand DismissUpdateCommand { get; }
+
+    /// <summary>
+    /// Bug 5 (v0.32.0): "Check for updates" button on the Settings page. Runs the
+    /// same probe the startup refresh runs, but on demand. Sets
+    /// <see cref="AvailableUpdate"/> on a hit (banner appears) or appends a "you're
+    /// on the latest version" log line on a miss, so the user always gets feedback.
+    /// </summary>
+    public AsyncRelayCommand CheckForUpdatesCommand { get; }
+
+    private async Task CheckForUpdatesAsync()
+    {
+        if (_updateChecker is null)
+        {
+            Append("[update] Update checker is not configured in this build.");
+            return;
+        }
+
+        try
+        {
+            Append($"Checking for updates (current: v{CurrentLauncherVersion}) ...");
+            var info = await _updateChecker.CheckAsync(CurrentLauncherVersion, CancellationToken.None).ConfigureAwait(true);
+            if (info is null)
+            {
+                Append($"[update] You're on the latest version (v{CurrentLauncherVersion}).");
+            }
+            else
+            {
+                AvailableUpdate = info;
+                Append($"A newer launcher version is available: v{info.LatestVersion}");
+            }
+        }
+        catch (Exception ex)
+        {
+            // The checker contract says it shouldn't throw; defend against future drift anyway.
+            _logger.Warn($"Manual update check failed: {ex.Message}");
+            Append($"[update] Update check failed: {ex.Message}");
+        }
+    }
 
     /// <summary>
     /// Bug 3 (v0.32.0): X button on the per-instance detail panel. Nulls

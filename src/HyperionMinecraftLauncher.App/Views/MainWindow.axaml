@@ -1415,6 +1415,28 @@
               </StackPanel>
             </Border>
 
+            <!-- Bug 5 (v0.32.0): manual "Check for updates" button. The startup probe
+                 only fires if AutoUpdateCheck is enabled AND a newer GitHub release
+                 exists, so the banner could go unseen for entire versions. This card
+                 lets the user trigger the same probe on demand; the result is either
+                 the banner appearing (newer release found) or a "you're on the latest"
+                 line in the launcher log. -->
+            <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
+              <StackPanel Spacing="6">
+                <TextBlock Text="Updates" FontWeight="SemiBold" FontSize="12" />
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Grid.Column="0" FontSize="11" VerticalAlignment="Center"
+                             Text="Manually check GitHub Releases for a newer launcher build." />
+                  <Button Grid.Column="1"
+                          Content="Check for updates"
+                          Command="{Binding CheckForUpdatesCommand}"
+                          FontSize="11" Padding="10,4" />
+                </Grid>
+                <TextBlock FontSize="10" Opacity="0.55" TextWrapping="Wrap"
+                           Text="If a newer release is available a green banner appears at the top of the window. Otherwise the log shows a 'you're on the latest version' line." />
+              </StackPanel>
+            </Border>
+
           </StackPanel>
         </ScrollViewer>
 
