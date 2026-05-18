@@ -10,6 +10,8 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
+using MinecraftSkinRender.Image;
+using SkiaSharp;
 using TechTeaStudio.HyperionMinecraftLauncher.App.Localization;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Localization;
@@ -18,6 +20,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Backups;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.CrashReports;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.Loaders;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
@@ -78,6 +81,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private readonly IModRepository? _curseForgeRepository;
     private readonly IInstanceModManager? _instanceModManager;
     private readonly IAccountStore? _accountStore;
+    // v0.32.2 (T-flyout-avatar): optional Mojang skin fetcher used to populate each
+    // account-switcher row's mini head-face. Without it the rows fall back to the bundled
+    // Steve face (still functional, just visually wrong for the active row's real skin).
+    private readonly IPlayerSkinFetcher? _skinFetcher;
+    private readonly FileCache? _accountHeadCache;
     private readonly IUpdateChecker? _updateChecker;
     private UpdateInfo? _availableUpdate;
     private bool _autoUpdateCheckEnabled;
@@ -221,7 +229,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
         ILocalizationService? localizationService = null,
         Action<string?>? curseForgeKeySetter = null,
         ISkinBrowser? skinBrowser = null,
-        IHeadlessServerOrchestrator? headlessServerOrchestrator = null)
+        IHeadlessServerOrchestrator? headlessServerOrchestrator = null,
+        IPlayerSkinFetcher? skinFetcher = null,
+        FileCache? accountHeadCache = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -249,6 +259,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _modLoaderVersionFetcher = modLoaderVersionFetcher;
         _localizationService = localizationService;
         _curseForgeKeySetter = curseForgeKeySetter;
+        _skinFetcher = skinFetcher;
+        _accountHeadCache = accountHeadCache;
         _headlessServerOrchestrator = headlessServerOrchestrator;
         if (_headlessServerOrchestrator is not null)
             _headlessServerOrchestrator.StateChanged += OnHeadlessOrchestratorStateChanged;
@@ -278,7 +290,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         Instances = new ObservableCollection<Instance>();
         ModSearchResults = new ObservableCollection<Mod>();
         InstalledMods = new ObservableCollection<LocalMod>();
-        Accounts = new ObservableCollection<Account>();
+        Accounts = new ObservableCollection<AccountWithBitmap>();
         InstanceResourcePacks = new ObservableCollection<ResourcePackEntry>();
         InstanceShaderPacks = new ObservableCollection<ShaderPackEntry>();
         InstanceDataPacks = new ObservableCollection<DataPackEntry>();
@@ -384,7 +396,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
         // Multi-account roster (v0.27.0): switch silently by id, add a fresh device-code
         // sign-in, or sign-out + remove the chosen account from the cache.
-        SwitchAccountCommand = new AsyncParameterRelayCommand<Account>(
+        // v0.32.2 (T-flyout-avatar): SwitchAccount now takes the AccountWithBitmap projection
+        // (flyout rows bind to those), but unwraps to the underlying Account internally.
+        // RemoveAccount still takes Account because the X button's CommandParameter is bound
+        // to ActiveAccount which stays an Account.
+        SwitchAccountCommand = new AsyncParameterRelayCommand<AccountWithBitmap>(
             SwitchAccountAsync,
             a => !IsBusy && a is not null && _microsoftAuth is not null);
         AddAccountCommand = new AsyncRelayCommand(AddAccountAsync, () => !IsBusy && _microsoftAuth is not null);
@@ -575,8 +591,14 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    /// <summary>Every cached account known to the launcher (Microsoft + offline placeholders). Drives the header-chip flyout.</summary>
-    public ObservableCollection<Account> Accounts { get; }
+    /// <summary>
+    /// Every cached account known to the launcher (Microsoft + offline placeholders), each
+    /// wrapped with a pre-loaded head-face bitmap so the account-switcher flyout shows the
+    /// real skin instead of the bundled Steve. The wrapper exposes <c>Id</c>, <c>Username</c>,
+    /// <c>Uuid</c>, and <c>IsOffline</c> pass-throughs so the existing XAML bindings keep
+    /// working unchanged.
+    /// </summary>
+    public ObservableCollection<AccountWithBitmap> Accounts { get; }
 
     /// <summary>The account whose session is currently in <see cref="CurrentSession"/>. <c>null</c> on a fresh install.</summary>
     public Account? ActiveAccount
@@ -1410,7 +1432,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncRelayCommand ToggleInstalledModCommand { get; }
     public AsyncRelayCommand RemoveInstalledModCommand { get; }
     public AsyncRelayCommand OpenCurseForgeOnboardingCommand { get; }
-    public AsyncParameterRelayCommand<Account> SwitchAccountCommand { get; }
+    public AsyncParameterRelayCommand<AccountWithBitmap> SwitchAccountCommand { get; }
     public AsyncRelayCommand AddAccountCommand { get; }
     public AsyncParameterRelayCommand<Account> RemoveAccountCommand { get; }
     public AsyncRelayCommand ExportInstanceCommand { get; }
@@ -1638,12 +1660,40 @@ public sealed class MainViewModel : INotifyPropertyChanged
         // slightly different Id casing or a stale Uuid). Group by Id and keep the most
         // recently used entry as the canonical row, so the multi-account switcher lists
         // every distinct account exactly once.
+        var deduped = list
+            .GroupBy(a => a.Id, StringComparer.Ordinal)
+            .Select(g => g.OrderByDescending(a => a.LastUsedAt).First())
+            .OrderByDescending(a => a.LastUsedAt)
+            .ToList();
+
+        // v0.32.2 (T-flyout-avatar): fetch the head face for each non-offline account so the
+        // flyout row mini-avatar shows the real skin, not the bundled Steve. The fetch hits
+        // the disk cache first (6 h TTL) so re-opening the launcher is instant. Failures
+        // are swallowed; rows with null HeadBitmap render the Steve fallback in XAML.
+        var projections = new List<AccountWithBitmap>(deduped.Count);
+        foreach (var account in deduped)
+        {
+            Bitmap? head = null;
+            if (!account.IsOffline && !string.IsNullOrWhiteSpace(account.Uuid))
+            {
+                try
+                {
+                    head = await TryLoadAccountHeadAsync(account.Uuid, cancellationToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warn($"Could not load avatar for '{account.Username}' ({account.Uuid}): {ex.Message}");
+                }
+            }
+            projections.Add(new AccountWithBitmap { Account = account, HeadBitmap = head });
+        }
+
         Accounts.Clear();
-        foreach (var a in list
-                     .GroupBy(a => a.Id, StringComparer.Ordinal)
-                     .Select(g => g.OrderByDescending(a => a.LastUsedAt).First())
-                     .OrderByDescending(a => a.LastUsedAt))
-            Accounts.Add(a);
+        foreach (var p in projections) Accounts.Add(p);
 
         Account? active = null;
         try
@@ -1657,13 +1707,91 @@ public sealed class MainViewModel : INotifyPropertyChanged
             _logger.Warn($"GetActive failed: {ex.Message}");
         }
         // Fall back to the most-recent account when the store didn't pin one (single-account upgrade path).
-        active ??= Accounts.FirstOrDefault();
+        active ??= Accounts.FirstOrDefault()?.Account;
         ActiveAccount = active;
     }
 
-    /// <summary>Silent-sign-in the picked account and mark it active. Surfaced via the header chip flyout.</summary>
-    private async Task SwitchAccountAsync(Account? target)
+    /// <summary>
+    /// Resolve the head-face <see cref="Bitmap"/> for an account UUID: read from the per-uuid
+    /// PNG cache when fresh, otherwise call the Mojang fetcher, crop the 8x8 face with
+    /// <see cref="Skin2DHeadTypeA.MakeHeadImage"/> (the same helper the header chip uses), then
+    /// persist the result. Returns <c>null</c> on any failure - the flyout row falls back to
+    /// the bundled Steve face in that case.
+    /// </summary>
+    /// <remarks>
+    /// Internal-visible so the test project can spy on it; the production view-model wires it
+    /// through the injected <see cref="IPlayerSkinFetcher"/> only. Without that dependency the
+    /// method short-circuits to <c>null</c> so unit tests without a fetcher keep working.
+    /// </remarks>
+    internal async Task<Bitmap?> TryLoadAccountHeadAsync(string uuid, CancellationToken cancellationToken)
     {
+        if (_skinFetcher is null || string.IsNullOrWhiteSpace(uuid)) return null;
+
+        var trimmed = uuid.Replace("-", string.Empty);
+        if (trimmed.Length != 32) return null;
+
+        // Cache hit: the cropped head PNG is small and re-decoding is cheap; we still avoid
+        // the round-trip to Mojang + the SkiaSharp crop pipeline on every flyout open.
+        if (_accountHeadCache is not null)
+        {
+            var cached = await _accountHeadCache
+                .TryReadAsync(AccountHeadCacheKey(trimmed), maxAge: TimeSpan.FromHours(6), cancellationToken)
+                .ConfigureAwait(false);
+            if (cached is { Length: > 0 })
+            {
+                try
+                {
+                    using var ms = new MemoryStream(cached);
+                    return new Bitmap(ms);
+                }
+                catch
+                {
+                    // Bad cache entry - fall through to network fetch.
+                }
+            }
+        }
+
+        var info = await _skinFetcher.FetchAsync(trimmed, cancellationToken).ConfigureAwait(false);
+        if (info is null || info.SkinPng.Length == 0) return null;
+
+        try
+        {
+            using var sk = SKBitmap.Decode(info.SkinPng);
+            if (sk is null) return null;
+            using var head = Skin2DHeadTypeA.MakeHeadImage(sk);
+            using var data = head.Encode(SKEncodedImageFormat.Png, 100);
+            var bytes = data.ToArray();
+
+            if (_accountHeadCache is not null)
+            {
+                try
+                {
+                    await _accountHeadCache
+                        .WriteAsync(AccountHeadCacheKey(trimmed), bytes, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                catch
+                {
+                    // Cache write is best-effort: a read-only cache dir mustn't break the flyout.
+                }
+            }
+
+            using var headStream = new MemoryStream(bytes);
+            return new Bitmap(headStream);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static string AccountHeadCacheKey(string trimmedUuid) =>
+        $"account-heads/{trimmedUuid}.png";
+
+    /// <summary>Silent-sign-in the picked account and mark it active. Surfaced via the header chip flyout.</summary>
+    private async Task SwitchAccountAsync(AccountWithBitmap? selected)
+    {
+        var target = selected?.Account;
         if (target is null || _microsoftAuth is null) return;
         IsBusy = true;
         try

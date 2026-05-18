@@ -139,7 +139,7 @@
                              Margin="4,2,4,4" />
                   <ItemsControl ItemsSource="{Binding Accounts}">
                     <ItemsControl.ItemTemplate>
-                      <DataTemplate DataType="accounts:Account">
+                      <DataTemplate DataType="vm:AccountWithBitmap">
                         <Button Classes="AccountRow"
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Stretch"
@@ -150,10 +150,19 @@
                                 Command="{Binding #AccountChipButton.((vm:MainViewModel)DataContext).SwitchAccountCommand}"
                                 CommandParameter="{Binding}">
                           <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
-                            <Image Grid.Column="0"
-                                   Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/steve_face.png"
-                                   Width="24" Height="24" Margin="0,0,8,0"
-                                   RenderOptions.BitmapInterpolationMode="None" />
+                            <!-- v0.32.2 (T-flyout-avatar): each row shows the real per-account
+                                 head face. Steve sits underneath as the fallback; the top
+                                 Image renders only when HeadBitmap is non-null. Offline rows
+                                 and failed fetches just keep showing the Steve face. -->
+                            <Panel Grid.Column="0" Width="24" Height="24" Margin="0,0,8,0">
+                              <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/steve_face.png"
+                                     Width="24" Height="24"
+                                     RenderOptions.BitmapInterpolationMode="None" />
+                              <Image Source="{Binding HeadBitmap}"
+                                     Width="24" Height="24"
+                                     IsVisible="{Binding HeadBitmap, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                     RenderOptions.BitmapInterpolationMode="None" />
+                            </Panel>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                               <TextBlock Text="{Binding Username}"
                                          FontSize="12" FontWeight="SemiBold"

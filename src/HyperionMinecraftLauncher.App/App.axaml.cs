@@ -267,6 +267,14 @@ public partial class App : Application
                 initialLocale,
                 new[] { "en", "ru", "uk", "pl", "es", "pt-BR", "de", "fr", "it", "nl", "tr", "zh-Hans", "ja", "ko" });
 
+            // v0.32.2 (T-flyout-avatar): the account-switcher flyout now shows each row's
+            // real head face. Reuse the same Mojang fetcher + on-disk cache the header chip
+            // already uses, plus a per-uuid cropped-head PNG store so re-opening the launcher
+            // is instant. Both ride the cache root from the shared FileCache.
+            var accountSkinFetcherHttp = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
+            var accountSkinFetcher = new MojangPlayerSkinFetcher(accountSkinFetcherHttp, cache);
+            var accountHeadCache = cache;
+
             var viewModel = new MainViewModel(
                 service, logger, microsoftAuth, settingsStore,
                 presence, instanceBrowser, skinService, skinHistory,
@@ -279,7 +287,9 @@ public partial class App : Application
                 modLoaderVersionFetcher, localizationService,
                 curseForgeKeySetter: liveCurseForgeKey.Set,
                 skinBrowser: skinBrowser,
-                headlessServerOrchestrator: headlessServerOrchestrator);
+                headlessServerOrchestrator: headlessServerOrchestrator,
+                skinFetcher: accountSkinFetcher,
+                accountHeadCache: accountHeadCache);
 
             var mainWindow = new MainWindow
             {
