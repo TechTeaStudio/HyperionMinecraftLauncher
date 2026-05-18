@@ -5,6 +5,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.App.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 using TechTeaStudio.HyperionMinecraftLauncher.App.Views;
 using System.Net.Http;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
@@ -28,7 +29,11 @@ public partial class App : Application
             var logger = new FileLauncherLogger(DefaultLogDirectory.Resolve());
             logger.Info("HyperionMinecraftLauncher starting.");
 
-            var microsoftAuth = new MicrosoftAuthService(logger);
+            // Shared account store: the v0.27.0 multi-account roster lives next to MSAL's own
+            // refresh-token cache. The Microsoft auth service reads/writes it on every sign-in;
+            // the view-model surfaces it through the header chip flyout.
+            var accountStore = new FileAccountStore();
+            var microsoftAuth = new MicrosoftAuthService(logger, DefaultMsalAccountCachePath(), accountStore);
             var settingsStore = new FileLauncherSettingsStore();
 
             // Shared disk cache for news, player skins, and anything else network-bound.
@@ -42,7 +47,7 @@ public partial class App : Application
                 new CmlLibUnderlyingLauncher(), logger, microsoftAuth,
                 newsClient: newsClient);
 
-            var viewModel = new MainViewModel(service, logger, microsoftAuth, settingsStore);
+            var viewModel = new MainViewModel(service, logger, microsoftAuth, settingsStore, accountStore);
 
             desktop.MainWindow = new MainWindow
             {
@@ -58,5 +63,17 @@ public partial class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    /// <summary>
+    /// The legacy XboxAuthNet account-manager file path. Kept alongside the new
+    /// accounts.v2.json so the migration in <see cref="FileAccountStore"/> can detect it.
+    /// </summary>
+    private static string DefaultMsalAccountCachePath()
+    {
+        var dir = System.IO.Path.Combine(
+            System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData),
+            "HyperionMinecraftLauncher");
+        return System.IO.Path.Combine(dir, "accounts.json");
     }
 }

@@ -6,6 +6,7 @@
         xmlns:controls="using:TechTeaStudio.HyperionMinecraftLauncher.App.Controls"
         xmlns:local="using:TechTeaStudio.HyperionMinecraftLauncher.App.Views"
         xmlns:instances="using:TechTeaStudio.HyperionMinecraftLauncher.Core.Instances"
+        xmlns:accounts="using:TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts"
         xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
         xmlns:assists="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
         mc:Ignorable="d"
@@ -68,9 +69,16 @@
                      IsHitTestVisible="False" />
         </StackPanel>
 
-        <!-- Account chip (middle-right) -->
-        <Border Grid.Column="2" CornerRadius="16" Padding="8,4" Margin="0,0,8,0"
-                Background="{DynamicResource MaterialPrimaryMidBrush}">
+        <!-- Account chip (middle-right). The chip itself is a Button whose Flyout lists
+             every cached account; clicking a row switches; the footer holds Add / Remove.
+             Empty-state shows "Sign in with Microsoft" as the chip label and Add account in the flyout. -->
+        <Button x:Name="AccountChipButton"
+                Grid.Column="2"
+                Classes="AccountChip"
+                Padding="8,4" Margin="0,0,8,0"
+                Background="{DynamicResource MaterialPrimaryMidBrush}"
+                BorderThickness="0"
+                CornerRadius="16">
           <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
             <Image Source="{Binding AvatarBitmap}"
                    Classes="Avatar"
@@ -79,18 +87,82 @@
             <TextBlock Text="{Binding AccountDisplay}" Foreground="White" VerticalAlignment="Center"
                        FontSize="12"
                        IsVisible="{Binding HasSession}" />
-            <Button Content="Sign in with Microsoft"
-                    Command="{Binding SignInMicrosoftCommand}"
-                    IsVisible="{Binding !IsSignedInOnline}"
-                    Classes="ChipBtn"
-                    Margin="6,0,0,0" Padding="8,2" FontSize="11" />
-            <Button Content="Sign out"
-                    Command="{Binding SignOutCommand}"
-                    IsVisible="{Binding IsSignedInOnline}"
-                    Classes="ChipBtn"
-                    Margin="6,0,0,0" Padding="8,2" FontSize="11" />
+            <TextBlock Text="Sign in with Microsoft" Foreground="White" VerticalAlignment="Center"
+                       FontSize="12"
+                       IsVisible="{Binding !HasSession}" />
+            <Path Data="M 0,0 L 6,6 L 12,0" Stroke="White" StrokeThickness="1.5"
+                  Width="12" Height="7" Margin="4,0,0,0" VerticalAlignment="Center" />
           </StackPanel>
-        </Border>
+          <Button.Flyout>
+            <Flyout Placement="BottomEdgeAlignedRight" ShowMode="Transient">
+              <Border Padding="6" MinWidth="280" Background="{DynamicResource MaterialPaperBrush}"
+                      CornerRadius="6">
+                <StackPanel Spacing="3">
+                  <TextBlock Text="ACCOUNTS"
+                             FontFamily="{StaticResource MinecraftFont}" FontSize="10"
+                             Foreground="{DynamicResource MaterialSecondaryMidBrush}"
+                             Margin="4,2,4,4" />
+                  <ItemsControl ItemsSource="{Binding Accounts}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate DataType="accounts:Account">
+                        <Button Classes="AccountRow"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                Padding="6,4"
+                                Margin="0,0,0,2"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Command="{Binding #AccountChipButton.((vm:MainViewModel)DataContext).SwitchAccountCommand}"
+                                CommandParameter="{Binding}">
+                          <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+                            <Image Grid.Column="0"
+                                   Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/steve_face.png"
+                                   Width="24" Height="24" Margin="0,0,8,0"
+                                   RenderOptions.BitmapInterpolationMode="None" />
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                              <TextBlock Text="{Binding Username}"
+                                         FontSize="12" FontWeight="SemiBold"
+                                         TextTrimming="CharacterEllipsis" />
+                              <TextBlock Text="{Binding Uuid, Converter={x:Static local:UuidToShort.Instance}}"
+                                         FontSize="10" Opacity="0.6"
+                                         TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                            <Path Grid.Column="2" Data="M 0,4 L 4,8 L 12,0"
+                                  Stroke="{DynamicResource MaterialSecondaryMidBrush}"
+                                  StrokeThickness="2" Width="14" Height="10"
+                                  VerticalAlignment="Center" Margin="6,0,4,0">
+                              <Path.IsVisible>
+                                <MultiBinding Converter="{x:Static local:ActiveAccountMatchMulti.Instance}">
+                                  <Binding Path="Id" />
+                                  <Binding ElementName="AccountChipButton" Path="((vm:MainViewModel)DataContext).ActiveAccount" />
+                                </MultiBinding>
+                              </Path.IsVisible>
+                            </Path>
+                          </Grid>
+                        </Button>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <Border Height="1" Margin="2,4" Background="{DynamicResource MaterialDividerBrush}" />
+                  <Button Content="+ Add account..."
+                          Command="{Binding AddAccountCommand}"
+                          HorizontalAlignment="Stretch"
+                          HorizontalContentAlignment="Left"
+                          FontSize="12" Padding="8,4"
+                          Background="Transparent" />
+                  <Button Content="Remove this account"
+                          Command="{Binding RemoveAccountCommand}"
+                          CommandParameter="{Binding ActiveAccount}"
+                          IsVisible="{Binding ActiveAccount, Converter={x:Static ObjectConverters.IsNotNull}}"
+                          HorizontalAlignment="Stretch"
+                          HorizontalContentAlignment="Left"
+                          FontSize="12" Padding="8,4"
+                          Background="Transparent" />
+                </StackPanel>
+              </Border>
+            </Flyout>
+          </Button.Flyout>
+        </Button>
 
         <!-- Window controls (far right): min / max-restore / close -->
         <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Stretch">
