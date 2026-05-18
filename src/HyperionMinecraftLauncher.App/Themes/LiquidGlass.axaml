@@ -1,0 +1,147 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!--
+    LiquidGlass theme resources.
+
+    Tokens distilled from the Flutter prototype's app_theme.dart / base_page.dart
+    and the _LiquidGlassNavBar widget in main.dart. Every named brush / colour /
+    corner-radius here has a one-to-one twin on the Dart side; the names follow
+    the "LG.<Category>.<Role>" convention so they don't clash with the existing
+    Material.Avalonia palette in App.axaml.
+
+    Avalonia 11 has no per-element BackdropFilter, so the "frosted glass" look
+    is composed of:
+      * the existing ExperimentalAcrylicBorder on MainWindow (blur done by OS)
+      * the vertical background gradient defined below
+      * stacked semi-transparent surfaces that read as glass against that bed
+      * a single static blurred "falling-light" overlay in the top-right corner
+
+    This matches the "no fake per-element backdrop blur" guidance from the task.
+  -->
+
+  <!-- ====== Colors ====== -->
+  <Color x:Key="LG.Background.TopColor">#0D0D1B</Color>
+  <Color x:Key="LG.Background.BottomColor">#1A1A28</Color>
+  <Color x:Key="LG.SurfaceColor">#6C6C73</Color>
+  <Color x:Key="LG.SurfaceVariantColor">#6B6A7C</Color>
+  <Color x:Key="LG.SurfaceSelectedColor">#ACAECC</Color>
+  <Color x:Key="LG.TextPrimaryColor">#FFFFFF</Color>
+  <Color x:Key="LG.TextSecondaryColor">#A0A0A0</Color>
+  <Color x:Key="LG.AccentLinkColor">#7B9FD7</Color>
+
+  <!-- ====== Solid brushes ====== -->
+  <SolidColorBrush x:Key="LG.Background.Top"     Color="{StaticResource LG.Background.TopColor}" />
+  <SolidColorBrush x:Key="LG.Background.Bottom"  Color="{StaticResource LG.Background.BottomColor}" />
+  <SolidColorBrush x:Key="LG.Surface"            Color="{StaticResource LG.SurfaceColor}" />
+  <SolidColorBrush x:Key="LG.SurfaceVariant"     Color="{StaticResource LG.SurfaceVariantColor}" />
+  <SolidColorBrush x:Key="LG.SurfaceSelected"    Color="{StaticResource LG.SurfaceSelectedColor}" />
+  <SolidColorBrush x:Key="LG.TextPrimary"        Color="{StaticResource LG.TextPrimaryColor}" />
+  <SolidColorBrush x:Key="LG.TextSecondary"      Color="{StaticResource LG.TextSecondaryColor}" />
+  <SolidColorBrush x:Key="LG.AccentLink"         Color="{StaticResource LG.AccentLinkColor}" />
+
+  <!-- Borders / rims / dividers -->
+  <SolidColorBrush x:Key="LG.GlassRim"           Color="#FFFFFF" Opacity="0.17" />
+  <SolidColorBrush x:Key="LG.GlassRimStrong"     Color="#FFFFFF" Opacity="0.29" />
+  <SolidColorBrush x:Key="LG.Divider"            Color="#FFFFFF" Opacity="0.13" />
+
+  <!-- ====== Window background (top->bottom) ====== -->
+  <LinearGradientBrush x:Key="LG.WindowBackground"
+                       StartPoint="0%,0%" EndPoint="0%,100%">
+    <GradientStop Offset="0" Color="{StaticResource LG.Background.TopColor}" />
+    <GradientStop Offset="1" Color="{StaticResource LG.Background.BottomColor}" />
+  </LinearGradientBrush>
+
+  <!-- ====== Glass surface (cards / panels). TL -> BR ====== -->
+  <!-- white@18% -> surface@24% -> background@22% -->
+  <LinearGradientBrush x:Key="LG.GlassSurface"
+                       StartPoint="0%,0%" EndPoint="100%,100%">
+    <GradientStop Offset="0"   Color="#2EFFFFFF" />
+    <GradientStop Offset="0.5" Color="#3D6C6C73" />
+    <GradientStop Offset="1"   Color="#381A1A28" />
+  </LinearGradientBrush>
+
+  <!-- ====== Glass secondary (subtle inner surface). T -> B ====== -->
+  <!-- white@20% -> white@4.5% -> black@12% -->
+  <LinearGradientBrush x:Key="LG.GlassSecondary"
+                       StartPoint="0%,0%" EndPoint="0%,100%">
+    <GradientStop Offset="0"   Color="#33FFFFFF" />
+    <GradientStop Offset="0.5" Color="#0CFFFFFF" />
+    <GradientStop Offset="1"   Color="#1F000000" />
+  </LinearGradientBrush>
+
+  <!-- ====== Selected bubble (sidebar nav radio when checked, big buttons) ======
+       Fill is surfaceSelected@23%, then the gradient is layered on top via the
+       Border using LG.BubbleGradient. Splitting into two resources lets the
+       LinearGradient blend over the flat fill the way the Flutter widget does. -->
+  <SolidColorBrush x:Key="LG.BubbleFill"  Color="{StaticResource LG.SurfaceSelectedColor}" Opacity="0.23" />
+
+  <!-- white@34% -> surfaceSelected@27% -> textPrimary@8% (TL -> BR) -->
+  <LinearGradientBrush x:Key="LG.BubbleGradient"
+                       StartPoint="0%,0%" EndPoint="100%,100%">
+    <GradientStop Offset="0"   Color="#57FFFFFF" />
+    <GradientStop Offset="0.5" Color="#45ACAECC" />
+    <GradientStop Offset="1"   Color="#14FFFFFF" />
+  </LinearGradientBrush>
+
+  <!-- Combined fill that takes the bubble gradient first, then tints it with the
+       flat surfaceSelected@23% wash. Used directly when only a single brush slot
+       is available on a control. -->
+  <LinearGradientBrush x:Key="LG.BubbleFillCombined"
+                       StartPoint="0%,0%" EndPoint="100%,100%">
+    <GradientStop Offset="0"   Color="#82FFFFFF" />
+    <GradientStop Offset="0.5" Color="#6FACAECC" />
+    <GradientStop Offset="1"   Color="#52ACAECC" />
+  </LinearGradientBrush>
+
+  <!-- Hover-state bubble: slightly brighter so the user feels the affordance. -->
+  <LinearGradientBrush x:Key="LG.BubbleFillHover"
+                       StartPoint="0%,0%" EndPoint="100%,100%">
+    <GradientStop Offset="0"   Color="#9CFFFFFF" />
+    <GradientStop Offset="0.5" Color="#85ACAECC" />
+    <GradientStop Offset="1"   Color="#66ACAECC" />
+  </LinearGradientBrush>
+
+  <!-- Idle hover for sidebar / list rows: a thin frosted wash. -->
+  <SolidColorBrush x:Key="LG.RowHover"          Color="#FFFFFF" Opacity="0.10" />
+  <SolidColorBrush x:Key="LG.RowSelected"       Color="#ACAECC" Opacity="0.18" />
+
+  <!-- ====== Falling-light overlay ======
+       Top-right blurred white wedge. Built as a horizontal gradient so the
+       RenderTransform rotates it -28.28deg into a diagonal sweep that fades
+       off the top-right corner of the window. transparent -> #26FFFFFF. -->
+  <LinearGradientBrush x:Key="LG.FallingLightGradient"
+                       StartPoint="0%,0%" EndPoint="100%,0%">
+    <GradientStop Offset="0"   Color="#00FFFFFF" />
+    <GradientStop Offset="0.5" Color="#15FFFFFF" />
+    <GradientStop Offset="1"   Color="#26FFFFFF" />
+  </LinearGradientBrush>
+
+  <!-- ====== Bubble shadow set ======
+       Three layers: top inner glow, inner shadow, drop shadow. Avalonia's
+       BoxShadows attached property concatenates entries; the inset flag flips
+       a layer to "inner". The numbers below are taken straight from the Flutter
+       widget's BoxShadow list:
+         top inner glow: white@14% blur 16 spread -8 offset (0,-4)
+         inner shadow:   textPrimary@10% blur 18 spread -9 offset (0,4)
+         drop shadow:    black@20% blur 20 spread -10 offset (0,9)
+  -->
+  <BoxShadows x:Key="LG.BubbleShadows">0 -4 16 -8 #24FFFFFF inset, 0 4 18 -9 #1AFFFFFF inset, 0 9 20 -10 #33000000</BoxShadows>
+
+  <!-- Drop shadow only, for the big Launch button so it sits "above" the page. -->
+  <BoxShadows x:Key="LG.LaunchShadows">0 -4 16 -8 #24FFFFFF inset, 0 4 18 -9 #1AFFFFFF inset, 0 12 26 -10 #4D000000</BoxShadows>
+
+  <!-- ====== Radii ====== -->
+  <CornerRadius x:Key="LG.RadiusCard">15</CornerRadius>
+  <CornerRadius x:Key="LG.RadiusItem">10</CornerRadius>
+  <CornerRadius x:Key="LG.RadiusButton">15</CornerRadius>
+  <CornerRadius x:Key="LG.RadiusNav">23</CornerRadius>
+  <CornerRadius x:Key="LG.RadiusBubble">17</CornerRadius>
+
+  <!-- Plain doubles for use in template properties that want a number, not a
+       CornerRadius object. -->
+  <x:Double x:Key="LG.RadiusCardValue">15</x:Double>
+  <x:Double x:Key="LG.RadiusItemValue">10</x:Double>
+  <x:Double x:Key="LG.RadiusButtonValue">15</x:Double>
+  <x:Double x:Key="LG.RadiusNavValue">23</x:Double>
+
+</ResourceDictionary>
