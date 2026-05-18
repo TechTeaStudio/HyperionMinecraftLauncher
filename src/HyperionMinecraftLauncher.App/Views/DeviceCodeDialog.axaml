@@ -2,9 +2,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:loc="using:TechTeaStudio.HyperionMinecraftLauncher.App.Localization"
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.DeviceCodeDialog"
-        Title="Sign in with Microsoft"
+        Title="{x:Static loc:Strings.DeviceCodeDialog_Title}"
         Width="460" Height="320"
         CanResize="False"
         SystemDecorations="None"
@@ -24,7 +25,7 @@
       <Border Grid.Row="0" Background="#400D0D1B"
               PointerPressed="OnTitleBarPressed">
         <Grid ColumnDefinitions="*,Auto">
-          <TextBlock Grid.Column="0" Text="Sign in with Microsoft"
+          <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.DeviceCodeDialog_HeaderTitle}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                      Foreground="White" VerticalAlignment="Center" Margin="12,0" />
           <Button Grid.Column="1" Click="OnClose" Classes="WinCtrl WinCtrlClose"
@@ -37,7 +38,7 @@
 
       <!-- Body -->
       <StackPanel Grid.Row="1" Margin="22,16,22,8" Spacing="10">
-        <TextBlock Text="Open this page in your browser:" Opacity="0.75" FontSize="12" />
+        <TextBlock Text="{x:Static loc:Strings.DeviceCodeDialog_OpenPagePrompt}" Opacity="0.75" FontSize="12" />
         <Border Padding="10,6" CornerRadius="10" Background="#330D0D1B"
                 BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="1">
           <TextBlock x:Name="UrlText"
@@ -46,7 +47,7 @@
                      TextWrapping="NoWrap" />
         </Border>
 
-        <TextBlock Text="And enter this code:" Opacity="0.75" FontSize="12" Margin="0,4,0,0" />
+        <TextBlock Text="{x:Static loc:Strings.DeviceCodeDialog_EnterCodePrompt}" Opacity="0.75" FontSize="12" Margin="0,4,0,0" />
         <Border Padding="14,10" CornerRadius="15"
                 Background="{DynamicResource LG.BubbleFillCombined}"
                 BorderBrush="{DynamicResource LG.GlassRimStrong}" BorderThickness="1">
@@ -59,17 +60,17 @@
                      LetterSpacing="4" />
         </Border>
 
-        <TextBlock Text="The browser should have opened automatically. The launcher polls Microsoft - once you finish signing in, this window closes itself."
+        <TextBlock Text="{x:Static loc:Strings.DeviceCodeDialog_Footer}"
                    Opacity="0.6" FontSize="10" TextWrapping="Wrap" Margin="0,4,0,0" />
       </StackPanel>
 
       <!-- Footer buttons -->
       <Grid Grid.Row="2" Margin="22,4,22,16" ColumnDefinitions="*,Auto,Auto,Auto">
-        <Button Grid.Column="1" Content="Copy code" Click="OnCopy"
+        <Button Grid.Column="1" Content="{x:Static loc:Strings.DeviceCodeDialog_CopyCode}" Click="OnCopy"
                 Padding="14,5" FontSize="12" Margin="0,0,8,0" />
-        <Button Grid.Column="2" Content="Open browser" Click="OnOpenBrowser"
+        <Button Grid.Column="2" Content="{x:Static loc:Strings.DeviceCodeDialog_OpenBrowser}" Click="OnOpenBrowser"
                 Padding="14,5" FontSize="12" Margin="0,0,8,0" />
-        <Button Grid.Column="3" Content="Hide"
+        <Button Grid.Column="3" Content="{x:Static loc:Strings.Common_Hide}"
                 Click="OnClose"
                 Padding="14,5" FontSize="12"
                 CornerRadius="15"

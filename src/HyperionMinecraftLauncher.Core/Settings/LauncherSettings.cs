@@ -69,4 +69,11 @@ public sealed record LauncherSettings
     /// disable pruning (keep everything).
     /// </summary>
     public int AutoBackupKeepLatest { get; init; } = 5;
+
+    /// <summary>
+    /// UI culture override for the launcher (BCP 47 tag, e.g. <c>en</c>, <c>ru</c>, <c>fr-CA</c>).
+    /// When <c>null</c> the launcher falls back to <see cref="System.Globalization.CultureInfo.CurrentUICulture"/>
+    /// (the OS-configured display language). Defaults to <c>null</c> = "use system default".
+    /// </summary>
+    public string? Locale { get; init; }
 }

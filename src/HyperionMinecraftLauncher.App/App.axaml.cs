@@ -6,6 +6,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.App.Presence;
 using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 using TechTeaStudio.HyperionMinecraftLauncher.App.Views;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
@@ -19,6 +20,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Export;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.Loaders;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Localization;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods.CurseForge;
@@ -176,13 +178,29 @@ public partial class App : Application
             var instanceExporter = new FileInstanceExporter();
             var instanceImporter = new FileInstanceImporter();
 
+            // T22a (v0.31.0): localization. Builds a ResxLocalizationService over the App
+            // assembly's Strings.resx family. The initial culture comes from the user's
+            // persisted setting (LauncherSettings.Locale); if null we fall back to the OS
+            // display language. AvailableCultures lists every culture the launcher ships
+            // translations for - v0.31.0 ships English only; the next wave adds the rest.
+            // Switching CurrentUICulture here means any code that reads
+            // ResourceManager.GetString without an explicit culture (the Strings.Designer
+            // properties used by AXAML's {x:Static ...}) picks up the override too.
+            var initialLocale = initialSettings.Locale ?? CultureInfo.CurrentUICulture.Name;
+            try { CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(initialLocale); }
+            catch (CultureNotFoundException) { /* fall back to whatever was set */ }
+            var localizationService = new ResxLocalizationService(
+                TechTeaStudio.HyperionMinecraftLauncher.App.Localization.Strings.ResourceManager,
+                initialLocale,
+                new[] { "en" });
+
             var viewModel = new MainViewModel(
                 service, logger, microsoftAuth, settingsStore,
                 presence, instanceBrowser, skinService, skinHistory,
                 modrinthRepo, curseForgeRepo, instanceModManager, accountStore,
                 updateChecker, headlessServerStore, backupService, crashReportListener,
                 instanceExporter, instanceImporter, modpackImporter,
-                modLoaderInstaller, modLoaderVersionFetcher);
+                modLoaderInstaller, modLoaderVersionFetcher, localizationService);
 
             var mainWindow = new MainWindow
             {

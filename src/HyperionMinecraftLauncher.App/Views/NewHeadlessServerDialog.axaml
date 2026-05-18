@@ -4,10 +4,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:versions="using:TechTeaStudio.HyperionMinecraftLauncher.Core.Versions"
         xmlns:vm="using:TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels"
+        xmlns:loc="using:TechTeaStudio.HyperionMinecraftLauncher.App.Localization"
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.NewHeadlessServerDialog"
         x:DataType="vm:MainViewModel"
-        Title="New Headless Server"
+        Title="{x:Static loc:Strings.NewHeadlessServerDialog_Title}"
         Width="520" Height="440"
         CanResize="False"
         SystemDecorations="None"
@@ -28,7 +29,7 @@
       <Border Grid.Row="0" Background="#400D0D1B"
               PointerPressed="OnTitleBarPressed">
         <Grid ColumnDefinitions="*,Auto">
-          <TextBlock Grid.Column="0" Text="Create a new headless server"
+          <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.NewHeadlessServerDialog_HeaderTitle}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                      Foreground="White" VerticalAlignment="Center" Margin="12,0" />
           <Button Grid.Column="1" Click="OnCancel" Width="36" Height="36"
@@ -43,23 +44,23 @@
       <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="22,16">
         <StackPanel Spacing="14">
 
-          <TextBlock Text="The server-jar download lands in v0.29. For now the launcher writes the metadata, eula.txt and a minimal server.properties so the folder is ready when the pipeline is wired up."
+          <TextBlock Text="{x:Static loc:Strings.NewHeadlessServerDialog_Hint}"
                      FontSize="11" Opacity="0.65" TextWrapping="Wrap" />
 
           <!-- Name -->
           <StackPanel Spacing="4">
-            <TextBlock Text="Server name" FontSize="12" Opacity="0.85" />
-            <TextBox x:Name="NameBox" Text="My dedicated server"
-                     Watermark="My dedicated server" FontSize="13" />
+            <TextBlock Text="{x:Static loc:Strings.NewHeadlessServerDialog_ServerNameLabel}" FontSize="12" Opacity="0.85" />
+            <TextBox x:Name="NameBox" Text="{x:Static loc:Strings.NewHeadlessServerDialog_DefaultServerName}"
+                     Watermark="{x:Static loc:Strings.NewHeadlessServerDialog_DefaultServerName}" FontSize="13" />
           </StackPanel>
 
           <!-- Version dropdown - reuses the main view-model's filtered manifest list. -->
           <StackPanel Spacing="4">
-            <TextBlock Text="Minecraft version" FontSize="12" Opacity="0.85" />
+            <TextBlock Text="{x:Static loc:Strings.NewHeadlessServerDialog_MinecraftVersionLabel}" FontSize="12" Opacity="0.85" />
             <ComboBox x:Name="VersionBox"
                       ItemsSource="{Binding FilteredVersions}"
                       SelectedItem="{Binding SelectedVersion, Mode=TwoWay}"
-                      PlaceholderText="(loading manifest...)"
+                      PlaceholderText="{x:Static loc:Strings.NewHeadlessServerDialog_LoadingManifestShort}"
                       HorizontalAlignment="Stretch">
               <ComboBox.ItemTemplate>
                 <DataTemplate DataType="versions:VersionMetadata">
@@ -72,7 +73,7 @@
           <!-- RAM slider -->
           <StackPanel Spacing="4">
             <Grid ColumnDefinitions="*,Auto">
-              <TextBlock Grid.Column="0" Text="JVM max heap (MiB)" FontSize="12" Opacity="0.85" />
+              <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.NewHeadlessServerDialog_MaxHeapLabel}" FontSize="12" Opacity="0.85" />
               <TextBlock Grid.Column="1" x:Name="RamValueLabel" Text="2048" FontSize="12" Opacity="0.85" />
             </Grid>
             <Slider x:Name="RamSlider" Minimum="512" Maximum="8192" SmallChange="256" LargeChange="512"
@@ -83,7 +84,7 @@
 
           <!-- Port -->
           <StackPanel Spacing="4">
-            <TextBlock Text="Port" FontSize="12" Opacity="0.85" />
+            <TextBlock Text="{x:Static loc:Strings.NewHeadlessServerDialog_PortLabel}" FontSize="12" Opacity="0.85" />
             <NumericUpDown x:Name="PortBox" Minimum="1" Maximum="65535" Value="25565"
                            Increment="1" FormatString="0" />
           </StackPanel>
@@ -93,9 +94,9 @@
 
       <!-- Footer -->
       <Grid Grid.Row="2" Margin="22,4,22,16" ColumnDefinitions="*,Auto,Auto">
-        <Button Grid.Column="1" Content="Cancel" Click="OnCancel"
+        <Button Grid.Column="1" Content="{x:Static loc:Strings.Common_Cancel}" Click="OnCancel"
                 Padding="14,5" FontSize="12" Margin="0,0,8,0" />
-        <Button Grid.Column="2" Content="Create"
+        <Button Grid.Column="2" Content="{x:Static loc:Strings.Common_Create}"
                 Click="OnCreate"
                 FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                 Padding="14,5"
