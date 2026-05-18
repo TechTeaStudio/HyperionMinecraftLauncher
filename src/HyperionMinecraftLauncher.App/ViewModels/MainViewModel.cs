@@ -1320,7 +1320,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     /// "current" side of the comparison. Kept as a constant so a single source of truth
     /// (the .csproj &lt;Version&gt;) bumps in lock-step with this string per release.
     /// </summary>
-    public const string CurrentLauncherVersion = "0.28.0";
+    public const string CurrentLauncherVersion = "0.32.0";
 
     /// <summary>
     /// Re-read the cached-accounts roster (MSAL + offline placeholders), reconcile our
