@@ -163,6 +163,14 @@
                    Width="20" Height="20" />
           </RadioButton.Tag>
         </RadioButton>
+        <RadioButton Content="Logs" GroupName="Nav"
+                     IsChecked="{Binding IsLogsSelected, Mode=OneWay}"
+                     Click="OnNavLogs" Classes="Nav">
+          <RadioButton.Tag>
+            <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/book.png"
+                   Width="20" Height="20" />
+          </RadioButton.Tag>
+        </RadioButton>
 
         <Border Margin="4,12,4,6" Height="1" Background="{DynamicResource MaterialDividerBrush}" />
 
@@ -544,6 +552,51 @@
                 FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                 Padding="18,6" HorizontalAlignment="Right" Margin="0,8,0,0"
                 Background="{DynamicResource MaterialPrimaryMidBrush}" Foreground="White" />
+      </Grid>
+
+      <!-- ==== LOGS PAGE ==== -->
+      <Grid IsVisible="{Binding IsLogsSelected}" Classes="Page" RowDefinitions="Auto,Auto,*,Auto">
+        <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
+          <TextBlock Text="Logs"
+                     FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
+          <TextBlock Text="Today's daily-rotated log file from %LOCALAPPDATA%\HyperionMinecraftLauncher\logs\."
+                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <!-- Toolbar: filter + refresh + open folder + copy all -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto,Auto" Margin="0,0,0,6">
+          <TextBox Grid.Column="0"
+                   Text="{Binding LogFilter, Mode=TwoWay}"
+                   Watermark="Filter log..."
+                   FontSize="11" />
+          <Button Grid.Column="1" Content="Refresh" FontSize="11"
+                  Command="{Binding RefreshLogFileCommand}"
+                  Padding="10,4" Margin="6,0,0,0" />
+          <Button Grid.Column="2" Content="Open logs folder" FontSize="11"
+                  Click="OnOpenLogsFolder"
+                  Padding="10,4" Margin="6,0,0,0" />
+          <Button Grid.Column="3" Content="Copy all" FontSize="11"
+                  Click="OnCopyLogAll"
+                  Padding="10,4" Margin="6,0,0,0" />
+        </Grid>
+
+        <!-- Log viewer -->
+        <Border Grid.Row="2" BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1" CornerRadius="6"
+                Background="{DynamicResource MaterialBackgroundBrush}">
+          <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <TextBox Text="{Binding FilteredLogText, Mode=OneWay}"
+                     IsReadOnly="True"
+                     AcceptsReturn="True"
+                     BorderThickness="0"
+                     FontFamily="Cascadia Mono, Consolas, Menlo, monospace"
+                     FontSize="11"
+                     Padding="8" />
+          </ScrollViewer>
+        </Border>
+
+        <!-- Status bar -->
+        <TextBlock Grid.Row="3" Text="{Binding LogStatusText}"
+                   FontSize="10" Opacity="0.6" Margin="2,6,2,0" />
       </Grid>
 
     </Grid>
