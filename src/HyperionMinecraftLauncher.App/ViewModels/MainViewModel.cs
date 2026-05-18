@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -66,6 +67,13 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private NavSection _selectedSection = NavSection.Home;
     private Bitmap? _avatarBitmap;
 
+    // Logs page state: the full contents of today's launcher log file, the user-typed filter,
+    // and the timestamp of the last successful refresh. FilteredLogText is recomputed on demand
+    // from LogFileText + LogFilter through the LogFiltering helper.
+    private string _logFileText = string.Empty;
+    private string _logFilter = string.Empty;
+    private DateTime _logLastRefreshed;
+
     /// <summary>Construct with the launcher service and (optional) Microsoft auth provider + settings store.</summary>
     public MainViewModel(
         IMinecraftLauncherService service,
@@ -110,6 +118,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         LaunchCommand = new AsyncRelayCommand(LaunchAsync, CanLaunch);
         SignInMicrosoftCommand = new AsyncRelayCommand(SignInMicrosoftAsync, () => !IsBusy && !IsSignedInOnline);
         SignOutCommand = new AsyncRelayCommand(SignOutAsync, () => !IsBusy && IsSignedInOnline);
+        RefreshLogFileCommand = new AsyncRelayCommand(LoadTodaysLogAsync, () => !IsBusy);
     }
 
     // ---- Account ----
@@ -416,6 +425,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 LaunchCommand.RaiseCanExecuteChanged();
                 SignInMicrosoftCommand.RaiseCanExecuteChanged();
                 SignOutCommand.RaiseCanExecuteChanged();
+                RefreshLogFileCommand.RaiseCanExecuteChanged();
             }
         }
     }
@@ -437,6 +447,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 OnPropertyChanged(nameof(IsServersSelected));
                 OnPropertyChanged(nameof(IsNewsSelected));
                 OnPropertyChanged(nameof(IsSettingsSelected));
+                OnPropertyChanged(nameof(IsLogsSelected));
+
+                // Auto-load today's log file the first time the user opens the Logs page so
+                // it isn't blank. The Refresh button re-reads it on demand after that.
+                if (value == NavSection.Logs)
+                    _ = LoadTodaysLogAsync();
             }
         }
     }
@@ -447,6 +463,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public bool IsServersSelected => SelectedSection == NavSection.Servers;
     public bool IsNewsSelected => SelectedSection == NavSection.News;
     public bool IsSettingsSelected => SelectedSection == NavSection.Settings;
+    public bool IsLogsSelected => SelectedSection == NavSection.Logs;
 
     // ---- Commands ----
 
@@ -462,6 +479,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncRelayCommand LaunchCommand { get; }
     public AsyncRelayCommand SignInMicrosoftCommand { get; }
     public AsyncRelayCommand SignOutCommand { get; }
+    public AsyncRelayCommand RefreshLogFileCommand { get; }
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -911,6 +929,107 @@ public sealed class MainViewModel : INotifyPropertyChanged
         LogText = string.IsNullOrEmpty(LogText)
             ? $"{stamp}  {line}"
             : $"{LogText}{Environment.NewLine}{stamp}  {line}";
+    }
+
+    // ---- Logs page ----
+
+    /// <summary>Raw text of today's daily-rotated launcher log file.</summary>
+    /// <remarks>
+    /// Distinct from <see cref="LogText"/>: that one streams the running launch session into the
+    /// Home page's textbox; this one mirrors the on-disk file at the moment of the last refresh.
+    /// </remarks>
+    public string LogFileText
+    {
+        get => _logFileText;
+        private set
+        {
+            if (SetField(ref _logFileText, value ?? string.Empty))
+            {
+                OnPropertyChanged(nameof(FilteredLogText));
+                OnPropertyChanged(nameof(LogLineCount));
+                OnPropertyChanged(nameof(LogStatusText));
+            }
+        }
+    }
+
+    /// <summary>User-typed filter substring; empty = show everything.</summary>
+    public string LogFilter
+    {
+        get => _logFilter;
+        set
+        {
+            if (SetField(ref _logFilter, value ?? string.Empty))
+                OnPropertyChanged(nameof(FilteredLogText));
+        }
+    }
+
+    /// <summary>The log file content filtered by <see cref="LogFilter"/> (case-insensitive substring).</summary>
+    public string FilteredLogText => Core.Logging.LogFiltering.Filter(_logFileText, _logFilter);
+
+    /// <summary>Total number of non-empty lines in the loaded log file.</summary>
+    public int LogLineCount
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_logFileText)) return 0;
+            // Count by splitting on either CRLF or bare LF, ignoring trailing blanks - matches what the user actually sees.
+            return _logFileText
+                .Split('\n')
+                .Count(l => !string.IsNullOrWhiteSpace(l));
+        }
+    }
+
+    /// <summary>Bottom-status line shown under the log viewer: "{n} lines · last refreshed {hh:mm:ss}".</summary>
+    public string LogStatusText
+    {
+        get
+        {
+            var stamp = _logLastRefreshed == default
+                ? "never"
+                : _logLastRefreshed.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
+            // Interpunct (U+00B7) keeps this readable without the heavy "neuron stripe" em-dash.
+            return $"{LogLineCount} lines · last refreshed {stamp}";
+        }
+    }
+
+    /// <summary>
+    /// Read the contents of today's daily-rotated launcher log from disk and push them onto
+    /// <see cref="LogFileText"/>. Wired to the Logs-page Refresh button and called when the user
+    /// navigates to the Logs section so the page is never blank.
+    /// </summary>
+    public async Task LoadTodaysLogAsync()
+    {
+        IsBusy = true;
+        try
+        {
+            var dir = DefaultLogDirectory.Resolve();
+            var path = Path.Combine(dir, $"launcher-{DateTime.Now:yyyy-MM-dd}.log");
+
+            if (!File.Exists(path))
+            {
+                LogFileText = $"(no log file yet at {path})";
+            }
+            else
+            {
+                // FileShare.ReadWrite so we don't fight the live FileLauncherLogger that may be appending.
+                using var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var reader = new StreamReader(fs);
+                LogFileText = await reader.ReadToEndAsync().ConfigureAwait(false);
+            }
+
+            _logLastRefreshed = DateTime.Now;
+            OnPropertyChanged(nameof(LogStatusText));
+        }
+        catch (Exception ex)
+        {
+            LogFileText = $"(could not read log file: {ex.Message})";
+            _logLastRefreshed = DateTime.Now;
+            OnPropertyChanged(nameof(LogStatusText));
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)

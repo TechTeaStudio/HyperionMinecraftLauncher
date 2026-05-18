@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
@@ -15,6 +16,7 @@ using MinecraftSkinRender.Image;
 using SkiaSharp;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
 using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 
@@ -183,6 +185,7 @@ public partial class MainWindow : Window
     private void OnNavServers(object? sender, RoutedEventArgs e) => SetSection(NavSection.Servers);
     private void OnNavNews(object? sender, RoutedEventArgs e) => SetSection(NavSection.News);
     private void OnNavSettings(object? sender, RoutedEventArgs e) => SetSection(NavSection.Settings);
+    private void OnNavLogs(object? sender, RoutedEventArgs e) => SetSection(NavSection.Logs);
 
     private void SetSection(NavSection section)
     {
@@ -238,6 +241,51 @@ public partial class MainWindow : Window
         if (folders.Count > 0 && folders[0].Path is { } uri)
         {
             vm.GameDirectoryOverride = uri.LocalPath;
+        }
+    }
+
+    // Opens the launcher's log directory in the platform's file manager.
+    // Wrapped in try/catch because a missing shell handler must never crash the launcher.
+    private void OnOpenLogsFolder(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var dir = DefaultLogDirectory.Resolve();
+            Directory.CreateDirectory(dir);
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Process.Start(new ProcessStartInfo("explorer.exe", dir) { UseShellExecute = false });
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Process.Start(new ProcessStartInfo("open", dir) { UseShellExecute = false });
+            }
+            else
+            {
+                // Linux + other Unixes - xdg-open is the de-facto standard.
+                Process.Start(new ProcessStartInfo("xdg-open", dir) { UseShellExecute = false });
+            }
+        }
+        catch
+        {
+            // Best-effort: silently skip if the shell isn't available.
+        }
+    }
+
+    // Copies the loaded log file (unfiltered) to the system clipboard.
+    private async void OnCopyLogAll(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        try
+        {
+            var clipboard = GetTopLevel(this)?.Clipboard;
+            if (clipboard is null) return;
+            await clipboard.SetTextAsync(vm.LogFileText ?? string.Empty);
+        }
+        catch
+        {
+            // Clipboard providers can be flaky on Linux without a session - swallow and move on.
         }
     }
 

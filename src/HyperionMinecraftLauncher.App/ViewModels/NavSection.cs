@@ -20,4 +20,7 @@ public enum NavSection
 
     /// <summary>Memory slider, JVM args, game directory, launcher prefs. Planned for a later release.</summary>
     Settings,
+
+    /// <summary>Today's daily-rotated launcher log file with filter, refresh, open-folder and copy-all actions.</summary>
+    Logs,
 }
