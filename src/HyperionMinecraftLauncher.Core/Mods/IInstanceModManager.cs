@@ -18,8 +18,8 @@ public interface IInstanceModManager
     /// </summary>
     Task<IReadOnlyList<LocalMod>> ListInstalledAsync(Instance instance, CancellationToken cancellationToken);
 
-    /// <summary>Download <paramref name="file"/> from its repository and write it to the instance's <c>mods/</c> folder.</summary>
-    Task InstallAsync(Instance instance, ModFile file, CancellationToken cancellationToken);
+    /// <summary>Download <paramref name="file"/> via <paramref name="repository"/> and write it to the instance's <c>mods/</c> folder.</summary>
+    Task InstallAsync(Instance instance, ModFile file, IModRepository repository, CancellationToken cancellationToken);
 
     /// <summary>Delete the named file (with or without the <c>.disabled</c> suffix).</summary>
     Task RemoveAsync(Instance instance, string filename, CancellationToken cancellationToken);
