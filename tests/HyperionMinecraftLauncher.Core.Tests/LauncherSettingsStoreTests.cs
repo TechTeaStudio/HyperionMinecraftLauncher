@@ -37,6 +37,8 @@ public class LauncherSettingsStoreTests : IDisposable
         Assert.Null(s.GameDirectory);
         Assert.Null(s.JavaExecutable);
         Assert.Equal(string.Empty, s.JvmArguments);
+        Assert.True(s.AutoBackupBeforeLaunch);
+        Assert.Equal(5, s.AutoBackupKeepLatest);
     }
 
     [Fact]
@@ -53,6 +55,8 @@ public class LauncherSettingsStoreTests : IDisposable
             KeepLauncherOpen = false,
             ShowGameLog = true,
             SidebarCollapsed = true,
+            AutoBackupBeforeLaunch = false,
+            AutoBackupKeepLatest = 12,
         };
         await store.SaveAsync(original, CancellationToken.None);
 
