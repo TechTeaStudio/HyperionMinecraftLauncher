@@ -49,6 +49,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private readonly int _maxAllowedMemoryMb;
 
     private string _username = "Steve";
+    private string _versionSearchText = string.Empty;
+    private bool _showRelease = true;
+    private bool _showSnapshot;
+    private bool _showOldBeta;
+    private bool _showOldAlpha;
     private VersionMetadata? _selectedVersion;
     private InstalledVersion? _selectedInstalledVersion;
     private LauncherProfile? _selectedProfile;
@@ -83,6 +88,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         ApplySettings(initial);
 
         AvailableVersions = new ObservableCollection<VersionMetadata>();
+        FilteredVersions = new ObservableCollection<VersionMetadata>();
         InstalledVersions = new ObservableCollection<InstalledVersion>();
         Profiles = new ObservableCollection<LauncherProfile>();
         Servers = new ObservableCollection<ServerListEntry>();
@@ -159,6 +165,110 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     /// <summary>Versions returned by the Mojang manifest (full list of installable versions).</summary>
     public ObservableCollection<VersionMetadata> AvailableVersions { get; }
+
+    /// <summary>
+    /// View over <see cref="AvailableVersions"/> filtered by <see cref="VersionSearchText"/>
+    /// and the four type chips (Release / Snapshot / Old beta / Old alpha). Rebuilt by
+    /// <see cref="ApplyVersionFilter"/> whenever the search text or a chip changes, and
+    /// after <see cref="RefreshVersionsAsync"/> repopulates the source list.
+    /// </summary>
+    public ObservableCollection<VersionMetadata> FilteredVersions { get; }
+
+    /// <summary>Free-text search over both <c>Name</c> (the manifest id) and <c>DisplayText</c>. Case-insensitive.</summary>
+    public string VersionSearchText
+    {
+        get => _versionSearchText;
+        set
+        {
+            if (SetField(ref _versionSearchText, value ?? string.Empty))
+                ApplyVersionFilter();
+        }
+    }
+
+    /// <summary>Filter chip: include manifest entries with type <c>"release"</c>. Default on.</summary>
+    public bool ShowRelease
+    {
+        get => _showRelease;
+        set
+        {
+            if (SetField(ref _showRelease, value))
+                ApplyVersionFilter();
+        }
+    }
+
+    /// <summary>Filter chip: include manifest entries with type <c>"snapshot"</c>. Default off.</summary>
+    public bool ShowSnapshot
+    {
+        get => _showSnapshot;
+        set
+        {
+            if (SetField(ref _showSnapshot, value))
+                ApplyVersionFilter();
+        }
+    }
+
+    /// <summary>Filter chip: include manifest entries with type <c>"old_beta"</c>. Default off.</summary>
+    public bool ShowOldBeta
+    {
+        get => _showOldBeta;
+        set
+        {
+            if (SetField(ref _showOldBeta, value))
+                ApplyVersionFilter();
+        }
+    }
+
+    /// <summary>Filter chip: include manifest entries with type <c>"old_alpha"</c>. Default off.</summary>
+    public bool ShowOldAlpha
+    {
+        get => _showOldAlpha;
+        set
+        {
+            if (SetField(ref _showOldAlpha, value))
+                ApplyVersionFilter();
+        }
+    }
+
+    /// <summary>
+    /// Rebuild <see cref="FilteredVersions"/> from <see cref="AvailableVersions"/> using the
+    /// current chip flags and search text. Two predicates AND-ed together: the entry's
+    /// <c>Type</c> must match an enabled chip (case-insensitive) AND, if search text is
+    /// non-empty, either <c>Name</c> or <c>DisplayText</c> must contain the text (case-insensitive).
+    /// If the previously-selected version no longer satisfies the filter, fall back to the
+    /// first surviving entry so the bound ComboBox doesn't render a stale selection.
+    /// </summary>
+    public void ApplyVersionFilter()
+    {
+        FilteredVersions.Clear();
+        var search = _versionSearchText;
+        var hasSearch = !string.IsNullOrWhiteSpace(search);
+        foreach (var v in AvailableVersions)
+        {
+            if (!TypeMatches(v.Type)) continue;
+            if (hasSearch
+                && v.Name.IndexOf(search, StringComparison.OrdinalIgnoreCase) < 0
+                && v.DisplayText.IndexOf(search, StringComparison.OrdinalIgnoreCase) < 0)
+            {
+                continue;
+            }
+            FilteredVersions.Add(v);
+        }
+
+        // Keep the bound ComboBox honest: if the previous selection has been filtered out,
+        // jump to the first surviving entry (or null when the filter is empty).
+        if (_selectedVersion is null || !FilteredVersions.Contains(_selectedVersion))
+            SelectedVersion = FilteredVersions.FirstOrDefault();
+    }
+
+    private bool TypeMatches(string type)
+    {
+        if (string.Equals(type, "release", StringComparison.OrdinalIgnoreCase)) return _showRelease;
+        if (string.Equals(type, "snapshot", StringComparison.OrdinalIgnoreCase)) return _showSnapshot;
+        if (string.Equals(type, "old_beta", StringComparison.OrdinalIgnoreCase)) return _showOldBeta;
+        if (string.Equals(type, "old_alpha", StringComparison.OrdinalIgnoreCase)) return _showOldAlpha;
+        // Unknown / future type strings ride along with Release so they aren't silently hidden.
+        return _showRelease;
+    }
 
     /// <summary>Versions already present on disk under <c>.minecraft/versions/</c>.</summary>
     public ObservableCollection<InstalledVersion> InstalledVersions { get; }
@@ -417,6 +527,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
             AvailableVersions.Clear();
             foreach (var v in versions)
                 AvailableVersions.Add(v);
+
+            // Rebuild the filtered view (and re-evaluate the SelectedVersion fallback)
+            // now that the source list has new entries.
+            ApplyVersionFilter();
 
             Append($"Loaded {versions.Count} versions.");
             _logger.Info($"Version manifest refreshed ({versions.Count} entries).");

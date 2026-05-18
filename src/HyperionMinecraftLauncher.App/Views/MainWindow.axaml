@@ -216,14 +216,30 @@
         <!-- Manifest versions row -->
         <Border Grid.Row="2" Padding="10" Margin="0,0,0,6" CornerRadius="6"
                 Background="{DynamicResource MaterialPaperBrush}">
-          <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
-            <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+          <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto,Auto">
+            <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="4"
                    Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/compass.png"
                    Width="24" Height="24" Margin="0,0,10,0" VerticalAlignment="Center" />
             <TextBlock Grid.Row="0" Grid.Column="1" Text="Or install another version"
                        FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" />
-            <ComboBox Grid.Row="1" Grid.Column="1" Margin="0,2,0,0"
-                      ItemsSource="{Binding AvailableVersions}"
+
+            <!-- Search box. Filters FilteredVersions on every keystroke. -->
+            <TextBox Grid.Row="1" Grid.Column="1" Margin="0,4,0,0"
+                     Text="{Binding VersionSearchText, Mode=TwoWay}"
+                     Watermark="Search version..."
+                     FontSize="11" />
+
+            <!-- Type-filter chips. Single horizontal row, compact. -->
+            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal"
+                        Spacing="4" Margin="0,4,0,0">
+              <ToggleButton Content="Release"   Classes="Chip" IsChecked="{Binding ShowRelease,  Mode=TwoWay}" />
+              <ToggleButton Content="Snapshot"  Classes="Chip" IsChecked="{Binding ShowSnapshot, Mode=TwoWay}" />
+              <ToggleButton Content="Old beta"  Classes="Chip" IsChecked="{Binding ShowOldBeta,  Mode=TwoWay}" />
+              <ToggleButton Content="Old alpha" Classes="Chip" IsChecked="{Binding ShowOldAlpha, Mode=TwoWay}" />
+            </StackPanel>
+
+            <ComboBox Grid.Row="3" Grid.Column="1" Margin="0,4,0,0"
+                      ItemsSource="{Binding FilteredVersions}"
                       SelectedItem="{Binding SelectedVersion, Mode=TwoWay}"
                       PlaceholderText="(click Refresh manifest first)"
                       HorizontalAlignment="Stretch">
@@ -233,10 +249,10 @@
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
-            <Button Grid.Row="1" Grid.Column="2"
+            <Button Grid.Row="3" Grid.Column="2"
                     Content="Refresh manifest" FontSize="11"
                     Command="{Binding RefreshVersionsCommand}"
-                    Padding="10,4" Margin="8,2,0,0" />
+                    Padding="10,4" Margin="8,4,0,0" />
           </Grid>
         </Border>
 
@@ -717,6 +733,38 @@
     </Style>
     <Style Selector="RadioButton.Nav:pointerover /template/ Border#PART_Border">
       <Setter Property="Background" Value="{DynamicResource MaterialPrimaryDarkBrush}" />
+    </Style>
+
+    <!-- Version-picker filter chips. ToggleButton styled flat: a pill that tints when
+         checked and stays neutral otherwise. Mirrors the Tag chips seen on other
+         Minecraft launchers (Prism / MultiMC) and keeps the row compact above the
+         dropdown so it doesn't crowd the manifest box. -->
+    <Style Selector="ToggleButton.Chip">
+      <Setter Property="Padding" Value="10,3" />
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="MinHeight" Value="22" />
+      <Setter Property="Background" Value="#33FFFFFF" />
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="assists:ShadowAssist.ShadowDepth" Value="Depth0" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.15" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="ToggleButton.Chip /template/ Border#PART_RootBorder">
+      <Setter Property="BoxShadow" Value="0 0 0 0 #00000000" />
+    </Style>
+    <Style Selector="ToggleButton.Chip:pointerover">
+      <Setter Property="Background" Value="#55FFFFFF" />
+    </Style>
+    <Style Selector="ToggleButton.Chip:checked">
+      <Setter Property="Background" Value="{DynamicResource MaterialPrimaryMidBrush}" />
+    </Style>
+    <Style Selector="ToggleButton.Chip:checked:pointerover">
+      <Setter Property="Background" Value="{DynamicResource MaterialPrimaryLightBrush}" />
     </Style>
   </Window.Styles>
 

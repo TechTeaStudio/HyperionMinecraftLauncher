@@ -9,6 +9,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
@@ -17,7 +18,11 @@ namespace TechTeaStudio.HyperionMinecraftLauncher.App.Views;
 public partial class NewInstanceDialog : Window
 {
     public string SelectedName => NameBox.Text?.Trim() ?? "Untitled";
-    public VersionMetadata? SelectedVersion => VersionBox.SelectedItem as VersionMetadata;
+    /// <summary>The version selected in the dialog. Reads from the bound MainViewModel when present
+    /// so the Home-page filter chips drive the same selection here.</summary>
+    public VersionMetadata? SelectedVersion =>
+        (DataContext as MainViewModel)?.SelectedVersion
+        ?? VersionBox.SelectedItem as VersionMetadata;
     public string SelectedIconKey { get; private set; } = InstanceIcons.GrassBlock;
 
     /// <summary>Set to true only when the user clicked Create with a valid version.</summary>
@@ -29,13 +34,25 @@ public partial class NewInstanceDialog : Window
         IconPicker.ItemsSource = InstanceIcons.All;
     }
 
-    public static NewInstanceDialog WithVersions(IEnumerable<VersionMetadata> versions, string suggestedName = "My new instance")
+    /// <summary>
+    /// Bind the dialog to the live <see cref="MainViewModel"/> so the version dropdown,
+    /// search box and chip toggles share state with the Home page picker. The dialog
+    /// reads <c>FilteredVersions</c> (not <c>AvailableVersions</c>) so the user sees the
+    /// same narrowed list as before clicking "+ New Instance".
+    /// </summary>
+    public static NewInstanceDialog WithViewModel(MainViewModel viewModel, string suggestedName = "My new instance")
     {
-        var dlg = new NewInstanceDialog();
+        var dlg = new NewInstanceDialog
+        {
+            DataContext = viewModel,
+        };
         dlg.NameBox.Text = suggestedName;
-        dlg.VersionBox.ItemsSource = versions.ToList();
-        // Pre-select the newest release for a friendlier first run.
-        dlg.VersionBox.SelectedItem = versions.FirstOrDefault();
+        // Force a filter pass in case the source list changed since the user last
+        // interacted with the picker; this also nudges SelectedVersion to the first
+        // surviving entry when the previous one no longer matches.
+        viewModel.ApplyVersionFilter();
+        if (viewModel.SelectedVersion is null)
+            viewModel.SelectedVersion = viewModel.FilteredVersions.FirstOrDefault();
         return dlg;
     }
 
