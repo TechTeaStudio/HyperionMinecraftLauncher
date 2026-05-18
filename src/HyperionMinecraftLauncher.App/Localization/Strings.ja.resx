@@ -117,15 +117,15 @@
   <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>このスキンを再適用</value></data>
   <data name="Skins.DragHint" xml:space="preserve"><value>頭部プレビューの内側をドラッグして回転させます。</value></data>
 
-  <!-- Skins page: NameMC community browser (T-namemc, v0.32.1) -->
-  <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>スキンを探す (NameMC)</value></data>
+  <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
+  <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>スキンを探す</value></data>
   <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>名前やタグでスキンを検索...</value></data>
   <data name="SkinsBrowser.ShowTrending" xml:space="preserve"><value>トレンドを表示</value></data>
   <data name="SkinsBrowser.ApplyButton" xml:space="preserve"><value>自分のアカウントに適用</value></data>
-  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>提供: namemc.com - Hyperion は NameMC と提携していません。</value></data>
-  <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[エラー] NameMC ギャラリーを読み込めませんでした: {0}</value></data>
+  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>提供: api.mineskin.org - Hyperion は MineSkin と提携していません。</value></data>
+  <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[エラー] スキンギャラリーを読み込めませんでした: {0}</value></data>
   <data name="SkinsBrowser.DownloadFailed" xml:space="preserve"><value>[エラー] スキンをダウンロードできませんでした: {0}</value></data>
-  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>NameMC からスキン {0} をダウンロード中...</value></data>
+  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>MineSkin からスキン {0} をダウンロード中...</value></data>
   <data name="SkinsBrowser.Loading" xml:space="preserve"><value>ギャラリーを読み込み中...</value></data>
   <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>該当するスキンが見つかりませんでした。別の検索語を試すか「トレンドを表示」を押してください。</value></data>
 

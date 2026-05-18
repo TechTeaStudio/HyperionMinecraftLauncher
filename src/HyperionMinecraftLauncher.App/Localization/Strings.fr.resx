@@ -118,15 +118,15 @@
   <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>Réappliquer ce skin</value></data>
   <data name="Skins.DragHint" xml:space="preserve"><value>Fais glisser dans l'aperçu de la tête pour la faire tourner.</value></data>
 
-  <!-- Skins page: NameMC community browser (T-namemc, v0.32.1) -->
-  <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Parcourir les skins (NameMC)</value></data>
+  <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
+  <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Parcourir les skins</value></data>
   <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>Rechercher des skins par nom ou tag...</value></data>
   <data name="SkinsBrowser.ShowTrending" xml:space="preserve"><value>Afficher les tendances</value></data>
   <data name="SkinsBrowser.ApplyButton" xml:space="preserve"><value>Appliquer à mon compte</value></data>
-  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>Propulsé par namemc.com. Hyperion n'est pas affilié à NameMC.</value></data>
-  <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[erreur] Impossible de charger la galerie NameMC : {0}</value></data>
+  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>Propulsé par api.mineskin.org. Hyperion n'est pas affilié à MineSkin.</value></data>
+  <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[erreur] Impossible de charger la galerie de skins : {0}</value></data>
   <data name="SkinsBrowser.DownloadFailed" xml:space="preserve"><value>[erreur] Impossible de télécharger le skin : {0}</value></data>
-  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>Téléchargement du skin {0} depuis NameMC...</value></data>
+  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>Téléchargement du skin {0} depuis MineSkin...</value></data>
   <data name="SkinsBrowser.Loading" xml:space="preserve"><value>Chargement de la galerie...</value></data>
   <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>Aucun skin trouvé. Essayez une autre recherche ou cliquez sur « Afficher les tendances ».</value></data>
 
