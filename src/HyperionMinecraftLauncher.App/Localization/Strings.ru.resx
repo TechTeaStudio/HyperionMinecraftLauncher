@@ -302,6 +302,29 @@
   <data name="SkinVariantDialog.Classic" xml:space="preserve"><value>Classic</value></data>
   <data name="SkinVariantDialog.Slim" xml:space="preserve"><value>Slim</value></data>
 
+  <!-- CurseForge onboarding dialog -->
+  <data name="CurseForgeOnboardingDialog.Title" xml:space="preserve"><value>Подключение к CurseForge</value></data>
+  <data name="CurseForgeOnboardingDialog.HeaderTitle" xml:space="preserve"><value>Подключение к CurseForge</value></data>
+  <data name="CurseForgeOnboardingDialog.Heading" xml:space="preserve"><value>Подключение к CurseForge</value></data>
+  <data name="CurseForgeOnboardingDialog.Step1Body" xml:space="preserve"><value>CurseForge выдаёт API-ключи каждому разработчику отдельно. Мы их не поставляем. Нажмите кнопку ниже, чтобы открыть консоль CurseForge в браузере.</value></data>
+  <data name="CurseForgeOnboardingDialog.Step2Button" xml:space="preserve"><value>Открыть console.curseforge.com</value></data>
+  <data name="CurseForgeOnboardingDialog.Step3Label" xml:space="preserve"><value>Вставьте свой API-ключ:</value></data>
+  <data name="CurseForgeOnboardingDialog.KeyWatermark" xml:space="preserve"><value>$2a$10$...</value></data>
+  <data name="CurseForgeOnboardingDialog.SaveButton" xml:space="preserve"><value>Сохранить и закрыть</value></data>
+  <data name="CurseForgeOnboardingDialog.CancelButton" xml:space="preserve"><value>Отмена</value></data>
+
+  <!-- Mods page CurseForge empty state -->
+  <data name="Mods.ConnectHeadline" xml:space="preserve"><value>Подключите CurseForge, чтобы искать моды.</value></data>
+  <data name="Mods.ConnectSubhead" xml:space="preserve"><value>CurseForge требует бесплатный API-ключ для каждого разработчика. Hyperion его не поставляет. Регистрация занимает 2 минуты на console.curseforge.com.</value></data>
+  <data name="Mods.GetStartedButton" xml:space="preserve"><value>Начать</value></data>
+
+  <!-- Settings page Mods card -->
+  <data name="Settings.ModsHeader" xml:space="preserve"><value>Моды</value></data>
+  <data name="Settings.CurseForgeStatusNotConfigured" xml:space="preserve"><value>CurseForge: не настроено.</value></data>
+  <data name="Settings.CurseForgeStatusConfigured" xml:space="preserve"><value>CurseForge: настроено.</value></data>
+  <data name="Settings.SetUpCurseForgeButton" xml:space="preserve"><value>Настроить CurseForge</value></data>
+  <data name="Settings.ChangeKeyButton" xml:space="preserve"><value>Изменить ключ</value></data>
+
   <!-- ImportModpack dialog -->
   <data name="ImportModpackDialog.Title" xml:space="preserve"><value>Импорт сборки модов</value></data>
   <data name="ImportModpackDialog.HeaderTitle" xml:space="preserve"><value>Импорт сборки модов</value></data>
