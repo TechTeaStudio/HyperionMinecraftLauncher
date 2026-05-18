@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Canonical English source for every user-facing string in Hyperion Minecraft Launcher.
+
+    Conventions:
+      - Keys are UpperCamelCase + dotted scope, e.g. "MainWindow.Title", "Sidebar.Home".
+      - Format strings use positional placeholders {0}, {1}, ... (never named).
+      - Do NOT add triple-hyphen horizontal-rule separators or em-dashes to any translation file:
+        the author tracks these as tells of AI-generated copy. Use hyphens or commas.
+      - Technical identifiers (mod-loader names "Fabric"/"Forge"/etc, IDs, URLs, version numbers)
+        are NOT extracted - they stay as literals in the AXAML.
+
+    To add a new culture: drop "Strings.{culture}.resx" alongside this file with the same keys.
+    Missing keys automatically fall back to the English value here.
+  -->
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- ============================== MainWindow ============================== -->
+  <data name="MainWindow.Title" xml:space="preserve"><value>Hyperion Minecraft Launcher</value></data>
+  <data name="MainWindow.HeaderTitle" xml:space="preserve"><value>Hyperion Minecraft Launcher</value></data>
+
+  <!-- Header / account chip -->
+  <data name="Header.SignInWithMicrosoft" xml:space="preserve"><value>Увійти через Microsoft</value></data>
+  <data name="Header.AccountsLabel" xml:space="preserve"><value>АКАУНТИ</value></data>
+  <data name="Header.AddAccount" xml:space="preserve"><value>+ Додати акаунт...</value></data>
+  <data name="Header.RemoveThisAccount" xml:space="preserve"><value>Видалити цей акаунт</value></data>
+
+  <!-- Window controls -->
+  <data name="WindowChrome.Minimize" xml:space="preserve"><value>Згорнути</value></data>
+  <data name="WindowChrome.MaximizeRestore" xml:space="preserve"><value>Розгорнути / відновити</value></data>
+  <data name="WindowChrome.Close" xml:space="preserve"><value>Закрити</value></data>
+  <data name="WindowChrome.Dismiss" xml:space="preserve"><value>Сховати</value></data>
+
+  <!-- Sidebar -->
+  <data name="Sidebar.CollapseExpand" xml:space="preserve"><value>Згорнути / розгорнути бічну панель</value></data>
+  <data name="Sidebar.Home" xml:space="preserve"><value>Головна</value></data>
+  <data name="Sidebar.Installations" xml:space="preserve"><value>Збірки</value></data>
+  <data name="Sidebar.Skins" xml:space="preserve"><value>Скіни</value></data>
+  <data name="Sidebar.Servers" xml:space="preserve"><value>Сервери</value></data>
+  <data name="Sidebar.Headless" xml:space="preserve"><value>Headless</value></data>
+  <data name="Sidebar.HeadlessTooltip" xml:space="preserve"><value>Виділені headless-сервери</value></data>
+  <data name="Sidebar.Mods" xml:space="preserve"><value>Моди</value></data>
+  <data name="Sidebar.News" xml:space="preserve"><value>Новини</value></data>
+  <data name="Sidebar.Settings" xml:space="preserve"><value>Налаштування</value></data>
+  <data name="Sidebar.Logs" xml:space="preserve"><value>Журнал</value></data>
+  <data name="Sidebar.ParityBuildLabel" xml:space="preserve"><value>v0.8 - parity-збірка</value></data>
+
+  <!-- Home page -->
+  <data name="Home.Title" xml:space="preserve"><value>Грати в Minecraft</value></data>
+  <data name="Home.Subtitle" xml:space="preserve"><value>Вибери встановлену версію або завантаж із маніфесту.</value></data>
+  <data name="Home.YourInstancesLabel" xml:space="preserve"><value>Твої збірки</value></data>
+  <data name="Home.YourInstancesPlaceholder" xml:space="preserve"><value>(збірок поки немає, створи на сторінці Збірки)</value></data>
+  <data name="Home.RescanButton" xml:space="preserve"><value>Пересканувати</value></data>
+  <data name="Home.OrInstallAnother" xml:space="preserve"><value>Або встановити іншу версію</value></data>
+  <data name="Home.SearchVersionWatermark" xml:space="preserve"><value>Пошук версії...</value></data>
+  <data name="Home.ChipRelease" xml:space="preserve"><value>Release</value></data>
+  <data name="Home.ChipSnapshot" xml:space="preserve"><value>Snapshot</value></data>
+  <data name="Home.ChipOldBeta" xml:space="preserve"><value>Стара beta</value></data>
+  <data name="Home.ChipOldAlpha" xml:space="preserve"><value>Стара alpha</value></data>
+  <data name="Home.ManifestPlaceholder" xml:space="preserve"><value>(спершу натисни "Оновити маніфест")</value></data>
+  <data name="Home.RefreshManifestButton" xml:space="preserve"><value>Оновити маніфест</value></data>
+  <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>Офлайн-нік:</value></data>
+  <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
+  <data name="Home.ResumeWorldButton" xml:space="preserve"><value>Продовжити світ...</value></data>
+  <data name="Home.ResumeWorldTooltip" xml:space="preserve"><value>Quick Play: вибери світ із .minecraft/saves/ і одразу відкрий його.</value></data>
+  <data name="Home.LaunchButton" xml:space="preserve"><value>Запустити</value></data>
+
+  <!-- Installations page -->
+  <data name="Installations.Title" xml:space="preserve"><value>Збірки</value></data>
+  <data name="Installations.Subtitle" xml:space="preserve"><value>Збірки Hyperion. Кожна має свою версію, іконку і (з часом) JVM / game-dir.</value></data>
+  <data name="Installations.NewInstance" xml:space="preserve"><value>+ Нова збірка</value></data>
+  <data name="Installations.ImportFromZip" xml:space="preserve"><value>Імпорт із zip...</value></data>
+  <data name="Installations.ImportFromZipTooltip" xml:space="preserve"><value>Імпортувати zip-збірку у форматі Hyperion</value></data>
+  <data name="Installations.ImportModpack" xml:space="preserve"><value>Імпорт модпака...</value></data>
+  <data name="Installations.Refresh" xml:space="preserve"><value>Оновити</value></data>
+  <data name="Installations.DeleteSelected" xml:space="preserve"><value>Видалити вибрані</value></data>
+  <data name="Installations.AutoBadge" xml:space="preserve"><value>авто</value></data>
+  <data name="Installations.MoreTooltip" xml:space="preserve"><value>Ще...</value></data>
+  <data name="Installations.MenuEditInstance" xml:space="preserve"><value>Редагувати збірку...</value></data>
+  <data name="Installations.MenuChangeIcon" xml:space="preserve"><value>Змінити іконку...</value></data>
+  <data name="Installations.MenuExportToZip" xml:space="preserve"><value>Експорт у zip...</value></data>
+  <data name="Installations.MenuOpenFolder" xml:space="preserve"><value>Відкрити папку</value></data>
+  <data name="Installations.MenuDelete" xml:space="preserve"><value>Видалити</value></data>
+
+  <!-- Instance detail tabs -->
+  <data name="InstanceTabs.Screenshots" xml:space="preserve"><value>Скриншоти</value></data>
+  <data name="InstanceTabs.Worlds" xml:space="preserve"><value>Світи</value></data>
+  <data name="InstanceTabs.Servers" xml:space="preserve"><value>Сервери</value></data>
+  <data name="InstanceTabs.Crashes" xml:space="preserve"><value>Креші</value></data>
+  <data name="InstanceTabs.RefreshButton" xml:space="preserve"><value>Оновити</value></data>
+  <data name="InstanceTabs.OpenFolderButton" xml:space="preserve"><value>Відкрити папку</value></data>
+  <data name="InstanceTabs.NoCrashReports" xml:space="preserve"><value>Звітів про креші для цієї збірки немає.</value></data>
+  <data name="InstanceTabs.SearchModrinth" xml:space="preserve"><value>Modrinth</value></data>
+  <data name="InstanceTabs.SearchCurseForge" xml:space="preserve"><value>CurseForge</value></data>
+  <data name="InstanceTabs.WorldMenuBackupNow" xml:space="preserve"><value>Зробити бекап зараз</value></data>
+  <data name="InstanceTabs.WorldMenuRestoreLatest" xml:space="preserve"><value>Відновити останній бекап</value></data>
+  <data name="InstanceTabs.WorldMenuOpenFolder" xml:space="preserve"><value>Відкрити папку</value></data>
+  <data name="InstanceTabs.CrashSeparatorDash" xml:space="preserve"><value>  -  </value></data>
+
+  <!-- Skins page -->
+  <data name="Skins.Title" xml:space="preserve"><value>Скіни</value></data>
+  <data name="Skins.Subtitle" xml:space="preserve"><value>3D-превʼю в реальному часі, завантаження скінів і вибір плаща (потрібен вхід через Microsoft).</value></data>
+  <data name="Skins.UploadButton" xml:space="preserve"><value>Завантажити новий скін...</value></data>
+  <data name="Skins.CapeLabel" xml:space="preserve"><value>Плащ:</value></data>
+  <data name="Skins.CapeNonePlaceholder" xml:space="preserve"><value>(немає)</value></data>
+  <data name="Skins.ClearCape" xml:space="preserve"><value>Зняти плащ</value></data>
+  <data name="Skins.RecentSkins" xml:space="preserve"><value>Нещодавні скіни</value></data>
+  <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>Застосувати цей скін повторно</value></data>
+  <data name="Skins.DragHint" xml:space="preserve"><value>Перетягни в превʼю голови, щоб обернути.</value></data>
+
+  <!-- Servers page -->
+  <data name="Servers.Title" xml:space="preserve"><value>Сервери</value></data>
+  <data name="Servers.Subtitle" xml:space="preserve"><value>Список мультиплеєр-серверів (servers.dat NBT). Пінг через протокол Minecraft Server List Ping.</value></data>
+  <data name="Servers.RefreshServers" xml:space="preserve"><value>Оновити сервери</value></data>
+  <data name="Servers.RefreshPings" xml:space="preserve"><value>Оновити пінги</value></data>
+  <data name="Servers.JoinButton" xml:space="preserve"><value>Підʼєднатися</value></data>
+  <data name="Servers.JoinTooltip" xml:space="preserve"><value>Quick Play: запустити і підʼєднатися до цього сервера.</value></data>
+
+  <!-- Headless servers page -->
+  <data name="HeadlessServers.Title" xml:space="preserve"><value>Headless-сервери</value></data>
+  <data name="HeadlessServers.Subtitle" xml:space="preserve"><value>Виділені Minecraft-сервери, які Hyperion відстежує на диску. Завантаження server.jar і запуск JVM у роадмапі.</value></data>
+  <data name="HeadlessServers.NewServer" xml:space="preserve"><value>+ Новий сервер</value></data>
+  <data name="HeadlessServers.Refresh" xml:space="preserve"><value>Оновити</value></data>
+  <data name="HeadlessServers.Start" xml:space="preserve"><value>Запустити</value></data>
+  <data name="HeadlessServers.Stop" xml:space="preserve"><value>Зупинити</value></data>
+  <data name="HeadlessServers.Delete" xml:space="preserve"><value>Видалити</value></data>
+  <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>Заглушка; завантаження server.jar у роадмапі.</value></data>
+  <data name="HeadlessServers.FootnotePath" xml:space="preserve"><value>У кожного сервера своя папка в %LOCALAPPDATA%/HyperionMinecraftLauncher/headless_servers/{id}/. При створенні лаунчер пише туди metadata.json, eula.txt і server.properties.</value></data>
+  <data name="HeadlessServers.DashSeparator" xml:space="preserve"><value> - </value></data>
+  <data name="HeadlessServers.MibAndPort" xml:space="preserve"><value> MiB - порт </value></data>
+
+  <!-- Mods page -->
+  <data name="Mods.Title" xml:space="preserve"><value>Моди</value></data>
+  <data name="Mods.Subtitle" xml:space="preserve"><value>Шукай у Modrinth або CurseForge і встановлюй моди прямо у вибрану збірку.</value></data>
+  <data name="Mods.SourceModrinth" xml:space="preserve"><value>Modrinth</value></data>
+  <data name="Mods.SourceCurseForge" xml:space="preserve"><value>CurseForge</value></data>
+  <data name="Mods.SearchLabel" xml:space="preserve"><value>Пошук:</value></data>
+  <data name="Mods.SearchWatermark" xml:space="preserve"><value>напр. fabric-api, sodium, JEI</value></data>
+  <data name="Mods.SearchButton" xml:space="preserve"><value>Знайти</value></data>
+  <data name="Mods.SearchResults" xml:space="preserve"><value>Результати пошуку</value></data>
+  <data name="Mods.InstallButton" xml:space="preserve"><value>Встановити</value></data>
+  <data name="Mods.InstalledInSelectedInstance" xml:space="preserve"><value>Встановлено у вибраній збірці</value></data>
+  <data name="Mods.RefreshButton" xml:space="preserve"><value>Оновити</value></data>
+  <data name="Mods.PickAnInstanceFirst" xml:space="preserve"><value>Спочатку вибери збірку на сторінці Збірки</value></data>
+  <data name="Mods.RightPaneHint" xml:space="preserve"><value>Права панель показує вміст папки mods/ вибраної збірки і дозволяє вмикати чи видаляти моди.</value></data>
+  <data name="Mods.RemoveButton" xml:space="preserve"><value>Видалити</value></data>
+  <data name="Mods.DownloadsCountFormat" xml:space="preserve"><value>Завантажень: {0:N0}</value></data>
+  <data name="Mods.FileSizeBytesFormat" xml:space="preserve"><value>{0:N0} Б</value></data>
+
+  <!-- News page -->
+  <data name="News.Title" xml:space="preserve"><value>Новини</value></data>
+  <data name="News.Subtitle" xml:space="preserve"><value>Стрічка з launchercontent.mojang.com/news.json, те саме джерело, що й офіційний лаунчер Mojang.</value></data>
+  <data name="News.RefreshButton" xml:space="preserve"><value>Оновити новини</value></data>
+  <data name="News.ReadMore" xml:space="preserve"><value>Читати далі на minecraft.net</value></data>
+
+  <!-- Settings page -->
+  <data name="Settings.Title" xml:space="preserve"><value>Налаштування</value></data>
+  <data name="Settings.Subtitle" xml:space="preserve"><value>Зберігаються в %LOCALAPPDATA%\HyperionMinecraftLauncher\settings.json. Ліміти памʼяті застосовуються при наступному запуску.</value></data>
+  <data name="Settings.MemoryHeader" xml:space="preserve"><value>Памʼять (JVM heap)</value></data>
+  <data name="Settings.MinimumXmsLabel" xml:space="preserve"><value>Мінімум (-Xms):</value></data>
+  <data name="Settings.MaximumXmxLabel" xml:space="preserve"><value>Максимум (-Xmx):</value></data>
+  <data name="Settings.MbUnit" xml:space="preserve"><value> МБ</value></data>
+  <data name="Settings.CeilingPrefix" xml:space="preserve"><value>Стеля, визначена для цієї машини: </value></data>
+  <data name="Settings.CeilingSuffix" xml:space="preserve"><value> МБ (~75% системної RAM, не більше 16 ГБ).</value></data>
+  <data name="Settings.JvmArgsHeader" xml:space="preserve"><value>Додаткові аргументи JVM</value></data>
+  <data name="Settings.JvmArgsWatermark" xml:space="preserve"><value>-XX:+UseG1GC -XX:+UnlockExperimentalVMOptions ...</value></data>
+  <data name="Settings.JvmArgsHint" xml:space="preserve"><value>Додаються після автогенерованих -Xms/-Xmx. (Поки не передаються в CmlLib process builder, заплановано на наступний крок.)</value></data>
+  <data name="Settings.GameDirHeader" xml:space="preserve"><value>Папка гри</value></data>
+  <data name="Settings.GameDirWatermark" xml:space="preserve"><value>(залиш порожнім, щоб використати стандартну .minecraft)</value></data>
+  <data name="Settings.BrowseButton" xml:space="preserve"><value>Огляд</value></data>
+  <data name="Settings.JavaExeHeader" xml:space="preserve"><value>Виконуваний файл Java</value></data>
+  <data name="Settings.JavaExeWatermark" xml:space="preserve"><value>(залиш порожнім, щоб CmlLib знайшов сам)</value></data>
+  <data name="Settings.LauncherPrefsHeader" xml:space="preserve"><value>Налаштування лаунчера</value></data>
+  <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>Тримати лаунчер відкритим після запуску гри</value></data>
+  <data name="Settings.ShowGameLog" xml:space="preserve"><value>Показувати stdout / stderr гри в журналі лаунчера (заплановано)</value></data>
+  <data name="Settings.BackupsHeader" xml:space="preserve"><value>Бекапи</value></data>
+  <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>Автоматично бекапити світи перед кожним запуском</value></data>
+  <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>Зберігати останніх N на світ (0 = зберігати всі):</value></data>
+  <data name="Settings.BackupHint" xml:space="preserve"><value>Кожен світ пакується в &lt;gameDir&gt;/backups/{world}-{timestamp}.zip. Збій під час бекапу логується, але запуск не блокує.</value></data>
+  <data name="Settings.LanguageHeader" xml:space="preserve"><value>Мова</value></data>
+  <data name="Settings.LanguageLabel" xml:space="preserve"><value>Мова інтерфейсу:</value></data>
+  <data name="Settings.LanguageUseSystemDefault" xml:space="preserve"><value>Системна за замовчуванням</value></data>
+  <data name="Settings.LanguageHint" xml:space="preserve"><value>Зміна мови застосовується одразу до новостворених сторінок, а до всього UI після перезапуску лаунчера.</value></data>
+  <data name="Settings.SaveButton" xml:space="preserve"><value>Зберегти налаштування</value></data>
+
+  <!-- Logs page -->
+  <data name="Logs.Title" xml:space="preserve"><value>Журнал</value></data>
+  <data name="Logs.Subtitle" xml:space="preserve"><value>Сьогоднішній файл журналу з добовою ротацією з %LOCALAPPDATA%\HyperionMinecraftLauncher\logs\.</value></data>
+  <data name="Logs.FilterWatermark" xml:space="preserve"><value>Фільтр журналу...</value></data>
+  <data name="Logs.RefreshButton" xml:space="preserve"><value>Оновити</value></data>
+  <data name="Logs.OpenLogsFolderButton" xml:space="preserve"><value>Відкрити папку журналу</value></data>
+  <data name="Logs.CopyAllButton" xml:space="preserve"><value>Копіювати все</value></data>
+
+  <!-- New Instance dialog -->
+  <data name="NewInstanceDialog.Title" xml:space="preserve"><value>Нова збірка</value></data>
+  <data name="NewInstanceDialog.HeaderTitle" xml:space="preserve"><value>Створення нової збірки</value></data>
+  <data name="NewInstanceDialog.InstanceNameLabel" xml:space="preserve"><value>Назва збірки</value></data>
+  <data name="NewInstanceDialog.DefaultInstanceName" xml:space="preserve"><value>Моя нова збірка</value></data>
+  <data name="NewInstanceDialog.MinecraftVersionLabel" xml:space="preserve"><value>Версія Minecraft</value></data>
+  <data name="NewInstanceDialog.SearchVersionWatermark" xml:space="preserve"><value>Пошук версії...</value></data>
+  <data name="NewInstanceDialog.LoadingManifest" xml:space="preserve"><value>(завантаження маніфесту ...)</value></data>
+  <data name="NewInstanceDialog.FiltersSharedHint" xml:space="preserve"><value>Фільтри і пошук спільні з вибором на Головній.</value></data>
+  <data name="NewInstanceDialog.ModLoaderLabel" xml:space="preserve"><value>Мод-лоадер</value></data>
+  <data name="NewInstanceDialog.LoaderVersionLabel" xml:space="preserve"><value>Версія лоадера</value></data>
+  <data name="NewInstanceDialog.LoaderVersionPlaceholder" xml:space="preserve"><value>(остання)</value></data>
+  <data name="NewInstanceDialog.LoaderHint" xml:space="preserve"><value>Зверху найновіші. Залиш порожнім, щоб встановити останню стабільну збірку.</value></data>
+  <data name="NewInstanceDialog.LoaderVanilla" xml:space="preserve"><value>Vanilla</value></data>
+  <data name="NewInstanceDialog.LoaderFabric" xml:space="preserve"><value>Fabric</value></data>
+  <data name="NewInstanceDialog.LoaderForge" xml:space="preserve"><value>Forge</value></data>
+  <data name="NewInstanceDialog.LoaderNeoForge" xml:space="preserve"><value>NeoForge</value></data>
+  <data name="NewInstanceDialog.LoaderQuilt" xml:space="preserve"><value>Quilt</value></data>
+  <data name="NewInstanceDialog.IconLabel" xml:space="preserve"><value>Іконка</value></data>
+  <data name="NewInstanceDialog.CreateButton" xml:space="preserve"><value>Створити</value></data>
+
+  <!-- Edit Instance dialog -->
+  <data name="EditInstanceDialog.Title" xml:space="preserve"><value>Редагування збірки</value></data>
+  <data name="EditInstanceDialog.HeaderTitle" xml:space="preserve"><value>Редагування збірки</value></data>
+  <data name="EditInstanceDialog.GeneralSection" xml:space="preserve"><value>Загальне</value></data>
+  <data name="EditInstanceDialog.JavaMemorySection" xml:space="preserve"><value>Java і памʼять</value></data>
+  <data name="EditInstanceDialog.JavaMemoryHint" xml:space="preserve"><value>Перевизначити глобальні налаштування лише для цієї збірки. Порожнє поле або 0 = успадкувати.</value></data>
+  <data name="EditInstanceDialog.MinHeapLabel" xml:space="preserve"><value>Мінімум heap (-Xms)</value></data>
+  <data name="EditInstanceDialog.MaxHeapLabel" xml:space="preserve"><value>Максимум heap (-Xmx)</value></data>
+  <data name="EditInstanceDialog.JvmArgsLabel" xml:space="preserve"><value>Додаткові аргументи JVM</value></data>
+  <data name="EditInstanceDialog.JvmArgsWatermark" xml:space="preserve"><value>(залиш порожнім, щоб успадкувати з налаштувань)</value></data>
+  <data name="EditInstanceDialog.GameDirLabel" xml:space="preserve"><value>Папка гри</value></data>
+  <data name="EditInstanceDialog.GameDirWatermark" xml:space="preserve"><value>(залиш порожнім, щоб успадкувати спільну .minecraft)</value></data>
+  <data name="EditInstanceDialog.BrowseButton" xml:space="preserve"><value>Огляд...</value></data>
+  <data name="EditInstanceDialog.WindowResolutionLabel" xml:space="preserve"><value>Роздільна здатність вікна</value></data>
+  <data name="EditInstanceDialog.WidthShort" xml:space="preserve"><value>Ш </value></data>
+  <data name="EditInstanceDialog.HeightShort" xml:space="preserve"><value>В </value></data>
+  <data name="EditInstanceDialog.ResolutionHint" xml:space="preserve"><value>За замовчуванням 854 x 480. Обидва нулі = успадкувати (стандарт Minecraft).</value></data>
+  <data name="EditInstanceDialog.SaveButton" xml:space="preserve"><value>Зберегти</value></data>
+  <data name="EditInstanceDialog.InstanceNameLabel" xml:space="preserve"><value>Назва збірки</value></data>
+  <data name="EditInstanceDialog.IconLabel" xml:space="preserve"><value>Іконка</value></data>
+
+  <!-- Edit Instance Icon dialog -->
+  <data name="EditInstanceIconDialog.Title" xml:space="preserve"><value>Зміна іконки</value></data>
+  <data name="EditInstanceIconDialog.HeaderTitle" xml:space="preserve"><value>Зміна іконки</value></data>
+  <data name="EditInstanceIconDialog.Subtitle" xml:space="preserve"><value>Вибери нову іконку для цієї збірки.</value></data>
+  <data name="EditInstanceIconDialog.SaveButton" xml:space="preserve"><value>Зберегти</value></data>
+
+  <!-- Common dialog actions -->
+  <data name="Common.Cancel" xml:space="preserve"><value>Скасувати</value></data>
+  <data name="Common.Save" xml:space="preserve"><value>Зберегти</value></data>
+  <data name="Common.Create" xml:space="preserve"><value>Створити</value></data>
+  <data name="Common.OK" xml:space="preserve"><value>OK</value></data>
+  <data name="Common.Yes" xml:space="preserve"><value>Так</value></data>
+  <data name="Common.No" xml:space="preserve"><value>Ні</value></data>
+  <data name="Common.Close" xml:space="preserve"><value>Закрити</value></data>
+  <data name="Common.Hide" xml:space="preserve"><value>Сховати</value></data>
+  <data name="Common.Browse" xml:space="preserve"><value>Огляд</value></data>
+
+  <!-- DeviceCode dialog -->
+  <data name="DeviceCodeDialog.Title" xml:space="preserve"><value>Увійти через Microsoft</value></data>
+  <data name="DeviceCodeDialog.HeaderTitle" xml:space="preserve"><value>Увійти через Microsoft</value></data>
+  <data name="DeviceCodeDialog.OpenPagePrompt" xml:space="preserve"><value>Відкрий цю сторінку у браузері:</value></data>
+  <data name="DeviceCodeDialog.EnterCodePrompt" xml:space="preserve"><value>І введи цей код:</value></data>
+  <data name="DeviceCodeDialog.Footer" xml:space="preserve"><value>Браузер мав відкритися автоматично. Лаунчер опитує Microsoft, щойно ти завершиш вхід, вікно закриється само.</value></data>
+  <data name="DeviceCodeDialog.CopyCode" xml:space="preserve"><value>Скопіювати код</value></data>
+  <data name="DeviceCodeDialog.OpenBrowser" xml:space="preserve"><value>Відкрити браузер</value></data>
+
+  <!-- JoinServer dialog -->
+  <data name="JoinServerDialog.Title" xml:space="preserve"><value>Підʼєднання до сервера</value></data>
+  <data name="JoinServerDialog.HeaderTitle" xml:space="preserve"><value>Quick Play: підʼєднання до сервера</value></data>
+  <data name="JoinServerDialog.PickInstance" xml:space="preserve"><value>Вибери збірку</value></data>
+  <data name="JoinServerDialog.NoInstancesPlaceholder" xml:space="preserve"><value>(збірок немає)</value></data>
+  <data name="JoinServerDialog.JoinButton" xml:space="preserve"><value>Підʼєднатися</value></data>
+
+  <!-- Worlds dialog -->
+  <data name="WorldsDialog.Title" xml:space="preserve"><value>Продовжити світ</value></data>
+  <data name="WorldsDialog.HeaderTitle" xml:space="preserve"><value>Quick Play: продовжити світ</value></data>
+  <data name="WorldsDialog.ResumeButton" xml:space="preserve"><value>Продовжити</value></data>
+
+  <!-- NewHeadlessServer dialog -->
+  <data name="NewHeadlessServerDialog.Title" xml:space="preserve"><value>Новий headless-сервер</value></data>
+  <data name="NewHeadlessServerDialog.HeaderTitle" xml:space="preserve"><value>Створення headless-сервера</value></data>
+  <data name="NewHeadlessServerDialog.Hint" xml:space="preserve"><value>Завантаження server.jar поки у роадмапі. Лаунчер уже пише метадані, eula.txt і мінімальний server.properties, щоб папка була готова, коли підключимо пайплайн.</value></data>
+  <data name="NewHeadlessServerDialog.ServerNameLabel" xml:space="preserve"><value>Назва сервера</value></data>
+  <data name="NewHeadlessServerDialog.DefaultServerName" xml:space="preserve"><value>Мій виділений сервер</value></data>
+  <data name="NewHeadlessServerDialog.MinecraftVersionLabel" xml:space="preserve"><value>Версія Minecraft</value></data>
+  <data name="NewHeadlessServerDialog.LoadingManifestShort" xml:space="preserve"><value>(завантаження маніфесту...)</value></data>
+  <data name="NewHeadlessServerDialog.MaxHeapLabel" xml:space="preserve"><value>Максимум heap JVM (MiB)</value></data>
+  <data name="NewHeadlessServerDialog.PortLabel" xml:space="preserve"><value>Порт</value></data>
+
+  <!-- SkinVariant dialog -->
+  <data name="SkinVariantDialog.Title" xml:space="preserve"><value>Вибір моделі скіна</value></data>
+  <data name="SkinVariantDialog.HeaderTitle" xml:space="preserve"><value>Вибір моделі скіна</value></data>
+  <data name="SkinVariantDialog.Question" xml:space="preserve"><value>Яка ширина рук у цього скіна?</value></data>
+  <data name="SkinVariantDialog.Hint" xml:space="preserve"><value>Classic = руки 4 пікселі (Steve). Slim = руки 3 пікселі (Alex).</value></data>
+  <data name="SkinVariantDialog.Classic" xml:space="preserve"><value>Classic</value></data>
+  <data name="SkinVariantDialog.Slim" xml:space="preserve"><value>Slim</value></data>
+
+  <!-- ImportModpack dialog -->
+  <data name="ImportModpackDialog.Title" xml:space="preserve"><value>Імпорт модпака</value></data>
+  <data name="ImportModpackDialog.HeaderTitle" xml:space="preserve"><value>Імпорт модпака</value></data>
+  <data name="ImportModpackDialog.ArchiveLabel" xml:space="preserve"><value>Архів</value></data>
+  <data name="ImportModpackDialog.NoArchivePicked" xml:space="preserve"><value>(файл не вибрано)</value></data>
+  <data name="ImportModpackDialog.InstanceNameLabel" xml:space="preserve"><value>Назва збірки</value></data>
+  <data name="ImportModpackDialog.InstanceNameWatermark" xml:space="preserve"><value>(якщо порожньо, береться назва модпака)</value></data>
+  <data name="ImportModpackDialog.Hint" xml:space="preserve"><value>Тип архіву визначається автоматично (Modrinth .mrpack або CurseForge .zip) і імпортується у нову папку збірки.</value></data>
+  <data name="ImportModpackDialog.ImportButton" xml:space="preserve"><value>Імпорт</value></data>
+
+  <!-- ViewModel log messages -->
+  <data name="Log.AutoRefreshingOnStartup" xml:space="preserve"><value>Автооновлення при запуску ...</value></data>
+  <data name="Log.SilentMsSignInAttempt" xml:space="preserve"><value>Тихий вхід Microsoft (кешований refresh-токен) ...</value></data>
+  <data name="Log.AutoSignedInAs" xml:space="preserve"><value>Авто-вхід виконано як '{0}'.</value></data>
+  <data name="Log.SilentSignInSkipped" xml:space="preserve"><value>Тихий вхід пропущено: {0}</value></data>
+  <data name="Log.LoadingVersionManifest" xml:space="preserve"><value>Завантаження маніфесту версій ...</value></data>
+  <data name="Log.LoadedNVersions" xml:space="preserve"><value>Завантажено версій: {0}.</value></data>
+  <data name="Log.LoadingInstances" xml:space="preserve"><value>Завантаження збірок ...</value></data>
+  <data name="Log.FetchingNews" xml:space="preserve"><value>Отримання новин Minecraft ...</value></data>
+  <data name="Log.LoadedNNewsArticles" xml:space="preserve"><value>Завантажено новин: {0}.</value></data>
+  <data name="Log.ReadingServersDat" xml:space="preserve"><value>Читання servers.dat ...</value></data>
+  <data name="Log.LoadedNServers" xml:space="preserve"><value>Завантажено серверів: {0}.</value></data>
+  <data name="Log.ReadingLauncherProfiles" xml:space="preserve"><value>Читання launcher_profiles.json ...</value></data>
+  <data name="Log.LoadedNProfiles" xml:space="preserve"><value>Завантажено профілів із launcher_profiles.json: {0}.</value></data>
+  <data name="Log.ScanningInstalledVersions" xml:space="preserve"><value>Сканування встановлених версій ...</value></data>
+  <data name="Log.FoundNInstalledVersions" xml:space="preserve"><value>Знайдено встановлених версій: {0}.</value></data>
+  <data name="Log.SigningInWithMicrosoft" xml:space="preserve"><value>Вхід через Microsoft ...</value></data>
+  <data name="Log.SignedInAs" xml:space="preserve"><value>Вхід виконано як '{0}'.</value></data>
+  <data name="Log.MicrosoftSignInPrompt" xml:space="preserve"><value>Вхід Microsoft: введи код {0} на {1}</value></data>
+  <data name="Log.SignedOut" xml:space="preserve"><value>Вихід виконано.</value></data>
+  <data name="Log.SavingSettings" xml:space="preserve"><value>Збереження налаштувань ...</value></data>
+  <data name="Log.SettingsSaved" xml:space="preserve"><value>Налаштування збережено (Xms={0}M, Xmx={1}M).</value></data>
+  <data name="Log.CouldNotSaveSettings" xml:space="preserve"><value>[error] Не вдалося зберегти налаштування: {0}</value></data>
+  <data name="Log.SignInCancelled" xml:space="preserve"><value>Вхід скасовано.</value></data>
+  <data name="Log.SignInFailed" xml:space="preserve"><value>[error] {0}</value></data>
+  <data name="Log.Error" xml:space="preserve"><value>[error] {0}</value></data>
+  <data name="Log.Warn" xml:space="preserve"><value>[warn] {0}</value></data>
+  <data name="Log.ModsNoRepository" xml:space="preserve"><value>[mods] Для вибраного джерела немає налаштованого репозиторію.</value></data>
+  <data name="Log.ModsSearching" xml:space="preserve"><value>Пошук у {0} за запитом '{1}' ...</value></data>
+  <data name="Log.ModsResultsCount" xml:space="preserve"><value>[mods] результатів: {0}.</value></data>
+  <data name="Log.ModsNoRepositoryForInstall" xml:space="preserve"><value>[mods] Немає доступного репозиторію для встановлення цього мода.</value></data>
+  <data name="Log.ModsResolvingFiles" xml:space="preserve"><value>Пошук файлів для '{0}' ({1} / {2}) ...</value></data>
+  <data name="Log.ModsNoMatchingFiles" xml:space="preserve"><value>[mods] Для цієї збірки немає відповідних файлів.</value></data>
+  <data name="Log.ModsInstalling" xml:space="preserve"><value>Встановлення '{0}' у '{1}' ...</value></data>
+  <data name="Log.ModsInstallComplete" xml:space="preserve"><value>[mods] Встановлення завершено.</value></data>
+  <data name="Log.ModsInstalledInInstance" xml:space="preserve"><value>[mods] {0} встановлено в '{1}'.</value></data>
+  <data name="Log.ModsRemoved" xml:space="preserve"><value>[mods] Видалено: '{0}'.</value></data>
+
+  <!-- Error messages -->
+  <data name="Error.NoSession" xml:space="preserve"><value>[error] Для операцій зі скінами потрібен акаунт Microsoft.</value></data>
+  <data name="Error.SkinPickerUnavailable" xml:space="preserve"><value>[error] Вибір файлу скіна недоступний.</value></data>
+  <data name="Error.CapeOpsRequireMsAccount" xml:space="preserve"><value>[error] Для операцій із плащем потрібен акаунт Microsoft.</value></data>
+  <data name="Error.SkinUploadCancelled" xml:space="preserve"><value>Завантаження скіна скасовано.</value></data>
+  <data name="Error.CannotDeleteAutoImported" xml:space="preserve"><value>Не можна видалити автоімпортовану збірку (вона лежить у .minecraft/versions/).</value></data>
+  <data name="Error.CannotChangeAutoImportedIcon" xml:space="preserve"><value>Не можна змінити іконку автоімпортованої збірки.</value></data>
+  <data name="Error.CannotEditAutoImported" xml:space="preserve"><value>Не можна редагувати автоімпортовану збірку.</value></data>
+  <data name="Error.ModpackImporterDisabled" xml:space="preserve"><value>[error] Імпорт модпака відключено у цій збірці (імпортер не підключено).</value></data>
+  <data name="Error.ModpackImportCancelled" xml:space="preserve"><value>Імпорт модпака скасовано.</value></data>
+  <data name="Error.InstanceExportUnavailable" xml:space="preserve"><value>[error] Експорт збірки недоступний.</value></data>
+  <data name="Error.CannotExportAutoImported" xml:space="preserve"><value>[error] Не можна експортувати автоімпортовану збірку.</value></data>
+  <data name="Error.ExportPickerUnavailable" xml:space="preserve"><value>[error] Вибір файлу для експорту недоступний.</value></data>
+  <data name="Error.InstanceExportCancelled" xml:space="preserve"><value>Експорт збірки скасовано.</value></data>
+  <data name="Error.InstanceImportUnavailable" xml:space="preserve"><value>[error] Імпорт збірки недоступний.</value></data>
+  <data name="Error.ImportPickerUnavailable" xml:space="preserve"><value>[error] Вибір файлу для імпорту недоступний.</value></data>
+  <data name="Error.InstanceImportCancelled" xml:space="preserve"><value>Імпорт збірки скасовано.</value></data>
+</root>
+</content>
+</invoke>
