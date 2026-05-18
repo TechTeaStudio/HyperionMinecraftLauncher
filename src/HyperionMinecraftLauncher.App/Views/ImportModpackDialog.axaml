@@ -3,10 +3,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels"
+        xmlns:loc="using:TechTeaStudio.HyperionMinecraftLauncher.App.Localization"
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.ImportModpackDialog"
         x:DataType="vm:MainViewModel"
-        Title="Import modpack"
+        Title="{x:Static loc:Strings.ImportModpackDialog_Title}"
         Width="480" Height="260"
         CanResize="False"
         SystemDecorations="None"
@@ -26,7 +27,7 @@
       <!-- Title bar -->
       <Border Grid.Row="0" Background="#400D0D1B" PointerPressed="OnTitleBarPressed">
         <Grid ColumnDefinitions="*,Auto">
-          <TextBlock Grid.Column="0" Text="Import modpack"
+          <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.ImportModpackDialog_HeaderTitle}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                      Foreground="White" VerticalAlignment="Center" Margin="12,0" />
           <Button Grid.Column="1" Click="OnCancel" Width="36" Height="36"
@@ -40,23 +41,23 @@
       <!-- Body -->
       <StackPanel Grid.Row="1" Margin="22,16" Spacing="14">
         <StackPanel Spacing="4">
-          <TextBlock Text="Archive" FontSize="12" Opacity="0.85" />
-          <TextBlock x:Name="ArchivePathBox" Text="(no file picked)"
+          <TextBlock Text="{x:Static loc:Strings.ImportModpackDialog_ArchiveLabel}" FontSize="12" Opacity="0.85" />
+          <TextBlock x:Name="ArchivePathBox" Text="{x:Static loc:Strings.ImportModpackDialog_NoArchivePicked}"
                      FontSize="11" Opacity="0.7" TextWrapping="Wrap" />
         </StackPanel>
         <StackPanel Spacing="4">
-          <TextBlock Text="Instance name" FontSize="12" Opacity="0.85" />
-          <TextBox x:Name="NameBox" Text="" Watermark="(uses pack name if empty)" FontSize="13" />
+          <TextBlock Text="{x:Static loc:Strings.ImportModpackDialog_InstanceNameLabel}" FontSize="12" Opacity="0.85" />
+          <TextBox x:Name="NameBox" Text="" Watermark="{x:Static loc:Strings.ImportModpackDialog_InstanceNameWatermark}" FontSize="13" />
         </StackPanel>
-        <TextBlock Text="The archive is auto-detected as Modrinth .mrpack or CurseForge .zip and imported into a fresh instance folder."
+        <TextBlock Text="{x:Static loc:Strings.ImportModpackDialog_Hint}"
                    FontSize="10" Opacity="0.55" TextWrapping="Wrap" />
       </StackPanel>
 
       <!-- Footer -->
       <Grid Grid.Row="2" Margin="22,4,22,16" ColumnDefinitions="*,Auto,Auto">
-        <Button Grid.Column="1" Content="Cancel" Click="OnCancel"
+        <Button Grid.Column="1" Content="{x:Static loc:Strings.Common_Cancel}" Click="OnCancel"
                 Padding="14,5" FontSize="12" Margin="0,0,8,0" />
-        <Button Grid.Column="2" Content="Import"
+        <Button Grid.Column="2" Content="{x:Static loc:Strings.ImportModpackDialog_ImportButton}"
                 Click="OnImport"
                 FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                 Padding="14,5"

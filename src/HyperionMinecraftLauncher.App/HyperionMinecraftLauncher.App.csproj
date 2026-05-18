@@ -45,4 +45,17 @@
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 
+  <!--
+    T22a (v0.31.0): Localization. The canonical English source for every UI string
+    lives in Strings.resx. .NET 10's SDK auto-includes *.resx as <EmbeddedResource>;
+    we only tag it here with the standard ResX code-gen metadata so future translations
+    (Strings.{culture}.resx) drop in next to it without any extra wiring.
+  -->
+  <ItemGroup>
+    <EmbeddedResource Update="Localization\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

@@ -7,10 +7,11 @@
         xmlns:vm="using:TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels"
         xmlns:sys="using:System"
         xmlns:assists="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
+        xmlns:loc="using:TechTeaStudio.HyperionMinecraftLauncher.App.Localization"
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.NewInstanceDialog"
         x:DataType="vm:MainViewModel"
-        Title="New Instance"
+        Title="{x:Static loc:Strings.NewInstanceDialog_Title}"
         Width="560" Height="520"
         CanResize="False"
         SystemDecorations="None"
@@ -31,7 +32,7 @@
       <Border Grid.Row="0" Background="#400D0D1B"
               PointerPressed="OnTitleBarPressed">
         <Grid ColumnDefinitions="*,Auto">
-          <TextBlock Grid.Column="0" Text="Create a new instance"
+          <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.NewInstanceDialog_HeaderTitle}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                      Foreground="White" VerticalAlignment="Center" Margin="12,0" />
           <Button Grid.Column="1" Click="OnCancel" Width="36" Height="36"
@@ -48,30 +49,30 @@
 
           <!-- Name -->
           <StackPanel Spacing="4">
-            <TextBlock Text="Instance name" FontSize="12" Opacity="0.85" />
-            <TextBox x:Name="NameBox" Text="My new instance"
-                     Watermark="My new instance" FontSize="13" />
+            <TextBlock Text="{x:Static loc:Strings.NewInstanceDialog_InstanceNameLabel}" FontSize="12" Opacity="0.85" />
+            <TextBox x:Name="NameBox" Text="{x:Static loc:Strings.NewInstanceDialog_DefaultInstanceName}"
+                     Watermark="{x:Static loc:Strings.NewInstanceDialog_DefaultInstanceName}" FontSize="13" />
           </StackPanel>
 
           <!-- Version picker -->
           <StackPanel Spacing="4">
-            <TextBlock Text="Minecraft version" FontSize="12" Opacity="0.85" />
+            <TextBlock Text="{x:Static loc:Strings.NewInstanceDialog_MinecraftVersionLabel}" FontSize="12" Opacity="0.85" />
 
             <!-- Search box. Binds straight to MainViewModel.VersionSearchText so the
                  filter is shared with the Home page. -->
             <TextBox Text="{Binding VersionSearchText, Mode=TwoWay}"
-                     Watermark="Search version..."
+                     Watermark="{x:Static loc:Strings.NewInstanceDialog_SearchVersionWatermark}"
                      FontSize="11" />
 
             <!-- Type-filter chips, identical to the Home page row. -->
             <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,2,0,0">
-              <ToggleButton Content="Release"   Classes="Chip" IsChecked="{Binding ShowRelease,  Mode=TwoWay}" />
-              <ToggleButton Content="Snapshot"  Classes="Chip" IsChecked="{Binding ShowSnapshot, Mode=TwoWay}" />
-              <ToggleButton Content="Old beta"  Classes="Chip" IsChecked="{Binding ShowOldBeta,  Mode=TwoWay}" />
-              <ToggleButton Content="Old alpha" Classes="Chip" IsChecked="{Binding ShowOldAlpha, Mode=TwoWay}" />
+              <ToggleButton Content="{x:Static loc:Strings.Home_ChipRelease}"   Classes="Chip" IsChecked="{Binding ShowRelease,  Mode=TwoWay}" />
+              <ToggleButton Content="{x:Static loc:Strings.Home_ChipSnapshot}"  Classes="Chip" IsChecked="{Binding ShowSnapshot, Mode=TwoWay}" />
+              <ToggleButton Content="{x:Static loc:Strings.Home_ChipOldBeta}"  Classes="Chip" IsChecked="{Binding ShowOldBeta,  Mode=TwoWay}" />
+              <ToggleButton Content="{x:Static loc:Strings.Home_ChipOldAlpha}" Classes="Chip" IsChecked="{Binding ShowOldAlpha, Mode=TwoWay}" />
             </StackPanel>
 
-            <ComboBox x:Name="VersionBox" PlaceholderText="(loading manifest ...)"
+            <ComboBox x:Name="VersionBox" PlaceholderText="{x:Static loc:Strings.NewInstanceDialog_LoadingManifest}"
                       ItemsSource="{Binding FilteredVersions}"
                       SelectedItem="{Binding SelectedVersion, Mode=TwoWay}"
                       HorizontalAlignment="Stretch">
@@ -81,7 +82,7 @@
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
-            <TextBlock Text="Filter chips and search are shared with the Home page picker."
+            <TextBlock Text="{x:Static loc:Strings.NewInstanceDialog_FiltersSharedHint}"
                        FontSize="10" Opacity="0.55" TextWrapping="Wrap" />
           </StackPanel>
 
@@ -90,36 +91,36 @@
                available loader builds for the selected Minecraft version and the chosen build
                is installed automatically before the first launch. -->
           <StackPanel Spacing="4">
-            <TextBlock Text="Mod loader" FontSize="12" Opacity="0.85" />
+            <TextBlock Text="{x:Static loc:Strings.NewInstanceDialog_ModLoaderLabel}" FontSize="12" Opacity="0.85" />
             <StackPanel Orientation="Horizontal" Spacing="6">
-              <RadioButton GroupName="LoaderChoice" Content="Vanilla" Tag="None"
+              <RadioButton GroupName="LoaderChoice" Content="{x:Static loc:Strings.NewInstanceDialog_LoaderVanilla}" Tag="None"
                            IsChecked="True" Click="OnLoaderClicked"
                            Padding="10,4" FontSize="11" />
-              <RadioButton GroupName="LoaderChoice" Content="Fabric" Tag="Fabric"
+              <RadioButton GroupName="LoaderChoice" Content="{x:Static loc:Strings.NewInstanceDialog_LoaderFabric}" Tag="Fabric"
                            Click="OnLoaderClicked" Padding="10,4" FontSize="11" />
-              <RadioButton GroupName="LoaderChoice" Content="Forge" Tag="Forge"
+              <RadioButton GroupName="LoaderChoice" Content="{x:Static loc:Strings.NewInstanceDialog_LoaderForge}" Tag="Forge"
                            Click="OnLoaderClicked" Padding="10,4" FontSize="11" />
-              <RadioButton GroupName="LoaderChoice" Content="NeoForge" Tag="NeoForge"
+              <RadioButton GroupName="LoaderChoice" Content="{x:Static loc:Strings.NewInstanceDialog_LoaderNeoForge}" Tag="NeoForge"
                            Click="OnLoaderClicked" Padding="10,4" FontSize="11" />
-              <RadioButton GroupName="LoaderChoice" Content="Quilt" Tag="Quilt"
+              <RadioButton GroupName="LoaderChoice" Content="{x:Static loc:Strings.NewInstanceDialog_LoaderQuilt}" Tag="Quilt"
                            Click="OnLoaderClicked" Padding="10,4" FontSize="11" />
             </StackPanel>
 
             <!-- Loader version dropdown: hidden by default, shown once a non-Vanilla loader chip is
                  picked. Populated by NewInstanceDialog.OnLoaderClicked via MainViewModel.ListLoaderVersionsAsync. -->
             <StackPanel x:Name="LoaderVersionPanel" Spacing="3" Margin="0,4,0,0" IsVisible="False">
-              <TextBlock Text="Loader version" FontSize="11" Opacity="0.75" />
-              <ComboBox x:Name="LoaderVersionBox" PlaceholderText="(latest)"
+              <TextBlock Text="{x:Static loc:Strings.NewInstanceDialog_LoaderVersionLabel}" FontSize="11" Opacity="0.75" />
+              <ComboBox x:Name="LoaderVersionBox" PlaceholderText="{x:Static loc:Strings.NewInstanceDialog_LoaderVersionPlaceholder}"
                         HorizontalAlignment="Stretch" />
               <TextBlock x:Name="LoaderVersionHint" FontSize="10" Opacity="0.55"
                          TextWrapping="Wrap"
-                         Text="Newest first. Leave empty to install the latest stable build." />
+                         Text="{x:Static loc:Strings.NewInstanceDialog_LoaderHint}" />
             </StackPanel>
           </StackPanel>
 
           <!-- Icon picker -->
           <StackPanel Spacing="4">
-            <TextBlock Text="Icon" FontSize="12" Opacity="0.85" />
+            <TextBlock Text="{x:Static loc:Strings.NewInstanceDialog_IconLabel}" FontSize="12" Opacity="0.85" />
             <ItemsControl x:Name="IconPicker">
               <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -149,9 +150,9 @@
 
       <!-- Footer -->
       <Grid Grid.Row="2" Margin="22,4,22,16" ColumnDefinitions="*,Auto,Auto">
-        <Button Grid.Column="1" Content="Cancel" Click="OnCancel"
+        <Button Grid.Column="1" Content="{x:Static loc:Strings.Common_Cancel}" Click="OnCancel"
                 Padding="14,5" FontSize="12" Margin="0,0,8,0" />
-        <Button Grid.Column="2" Content="Create"
+        <Button Grid.Column="2" Content="{x:Static loc:Strings.NewInstanceDialog_CreateButton}"
                 Click="OnCreate"
                 FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                 Padding="14,5"

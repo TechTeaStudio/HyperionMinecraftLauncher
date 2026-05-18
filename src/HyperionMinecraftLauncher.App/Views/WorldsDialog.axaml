@@ -3,9 +3,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:sys="using:System"
+        xmlns:loc="using:TechTeaStudio.HyperionMinecraftLauncher.App.Localization"
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.WorldsDialog"
-        Title="Resume world"
+        Title="{x:Static loc:Strings.WorldsDialog_Title}"
         Width="460" Height="380"
         CanResize="False"
         SystemDecorations="None"
@@ -25,7 +26,7 @@
       <Border Grid.Row="0" Background="#400D0D1B"
               PointerPressed="OnTitleBarPressed">
         <Grid ColumnDefinitions="*,Auto">
-          <TextBlock Grid.Column="0" Text="Quick Play: resume world"
+          <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.WorldsDialog_HeaderTitle}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                      Foreground="White" VerticalAlignment="Center" Margin="12,0" />
           <Button Grid.Column="1" Click="OnCancel" Width="36" Height="36"
@@ -54,9 +55,9 @@
       </Border>
 
       <Grid Grid.Row="3" Margin="20,0,20,16" ColumnDefinitions="*,Auto,Auto">
-        <Button Grid.Column="1" Content="Cancel" Click="OnCancel"
+        <Button Grid.Column="1" Content="{x:Static loc:Strings.Common_Cancel}" Click="OnCancel"
                 Padding="14,5" FontSize="12" Margin="0,0,8,0" />
-        <Button Grid.Column="2" Content="Resume"
+        <Button Grid.Column="2" Content="{x:Static loc:Strings.WorldsDialog_ResumeButton}"
                 Click="OnConfirm"
                 FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                 Padding="14,5"

@@ -2,9 +2,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:loc="using:TechTeaStudio.HyperionMinecraftLauncher.App.Localization"
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.SkinVariantDialog"
-        Title="Choose skin variant"
+        Title="{x:Static loc:Strings.SkinVariantDialog_Title}"
         Width="380" Height="200"
         CanResize="False"
         SystemDecorations="None"
@@ -22,7 +23,7 @@
       <Border Grid.Row="0" Background="#400D0D1B"
               PointerPressed="OnTitleBarPressed">
         <Grid ColumnDefinitions="*,Auto">
-          <TextBlock Grid.Column="0" Text="Choose skin variant"
+          <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.SkinVariantDialog_HeaderTitle}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                      Foreground="White" VerticalAlignment="Center" Margin="12,0" />
           <Button Grid.Column="1" Click="OnCancel" Classes="WinCtrl WinCtrlClose"
@@ -34,20 +35,20 @@
       </Border>
 
       <StackPanel Grid.Row="1" Margin="22,12,22,4" Spacing="6">
-        <TextBlock Text="Which arm width does this skin use?" FontSize="13" />
-        <TextBlock Text="Classic = 4-pixel arms (Steve). Slim = 3-pixel arms (Alex)."
+        <TextBlock Text="{x:Static loc:Strings.SkinVariantDialog_Question}" FontSize="13" />
+        <TextBlock Text="{x:Static loc:Strings.SkinVariantDialog_Hint}"
                    Opacity="0.6" FontSize="11" TextWrapping="Wrap" />
       </StackPanel>
 
       <Grid Grid.Row="2" Margin="22,8,22,16" ColumnDefinitions="*,Auto,Auto">
-        <Button Grid.Column="1" Content="Classic" Click="OnClassic"
+        <Button Grid.Column="1" Content="{x:Static loc:Strings.SkinVariantDialog_Classic}" Click="OnClassic"
                 Padding="20,6" FontSize="12" Margin="0,0,8,0"
                 CornerRadius="15"
                 Background="{DynamicResource LG.BubbleFillCombined}"
                 BorderBrush="{DynamicResource LG.GlassRimStrong}"
                 BorderThickness="1"
                 Foreground="White" />
-        <Button Grid.Column="2" Content="Slim" Click="OnSlim"
+        <Button Grid.Column="2" Content="{x:Static loc:Strings.SkinVariantDialog_Slim}" Click="OnSlim"
                 CornerRadius="15"
                 Padding="20,6" FontSize="12" />
       </Grid>

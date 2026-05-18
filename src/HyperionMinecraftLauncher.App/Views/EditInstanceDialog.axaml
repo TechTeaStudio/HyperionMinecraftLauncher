@@ -4,9 +4,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="using:TechTeaStudio.HyperionMinecraftLauncher.App.Views"
         xmlns:sys="using:System"
+        xmlns:loc="using:TechTeaStudio.HyperionMinecraftLauncher.App.Localization"
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.EditInstanceDialog"
-        Title="Edit instance"
+        Title="{x:Static loc:Strings.EditInstanceDialog_Title}"
         Width="580" Height="640"
         CanResize="False"
         SystemDecorations="None"
@@ -27,7 +28,7 @@
       <Border Grid.Row="0" Background="#400D0D1B"
               PointerPressed="OnTitleBarPressed">
         <Grid ColumnDefinitions="*,Auto">
-          <TextBlock Grid.Column="0" x:Name="TitleText" Text="Edit instance"
+          <TextBlock Grid.Column="0" x:Name="TitleText" Text="{x:Static loc:Strings.EditInstanceDialog_HeaderTitle}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                      Foreground="White" VerticalAlignment="Center" Margin="12,0" />
           <Button Grid.Column="1" Click="OnCancel" Width="36" Height="36"
@@ -43,18 +44,18 @@
         <StackPanel Spacing="14">
 
           <!-- General section header -->
-          <TextBlock Text="General" FontFamily="{StaticResource MinecraftFont}"
+          <TextBlock Text="{x:Static loc:Strings.EditInstanceDialog_GeneralSection}" FontFamily="{StaticResource MinecraftFont}"
                      FontSize="13" Foreground="White" Margin="0,0,0,2" />
 
           <!-- Name -->
           <StackPanel Spacing="4">
-            <TextBlock Text="Instance name" FontSize="12" Opacity="0.85" />
+            <TextBlock Text="{x:Static loc:Strings.EditInstanceDialog_InstanceNameLabel}" FontSize="12" Opacity="0.85" />
             <TextBox x:Name="NameBox" FontSize="13" />
           </StackPanel>
 
           <!-- Icon picker -->
           <StackPanel Spacing="4">
-            <TextBlock Text="Icon" FontSize="12" Opacity="0.85" />
+            <TextBlock Text="{x:Static loc:Strings.EditInstanceDialog_IconLabel}" FontSize="12" Opacity="0.85" />
             <ItemsControl x:Name="IconPicker">
               <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -80,15 +81,15 @@
           </StackPanel>
 
           <!-- Java &amp; memory section header -->
-          <TextBlock Text="Java &amp; memory" FontFamily="{StaticResource MinecraftFont}"
+          <TextBlock Text="{x:Static loc:Strings.EditInstanceDialog_JavaMemorySection}" FontFamily="{StaticResource MinecraftFont}"
                      FontSize="13" Foreground="White" Margin="0,8,0,2" />
-          <TextBlock Text="Override the global Settings values for this instance only. Leave a field empty / 0 to inherit."
+          <TextBlock Text="{x:Static loc:Strings.EditInstanceDialog_JavaMemoryHint}"
                      FontSize="10" Opacity="0.55" TextWrapping="Wrap" />
 
           <!-- Min RAM -->
           <StackPanel Spacing="4">
             <Grid ColumnDefinitions="*,Auto">
-              <TextBlock Grid.Column="0" Text="Minimum heap (-Xms)" FontSize="12" Opacity="0.85" />
+              <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.EditInstanceDialog_MinHeapLabel}" FontSize="12" Opacity="0.85" />
               <TextBlock Grid.Column="1" x:Name="MinRamLabel" FontSize="11" Opacity="0.85" />
             </Grid>
             <Slider x:Name="MinRamSlider" Minimum="256" TickFrequency="256" IsSnapToTickEnabled="True"
@@ -98,7 +99,7 @@
           <!-- Max RAM -->
           <StackPanel Spacing="4">
             <Grid ColumnDefinitions="*,Auto">
-              <TextBlock Grid.Column="0" Text="Maximum heap (-Xmx)" FontSize="12" Opacity="0.85" />
+              <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.EditInstanceDialog_MaxHeapLabel}" FontSize="12" Opacity="0.85" />
               <TextBlock Grid.Column="1" x:Name="MaxRamLabel" FontSize="11" Opacity="0.85" />
             </Grid>
             <Slider x:Name="MaxRamSlider" Minimum="512" TickFrequency="512" IsSnapToTickEnabled="True"
@@ -107,36 +108,36 @@
 
           <!-- JVM arguments -->
           <StackPanel Spacing="4">
-            <TextBlock Text="Custom JVM arguments" FontSize="12" Opacity="0.85" />
+            <TextBlock Text="{x:Static loc:Strings.EditInstanceDialog_JvmArgsLabel}" FontSize="12" Opacity="0.85" />
             <TextBox x:Name="JvmArgsBox"
-                     Watermark="(leave empty to inherit from Settings)"
+                     Watermark="{x:Static loc:Strings.EditInstanceDialog_JvmArgsWatermark}"
                      FontFamily="Cascadia Mono, Consolas, Menlo, monospace" FontSize="11"
                      AcceptsReturn="True" Height="60" />
           </StackPanel>
 
           <!-- Game directory -->
           <StackPanel Spacing="4">
-            <TextBlock Text="Game directory" FontSize="12" Opacity="0.85" />
+            <TextBlock Text="{x:Static loc:Strings.EditInstanceDialog_GameDirLabel}" FontSize="12" Opacity="0.85" />
             <Grid ColumnDefinitions="*,Auto">
               <TextBox Grid.Column="0" x:Name="GameDirBox"
-                       Watermark="(leave empty to inherit the global .minecraft)" FontSize="11" />
-              <Button Grid.Column="1" Content="Browse..." FontSize="11"
+                       Watermark="{x:Static loc:Strings.EditInstanceDialog_GameDirWatermark}" FontSize="11" />
+              <Button Grid.Column="1" Content="{x:Static loc:Strings.EditInstanceDialog_BrowseButton}" FontSize="11"
                       Padding="10,4" Margin="6,0,0,0" Click="OnBrowseGameDir" />
             </Grid>
           </StackPanel>
 
           <!-- Window resolution -->
           <StackPanel Spacing="4">
-            <TextBlock Text="Window resolution" FontSize="12" Opacity="0.85" />
+            <TextBlock Text="{x:Static loc:Strings.EditInstanceDialog_WindowResolutionLabel}" FontSize="12" Opacity="0.85" />
             <Grid ColumnDefinitions="Auto,Auto,12,Auto,Auto" RowDefinitions="Auto">
-              <TextBlock Grid.Column="0" Text="W " FontSize="11" VerticalAlignment="Center" Opacity="0.7" />
+              <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.EditInstanceDialog_WidthShort}" FontSize="11" VerticalAlignment="Center" Opacity="0.7" />
               <NumericUpDown Grid.Column="1" x:Name="WidthBox" Width="110"
                              Minimum="0" Maximum="7680" Increment="1" FormatString="0" />
-              <TextBlock Grid.Column="3" Text="H " FontSize="11" VerticalAlignment="Center" Opacity="0.7" />
+              <TextBlock Grid.Column="3" Text="{x:Static loc:Strings.EditInstanceDialog_HeightShort}" FontSize="11" VerticalAlignment="Center" Opacity="0.7" />
               <NumericUpDown Grid.Column="4" x:Name="HeightBox" Width="110"
                              Minimum="0" Maximum="4320" Increment="1" FormatString="0" />
             </Grid>
-            <TextBlock Text="Default is 854 x 480. Both zero = inherit (Minecraft's own default)."
+            <TextBlock Text="{x:Static loc:Strings.EditInstanceDialog_ResolutionHint}"
                        FontSize="10" Opacity="0.55" TextWrapping="Wrap" />
           </StackPanel>
 
@@ -145,9 +146,9 @@
 
       <!-- Footer -->
       <Grid Grid.Row="2" Margin="22,4,22,16" ColumnDefinitions="*,Auto,Auto">
-        <Button Grid.Column="1" Content="Cancel" Click="OnCancel"
+        <Button Grid.Column="1" Content="{x:Static loc:Strings.Common_Cancel}" Click="OnCancel"
                 Padding="14,5" FontSize="12" Margin="0,0,8,0" />
-        <Button Grid.Column="2" Content="Save"
+        <Button Grid.Column="2" Content="{x:Static loc:Strings.EditInstanceDialog_SaveButton}"
                 Click="OnSave"
                 FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                 Padding="14,5"

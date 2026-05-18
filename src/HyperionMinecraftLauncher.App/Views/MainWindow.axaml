@@ -14,10 +14,11 @@
         xmlns:assists="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
         xmlns:materialIcons="using:Material.Icons.Avalonia"
         xmlns:mods="using:TechTeaStudio.HyperionMinecraftLauncher.Core.Mods"
+        xmlns:loc="using:TechTeaStudio.HyperionMinecraftLauncher.App.Localization"
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.MainWindow"
         x:DataType="vm:MainViewModel"
-        Title="Hyperion Minecraft Launcher"
+        Title="{x:Static loc:Strings.MainWindow_Title}"
         Width="960" Height="580"
         MinWidth="800" MinHeight="500"
         Background="Transparent"
@@ -123,7 +124,7 @@
         <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
           <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/grass_block_side.png"
                  Width="24" Height="24" IsHitTestVisible="False" />
-          <TextBlock Text="Hyperion Minecraft Launcher"
+          <TextBlock Text="{x:Static loc:Strings.MainWindow_HeaderTitle}"
                      FontFamily="{StaticResource MinecraftFont}"
                      FontSize="14" Foreground="White" VerticalAlignment="Center"
                      IsHitTestVisible="False" />
@@ -148,7 +149,7 @@
             <TextBlock Text="{Binding AccountDisplay}" Foreground="White" VerticalAlignment="Center"
                        FontSize="12"
                        IsVisible="{Binding HasSession}" />
-            <TextBlock Text="Sign in with Microsoft" Foreground="White" VerticalAlignment="Center"
+            <TextBlock Text="{x:Static loc:Strings.Header_SignInWithMicrosoft}" Foreground="White" VerticalAlignment="Center"
                        FontSize="12"
                        IsVisible="{Binding !HasSession}" />
             <Path Data="M 0,0 L 6,6 L 12,0" Stroke="White" StrokeThickness="1.5"
@@ -159,7 +160,7 @@
               <Border Padding="6" MinWidth="280" Background="{DynamicResource MaterialPaperBrush}"
                       CornerRadius="15">
                 <StackPanel Spacing="3">
-                  <TextBlock Text="ACCOUNTS"
+                  <TextBlock Text="{x:Static loc:Strings.Header_AccountsLabel}"
                              FontFamily="{StaticResource MinecraftFont}" FontSize="10"
                              Foreground="{DynamicResource MaterialSecondaryMidBrush}"
                              Margin="4,2,4,4" />
@@ -205,13 +206,13 @@
                     </ItemsControl.ItemTemplate>
                   </ItemsControl>
                   <Border Height="1" Margin="2,4" Background="{DynamicResource MaterialDividerBrush}" />
-                  <Button Content="+ Add account..."
+                  <Button Content="{x:Static loc:Strings.Header_AddAccount}"
                           Command="{Binding AddAccountCommand}"
                           HorizontalAlignment="Stretch"
                           HorizontalContentAlignment="Left"
                           FontSize="12" Padding="8,4"
                           Background="Transparent" />
-                  <Button Content="Remove this account"
+                  <Button Content="{x:Static loc:Strings.Header_RemoveThisAccount}"
                           Command="{Binding RemoveAccountCommand}"
                           CommandParameter="{Binding ActiveAccount}"
                           IsVisible="{Binding ActiveAccount, Converter={x:Static ObjectConverters.IsNotNull}}"
@@ -227,14 +228,14 @@
 
         <!-- Window controls (far right): min / max-restore / close -->
         <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Stretch">
-          <Button Click="OnWindowMinimize" Classes="WinCtrl" ToolTip.Tip="Minimize">
+          <Button Click="OnWindowMinimize" Classes="WinCtrl" ToolTip.Tip="{x:Static loc:Strings.WindowChrome_Minimize}">
             <Path Data="M 0,5 L 10,5" Stroke="White" StrokeThickness="1.2" Width="10" Height="10" />
           </Button>
-          <Button Click="OnWindowMaximizeRestore" Classes="WinCtrl" ToolTip.Tip="Maximize / Restore">
+          <Button Click="OnWindowMaximizeRestore" Classes="WinCtrl" ToolTip.Tip="{x:Static loc:Strings.WindowChrome_MaximizeRestore}">
             <Path Data="M 0,0 L 10,0 10,10 0,10 Z" Stroke="White" StrokeThickness="1.2" Fill="Transparent"
                   Width="10" Height="10" />
           </Button>
-          <Button Click="OnWindowClose" Classes="WinCtrl WinCtrlClose" ToolTip.Tip="Close">
+          <Button Click="OnWindowClose" Classes="WinCtrl WinCtrlClose" ToolTip.Tip="{x:Static loc:Strings.WindowChrome_Close}">
             <Path Data="M 0,0 L 10,10 M 10,0 L 0,10" Stroke="White" StrokeThickness="1.2"
                   Width="10" Height="10" />
           </Button>
@@ -270,7 +271,7 @@
         </Button>
         <Button Grid.Column="1"
                 Command="{Binding DismissUpdateCommand}"
-                ToolTip.Tip="Dismiss"
+                ToolTip.Tip="{x:Static loc:Strings.WindowChrome_Dismiss}"
                 Background="Transparent"
                 BorderThickness="0"
                 Padding="10,6"
@@ -305,7 +306,7 @@
         <Button Classes="SidebarToggle"
                 Command="{Binding ToggleSidebarCommand}"
                 HorizontalAlignment="Right"
-                ToolTip.Tip="Collapse / expand sidebar"
+                ToolTip.Tip="{x:Static loc:Strings.Sidebar_CollapseExpand}"
                 Margin="0,0,0,6">
           <Panel>
             <materialIcons:MaterialIcon Kind="ChevronLeft" Width="18" Height="18"
@@ -315,53 +316,53 @@
           </Panel>
         </Button>
 
-        <RadioButton Content="Home" GroupName="Nav"
+        <RadioButton Content="{x:Static loc:Strings.Sidebar_Home}" GroupName="Nav"
                      IsChecked="{Binding IsHomeSelected, Mode=OneWay}"
                      Click="OnNavHome" Classes="Nav"
-                     ToolTip.Tip="Home">
+                     ToolTip.Tip="{x:Static loc:Strings.Sidebar_Home}">
           <RadioButton.Tag>
             <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/grass_block_side.png"
                    Width="20" Height="20" />
           </RadioButton.Tag>
         </RadioButton>
-        <RadioButton Content="Installations" GroupName="Nav"
+        <RadioButton Content="{x:Static loc:Strings.Sidebar_Installations}" GroupName="Nav"
                      IsChecked="{Binding IsInstallationsSelected, Mode=OneWay}"
                      Click="OnNavInstallations" Classes="Nav"
-                     ToolTip.Tip="Installations">
+                     ToolTip.Tip="{x:Static loc:Strings.Sidebar_Installations}">
           <RadioButton.Tag>
             <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/chest_iso.png"
                    Width="22" Height="22" />
           </RadioButton.Tag>
         </RadioButton>
-        <RadioButton Content="Skins" GroupName="Nav"
+        <RadioButton Content="{x:Static loc:Strings.Sidebar_Skins}" GroupName="Nav"
                      IsChecked="{Binding IsSkinsSelected, Mode=OneWay}"
                      Click="OnNavSkins" Classes="Nav"
-                     ToolTip.Tip="Skins">
+                     ToolTip.Tip="{x:Static loc:Strings.Sidebar_Skins}">
           <RadioButton.Tag>
             <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/steve_face.png"
                    Width="20" Height="20" />
           </RadioButton.Tag>
         </RadioButton>
-        <RadioButton Content="Servers" GroupName="Nav"
+        <RadioButton Content="{x:Static loc:Strings.Sidebar_Servers}" GroupName="Nav"
                      IsChecked="{Binding IsServersSelected, Mode=OneWay}"
                      Click="OnNavServers" Classes="Nav"
-                     ToolTip.Tip="Servers">
+                     ToolTip.Tip="{x:Static loc:Strings.Sidebar_Servers}">
           <RadioButton.Tag>
             <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/ender_pearl.png"
                    Width="20" Height="20" />
           </RadioButton.Tag>
         </RadioButton>
-        <RadioButton Content="Headless" GroupName="Nav"
+        <RadioButton Content="{x:Static loc:Strings.Sidebar_Headless}" GroupName="Nav"
                      IsChecked="{Binding IsHeadlessServersSelected, Mode=OneWay}"
                      Click="OnNavHeadlessServers" Classes="Nav"
-                     ToolTip.Tip="Headless dedicated servers">
+                     ToolTip.Tip="{x:Static loc:Strings.Sidebar_HeadlessTooltip}">
           <RadioButton.Tag>
             <materialIcons:MaterialIcon Kind="ServerNetwork"
                                         Width="20" Height="20"
                                         Foreground="White" />
           </RadioButton.Tag>
         </RadioButton>
-        <RadioButton Content="Mods" GroupName="Nav"
+        <RadioButton Content="{x:Static loc:Strings.Sidebar_Mods}" GroupName="Nav"
                      IsChecked="{Binding IsModsSelected, Mode=OneWay}"
                      Click="OnNavMods" Classes="Nav">
           <RadioButton.Tag>
@@ -370,25 +371,25 @@
                                         Foreground="White" />
           </RadioButton.Tag>
         </RadioButton>
-        <RadioButton Content="News" GroupName="Nav"
+        <RadioButton Content="{x:Static loc:Strings.Sidebar_News}" GroupName="Nav"
                      IsChecked="{Binding IsNewsSelected, Mode=OneWay}"
                      Click="OnNavNews" Classes="Nav"
-                     ToolTip.Tip="News">
+                     ToolTip.Tip="{x:Static loc:Strings.Sidebar_News}">
           <RadioButton.Tag>
             <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/writable_book.png"
                    Width="20" Height="20" />
           </RadioButton.Tag>
         </RadioButton>
-        <RadioButton Content="Settings" GroupName="Nav"
+        <RadioButton Content="{x:Static loc:Strings.Sidebar_Settings}" GroupName="Nav"
                      IsChecked="{Binding IsSettingsSelected, Mode=OneWay}"
                      Click="OnNavSettings" Classes="Nav"
-                     ToolTip.Tip="Settings">
+                     ToolTip.Tip="{x:Static loc:Strings.Sidebar_Settings}">
           <RadioButton.Tag>
             <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/comparator.png"
                    Width="20" Height="20" />
           </RadioButton.Tag>
         </RadioButton>
-        <RadioButton Content="Logs" GroupName="Nav"
+        <RadioButton Content="{x:Static loc:Strings.Sidebar_Logs}" GroupName="Nav"
                      IsChecked="{Binding IsLogsSelected, Mode=OneWay}"
                      Click="OnNavLogs" Classes="Nav">
           <RadioButton.Tag>
@@ -399,7 +400,7 @@
 
         <Border Margin="4,12,4,6" Height="1" Background="{DynamicResource MaterialDividerBrush}" />
 
-        <TextBlock Text="v0.8 - parity build"
+        <TextBlock Text="{x:Static loc:Strings.Sidebar_ParityBuildLabel}"
                    FontFamily="{StaticResource MinecraftFont}" FontSize="10"
                    Opacity="0.55" Margin="10,2,0,0"
                    IsVisible="{Binding AreSidebarLabelsVisible}" />
@@ -413,10 +414,10 @@
       <Grid IsVisible="{Binding IsHomeSelected}" Classes="Page" RowDefinitions="Auto,Auto,Auto,Auto,*">
 
         <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
-          <TextBlock Text="Play Minecraft"
+          <TextBlock Text="{x:Static loc:Strings.Home_Title}"
                      FontFamily="{StaticResource MinecraftFont}"
                      FontSize="18" Foreground="White" />
-          <TextBlock Text="Pick an installed version or fetch one from the manifest."
+          <TextBlock Text="{x:Static loc:Strings.Home_Subtitle}"
                      Opacity="0.65" FontSize="11" />
         </StackPanel>
 
@@ -427,12 +428,12 @@
             <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
                    Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/grass_block_side.png"
                    Width="24" Height="24" Margin="0,0,10,0" VerticalAlignment="Center" />
-            <TextBlock Grid.Row="0" Grid.Column="1" Text="Your instances"
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="{x:Static loc:Strings.Home_YourInstancesLabel}"
                        FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" />
             <ComboBox Grid.Row="1" Grid.Column="1" Margin="0,2,0,0"
                       ItemsSource="{Binding Instances}"
                       SelectedItem="{Binding SelectedInstance, Mode=TwoWay}"
-                      PlaceholderText="(no instances yet - create one on the Installations page)"
+                      PlaceholderText="{x:Static loc:Strings.Home_YourInstancesPlaceholder}"
                       HorizontalAlignment="Stretch">
               <ComboBox.ItemTemplate>
                 <DataTemplate DataType="instances:Instance">
@@ -441,7 +442,7 @@
               </ComboBox.ItemTemplate>
             </ComboBox>
             <Button Grid.Row="1" Grid.Column="2"
-                    Content="Rescan" FontSize="11"
+                    Content="{x:Static loc:Strings.Home_RescanButton}" FontSize="11"
                     Command="{Binding RefreshInstancesCommand}"
                     Padding="10,4" Margin="8,2,0,0" />
           </Grid>
@@ -454,28 +455,28 @@
             <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="4"
                    Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/compass.png"
                    Width="24" Height="24" Margin="0,0,10,0" VerticalAlignment="Center" />
-            <TextBlock Grid.Row="0" Grid.Column="1" Text="Or install another version"
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="{x:Static loc:Strings.Home_OrInstallAnother}"
                        FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" />
 
             <!-- Search box. Filters FilteredVersions on every keystroke. -->
             <TextBox Grid.Row="1" Grid.Column="1" Margin="0,4,0,0"
                      Text="{Binding VersionSearchText, Mode=TwoWay}"
-                     Watermark="Search version..."
+                     Watermark="{x:Static loc:Strings.Home_SearchVersionWatermark}"
                      FontSize="11" />
 
             <!-- Type-filter chips. Single horizontal row, compact. -->
             <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal"
                         Spacing="4" Margin="0,4,0,0">
-              <ToggleButton Content="Release"   Classes="Chip" IsChecked="{Binding ShowRelease,  Mode=TwoWay}" />
-              <ToggleButton Content="Snapshot"  Classes="Chip" IsChecked="{Binding ShowSnapshot, Mode=TwoWay}" />
-              <ToggleButton Content="Old beta"  Classes="Chip" IsChecked="{Binding ShowOldBeta,  Mode=TwoWay}" />
-              <ToggleButton Content="Old alpha" Classes="Chip" IsChecked="{Binding ShowOldAlpha, Mode=TwoWay}" />
+              <ToggleButton Content="{x:Static loc:Strings.Home_ChipRelease}"   Classes="Chip" IsChecked="{Binding ShowRelease,  Mode=TwoWay}" />
+              <ToggleButton Content="{x:Static loc:Strings.Home_ChipSnapshot}"  Classes="Chip" IsChecked="{Binding ShowSnapshot, Mode=TwoWay}" />
+              <ToggleButton Content="{x:Static loc:Strings.Home_ChipOldBeta}"  Classes="Chip" IsChecked="{Binding ShowOldBeta,  Mode=TwoWay}" />
+              <ToggleButton Content="{x:Static loc:Strings.Home_ChipOldAlpha}" Classes="Chip" IsChecked="{Binding ShowOldAlpha, Mode=TwoWay}" />
             </StackPanel>
 
             <ComboBox Grid.Row="3" Grid.Column="1" Margin="0,4,0,0"
                       ItemsSource="{Binding FilteredVersions}"
                       SelectedItem="{Binding SelectedVersion, Mode=TwoWay}"
-                      PlaceholderText="(click Refresh manifest first)"
+                      PlaceholderText="{x:Static loc:Strings.Home_ManifestPlaceholder}"
                       HorizontalAlignment="Stretch">
               <ComboBox.ItemTemplate>
                 <DataTemplate>
@@ -484,7 +485,7 @@
               </ComboBox.ItemTemplate>
             </ComboBox>
             <Button Grid.Row="3" Grid.Column="2"
-                    Content="Refresh manifest" FontSize="11"
+                    Content="{x:Static loc:Strings.Home_RefreshManifestButton}" FontSize="11"
                     Command="{Binding RefreshVersionsCommand}"
                     Padding="10,4" Margin="8,4,0,0" />
           </Grid>
@@ -496,17 +497,17 @@
           <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto">
             <Image Grid.Column="0" Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/steve_face.png"
                    Width="22" Height="22" Margin="0,0,10,0" VerticalAlignment="Center" />
-            <TextBlock Grid.Column="1" Text="Offline username:" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0" />
-            <TextBox Grid.Column="2" Text="{Binding Username, Mode=TwoWay}" Watermark="Steve" FontSize="12"
+            <TextBlock Grid.Column="1" Text="{x:Static loc:Strings.Home_OfflineUsernameLabel}" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <TextBox Grid.Column="2" Text="{Binding Username, Mode=TwoWay}" Watermark="{x:Static loc:Strings.Home_OfflineUsernameWatermark}" FontSize="12"
                      IsEnabled="{Binding !IsSignedInOnline}" />
             <Button Grid.Column="3"
-                    Content="Resume world..."
+                    Content="{x:Static loc:Strings.Home_ResumeWorldButton}"
                     Click="OnResumeWorldClicked"
                     FontSize="11"
                     Padding="10,5" Margin="8,0,0,0"
-                    ToolTip.Tip="Quick Play: pick a world under .minecraft/saves/ and open it directly." />
+                    ToolTip.Tip="{x:Static loc:Strings.Home_ResumeWorldTooltip}" />
             <Button Grid.Column="4"
-                    Content="Launch"
+                    Content="{x:Static loc:Strings.Home_LaunchButton}"
                     Command="{Binding LaunchCommand}"
                     Classes="accent LaunchBtn"
                     FontFamily="{StaticResource MinecraftFont}"
@@ -534,31 +535,31 @@
       <!-- ==== INSTALLATIONS PAGE ==== -->
       <Grid IsVisible="{Binding IsInstallationsSelected}" Classes="Page" RowDefinitions="Auto,Auto,Auto,*,Auto">
         <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
-          <TextBlock Text="Installations"
+          <TextBlock Text="{x:Static loc:Strings.Installations_Title}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
-          <TextBlock Text="Hyperion instances. Each one has its own version, icon, and (eventually) JVM / game-dir."
+          <TextBlock Text="{x:Static loc:Strings.Installations_Subtitle}"
                      Opacity="0.65" FontSize="11" />
         </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
-          <Button Content="+ New Instance"
+          <Button Content="{x:Static loc:Strings.Installations_NewInstance}"
                   Click="OnNewInstanceClicked"
                   Classes="LaunchBtn"
                   FontFamily="{StaticResource MinecraftFont}" FontSize="12"
                   Padding="14,5"
                   Foreground="White" />
-          <Button Content="Import from zip..." FontSize="11"
+          <Button Content="{x:Static loc:Strings.Installations_ImportFromZip}" FontSize="11"
                   Command="{Binding ImportInstanceCommand}"
-                  ToolTip.Tip="Import a shared Hyperion-format instance zip"
+                  ToolTip.Tip="{x:Static loc:Strings.Installations_ImportFromZipTooltip}"
                   Padding="10,5" />
-          <Button Content="Import modpack..."
+          <Button Content="{x:Static loc:Strings.Installations_ImportModpack}"
                   Click="OnImportModpackClicked"
                   IsVisible="{Binding CanImportModpack}"
                   FontSize="11"
                   Padding="10,5" />
-          <Button Content="Refresh" FontSize="11"
+          <Button Content="{x:Static loc:Strings.Installations_Refresh}" FontSize="11"
                   Command="{Binding RefreshInstancesCommand}"
                   Padding="10,5" />
-          <Button Content="Delete selected" FontSize="11"
+          <Button Content="{x:Static loc:Strings.Installations_DeleteSelected}" FontSize="11"
                   Command="{Binding DeleteInstanceCommand}"
                   Padding="10,5" />
         </StackPanel>
@@ -597,15 +598,15 @@
                        versions/ folder; Hyperion doesn't persist edits for them). -->
                   <Border.ContextMenu>
                     <ContextMenu>
-                      <MenuItem Header="Edit instance..."
+                      <MenuItem Header="{x:Static loc:Strings.Installations_MenuEditInstance}"
                                 Click="OnEditInstanceMenuClicked"
                                 Tag="{Binding}"
                                 IsEnabled="{Binding !IsAutoImported}" />
-                      <MenuItem Header="Change icon..."
+                      <MenuItem Header="{x:Static loc:Strings.Installations_MenuChangeIcon}"
                                 Click="OnChangeIconMenuClicked"
                                 Tag="{Binding}"
                                 IsEnabled="{Binding !IsAutoImported}" />
-                      <MenuItem Header="Export to zip..."
+                      <MenuItem Header="{x:Static loc:Strings.Installations_MenuExportToZip}"
                                 Click="OnExportInstanceMenuClicked"
                                 Tag="{Binding}"
                                 IsEnabled="{Binding !IsAutoImported}" />
@@ -632,7 +633,7 @@
                             HorizontalAlignment="Right" VerticalAlignment="Top"
                             Margin="0,5,5,0"
                             IsVisible="{Binding IsAutoImported}">
-                      <TextBlock Text="auto" FontSize="9" Foreground="White"
+                      <TextBlock Text="{x:Static loc:Strings.Installations_AutoBadge}" FontSize="9" Foreground="White"
                                  FontWeight="SemiBold" />
                     </Border>
                     <!-- Discoverability fallback: small overflow button in the bottom-right
@@ -641,7 +642,7 @@
                          auto-imported tiles. -->
                     <Button Content="..."
                             Tag="{Binding}"
-                            ToolTip.Tip="More..."
+                            ToolTip.Tip="{x:Static loc:Strings.Installations_MoreTooltip}"
                             Padding="6,0"
                             MinWidth="22" Height="20"
                             FontSize="11"
@@ -652,16 +653,16 @@
                             IsVisible="{Binding !IsAutoImported}">
                       <Button.Flyout>
                         <MenuFlyout>
-                          <MenuItem Header="Change icon..."
+                          <MenuItem Header="{x:Static loc:Strings.Installations_MenuChangeIcon}"
                                     Click="OnChangeIconMenuClicked"
                                     Tag="{Binding}" />
-                          <MenuItem Header="Export to zip..."
+                          <MenuItem Header="{x:Static loc:Strings.Installations_MenuExportToZip}"
                                     Click="OnExportInstanceMenuClicked"
                                     Tag="{Binding}" />
-                          <MenuItem Header="Open folder"
+                          <MenuItem Header="{x:Static loc:Strings.Installations_MenuOpenFolder}"
                                     Click="OnOpenInstanceFolderMenuClicked"
                                     Tag="{Binding}" />
-                          <MenuItem Header="Delete"
+                          <MenuItem Header="{x:Static loc:Strings.Installations_MenuDelete}"
                                     Click="OnDeleteInstanceMenuClicked"
                                     Tag="{Binding}" />
                         </MenuFlyout>
@@ -682,25 +683,25 @@
                 IsVisible="{Binding HasSelectedInstance}">
           <Grid RowDefinitions="Auto,*">
             <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="4" Margin="0,0,0,6">
-              <RadioButton Content="Screenshots" GroupName="InstanceTabs"
+              <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Screenshots}" GroupName="InstanceTabs"
                            Classes="DetailTab"
                            IsChecked="{Binding IsScreenshotsTabSelected, Mode=OneWay}"
                            Click="OnInstanceTabScreenshots" />
-              <RadioButton Content="Worlds" GroupName="InstanceTabs"
+              <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Worlds}" GroupName="InstanceTabs"
                            Classes="DetailTab"
                            IsChecked="{Binding IsWorldsTabSelected, Mode=OneWay}"
                            Click="OnInstanceTabWorlds" />
-              <RadioButton Content="Servers" GroupName="InstanceTabs"
+              <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Servers}" GroupName="InstanceTabs"
                            Classes="DetailTab"
                            IsChecked="{Binding IsInstanceServersTabSelected, Mode=OneWay}"
                            Click="OnInstanceTabServers" />
-              <RadioButton Content="Crashes" GroupName="InstanceTabs"
+              <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Crashes}" GroupName="InstanceTabs"
                            Classes="DetailTab"
                            IsChecked="{Binding IsCrashesTabSelected, Mode=OneWay}"
                            Click="OnInstanceTabCrashes" />
-              <Button Content="Refresh" FontSize="10" Padding="8,2" Margin="14,0,0,0"
+              <Button Content="{x:Static loc:Strings.InstanceTabs_RefreshButton}" FontSize="10" Padding="8,2" Margin="14,0,0,0"
                       Click="OnRefreshInstanceTab" />
-              <Button Content="Open folder" FontSize="10" Padding="8,2" Margin="4,0,0,0"
+              <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2" Margin="4,0,0,0"
                       Click="OnOpenCrashReportsFolder"
                       IsVisible="{Binding IsCrashesTabSelected}" />
             </StackPanel>
@@ -750,14 +751,14 @@
                             PointerReleased="OnWorldRowPointerReleased">
                       <Border.ContextMenu>
                         <ContextMenu>
-                          <MenuItem Header="Open folder"
+                          <MenuItem Header="{x:Static loc:Strings.InstanceTabs_WorldMenuOpenFolder}"
                                     Tag="{Binding FullPath}"
                                     Click="OnWorldOpenFolderMenuClicked" />
                           <Separator />
-                          <MenuItem Header="Backup now"
+                          <MenuItem Header="{x:Static loc:Strings.InstanceTabs_WorldMenuBackupNow}"
                                     Command="{Binding $parent[ListBox].((vm:MainViewModel)DataContext).BackupWorldCommand}"
                                     CommandParameter="{Binding FolderName}" />
-                          <MenuItem Header="Restore latest backup"
+                          <MenuItem Header="{x:Static loc:Strings.InstanceTabs_WorldMenuRestoreLatest}"
                                     Command="{Binding $parent[ListBox].((vm:MainViewModel)DataContext).RestoreLatestBackupCommand}"
                                     CommandParameter="{Binding FolderName}" />
                         </ContextMenu>
@@ -829,7 +830,7 @@
                                        FontSize="10" Opacity="0.7"
                                        TextTrimming="CharacterEllipsis">
                               <Run Text="{Binding MinecraftVersion}" />
-                              <Run Text="  -  " />
+                              <Run Text="{x:Static loc:Strings.InstanceTabs_CrashSeparatorDash}" />
                               <Run Text="{Binding SummaryLine}" />
                             </TextBlock>
                             <TextBlock Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
@@ -841,7 +842,7 @@
                       </ListBox.ItemTemplate>
                     </ListBox>
                   </ScrollViewer>
-                  <TextBlock Grid.Row="1" Text="No crash reports for this instance."
+                  <TextBlock Grid.Row="1" Text="{x:Static loc:Strings.InstanceTabs_NoCrashReports}"
                              FontSize="10" Opacity="0.55" Margin="6,4"
                              IsVisible="{Binding !HasInstanceCrashReports}" />
                 </Grid>
@@ -864,10 +865,10 @@
                         <StackPanel Orientation="Horizontal" Spacing="3" Margin="0,2,8,2">
                           <TextBlock Text="{Binding ModDisplayName}" FontWeight="SemiBold" FontSize="11"
                                      VerticalAlignment="Center" />
-                          <Button Content="Modrinth" Padding="6,2" FontSize="10"
+                          <Button Content="{x:Static loc:Strings.InstanceTabs_SearchModrinth}" Padding="6,2" FontSize="10"
                                   Tag="{Binding ModrinthSearchUrl}"
                                   Click="OnOpenCrashSuspectUrl" />
-                          <Button Content="CurseForge" Padding="6,2" FontSize="10"
+                          <Button Content="{x:Static loc:Strings.InstanceTabs_SearchCurseForge}" Padding="6,2" FontSize="10"
                                   Tag="{Binding CurseForgeSearchUrl}"
                                   Click="OnOpenCrashSuspectUrl" />
                         </StackPanel>
@@ -895,8 +896,8 @@
       <!-- ==== SKINS PAGE ==== -->
       <Grid IsVisible="{Binding IsSkinsSelected}" Classes="Page" RowDefinitions="Auto,Auto,Auto,*,Auto">
         <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
-          <TextBlock Text="Skins" FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
-          <TextBlock Text="Live 3D preview, plus upload + cape selection (requires Microsoft sign-in)."
+          <TextBlock Text="{x:Static loc:Strings.Skins_Title}" FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
+          <TextBlock Text="{x:Static loc:Strings.Skins_Subtitle}"
                      Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
         </StackPanel>
 
@@ -904,19 +905,19 @@
         <Border Grid.Row="1" Padding="10" Margin="0,0,0,6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <StackPanel Orientation="Horizontal" Spacing="10">
-            <Button Content="Upload new skin..."
+            <Button Content="{x:Static loc:Strings.Skins_UploadButton}"
                     Command="{Binding UploadSkinCommand}"
                     Classes="LaunchBtn"
                     FontFamily="{StaticResource MinecraftFont}" FontSize="12"
                     Padding="14,5"
                     Foreground="White" />
             <Border Width="1" Background="{DynamicResource MaterialDividerBrush}" Margin="2,0" />
-            <TextBlock Text="Cape:" VerticalAlignment="Center" FontSize="12"
+            <TextBlock Text="{x:Static loc:Strings.Skins_CapeLabel}" VerticalAlignment="Center" FontSize="12"
                        IsVisible="{Binding HasOwnedCapes}" />
             <ComboBox MinWidth="180"
                       ItemsSource="{Binding OwnedCapes}"
                       SelectedItem="{Binding SelectedActiveCape, Mode=TwoWay}"
-                      PlaceholderText="(none)"
+                      PlaceholderText="{x:Static loc:Strings.Skins_CapeNonePlaceholder}"
                       IsVisible="{Binding HasOwnedCapes}">
               <ComboBox.ItemTemplate>
                 <DataTemplate>
@@ -924,7 +925,7 @@
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
-            <Button Content="Clear cape"
+            <Button Content="{x:Static loc:Strings.Skins_ClearCape}"
                     Command="{Binding ClearActiveCapeCommand}"
                     FontSize="11" Padding="10,4"
                     IsVisible="{Binding HasOwnedCapes}" />
@@ -935,7 +936,7 @@
         <Border Grid.Row="2" Padding="6,8" Margin="0,0,0,6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <StackPanel Spacing="4">
-            <TextBlock Text="Recent skins" FontWeight="SemiBold" FontSize="12" />
+            <TextBlock Text="{x:Static loc:Strings.Skins_RecentSkins}" FontWeight="SemiBold" FontSize="12" />
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
               <ItemsControl ItemsSource="{Binding SkinHistory}">
                 <ItemsControl.ItemsPanel>
@@ -946,7 +947,7 @@
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
                     <Button Width="64" Height="64" Padding="0"
-                            ToolTip.Tip="Re-apply this skin"
+                            ToolTip.Tip="{x:Static loc:Strings.Skins_RecentReapplyTooltip}"
                             Click="OnReapplyHistoricSkinClicked"
                             Tag="{Binding}">
                       <Image Source="{Binding FilePath}"
@@ -966,23 +967,23 @@
         </Border>
 
         <TextBlock Grid.Row="4" Margin="0,6,0,0"
-                   Text="Drag inside the head preview to rotate."
+                   Text="{x:Static loc:Strings.Skins_DragHint}"
                    Opacity="0.55" FontSize="10" />
       </Grid>
 
       <!-- ==== SERVERS PAGE ==== -->
       <Grid IsVisible="{Binding IsServersSelected}" Classes="Page" RowDefinitions="Auto,Auto,*">
         <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
-          <TextBlock Text="Servers"
+          <TextBlock Text="{x:Static loc:Strings.Servers_Title}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
-          <TextBlock Text="Multiplayer server list (servers.dat NBT). Pings via the Minecraft Server List Ping protocol."
+          <TextBlock Text="{x:Static loc:Strings.Servers_Subtitle}"
                      Opacity="0.65" FontSize="11" />
         </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="6" Margin="0,0,0,6">
-          <Button Content="Refresh servers" FontSize="11"
+          <Button Content="{x:Static loc:Strings.Servers_RefreshServers}" FontSize="11"
                   Command="{Binding RefreshServersCommand}"
                   Padding="10,4" />
-          <Button Content="Refresh pings" FontSize="11"
+          <Button Content="{x:Static loc:Strings.Servers_RefreshPings}" FontSize="11"
                   Command="{Binding RefreshServerPingsCommand}"
                   Padding="10,4" />
         </StackPanel>
@@ -1003,11 +1004,11 @@
                     <Ellipse Width="9" Height="9" Fill="{Binding StatusColor}" VerticalAlignment="Center" />
                     <TextBlock Text="{Binding StatusLine}" FontSize="10" Opacity="0.85" VerticalAlignment="Center" />
                   </StackPanel>
-                  <Button Grid.Column="2" Content="Join"
+                  <Button Grid.Column="2" Content="{x:Static loc:Strings.Servers_JoinButton}"
                           FontSize="11" Padding="10,3" Margin="6,0,2,0"
                           VerticalAlignment="Center"
                           Click="OnJoinServerClicked" Tag="{Binding}"
-                          ToolTip.Tip="Quick Play: launch and connect to this server." />
+                          ToolTip.Tip="{x:Static loc:Strings.Servers_JoinTooltip}" />
                 </Grid>
               </DataTemplate>
             </ListBox.ItemTemplate>
@@ -1018,31 +1019,31 @@
       <!-- ==== HEADLESS SERVERS PAGE (v0.28 T11) ==== -->
       <Grid IsVisible="{Binding IsHeadlessServersSelected}" Classes="Page" RowDefinitions="Auto,Auto,*,Auto">
         <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
-          <TextBlock Text="Headless servers"
+          <TextBlock Text="{x:Static loc:Strings.HeadlessServers_Title}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
-          <TextBlock Text="Dedicated Minecraft servers Hyperion tracks on disk. Server jar download + JVM spawn lands in v0.29."
+          <TextBlock Text="{x:Static loc:Strings.HeadlessServers_Subtitle}"
                      Opacity="0.65" FontSize="11" />
         </StackPanel>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
-          <Button Content="+ New server"
+          <Button Content="{x:Static loc:Strings.HeadlessServers_NewServer}"
                   Click="OnNewHeadlessServerClicked"
                   Classes="LaunchBtn"
                   FontFamily="{StaticResource MinecraftFont}" FontSize="12"
                   Padding="14,5"
                   Foreground="White" />
-          <Button Content="Refresh" FontSize="11"
+          <Button Content="{x:Static loc:Strings.HeadlessServers_Refresh}" FontSize="11"
                   Command="{Binding RefreshHeadlessServersCommand}"
                   Padding="10,5" />
-          <Button Content="Start" FontSize="11"
+          <Button Content="{x:Static loc:Strings.HeadlessServers_Start}" FontSize="11"
                   Command="{Binding StartHeadlessServerCommand}"
                   Padding="10,5"
-                  ToolTip.Tip="Placeholder; server jar download is on the v0.29 roadmap." />
-          <Button Content="Stop" FontSize="11"
+                  ToolTip.Tip="{x:Static loc:Strings.HeadlessServers_PlaceholderTooltip}" />
+          <Button Content="{x:Static loc:Strings.HeadlessServers_Stop}" FontSize="11"
                   Command="{Binding StopHeadlessServerCommand}"
                   Padding="10,5"
-                  ToolTip.Tip="Placeholder; server jar download is on the v0.29 roadmap." />
-          <Button Content="Delete" FontSize="11"
+                  ToolTip.Tip="{x:Static loc:Strings.HeadlessServers_PlaceholderTooltip}" />
+          <Button Content="{x:Static loc:Strings.HeadlessServers_Delete}" FontSize="11"
                   Command="{Binding DeleteHeadlessServerCommand}"
                   Padding="10,5" />
         </StackPanel>
@@ -1063,9 +1064,9 @@
                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12" />
                     <TextBlock Opacity="0.65" FontSize="10">
                       <Run Text="{Binding VersionId}" />
-                      <Run Text=" - " />
+                      <Run Text="{x:Static loc:Strings.HeadlessServers_DashSeparator}" />
                       <Run Text="{Binding RamMb}" />
-                      <Run Text=" MiB - port " />
+                      <Run Text="{x:Static loc:Strings.HeadlessServers_MibAndPort}" />
                       <Run Text="{Binding Port}" />
                     </TextBlock>
                   </StackPanel>
@@ -1079,16 +1080,16 @@
         </Border>
 
         <TextBlock Grid.Row="3" Margin="0,8,0,0"
-                   Text="Each server gets its own folder under %LOCALAPPDATA%/HyperionMinecraftLauncher/headless_servers/{id}/. The launcher writes metadata.json, eula.txt and server.properties on Create."
+                   Text="{x:Static loc:Strings.HeadlessServers_FootnotePath}"
                    Opacity="0.55" FontSize="10" TextWrapping="Wrap" />
       </Grid>
 
       <!-- ==== MODS PAGE ==== -->
       <Grid IsVisible="{Binding IsModsSelected}" Classes="Page" RowDefinitions="Auto,Auto,*">
         <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
-          <TextBlock Text="Mods"
+          <TextBlock Text="{x:Static loc:Strings.Mods_Title}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
-          <TextBlock Text="Browse Modrinth or CurseForge and install mods straight into the selected instance."
+          <TextBlock Text="{x:Static loc:Strings.Mods_Subtitle}"
                      Opacity="0.65" FontSize="11" />
         </StackPanel>
 
@@ -1101,17 +1102,17 @@
               <RadioButton GroupName="ModSource"
                            IsChecked="{Binding IsModrinthSelected, Mode=OneWay}"
                            Click="OnModSourceModrinth"
-                           Padding="10,5" FontSize="11" Content="Modrinth" />
+                           Padding="10,5" FontSize="11" Content="{x:Static loc:Strings.Mods_SourceModrinth}" />
               <RadioButton GroupName="ModSource"
                            IsChecked="{Binding IsCurseForgeSelected, Mode=OneWay}"
                            Click="OnModSourceCurseForge"
-                           Padding="10,5" FontSize="11" Content="CurseForge" />
+                           Padding="10,5" FontSize="11" Content="{x:Static loc:Strings.Mods_SourceCurseForge}" />
             </StackPanel>
-            <TextBlock Grid.Column="1" Text="Search:" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,0" />
+            <TextBlock Grid.Column="1" Text="{x:Static loc:Strings.Mods_SearchLabel}" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,0" />
             <TextBox Grid.Column="2" Text="{Binding ModSearchTerm, Mode=TwoWay}"
-                     Watermark="e.g. fabric-api, sodium, JEI"
+                     Watermark="{x:Static loc:Strings.Mods_SearchWatermark}"
                      FontSize="12" />
-            <Button Grid.Column="3" Content="Search" FontSize="11"
+            <Button Grid.Column="3" Content="{x:Static loc:Strings.Mods_SearchButton}" FontSize="11"
                     Command="{Binding SearchModsCommand}"
                     Padding="14,5" Margin="8,0,0,0" />
           </Grid>
@@ -1123,7 +1124,7 @@
           <Border Grid.Column="0" Padding="6" Margin="0,0,4,0" CornerRadius="15"
                   Background="{DynamicResource MaterialPaperBrush}">
             <Grid RowDefinitions="Auto,*">
-              <TextBlock Grid.Row="0" Text="Search results"
+              <TextBlock Grid.Row="0" Text="{x:Static loc:Strings.Mods_SearchResults}"
                          FontWeight="SemiBold" FontSize="12" Margin="6,4" />
               <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <ListBox ItemsSource="{Binding ModSearchResults}"
@@ -1143,7 +1144,7 @@
                             <TextBlock Text="{Binding Downloads, StringFormat='{}{0:N0} downloads'}"
                                        FontSize="10" Opacity="0.55" />
                           </StackPanel>
-                          <Button Grid.Column="2" Content="Install" FontSize="10"
+                          <Button Grid.Column="2" Content="{x:Static loc:Strings.Mods_InstallButton}" FontSize="10"
                                   Command="{Binding $parent[ListBox].((vm:MainViewModel)DataContext).InstallModCommand}"
                                   Padding="8,3" VerticalAlignment="Center" />
                         </Grid>
@@ -1160,9 +1161,9 @@
                   Background="{DynamicResource MaterialPaperBrush}">
             <Grid RowDefinitions="Auto,*">
               <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="6,4">
-                <TextBlock Grid.Column="0" Text="Installed in selected instance"
+                <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.Mods_InstalledInSelectedInstance}"
                            FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" />
-                <Button Grid.Column="1" Content="Refresh" FontSize="10"
+                <Button Grid.Column="1" Content="{x:Static loc:Strings.Mods_RefreshButton}" FontSize="10"
                         Command="{Binding RefreshInstalledModsCommand}"
                         Padding="8,3" />
               </Grid>
@@ -1174,9 +1175,9 @@
                   <materialIcons:MaterialIcon Kind="PackageVariantClosed" Width="36" Height="36"
                                               Foreground="{DynamicResource MaterialPrimaryMidBrush}"
                                               HorizontalAlignment="Center" />
-                  <TextBlock Text="Pick an instance on Installations first"
+                  <TextBlock Text="{x:Static loc:Strings.Mods_PickAnInstanceFirst}"
                              FontSize="12" Opacity="0.75" HorizontalAlignment="Center" TextAlignment="Center" />
-                  <TextBlock Text="The right-hand pane shows what's in that instance's mods/ folder and lets you toggle or remove mods."
+                  <TextBlock Text="{x:Static loc:Strings.Mods_RightPaneHint}"
                              FontSize="10" Opacity="0.55" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" />
                 </StackPanel>
               </Border>
@@ -1204,7 +1205,7 @@
                           <TextBlock Grid.Column="2" Text="{Binding SizeBytes, StringFormat='{}{0:N0} B'}"
                                      FontSize="10" Opacity="0.55"
                                      VerticalAlignment="Center" Margin="4,0,8,0" />
-                          <Button Grid.Column="3" Content="Remove" FontSize="10"
+                          <Button Grid.Column="3" Content="{x:Static loc:Strings.Mods_RemoveButton}" FontSize="10"
                                   Command="{Binding $parent[ListBox].((vm:MainViewModel)DataContext).RemoveInstalledModCommand}"
                                   Padding="6,3" />
                         </Grid>
@@ -1221,11 +1222,11 @@
       <!-- ==== NEWS PAGE ==== -->
       <Grid IsVisible="{Binding IsNewsSelected}" Classes="Page" RowDefinitions="Auto,Auto,*">
         <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
-          <TextBlock Text="News" FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
-          <TextBlock Text="Live feed from launchercontent.mojang.com/news.json - the same source Mojang's official launcher uses."
+          <TextBlock Text="{x:Static loc:Strings.News_Title}" FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
+          <TextBlock Text="{x:Static loc:Strings.News_Subtitle}"
                      Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
         </StackPanel>
-        <Button Grid.Row="1" Content="Refresh news" FontSize="11"
+        <Button Grid.Row="1" Content="{x:Static loc:Strings.News_RefreshButton}" FontSize="11"
                 Command="{Binding RefreshNewsCommand}"
                 Padding="10,4" HorizontalAlignment="Left" Margin="0,0,0,6" />
         <Border Grid.Row="2" Padding="6" CornerRadius="15"
@@ -1254,7 +1255,7 @@
                                  Text="{Binding Text}" FontSize="11" Opacity="0.85"
                                  TextWrapping="Wrap" Margin="0,4,0,0" />
                       <Button Grid.Row="3" Grid.Column="1"
-                              Content="Read more on minecraft.net" FontSize="10"
+                              Content="{x:Static loc:Strings.News_ReadMore}" FontSize="10"
                               Tag="{Binding ReadMoreLink}" Click="OnOpenExternalLink"
                               HorizontalAlignment="Left" Margin="0,6,0,0" Padding="8,3" />
                     </Grid>
@@ -1269,8 +1270,8 @@
       <!-- ==== SETTINGS PAGE ==== -->
       <Grid IsVisible="{Binding IsSettingsSelected}" Classes="Page" RowDefinitions="Auto,*,Auto">
         <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
-          <TextBlock Text="Settings" FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
-          <TextBlock Text="Persisted to %LOCALAPPDATA%\HyperionMinecraftLauncher\settings.json. Memory limits apply to the next Launch."
+          <TextBlock Text="{x:Static loc:Strings.Settings_Title}" FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
+          <TextBlock Text="{x:Static loc:Strings.Settings_Subtitle}"
                      Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
         </StackPanel>
 
@@ -1280,36 +1281,36 @@
             <!-- Memory -->
             <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
-                <TextBlock Text="Memory (JVM heap)" FontWeight="SemiBold" FontSize="12" />
+                <TextBlock Text="{x:Static loc:Strings.Settings_MemoryHeader}" FontWeight="SemiBold" FontSize="12" />
 
                 <Grid ColumnDefinitions="100,*,80">
-                  <TextBlock Grid.Column="0" Text="Minimum (-Xms):" FontSize="11" VerticalAlignment="Center" />
+                  <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.Settings_MinimumXmsLabel}" FontSize="11" VerticalAlignment="Center" />
                   <Slider Grid.Column="1" Minimum="256"
                           Maximum="{Binding MaxAllowedMemoryMb}"
                           Value="{Binding MinMemoryMb, Mode=TwoWay}"
                           TickFrequency="256" IsSnapToTickEnabled="True" />
                   <TextBlock Grid.Column="2" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Right">
                     <Run Text="{Binding MinMemoryMb}" />
-                    <Run Text=" MB" />
+                    <Run Text="{x:Static loc:Strings.Settings_MbUnit}" />
                   </TextBlock>
                 </Grid>
 
                 <Grid ColumnDefinitions="100,*,80">
-                  <TextBlock Grid.Column="0" Text="Maximum (-Xmx):" FontSize="11" VerticalAlignment="Center" />
+                  <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.Settings_MaximumXmxLabel}" FontSize="11" VerticalAlignment="Center" />
                   <Slider Grid.Column="1" Minimum="512"
                           Maximum="{Binding MaxAllowedMemoryMb}"
                           Value="{Binding MaxMemoryMb, Mode=TwoWay}"
                           TickFrequency="512" IsSnapToTickEnabled="True" />
                   <TextBlock Grid.Column="2" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Right">
                     <Run Text="{Binding MaxMemoryMb}" />
-                    <Run Text=" MB" />
+                    <Run Text="{x:Static loc:Strings.Settings_MbUnit}" />
                   </TextBlock>
                 </Grid>
 
                 <TextBlock FontSize="10" Opacity="0.6">
-                  <Run Text="Ceiling auto-detected from this machine: " />
+                  <Run Text="{x:Static loc:Strings.Settings_CeilingPrefix}" />
                   <Run Text="{Binding MaxAllowedMemoryMb}" />
-                  <Run Text=" MB (~75% of system RAM, capped at 16 GB)." />
+                  <Run Text="{x:Static loc:Strings.Settings_CeilingSuffix}" />
                 </TextBlock>
               </StackPanel>
             </Border>
@@ -1317,12 +1318,12 @@
             <!-- JVM args -->
             <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
-                <TextBlock Text="Custom JVM arguments" FontWeight="SemiBold" FontSize="12" />
+                <TextBlock Text="{x:Static loc:Strings.Settings_JvmArgsHeader}" FontWeight="SemiBold" FontSize="12" />
                 <TextBox Text="{Binding JvmArguments, Mode=TwoWay}"
-                         Watermark="-XX:+UseG1GC -XX:+UnlockExperimentalVMOptions ..."
+                         Watermark="{x:Static loc:Strings.Settings_JvmArgsWatermark}"
                          FontFamily="Cascadia Mono, Consolas, Menlo, monospace" FontSize="11"
                          AcceptsReturn="True" Height="56" />
-                <TextBlock Text="Appended after the auto-generated -Xms/-Xmx flags. (Not yet forwarded to CmlLib's process builder - planned for a follow-up.)"
+                <TextBlock Text="{x:Static loc:Strings.Settings_JvmArgsHint}"
                            FontSize="10" Opacity="0.55" TextWrapping="Wrap" />
               </StackPanel>
             </Border>
@@ -1330,11 +1331,11 @@
             <!-- Game directory -->
             <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
-                <TextBlock Text="Game directory" FontWeight="SemiBold" FontSize="12" />
+                <TextBlock Text="{x:Static loc:Strings.Settings_GameDirHeader}" FontWeight="SemiBold" FontSize="12" />
                 <Grid ColumnDefinitions="*,Auto">
                   <TextBox Grid.Column="0" Text="{Binding GameDirectoryOverride, Mode=TwoWay}"
-                           Watermark="(leave empty to use the OS default .minecraft)" FontSize="11" />
-                  <Button Grid.Column="1" Content="Browse" FontSize="11"
+                           Watermark="{x:Static loc:Strings.Settings_GameDirWatermark}" FontSize="11" />
+                  <Button Grid.Column="1" Content="{x:Static loc:Strings.Settings_BrowseButton}" FontSize="11"
                           Padding="10,4" Margin="6,0,0,0" Click="OnBrowseGameDir" />
                 </Grid>
               </StackPanel>
@@ -1343,11 +1344,11 @@
             <!-- Java executable -->
             <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
-                <TextBlock Text="Java executable" FontWeight="SemiBold" FontSize="12" />
+                <TextBlock Text="{x:Static loc:Strings.Settings_JavaExeHeader}" FontWeight="SemiBold" FontSize="12" />
                 <Grid ColumnDefinitions="*,Auto">
                   <TextBox Grid.Column="0" Text="{Binding JavaExecutableOverride, Mode=TwoWay}"
-                           Watermark="(leave empty to let CmlLib auto-detect)" FontSize="11" />
-                  <Button Grid.Column="1" Content="Browse" FontSize="11"
+                           Watermark="{x:Static loc:Strings.Settings_JavaExeWatermark}" FontSize="11" />
+                  <Button Grid.Column="1" Content="{x:Static loc:Strings.Settings_BrowseButton}" FontSize="11"
                           Padding="10,4" Margin="6,0,0,0" Click="OnBrowseJavaExe" />
                 </Grid>
               </StackPanel>
@@ -1356,36 +1357,36 @@
             <!-- Launcher prefs -->
             <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
-                <TextBlock Text="Launcher preferences" FontWeight="SemiBold" FontSize="12" />
+                <TextBlock Text="{x:Static loc:Strings.Settings_LauncherPrefsHeader}" FontWeight="SemiBold" FontSize="12" />
                 <CheckBox IsChecked="{Binding KeepLauncherOpen, Mode=TwoWay}" FontSize="11"
-                          Content="Keep launcher open after the game starts" />
+                          Content="{x:Static loc:Strings.Settings_KeepLauncherOpen}" />
                 <CheckBox IsChecked="{Binding ShowGameLog, Mode=TwoWay}" FontSize="11"
-                          Content="Show game stdout / stderr in the launcher log (planned)" />
+                          Content="{x:Static loc:Strings.Settings_ShowGameLog}" />
               </StackPanel>
             </Border>
 
             <!-- Backups (v0.30 T21f). Pre-launch world snapshot under <gameDir>/backups/ -->
             <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
-                <TextBlock Text="Backups" FontWeight="SemiBold" FontSize="12" />
+                <TextBlock Text="{x:Static loc:Strings.Settings_BackupsHeader}" FontWeight="SemiBold" FontSize="12" />
                 <CheckBox IsChecked="{Binding AutoBackupBeforeLaunch, Mode=TwoWay}" FontSize="11"
-                          Content="Auto-backup worlds before each launch" />
+                          Content="{x:Static loc:Strings.Settings_AutoBackupCheckbox}" />
                 <Grid ColumnDefinitions="*,80" Margin="0,2,0,0">
                   <TextBlock Grid.Column="0" FontSize="11" VerticalAlignment="Center"
-                             Text="Keep latest N per world (0 = keep all):" />
+                             Text="{x:Static loc:Strings.Settings_KeepLatestNLabel}" />
                   <NumericUpDown Grid.Column="1" Minimum="0" Maximum="100" Increment="1"
                                  Value="{Binding AutoBackupKeepLatest, Mode=TwoWay}"
                                  FormatString="0" FontSize="11" />
                 </Grid>
                 <TextBlock FontSize="10" Opacity="0.6" TextWrapping="Wrap"
-                           Text="Each world is zipped under &lt;gameDir&gt;/backups/{world}-{timestamp}.zip. A failure during backup is logged but never blocks the launch." />
+                           Text="{x:Static loc:Strings.Settings_BackupHint}" />
               </StackPanel>
             </Border>
 
           </StackPanel>
         </ScrollViewer>
 
-        <Button Grid.Row="2" Content="Save settings"
+        <Button Grid.Row="2" Content="{x:Static loc:Strings.Settings_SaveButton}"
                 Command="{Binding SaveSettingsCommand}"
                 Classes="LaunchBtn"
                 FontFamily="{StaticResource MinecraftFont}" FontSize="13"
@@ -1396,9 +1397,9 @@
       <!-- ==== LOGS PAGE ==== -->
       <Grid IsVisible="{Binding IsLogsSelected}" Classes="Page" RowDefinitions="Auto,Auto,*,Auto">
         <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
-          <TextBlock Text="Logs"
+          <TextBlock Text="{x:Static loc:Strings.Logs_Title}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
-          <TextBlock Text="Today's daily-rotated log file from %LOCALAPPDATA%\HyperionMinecraftLauncher\logs\."
+          <TextBlock Text="{x:Static loc:Strings.Logs_Subtitle}"
                      Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
         </StackPanel>
 
@@ -1406,15 +1407,15 @@
         <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto,Auto" Margin="0,0,0,6">
           <TextBox Grid.Column="0"
                    Text="{Binding LogFilter, Mode=TwoWay}"
-                   Watermark="Filter log..."
+                   Watermark="{x:Static loc:Strings.Logs_FilterWatermark}"
                    FontSize="11" />
-          <Button Grid.Column="1" Content="Refresh" FontSize="11"
+          <Button Grid.Column="1" Content="{x:Static loc:Strings.Logs_RefreshButton}" FontSize="11"
                   Command="{Binding RefreshLogFileCommand}"
                   Padding="10,4" Margin="6,0,0,0" />
-          <Button Grid.Column="2" Content="Open logs folder" FontSize="11"
+          <Button Grid.Column="2" Content="{x:Static loc:Strings.Logs_OpenLogsFolderButton}" FontSize="11"
                   Click="OnOpenLogsFolder"
                   Padding="10,4" Margin="6,0,0,0" />
-          <Button Grid.Column="3" Content="Copy all" FontSize="11"
+          <Button Grid.Column="3" Content="{x:Static loc:Strings.Logs_CopyAllButton}" FontSize="11"
                   Click="OnCopyLogAll"
                   Padding="10,4" Margin="6,0,0,0" />
         </Grid>

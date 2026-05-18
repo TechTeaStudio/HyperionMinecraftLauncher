@@ -3,9 +3,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:instances="using:TechTeaStudio.HyperionMinecraftLauncher.Core.Instances"
+        xmlns:loc="using:TechTeaStudio.HyperionMinecraftLauncher.App.Localization"
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.JoinServerDialog"
-        Title="Join server"
+        Title="{x:Static loc:Strings.JoinServerDialog_Title}"
         Width="460" Height="220"
         CanResize="False"
         SystemDecorations="None"
@@ -25,7 +26,7 @@
       <Border Grid.Row="0" Background="#400D0D1B"
               PointerPressed="OnTitleBarPressed">
         <Grid ColumnDefinitions="*,Auto">
-          <TextBlock Grid.Column="0" Text="Quick Play: join server"
+          <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.JoinServerDialog_HeaderTitle}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                      Foreground="White" VerticalAlignment="Center" Margin="12,0" />
           <Button Grid.Column="1" Click="OnCancel" Width="36" Height="36"
@@ -40,8 +41,8 @@
         <TextBlock x:Name="QuestionText" FontSize="13" TextWrapping="Wrap" />
 
         <StackPanel Spacing="4">
-          <TextBlock Text="Pick instance" FontSize="11" Opacity="0.85" />
-          <ComboBox x:Name="InstanceBox" HorizontalAlignment="Stretch" PlaceholderText="(no instances)">
+          <TextBlock Text="{x:Static loc:Strings.JoinServerDialog_PickInstance}" FontSize="11" Opacity="0.85" />
+          <ComboBox x:Name="InstanceBox" HorizontalAlignment="Stretch" PlaceholderText="{x:Static loc:Strings.JoinServerDialog_NoInstancesPlaceholder}">
             <ComboBox.ItemTemplate>
               <DataTemplate DataType="instances:Instance">
                 <StackPanel Orientation="Horizontal" Spacing="8">
@@ -55,9 +56,9 @@
       </StackPanel>
 
       <Grid Grid.Row="2" Margin="20,4,20,16" ColumnDefinitions="*,Auto,Auto">
-        <Button Grid.Column="1" Content="Cancel" Click="OnCancel"
+        <Button Grid.Column="1" Content="{x:Static loc:Strings.Common_Cancel}" Click="OnCancel"
                 Padding="14,5" FontSize="12" Margin="0,0,8,0" />
-        <Button Grid.Column="2" Content="Join"
+        <Button Grid.Column="2" Content="{x:Static loc:Strings.JoinServerDialog_JoinButton}"
                 Click="OnConfirm"
                 FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                 Padding="14,5"
