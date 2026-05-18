@@ -1401,6 +1401,36 @@
               </StackPanel>
             </Border>
 
+            <!-- v0.32.1 (T-cf-onboarding): Mods card. Replaces the bare CurseForge API key
+                 TextBox with a status row + button that routes through the onboarding dialog.
+                 Two states share the same row: "Not configured" / "Configured", each with
+                 its own action button label. Both buttons fire the same VM command. -->
+            <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
+              <StackPanel Spacing="6">
+                <TextBlock Text="{x:Static loc:Strings.Settings_ModsHeader}" FontWeight="SemiBold" FontSize="12" />
+                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto">
+                  <TextBlock Grid.Column="0"
+                             Text="{x:Static loc:Strings.Settings_CurseForgeStatusNotConfigured}"
+                             FontSize="11" VerticalAlignment="Center"
+                             IsVisible="{Binding !HasCurseForgeKey}" />
+                  <TextBlock Grid.Column="0"
+                             Text="{x:Static loc:Strings.Settings_CurseForgeStatusConfigured}"
+                             FontSize="11" VerticalAlignment="Center"
+                             IsVisible="{Binding HasCurseForgeKey}" />
+                  <Button Grid.Column="1"
+                          Content="{x:Static loc:Strings.Settings_SetUpCurseForgeButton}"
+                          Command="{Binding OpenCurseForgeOnboardingCommand}"
+                          FontSize="11" Padding="10,4"
+                          IsVisible="{Binding !HasCurseForgeKey}" />
+                  <Button Grid.Column="1"
+                          Content="{x:Static loc:Strings.Settings_ChangeKeyButton}"
+                          Command="{Binding OpenCurseForgeOnboardingCommand}"
+                          FontSize="11" Padding="10,4"
+                          IsVisible="{Binding HasCurseForgeKey}" />
+                </Grid>
+              </StackPanel>
+            </Border>
+
             <!-- Backups (v0.30 T21f). Pre-launch world snapshot under <gameDir>/backups/ -->
             <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
