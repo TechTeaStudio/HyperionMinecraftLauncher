@@ -19,6 +19,39 @@ namespace TechTeaStudio.HyperionMinecraftLauncher.App.Controls;
 /// </summary>
 public sealed class SkinPreview : UserControl
 {
+    /// <summary>
+    /// Optional process-wide hook for "[Skin viewer]" log lines (texture-decode failures,
+    /// rotation-render exceptions, body-view fallbacks). Wired in <c>App.axaml.cs</c> to the
+    /// Serilog launcher logger; null in tests so the control stays standalone.
+    /// </summary>
+    public static Action<string, Exception?>? Logger { get; set; }
+
+    private static void Log(string message, Exception? ex = null)
+    {
+        try { Logger?.Invoke("[Skin viewer] " + message, ex); }
+        catch { /* never let a logger sink break the UI thread */ }
+    }
+
+    /// <summary>
+    /// Preferred input: raw PNG bytes. Goes straight to <see cref="SKBitmap.Decode(byte[])"/>
+    /// so the original texture is preserved byte-for-byte (no Avalonia <c>Bitmap.Save</c>
+    /// re-encode round-trip, which can corrupt the semi-transparent hat / jacket overlay
+    /// pixels via pre-multiplied-alpha rounding and produce mis-coloured cube faces).
+    /// </summary>
+    public static readonly StyledProperty<byte[]?> SkinPngSourceProperty =
+        AvaloniaProperty.Register<SkinPreview, byte[]?>(nameof(SkinPngSource));
+
+    public byte[]? SkinPngSource
+    {
+        get => GetValue(SkinPngSourceProperty);
+        set => SetValue(SkinPngSourceProperty, value);
+    }
+
+    /// <summary>
+    /// Legacy input: Avalonia <see cref="Bitmap"/>. Only used when
+    /// <see cref="SkinPngSourceProperty"/> is null. The Bitmap is round-tripped through
+    /// Skia's PNG encoder; that round-trip is lossy for skins with overlay transparency.
+    /// </summary>
     public static readonly StyledProperty<Bitmap?> SkinSourceProperty =
         AvaloniaProperty.Register<SkinPreview, Bitmap?>(nameof(SkinSource));
 
@@ -65,7 +98,7 @@ public sealed class SkinPreview : UserControl
 
     private readonly TextBlock _hint = new()
     {
-        Text = "Drag the head to rotate",
+        Text = "Drag the head to rotate (body follows)",
         FontSize = 10,
         Opacity = 0.55,
         HorizontalAlignment = HorizontalAlignment.Center,
@@ -75,12 +108,18 @@ public sealed class SkinPreview : UserControl
 
     private SKBitmap? _skSkin;
     private SKBitmap? _skCape;
-    private int _yaw = 15;    // Skin3DHeadTypeB params; default values chosen for a friendly 3/4 view.
-    private int _pitch = 65;
+    // Skin3DHeadTypeB.MakeHeadImage(skin, x, y) takes:
+    //   x = rotation around X axis (pitch  - tilt forward / back)
+    //   y = rotation around Y axis (yaw    - turn left / right)
+    // Default 3/4 view: camera looks slightly down at the head, head turned a bit toward
+    // the right shoulder so both eyes + the side of the head are visible.
+    private int _pitch = 15;
+    private int _yaw = 65;
     private Point? _dragStart;
 
     static SkinPreview()
     {
+        SkinPngSourceProperty.Changed.AddClassHandler<SkinPreview>((s, _) => s.OnSkinChanged());
         SkinSourceProperty.Changed.AddClassHandler<SkinPreview>((s, _) => s.OnSkinChanged());
         CapeSourceProperty.Changed.AddClassHandler<SkinPreview>((s, _) => s.OnCapeChanged());
     }
@@ -118,28 +157,50 @@ public sealed class SkinPreview : UserControl
         _skSkin?.Dispose();
         _skSkin = null;
 
-        if (SkinSource is null)
+        // Prefer the raw-PNG path: no Avalonia <-> Skia re-encode, so semi-transparent
+        // overlay pixels (hat, jacket, sleeve, pants) survive intact. Fall back to the
+        // legacy Bitmap path only when the host hasn't supplied PNG bytes yet.
+        var png = SkinPngSource;
+        if (png is { Length: > 0 })
+        {
+            try
+            {
+                _skSkin = SKBitmap.Decode(png);
+            }
+            catch (Exception ex)
+            {
+                Log("SKBitmap.Decode(byte[]) failed for SkinPngSource; falling back to Bitmap path.", ex);
+                _skSkin = null;
+            }
+        }
+
+        if (_skSkin is null && SkinSource is { } bitmap)
+        {
+            try
+            {
+                using var ms = new MemoryStream();
+                bitmap.Save(ms);
+                ms.Position = 0;
+                _skSkin = SKBitmap.Decode(ms);
+                if (_skSkin is null)
+                    Log("SKBitmap.Decode(stream) returned null after Bitmap.Save round-trip; ignoring.");
+            }
+            catch (Exception ex)
+            {
+                Log("Bitmap.Save / SKBitmap.Decode round-trip threw; ignoring this skin update.", ex);
+                _skSkin = null;
+            }
+        }
+
+        if (_skSkin is null)
         {
             _headImage.Source = null;
             _bodyImage.Source = null;
             return;
         }
 
-        try
-        {
-            using var ms = new MemoryStream();
-            SkinSource.Save(ms);
-            ms.Position = 0;
-            _skSkin = SKBitmap.Decode(ms);
-            if (_skSkin is null) return;
-
-            RebuildHead();
-            RebuildBody();
-        }
-        catch
-        {
-            // Bad skin - keep last image
-        }
+        RebuildHead();
+        RebuildBody();
     }
 
     private void OnCapeChanged()
@@ -157,15 +218,19 @@ public sealed class SkinPreview : UserControl
             CapeSource.Save(ms);
             ms.Position = 0;
             _skCape = SKBitmap.Decode(ms);
-            if (_skCape is null) return;
+            if (_skCape is null)
+            {
+                Log("Cape decode returned null; hiding cape slot.");
+                return;
+            }
 
             using var cape = Cape2DTypaA.MakeCapeImage(_skCape);
             _capeImage.Source = ToAvaloniaBitmap(cape);
             _capeImage.IsVisible = true;
         }
-        catch
+        catch (Exception ex)
         {
-            // ignore
+            Log("Cape render threw; hiding cape slot.", ex);
         }
     }
 
@@ -174,26 +239,48 @@ public sealed class SkinPreview : UserControl
         if (_skSkin is null) return;
         try
         {
-            using var head = Skin3DHeadTypeB.MakeHeadImage(_skSkin, _yaw, _pitch);
+            // Argument order is critical: Skin3DHeadTypeB.MakeHeadImage(skin, x, y) treats
+            // x as the X-axis rotation (pitch) and y as the Y-axis rotation (yaw). Passing
+            // them swapped is what caused v0.32.1's "drag right flips the head upside down"
+            // bug - horizontal drag updates yaw, which must land in the second slot.
+            using var head = Skin3DHeadTypeB.MakeHeadImage(_skSkin, _pitch, _yaw);
             _headImage.Source = ToAvaloniaBitmap(head);
         }
-        catch
+        catch (Exception ex)
         {
-            // ignore - keep previous head
+            Log($"RebuildHead failed (pitch={_pitch}, yaw={_yaw}); keeping previous frame.", ex);
         }
     }
+
+    private bool _lastBodyWasBack;
+    private bool _hasBodyImage;
 
     private void RebuildBody()
     {
         if (_skSkin is null) return;
         try
         {
-            using var body = Skin2DTypeA.MakeSkinImage(_skSkin, null);
+            // MinecraftSkinRender.Image 1.2.0 does NOT ship a 3D body renderer, only a
+            // 3D HEAD renderer. To still give the body a sense of rotation, we flip
+            // between a stock front-view sprite (Skin2DTypeA) and a back-view sprite we
+            // compose locally with the SDK's ExtractSubset / Mix primitives. We pick
+            // whichever face matches the current yaw, so dragging the head past the side
+            // visibly flips the body too.
+            bool showBack = SkinRotation.IsBackFacing(_yaw);
+            // Only re-render the body image when the face actually changes, keeping
+            // pointer-move cheap (the body sprite is much pricier than the 220x220 head).
+            if (_hasBodyImage && showBack == _lastBodyWasBack) return;
+
+            using var body = showBack
+                ? BackBodyComposer.MakeBackImage(_skSkin)
+                : Skin2DTypeA.MakeSkinImage(_skSkin, null);
             _bodyImage.Source = ToAvaloniaBitmap(body);
+            _lastBodyWasBack = showBack;
+            _hasBodyImage = true;
         }
-        catch
+        catch (Exception ex)
         {
-            // ignore
+            Log("Body render threw; body slot left at previous image.", ex);
         }
     }
 
@@ -211,24 +298,23 @@ public sealed class SkinPreview : UserControl
         var dy = (int)(now.Y - start.Y);
         if (dx == 0 && dy == 0) return;
 
-        // Map mouse delta into the head renderer's (x, y) params. These tweak the camera
-        // azimuth + elevation, so the live re-render rotates the head under the cursor.
-        _yaw = WrapDeg(_yaw + dx);
-        _pitch = Math.Clamp(_pitch - dy, 5, 175);
+        // Horizontal drag rotates around the Y axis (yaw - the head turns left / right);
+        // vertical drag rotates around the X axis (pitch - the head tilts up / down).
+        // RebuildHead passes them in the correct (x=pitch, y=yaw) order to MakeHeadImage.
+        var step = SkinRotation.AccumulateStep(_pitch, _yaw, dx, dy);
+        _pitch = step.Pitch;
+        _yaw = step.Yaw;
         _dragStart = now;
         RebuildHead();
+        // RebuildBody short-circuits when the yaw stays on the same side, so dragging
+        // within the front-facing arc costs zero allocations for the body slot.
+        RebuildBody();
     }
 
     private void OnHeadPointerReleased(object? sender, PointerReleasedEventArgs e)
     {
         _dragStart = null;
         e.Pointer.Capture(null);
-    }
-
-    private static int WrapDeg(int v)
-    {
-        v = ((v % 360) + 360) % 360;
-        return v;
     }
 
     private static Bitmap? ToAvaloniaBitmap(SKImage? image)

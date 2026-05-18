@@ -61,6 +61,15 @@ public partial class App : Application
             var asmVersion = typeof(App).Assembly.GetName().Version?.ToString(3) ?? "?.?.?";
             logger.Info($"HyperionMinecraftLauncher {asmVersion} starting on {System.Runtime.InteropServices.RuntimeInformation.OSDescription}.");
 
+            // v0.32.2: SkinPreview lives in the App layer but has no constructor DI (it's
+            // instantiated by AXAML). Static hook so its caught-exception paths can still
+            // surface into the daily log file with the rest of the launcher diagnostics.
+            TechTeaStudio.HyperionMinecraftLauncher.App.Controls.SkinPreview.Logger = (msg, ex) =>
+            {
+                if (ex is null) logger.Warn(msg);
+                else logger.Error(msg, ex);
+            };
+
             // Shared account store: the v0.27.0 multi-account roster lives next to MSAL's own
             // refresh-token cache. The Microsoft auth service reads/writes it on every sign-in;
             // the view-model surfaces it through the header chip flyout.
