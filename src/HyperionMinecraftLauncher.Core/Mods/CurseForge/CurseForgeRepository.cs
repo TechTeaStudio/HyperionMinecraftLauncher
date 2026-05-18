@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -121,9 +122,11 @@ public sealed class CurseForgeRepository : IModRepository
         sb.Append("&pageSize=").Append(query.Limit);
         sb.Append("&index=").Append(query.Offset);
 
-        using var request = NewRequest(HttpMethod.Get, sb.ToString(), apiKey);
+        var relativeUrl = sb.ToString();
+        LogOutgoing(relativeUrl, apiKey);
+        using var request = NewRequest(HttpMethod.Get, relativeUrl, apiKey);
         using var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessOrFriendlyAsync(response, cancellationToken).ConfigureAwait(false);
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
         return ParseSearchHits(stream);
     }
@@ -150,9 +153,11 @@ public sealed class CurseForgeRepository : IModRepository
             sb.Append("modLoaderType=").Append(loaderType);
         }
 
-        using var request = NewRequest(HttpMethod.Get, sb.ToString(), apiKey);
+        var relativeUrl = sb.ToString();
+        LogOutgoing(relativeUrl, apiKey);
+        using var request = NewRequest(HttpMethod.Get, relativeUrl, apiKey);
         using var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessOrFriendlyAsync(response, cancellationToken).ConfigureAwait(false);
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
         return ParseFiles(stream, modId);
     }
@@ -170,9 +175,10 @@ public sealed class CurseForgeRepository : IModRepository
         // v0.32.2: route through NewRequest so all three verbs (search / list-files / download)
         // share the same header-construction code path. The download URL is absolute, so
         // HttpRequestMessage accepts it without consulting HttpClient.BaseAddress.
+        LogOutgoing(file.DownloadUrl, apiKey);
         using var request = NewRequest(HttpMethod.Get, file.DownloadUrl, apiKey);
         using var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessOrFriendlyAsync(response, cancellationToken).ConfigureAwait(false);
 
         var total = response.Content.Headers.ContentLength ?? file.FileSize;
         await using var src = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
@@ -202,6 +208,64 @@ public sealed class CurseForgeRepository : IModRepository
         req.Headers.TryAddWithoutValidation("x-api-key", apiKey);
         req.Headers.TryAddWithoutValidation("Accept", "application/json");
         return req;
+    }
+
+    /// <summary>
+    /// Emit a diagnostic <c>[mods] GET ...</c> line so future 403 / 5xx investigations can
+    /// happen from the log file alone. The url is logged verbatim (no api key is in the URL -
+    /// CurseForge takes it via the <c>x-api-key</c> header), and the key itself is reduced
+    /// to its length to avoid leaking secrets into long-lived support logs.
+    /// </summary>
+    private void LogOutgoing(string url, string apiKey)
+    {
+        var absolute = TryBuildAbsoluteUrl(url);
+        _logger.Info($"[mods] GET {absolute} (key length: {apiKey.Length})");
+    }
+
+    private string TryBuildAbsoluteUrl(string url)
+    {
+        if (Uri.TryCreate(url, UriKind.Absolute, out var abs))
+            return abs.ToString();
+        if (_http.BaseAddress is { } baseAddr && Uri.TryCreate(baseAddr, url, out var combined))
+            return combined.ToString();
+        return url;
+    }
+
+    /// <summary>
+    /// Translate non-success responses into <see cref="HttpRequestException"/>s whose message
+    /// is the friendly hint the user actually needs - "check your key", "service is down",
+    /// etc. The caller's <c>catch (Exception ex)</c> surfaces <c>ex.Message</c> straight into
+    /// the launcher log so the user sees a sentence instead of <c>"403 (Forbidden)"</c>.
+    /// </summary>
+    private static async Task EnsureSuccessOrFriendlyAsync(HttpResponseMessage response, CancellationToken ct)
+    {
+        if (response.IsSuccessStatusCode) return;
+
+        var status = response.StatusCode;
+        var hint = status switch
+        {
+            HttpStatusCode.Forbidden =>
+                "CurseForge rejected the request. Check the API key in Settings is valid and has access to game id 432 (Minecraft).",
+            HttpStatusCode.Unauthorized =>
+                "CurseForge says the API key is invalid or expired.",
+            _ when (int)status >= 500 =>
+                "CurseForge service is unavailable, try again later.",
+            HttpStatusCode.TooManyRequests =>
+                "CurseForge is rate-limiting the launcher, slow down and try again in a minute.",
+            HttpStatusCode.NotFound =>
+                "CurseForge endpoint not found - verify the launcher build is current.",
+            _ =>
+                $"CurseForge returned {(int)status} {status}.",
+        };
+
+        // Best-effort body sniff for the log; ignored on stream errors. Truncated so a giant
+        // HTML error page doesn't drown the launcher log.
+        string body;
+        try { body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false); }
+        catch { body = string.Empty; }
+        if (body.Length > 300) body = body[..300] + "...";
+
+        throw new HttpRequestException(string.IsNullOrEmpty(body) ? hint : hint + " (" + body + ")");
     }
 
     /// <summary>CurseForge's numeric loader-type identifiers.</summary>
