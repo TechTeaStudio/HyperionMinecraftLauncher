@@ -75,4 +75,12 @@ public sealed record LaunchRequest
     /// means "let the installer pick the newest stable build".
     /// </summary>
     public string? LoaderVersion { get; init; }
+
+    /// <summary>
+    /// When <c>true</c> the underlying launcher redirects the game's stdout/stderr into a
+    /// live <see cref="GameLogLine"/> observable exposed on <see cref="LaunchResult.GameLogStream"/>.
+    /// Mirrors <see cref="Settings.LauncherSettings.ShowGameLog"/>. Defaults to <c>false</c> so
+    /// headless callers and tests don't pay the pipe-redirection cost by accident.
+    /// </summary>
+    public bool CaptureGameLog { get; init; }
 }
