@@ -14,6 +14,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Presence;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping;
@@ -39,6 +40,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private readonly ILauncherLogger _logger;
     private readonly IMicrosoftAuthService? _microsoftAuth;
     private readonly ILauncherSettingsStore? _settingsStore;
+    private readonly IPresenceService _presence;
 
     // Settings-page state (mirrored from LauncherSettings on load, written back on Save).
     private int _minMemoryMb;
@@ -80,17 +82,20 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private string _logFilter = string.Empty;
     private DateTime _logLastRefreshed;
 
-    /// <summary>Construct with the launcher service and (optional) Microsoft auth provider + settings store.</summary>
+    /// <summary>Construct with the launcher service and (optional) Microsoft auth provider + settings store + presence sink.</summary>
     public MainViewModel(
         IMinecraftLauncherService service,
         ILauncherLogger logger,
         IMicrosoftAuthService? microsoftAuth = null,
-        ILauncherSettingsStore? settingsStore = null)
+        ILauncherSettingsStore? settingsStore = null,
+        IPresenceService? presence = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _microsoftAuth = microsoftAuth;
         _settingsStore = settingsStore;
+        // Default to no-op so the constructor stays test-friendly when callers don't care.
+        _presence = presence ?? new NullPresenceService();
         _maxAllowedMemoryMb = SystemRam.RecommendedMaxHeapMb();
 
         // MSAL device-code prompts come from a background thread; surface them in the UI log.
@@ -642,6 +647,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     public async Task RunStartupRefreshesAsync()
     {
+        // Announce idle to Discord (no-op when RPC is disabled or Discord isn't running).
+        // Defensive wrap: presence is cosmetic and must not abort startup.
+        try { _presence.SetIdle(); }
+        catch (Exception ex) { _logger.Warn($"Presence SetIdle failed: {ex.Message}"); }
+
         // 0) If MSAL still holds a refresh token from the last session, restore the user
         //    silently so they don't have to re-enter a device code on every launch.
         if (_microsoftAuth is { HasCachedAccount: true })
@@ -1091,6 +1101,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
             Append($"Launched. pid={result.ProcessId} version={result.VersionName}");
             _logger.Info($"UI: launch complete (pid {result.ProcessId}, version {result.VersionName}).");
+
+            // Update Discord presence to "Playing <version> - <instance>" now that the
+            // game process is up. Cosmetic only - any failure here is logged and swallowed.
+            try { _presence.SetPlaying(result.VersionName, SelectedInstance?.Name); }
+            catch (Exception ex) { _logger.Warn($"Presence SetPlaying failed: {ex.Message}"); }
 
             // Mark "last played" on the running instance so the grid sorts it to the front next time.
             // Auto-imported instances aren't in our store - just refresh their in-memory copy
