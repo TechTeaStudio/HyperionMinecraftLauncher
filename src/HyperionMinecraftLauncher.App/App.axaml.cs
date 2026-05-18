@@ -17,6 +17,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods.CurseForge;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods.Modpacks;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods.Modrinth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Presence;
@@ -117,6 +118,18 @@ public partial class App : Application
             var curseForgeRepo = new CurseForgeRepository(curseForgeHttp, initialSettings.CurseForgeApiKey, logger);
             var instanceModManager = new FileSystemInstanceModManager();
 
+            // Modpack import (v0.30.0 T21d). Both importers share the same instances dir under
+            // LOCALAPPDATA; the dispatcher peeks at the archive contents and picks the right one.
+            // Uses its own HttpClient with a generous 5-min timeout because mods are big and CDNs
+            // are slow over weak connections.
+            var modpackHttp = new System.Net.Http.HttpClient { Timeout = System.TimeSpan.FromMinutes(5) };
+            var instancesContentRoot = System.IO.Path.Combine(
+                System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData),
+                "HyperionMinecraftLauncher", "instances");
+            var modrinthModpack = new ModrinthModpackImporter(instancesContentRoot, modpackHttp);
+            var curseForgeModpack = new CurseForgeModpackImporter(instancesContentRoot, curseForgeRepo);
+            IModpackImporter modpackImporter = new DispatchingModpackImporter(modrinthModpack, curseForgeModpack);
+
             // Update checker: shares the launcher's HttpClient + disk cache so the GitHub
             // releases probe is at most a once-per-hour round-trip on startup, and never
             // throws on failure (banner just stays hidden).
@@ -128,7 +141,7 @@ public partial class App : Application
                 service, logger, microsoftAuth, settingsStore,
                 presence, instanceBrowser, skinService, skinHistory,
                 modrinthRepo, curseForgeRepo, instanceModManager, accountStore,
-                updateChecker, headlessServerStore);
+                updateChecker, headlessServerStore, modpackImporter);
 
             var mainWindow = new MainWindow
             {

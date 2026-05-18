@@ -274,6 +274,56 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
+    /// Installations page "Import modpack..." button. Opens a file picker for
+    /// <c>.mrpack</c> / <c>.zip</c>, then a small confirmation dialog letting the user
+    /// override the instance name. Importing runs in the view-model; progress + the
+    /// resulting instance row show up automatically once the binding fires.
+    /// </summary>
+    private async void OnImportModpackClicked(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        if (!vm.CanImportModpack) return;
+
+        var topLevel = GetTopLevel(this);
+        if (topLevel?.StorageProvider is null) return;
+
+        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Pick a modpack archive",
+            AllowMultiple = false,
+            FileTypeFilter = new[]
+            {
+                new FilePickerFileType("Modpack archive")
+                {
+                    Patterns = new[] { "*.mrpack", "*.zip" },
+                },
+                new FilePickerFileType("Modrinth .mrpack")
+                {
+                    Patterns = new[] { "*.mrpack" },
+                },
+                new FilePickerFileType("CurseForge .zip")
+                {
+                    Patterns = new[] { "*.zip" },
+                },
+            },
+        });
+        if (files.Count == 0) return;
+
+        var path = files[0].Path?.LocalPath;
+        if (string.IsNullOrEmpty(path) || !File.Exists(path))
+        {
+            vm.Append("[error] Picked archive could not be read.");
+            return;
+        }
+
+        var dialog = ImportModpackDialog.ForArchive(path, suggestedName: null);
+        await dialog.ShowDialog(this);
+        if (!dialog.Confirmed || string.IsNullOrEmpty(dialog.ArchivePath)) return;
+
+        await vm.ImportModpackAsync(dialog.ArchivePath, dialog.TargetInstanceName, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Opens the New Headless Server dialog (v0.28 T11). On confirm, the view-model creates
     /// the on-disk folder under LOCALAPPDATA and inserts the entry into the bound list.
     /// </summary>
