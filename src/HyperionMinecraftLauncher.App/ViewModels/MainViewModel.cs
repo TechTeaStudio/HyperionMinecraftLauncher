@@ -12,6 +12,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
@@ -37,6 +38,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private readonly ILauncherLogger _logger;
     private readonly IMicrosoftAuthService? _microsoftAuth;
     private readonly ILauncherSettingsStore? _settingsStore;
+    private readonly IModRepository? _modrinthRepository;
+    private readonly IModRepository? _curseForgeRepository;
+    private readonly IInstanceModManager? _instanceModManager;
 
     // Settings-page state (mirrored from LauncherSettings on load, written back on Save).
     private int _minMemoryMb;
@@ -59,17 +63,29 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private NavSection _selectedSection = NavSection.Home;
     private Bitmap? _avatarBitmap;
 
-    /// <summary>Construct with the launcher service and (optional) Microsoft auth provider + settings store.</summary>
+    // Mods page state.
+    private string _modSearchTerm = string.Empty;
+    private ModSource _selectedModSource = ModSource.Modrinth;
+    private Mod? _selectedModSearchResult;
+    private LocalMod? _selectedInstalledMod;
+
+    /// <summary>Construct with the launcher service and (optional) Microsoft auth provider + settings store + mod repos / manager.</summary>
     public MainViewModel(
         IMinecraftLauncherService service,
         ILauncherLogger logger,
         IMicrosoftAuthService? microsoftAuth = null,
-        ILauncherSettingsStore? settingsStore = null)
+        ILauncherSettingsStore? settingsStore = null,
+        IModRepository? modrinthRepository = null,
+        IModRepository? curseForgeRepository = null,
+        IInstanceModManager? instanceModManager = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _microsoftAuth = microsoftAuth;
         _settingsStore = settingsStore;
+        _modrinthRepository = modrinthRepository;
+        _curseForgeRepository = curseForgeRepository;
+        _instanceModManager = instanceModManager;
         _maxAllowedMemoryMb = SystemRam.RecommendedMaxHeapMb();
 
         // MSAL device-code prompts come from a background thread; surface them in the UI log.
@@ -88,6 +104,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         Servers = new ObservableCollection<ServerListEntry>();
         News = new ObservableCollection<NewsEntry>();
         Instances = new ObservableCollection<Instance>();
+        ModSearchResults = new ObservableCollection<Mod>();
+        InstalledMods = new ObservableCollection<LocalMod>();
 
         RefreshVersionsCommand = new AsyncRelayCommand(RefreshVersionsAsync, () => !IsBusy);
         RefreshInstalledVersionsCommand = new AsyncRelayCommand(RefreshInstalledVersionsAsync, () => !IsBusy);
@@ -102,6 +120,16 @@ public sealed class MainViewModel : INotifyPropertyChanged
         LaunchCommand = new AsyncRelayCommand(LaunchAsync, CanLaunch);
         SignInMicrosoftCommand = new AsyncRelayCommand(SignInMicrosoftAsync, () => !IsBusy && !IsSignedInOnline);
         SignOutCommand = new AsyncRelayCommand(SignOutAsync, () => !IsBusy && IsSignedInOnline);
+
+        SearchModsCommand = new AsyncRelayCommand(SearchModsAsync, () => !IsBusy && GetActiveModRepository() is not null);
+        InstallModCommand = new AsyncRelayCommand(InstallSelectedModAsync,
+            () => !IsBusy && SelectedModSearchResult is not null && SelectedInstance is not null && _instanceModManager is not null);
+        RefreshInstalledModsCommand = new AsyncRelayCommand(RefreshInstalledModsAsync,
+            () => !IsBusy && SelectedInstance is not null && _instanceModManager is not null);
+        ToggleInstalledModCommand = new AsyncRelayCommand(ToggleSelectedInstalledModAsync,
+            () => !IsBusy && SelectedInstalledMod is not null && SelectedInstance is not null && _instanceModManager is not null);
+        RemoveInstalledModCommand = new AsyncRelayCommand(RemoveSelectedInstalledModAsync,
+            () => !IsBusy && SelectedInstalledMod is not null && SelectedInstance is not null && _instanceModManager is not null);
     }
 
     // ---- Account ----
@@ -185,6 +213,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
             {
                 DeleteInstanceCommand.RaiseCanExecuteChanged();
                 LaunchCommand.RaiseCanExecuteChanged();
+                OnPropertyChanged(nameof(CanManageInstanceMods));
+                InstallModCommand?.RaiseCanExecuteChanged();
+                RefreshInstalledModsCommand?.RaiseCanExecuteChanged();
+                ToggleInstalledModCommand?.RaiseCanExecuteChanged();
+                RemoveInstalledModCommand?.RaiseCanExecuteChanged();
             }
         }
     }
@@ -357,6 +390,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 LaunchCommand.RaiseCanExecuteChanged();
                 SignInMicrosoftCommand.RaiseCanExecuteChanged();
                 SignOutCommand.RaiseCanExecuteChanged();
+                SearchModsCommand.RaiseCanExecuteChanged();
+                InstallModCommand.RaiseCanExecuteChanged();
+                RefreshInstalledModsCommand.RaiseCanExecuteChanged();
+                ToggleInstalledModCommand.RaiseCanExecuteChanged();
+                RemoveInstalledModCommand.RaiseCanExecuteChanged();
             }
         }
     }
@@ -376,6 +414,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 OnPropertyChanged(nameof(IsInstallationsSelected));
                 OnPropertyChanged(nameof(IsSkinsSelected));
                 OnPropertyChanged(nameof(IsServersSelected));
+                OnPropertyChanged(nameof(IsModsSelected));
                 OnPropertyChanged(nameof(IsNewsSelected));
                 OnPropertyChanged(nameof(IsSettingsSelected));
             }
@@ -386,8 +425,70 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public bool IsInstallationsSelected => SelectedSection == NavSection.Installations;
     public bool IsSkinsSelected => SelectedSection == NavSection.Skins;
     public bool IsServersSelected => SelectedSection == NavSection.Servers;
+    public bool IsModsSelected => SelectedSection == NavSection.Mods;
     public bool IsNewsSelected => SelectedSection == NavSection.News;
     public bool IsSettingsSelected => SelectedSection == NavSection.Settings;
+
+    // ---- Mods page ----
+
+    /// <summary>Search results from the currently selected mod source.</summary>
+    public ObservableCollection<Mod> ModSearchResults { get; }
+
+    /// <summary>Mods installed in the selected instance's <c>mods/</c> directory.</summary>
+    public ObservableCollection<LocalMod> InstalledMods { get; }
+
+    /// <summary>Search term entered in the Mods page top row.</summary>
+    public string ModSearchTerm
+    {
+        get => _modSearchTerm;
+        set => SetField(ref _modSearchTerm, value ?? string.Empty);
+    }
+
+    /// <summary>Currently-active mod source. Drives which repository serves search results.</summary>
+    public ModSource SelectedModSource
+    {
+        get => _selectedModSource;
+        set
+        {
+            if (SetField(ref _selectedModSource, value))
+            {
+                OnPropertyChanged(nameof(IsModrinthSelected));
+                OnPropertyChanged(nameof(IsCurseForgeSelected));
+                SearchModsCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    public bool IsModrinthSelected => SelectedModSource == ModSource.Modrinth;
+    public bool IsCurseForgeSelected => SelectedModSource == ModSource.CurseForge;
+
+    /// <summary>Selected card in the search-results list.</summary>
+    public Mod? SelectedModSearchResult
+    {
+        get => _selectedModSearchResult;
+        set
+        {
+            if (SetField(ref _selectedModSearchResult, value))
+                InstallModCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    /// <summary>Selected entry in the right-hand installed-mods list.</summary>
+    public LocalMod? SelectedInstalledMod
+    {
+        get => _selectedInstalledMod;
+        set
+        {
+            if (SetField(ref _selectedInstalledMod, value))
+            {
+                ToggleInstalledModCommand.RaiseCanExecuteChanged();
+                RemoveInstalledModCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    /// <summary>True when the Mods page has a selected instance + a manager - enables the right-hand pane.</summary>
+    public bool CanManageInstanceMods => SelectedInstance is not null && _instanceModManager is not null;
 
     // ---- Commands ----
 
@@ -402,6 +503,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncRelayCommand LaunchCommand { get; }
     public AsyncRelayCommand SignInMicrosoftCommand { get; }
     public AsyncRelayCommand SignOutCommand { get; }
+    public AsyncRelayCommand SearchModsCommand { get; }
+    public AsyncRelayCommand InstallModCommand { get; }
+    public AsyncRelayCommand RefreshInstalledModsCommand { get; }
+    public AsyncRelayCommand ToggleInstalledModCommand { get; }
+    public AsyncRelayCommand RemoveInstalledModCommand { get; }
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -564,7 +670,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     }
 
     /// <summary>Add a freshly-built instance to the store and the in-memory list. Returns the saved record.</summary>
-    public async Task<Instance> CreateInstanceAsync(string name, string versionId, string iconKey)
+    public async Task<Instance> CreateInstanceAsync(string name, string versionId, string iconKey, ModLoader loader = ModLoader.None)
     {
         var instance = new Instance
         {
@@ -572,10 +678,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
             Name = name,
             VersionId = versionId,
             IconKey = iconKey,
+            Loader = loader,
         };
         await _service.SaveInstanceAsync(instance, CancellationToken.None);
         Instances.Insert(0, instance);
-        Append($"Created instance '{name}' for version {versionId}.");
+        Append($"Created instance '{name}' for version {versionId}{(loader == ModLoader.None ? string.Empty : $" ({loader})")}.");
         return instance;
     }
 
@@ -837,6 +944,154 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             Append($"[error] {ex.Message}");
             _logger.Warn($"Launch surfaced LauncherException to UI: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    // ---- Mods page logic ----
+
+    private IModRepository? GetActiveModRepository() => SelectedModSource switch
+    {
+        ModSource.Modrinth => _modrinthRepository,
+        ModSource.CurseForge => _curseForgeRepository,
+        _ => null,
+    };
+
+    private async Task SearchModsAsync()
+    {
+        var repo = GetActiveModRepository();
+        if (repo is null)
+        {
+            Append("[mods] No repository configured for the selected source.");
+            return;
+        }
+        IsBusy = true;
+        try
+        {
+            Append($"Searching {SelectedModSource} for '{ModSearchTerm}' ...");
+            var query = new ModSearchQuery
+            {
+                Query = ModSearchTerm,
+                Limit = 30,
+                GameVersion = SelectedInstance?.VersionId,
+                Loader = SelectedInstance?.Loader,
+            };
+            var hits = await repo.SearchAsync(query, CancellationToken.None);
+            ModSearchResults.Clear();
+            foreach (var m in hits)
+                ModSearchResults.Add(m);
+            Append($"[mods] {hits.Count} result(s).");
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Mod search failed: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task InstallSelectedModAsync()
+    {
+        if (SelectedModSearchResult is not { } mod || SelectedInstance is not { } inst || _instanceModManager is null)
+            return;
+        var repo = GetActiveModRepository() ?? (mod.Source switch
+        {
+            ModSource.Modrinth => _modrinthRepository,
+            ModSource.CurseForge => _curseForgeRepository,
+            _ => null,
+        });
+        if (repo is null)
+        {
+            Append("[mods] No repository available to install this mod.");
+            return;
+        }
+        IsBusy = true;
+        try
+        {
+            Append($"Resolving files for '{mod.Name}' ({inst.VersionId} / {inst.Loader}) ...");
+            var files = await repo.ListFilesAsync(mod.Id, inst.VersionId, inst.Loader == ModLoader.None ? null : inst.Loader, CancellationToken.None);
+            if (files.Count == 0)
+            {
+                Append("[mods] No matching files for this instance.");
+                return;
+            }
+            var file = files[0];
+            Append($"Installing '{file.Filename ?? file.DisplayName}' into '{inst.Name}' ...");
+            await _instanceModManager.InstallAsync(inst, file, repo, CancellationToken.None);
+            await RefreshInstalledModsAsync();
+            Append("[mods] Install complete.");
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Install failed: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task RefreshInstalledModsAsync()
+    {
+        if (SelectedInstance is not { } inst || _instanceModManager is null) return;
+        IsBusy = true;
+        try
+        {
+            var list = await _instanceModManager.ListInstalledAsync(inst, CancellationToken.None);
+            InstalledMods.Clear();
+            foreach (var m in list)
+                InstalledMods.Add(m);
+            Append($"[mods] {list.Count} installed in '{inst.Name}'.");
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not list installed mods: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task ToggleSelectedInstalledModAsync()
+    {
+        if (SelectedInstalledMod is not { } victim || SelectedInstance is not { } inst || _instanceModManager is null)
+            return;
+        IsBusy = true;
+        try
+        {
+            await _instanceModManager.SetEnabledAsync(inst, victim.Filename, enabled: !victim.IsEnabled, CancellationToken.None);
+            await RefreshInstalledModsAsync();
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Toggle failed: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task RemoveSelectedInstalledModAsync()
+    {
+        if (SelectedInstalledMod is not { } victim || SelectedInstance is not { } inst || _instanceModManager is null)
+            return;
+        IsBusy = true;
+        try
+        {
+            await _instanceModManager.RemoveAsync(inst, victim.Filename, CancellationToken.None);
+            await RefreshInstalledModsAsync();
+            Append($"[mods] Removed '{victim.Filename}'.");
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Remove failed: {ex.Message}");
         }
         finally
         {

@@ -9,6 +9,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
@@ -19,6 +20,9 @@ public partial class NewInstanceDialog : Window
     public string SelectedName => NameBox.Text?.Trim() ?? "Untitled";
     public VersionMetadata? SelectedVersion => VersionBox.SelectedItem as VersionMetadata;
     public string SelectedIconKey { get; private set; } = InstanceIcons.GrassBlock;
+
+    /// <summary>Mod loader the user picked; defaults to vanilla.</summary>
+    public ModLoader SelectedLoader { get; private set; } = ModLoader.None;
 
     /// <summary>Set to true only when the user clicked Create with a valid version.</summary>
     public bool Confirmed { get; private set; }
@@ -49,6 +53,12 @@ public partial class NewInstanceDialog : Window
     {
         if (sender is RadioButton { Tag: string key })
             SelectedIconKey = key;
+    }
+
+    private void OnLoaderClicked(object? sender, RoutedEventArgs e)
+    {
+        if (sender is RadioButton { Tag: string name } && Enum.TryParse<ModLoader>(name, ignoreCase: true, out var loader))
+            SelectedLoader = loader;
     }
 
     private void OnCancel(object? sender, RoutedEventArgs e) => Close();

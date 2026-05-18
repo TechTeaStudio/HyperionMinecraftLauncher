@@ -15,6 +15,9 @@ public enum NavSection
     /// <summary>Server list editor (<c>servers.dat</c>). Planned for a later release.</summary>
     Servers,
 
+    /// <summary>Modrinth + CurseForge mod browser, per-instance install / enable / remove.</summary>
+    Mods,
+
     /// <summary>Minecraft.net news feed + per-version patch notes. Planned for a later release.</summary>
     News,
 
