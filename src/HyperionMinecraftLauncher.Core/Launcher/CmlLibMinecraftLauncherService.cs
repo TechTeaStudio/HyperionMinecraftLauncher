@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using CmlLib.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.Loaders;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
@@ -38,6 +40,16 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     private readonly IInstanceStore _instanceStore;
     private readonly IJavaRuntimeManager _javaRuntimeManager;
     private readonly IModLoaderInstaller? _modLoaderInstaller;
+    private readonly FileCache? _versionManifestCache;
+    private readonly TimeSpan _versionManifestTtl;
+
+    /// <summary>Cache key for the serialised version-manifest list under <see cref="FileCache"/>.</summary>
+    private const string VersionManifestCacheKey = "versions.json";
+
+    /// <summary>Default TTL for the version manifest disk cache. Mojang's manifest changes only
+    /// when a new snapshot / release lands, so 30 minutes is plenty for picking up fresh entries
+    /// while avoiding the ~1.5 s network round-trip on every cold start.</summary>
+    private static readonly TimeSpan DefaultVersionManifestTtl = TimeSpan.FromMinutes(30);
 
     /// <summary>Primary constructor used by the App and by tests.</summary>
     /// <param name="microsoftAuth">Optional Microsoft sign-in provider. When omitted, <see cref="AuthMode.Microsoft"/>
@@ -65,7 +77,9 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         IInstanceStore? instanceStore = null,
         IServerPinger? serverPinger = null,
         IJavaRuntimeManager? javaRuntimeManager = null,
-        IModLoaderInstaller? modLoaderInstaller = null)
+        IModLoaderInstaller? modLoaderInstaller = null,
+        FileCache? versionManifestCache = null,
+        TimeSpan? versionManifestTtl = null)
     {
         _underlying = underlying ?? throw new ArgumentNullException(nameof(underlying));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -79,6 +93,8 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         _instanceStore = instanceStore ?? new FileInstanceStore();
         _javaRuntimeManager = javaRuntimeManager ?? new NullJavaRuntimeManager();
         _modLoaderInstaller = modLoaderInstaller;
+        _versionManifestCache = versionManifestCache;
+        _versionManifestTtl = versionManifestTtl ?? DefaultVersionManifestTtl;
     }
 
     /// <summary>
@@ -277,13 +293,54 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// v0.32.1 (T-startup-perf): consults <see cref="FileCache"/> first when one was injected.
+    /// A fresh entry (younger than the configured TTL, default 30 min) is returned without
+    /// hitting Mojang's CDN -- this is the path that shaves ~1.5 s off the cold start. On
+    /// network failure we fall back to any stale cached copy so the version picker stays
+    /// populated offline. Tests that don't pass a cache get the original network-only path.
+    /// </remarks>
     public async Task<IReadOnlyList<VersionMetadata>> ListVersionsAsync(CancellationToken cancellationToken)
     {
         _logger.Info("Listing Minecraft versions ...");
+
+        // Fresh-cache fast path. The whole point of the 30-min TTL: a cold launcher start
+        // within the window pays disk I/O (a few ms) instead of the ~1.5 s manifest round-trip.
+        if (_versionManifestCache is not null)
+        {
+            var cached = await _versionManifestCache
+                .TryReadAsync(VersionManifestCacheKey, _versionManifestTtl, cancellationToken)
+                .ConfigureAwait(false);
+            if (cached is { Length: > 0 })
+            {
+                var parsed = TryDeserialiseManifest(cached);
+                if (parsed is not null)
+                {
+                    _logger.Info($"Loaded {parsed.Count} versions from disk cache (fresh).");
+                    return parsed;
+                }
+            }
+        }
+
         try
         {
             var list = await _underlying.GetAllVersionsAsync(cancellationToken).ConfigureAwait(false);
             _logger.Info($"Loaded {list.Count} versions from the manifest.");
+            // Best-effort writeback: a failed cache write must not abort a successful manifest fetch.
+            if (_versionManifestCache is not null && list.Count > 0)
+            {
+                try
+                {
+                    var bytes = JsonSerializer.SerializeToUtf8Bytes(list);
+                    await _versionManifestCache
+                        .WriteAsync(VersionManifestCacheKey, bytes, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception cacheEx)
+                {
+                    _logger.Warn($"Could not persist version manifest cache: {cacheEx.Message}");
+                }
+            }
             return list;
         }
         catch (OperationCanceledException)
@@ -292,6 +349,23 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         }
         catch (HttpRequestException ex)
         {
+            // Offline / DNS / 5xx: serve a stale cached copy if we have one so the version
+            // picker still has data. Matches the news-client's stale-on-failure behaviour.
+            if (_versionManifestCache is not null)
+            {
+                var stale = await _versionManifestCache
+                    .TryReadAsync(VersionManifestCacheKey, maxAge: null, cancellationToken)
+                    .ConfigureAwait(false);
+                if (stale is { Length: > 0 })
+                {
+                    var parsed = TryDeserialiseManifest(stale);
+                    if (parsed is not null)
+                    {
+                        _logger.Warn($"Manifest fetch failed ({ex.Message}); serving {parsed.Count} stale cached versions.");
+                        return parsed;
+                    }
+                }
+            }
             var wrapped = new InstallationFailedException("Could not fetch the Minecraft version manifest (network error).", ex);
             _logger.Error("ListVersionsAsync failed (network).", wrapped);
             throw wrapped;
@@ -301,6 +375,23 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
             var wrapped = new InstallationFailedException("Could not fetch the Minecraft version manifest.", ex);
             _logger.Error("ListVersionsAsync failed.", wrapped);
             throw wrapped;
+        }
+    }
+
+    /// <summary>
+    /// Parse a previously-cached JSON manifest blob back into a list. Returns <c>null</c> for any
+    /// corruption / schema drift so the caller falls through to a network re-fetch.
+    /// </summary>
+    private static IReadOnlyList<VersionMetadata>? TryDeserialiseManifest(byte[] bytes)
+    {
+        try
+        {
+            var list = JsonSerializer.Deserialize<List<VersionMetadata>>(bytes);
+            return list is { Count: > 0 } ? list : null;
+        }
+        catch
+        {
+            return null;
         }
     }
 

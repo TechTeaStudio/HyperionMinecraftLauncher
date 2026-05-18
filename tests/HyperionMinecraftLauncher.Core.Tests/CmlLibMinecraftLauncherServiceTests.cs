@@ -347,8 +347,13 @@ internal sealed class FakeUnderlyingLauncher : IUnderlyingLauncher
     /// <summary>Captures the last <c>versionName</c> the service asked the underlying launcher to install.</summary>
     public string? LastInstalledVersionName { get; private set; }
 
+    /// <summary>How many times <see cref="GetAllVersionsAsync"/> has been called. Lets cache-related
+    /// tests assert the network was hit zero or one times after seeding the cache.</summary>
+    public int GetAllVersionsCallCount { get; private set; }
+
     public Task<IReadOnlyList<VersionMetadata>> GetAllVersionsAsync(CancellationToken cancellationToken)
     {
+        GetAllVersionsCallCount++;
         if (ThrowOnVersions is not null) throw ThrowOnVersions;
         return Task.FromResult(VersionsToReturn);
     }

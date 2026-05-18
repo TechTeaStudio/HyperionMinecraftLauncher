@@ -110,7 +110,8 @@ public partial class App : Application
                 newsClient: newsClient,
                 serverPinger: serverPinger,
                 javaRuntimeManager: javaRuntimeManager,
-                modLoaderInstaller: modLoaderInstaller);
+                modLoaderInstaller: modLoaderInstaller,
+                versionManifestCache: cache);
 
             // Discord Rich Presence - obeys the LauncherSettings toggle. Read settings synchronously
             // here for the same reason MainViewModel does: the file is tiny and the wiring has to know
