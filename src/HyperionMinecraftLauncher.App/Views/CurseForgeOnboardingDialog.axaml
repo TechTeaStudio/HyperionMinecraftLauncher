@@ -5,6 +5,7 @@
         xmlns:loc="using:TechTeaStudio.HyperionMinecraftLauncher.App.Localization"
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.CurseForgeOnboardingDialog"
+        x:Name="OnboardingRoot"
         Title="{x:Static loc:Strings.CurseForgeOnboardingDialog_Title}"
         Width="520" Height="380"
         CanResize="False"
@@ -90,7 +91,7 @@
               <TextBlock Text="{x:Static loc:Strings.CurseForgeOnboardingDialog_Step3Label}"
                          FontSize="12" />
               <TextBox x:Name="KeyTextBox"
-                       Text="{Binding EnteredApiKey, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}}"
+                       Text="{Binding #OnboardingRoot.EnteredApiKey, Mode=TwoWay}"
                        Watermark="{x:Static loc:Strings.CurseForgeOnboardingDialog_KeyWatermark}"
                        FontFamily="Cascadia Mono, Consolas, Menlo, monospace"
                        FontSize="11" />

@@ -44,7 +44,6 @@ public partial class CurseForgeOnboardingDialog : Window, INotifyPropertyChanged
     public CurseForgeOnboardingDialog()
     {
         InitializeComponent();
-        DataContext = this;
     }
 
     /// <summary>
