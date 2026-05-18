@@ -19,6 +19,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods.CurseForge;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods.Modrinth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Presence;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Headless;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Settings;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
@@ -100,10 +101,14 @@ public partial class App : Application
             var curseForgeRepo = new CurseForgeRepository(curseForgeHttp, initialSettings.CurseForgeApiKey, logger);
             var instanceModManager = new FileSystemInstanceModManager();
 
+            // Headless dedicated-server registry (v0.28 T11). Folder-per-server under LOCALAPPDATA.
+            var headlessServerStore = new FileHeadlessServerStore();
+
             var viewModel = new MainViewModel(
                 service, logger, microsoftAuth, settingsStore,
                 presence, instanceBrowser, skinService, skinHistory,
-                modrinthRepo, curseForgeRepo, instanceModManager, accountStore);
+                modrinthRepo, curseForgeRepo, instanceModManager, accountStore,
+                headlessServerStore);
 
             var mainWindow = new MainWindow
             {

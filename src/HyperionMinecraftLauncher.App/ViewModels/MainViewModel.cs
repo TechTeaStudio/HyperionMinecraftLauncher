@@ -21,6 +21,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Presence;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Headless;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Settings;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
@@ -55,6 +56,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private readonly IModRepository? _curseForgeRepository;
     private readonly IInstanceModManager? _instanceModManager;
     private readonly IAccountStore? _accountStore;
+    private readonly IHeadlessServerStore? _headlessServerStore;
+    private HeadlessServer? _selectedHeadlessServer;
 
     // Settings-page state (mirrored from LauncherSettings on load, written back on Save).
     private int _minMemoryMb;
@@ -127,7 +130,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IModRepository? modrinthRepository = null,
         IModRepository? curseForgeRepository = null,
         IInstanceModManager? instanceModManager = null,
-        IAccountStore? accountStore = null)
+        IAccountStore? accountStore = null,
+        IHeadlessServerStore? headlessServerStore = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -143,6 +147,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _curseForgeRepository = curseForgeRepository;
         _instanceModManager = instanceModManager;
         _accountStore = accountStore;
+        _headlessServerStore = headlessServerStore;
+        HeadlessServers = new ObservableCollection<HeadlessServer>();
         _maxAllowedMemoryMb = SystemRam.RecommendedMaxHeapMb();
 
         // MSAL device-code prompts come from a background thread; surface them in the UI log.
@@ -215,6 +221,21 @@ public sealed class MainViewModel : INotifyPropertyChanged
         RemoveAccountCommand = new AsyncParameterRelayCommand<Account>(
             RemoveAccountAsync,
             a => !IsBusy && a is not null && _microsoftAuth is not null);
+
+        // Headless servers (v0.28 T11). Refresh repopulates the page list; Delete drops the
+        // selected entry; Start / Stop are placeholders until the v0.29 server-jar pipeline lands.
+        RefreshHeadlessServersCommand = new AsyncRelayCommand(
+            RefreshHeadlessServersAsync,
+            () => !IsBusy && _headlessServerStore is not null);
+        DeleteHeadlessServerCommand = new AsyncRelayCommand(
+            DeleteSelectedHeadlessServerAsync,
+            () => !IsBusy && SelectedHeadlessServer is not null && _headlessServerStore is not null);
+        StartHeadlessServerCommand = new AsyncRelayCommand(
+            StartSelectedHeadlessServerAsync,
+            () => !IsBusy && SelectedHeadlessServer is not null);
+        StopHeadlessServerCommand = new AsyncRelayCommand(
+            StopSelectedHeadlessServerAsync,
+            () => !IsBusy && SelectedHeadlessServer is not null);
     }
 
     // ---- Account ----
@@ -748,6 +769,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 OnPropertyChanged(nameof(IsInstallationsSelected));
                 OnPropertyChanged(nameof(IsSkinsSelected));
                 OnPropertyChanged(nameof(IsServersSelected));
+                OnPropertyChanged(nameof(IsHeadlessServersSelected));
                 OnPropertyChanged(nameof(IsModsSelected));
                 OnPropertyChanged(nameof(IsNewsSelected));
                 OnPropertyChanged(nameof(IsSettingsSelected));
@@ -757,6 +779,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 // it isn't blank. The Refresh button re-reads it on demand after that.
                 if (value == NavSection.Logs)
                     _ = LoadTodaysLogAsync();
+
+                // Auto-populate the headless server list the first time the user opens that page.
+                if (value == NavSection.HeadlessServers && _headlessServerStore is not null)
+                    _ = RefreshHeadlessServersAsync();
             }
         }
     }
@@ -765,6 +791,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public bool IsInstallationsSelected => SelectedSection == NavSection.Installations;
     public bool IsSkinsSelected => SelectedSection == NavSection.Skins;
     public bool IsServersSelected => SelectedSection == NavSection.Servers;
+    public bool IsHeadlessServersSelected => SelectedSection == NavSection.HeadlessServers;
     public bool IsModsSelected => SelectedSection == NavSection.Mods;
     public bool IsNewsSelected => SelectedSection == NavSection.News;
     public bool IsSettingsSelected => SelectedSection == NavSection.Settings;
@@ -2204,6 +2231,130 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             IsBusy = false;
         }
+    }
+
+    // ---- Headless servers (v0.28 T11) ----
+
+    /// <summary>Saved headless dedicated servers, newest-first.</summary>
+    public ObservableCollection<HeadlessServer> HeadlessServers { get; }
+
+    /// <summary>The server selected in the headless servers list, or <c>null</c> when nothing is highlighted.</summary>
+    public HeadlessServer? SelectedHeadlessServer
+    {
+        get => _selectedHeadlessServer;
+        set
+        {
+            if (SetField(ref _selectedHeadlessServer, value))
+            {
+                DeleteHeadlessServerCommand.RaiseCanExecuteChanged();
+                StartHeadlessServerCommand.RaiseCanExecuteChanged();
+                StopHeadlessServerCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    /// <summary>Reload the list from the store. Bound to the page's Refresh button.</summary>
+    public AsyncRelayCommand RefreshHeadlessServersCommand { get; }
+
+    /// <summary>Delete the currently-selected server (folder + metadata).</summary>
+    public AsyncRelayCommand DeleteHeadlessServerCommand { get; }
+
+    /// <summary>Placeholder until the v0.29 server-jar pipeline lands - logs a "not implemented yet" line.</summary>
+    public AsyncRelayCommand StartHeadlessServerCommand { get; }
+
+    /// <summary>Placeholder until the v0.29 server-jar pipeline lands - logs a "not implemented yet" line.</summary>
+    public AsyncRelayCommand StopHeadlessServerCommand { get; }
+
+    /// <summary>
+    /// Helper invoked by the New Server dialog: writes the entry through the store, then
+    /// pushes it onto the bound collection so the page reflects the creation immediately
+    /// without a full reload.
+    /// </summary>
+    public async Task<HeadlessServer?> CreateHeadlessServerAsync(HeadlessServerCreateRequest request)
+    {
+        if (_headlessServerStore is null) return null;
+        try
+        {
+            IsBusy = true;
+            var server = await _headlessServerStore.CreateAsync(request, CancellationToken.None);
+            HeadlessServers.Insert(0, server);
+            SelectedHeadlessServer = server;
+            _logger.Info($"Created headless server '{server.Name}' ({server.VersionId}) at {server.Path}.");
+            return server;
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("Could not create headless server.", ex);
+            Append($"Could not create headless server: {ex.Message}");
+            return null;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task RefreshHeadlessServersAsync()
+    {
+        if (_headlessServerStore is null) return;
+        try
+        {
+            IsBusy = true;
+            var list = await _headlessServerStore.ListAsync(CancellationToken.None);
+            HeadlessServers.Clear();
+            foreach (var s in list)
+                HeadlessServers.Add(s);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("Could not list headless servers.", ex);
+            Append($"Could not list headless servers: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task DeleteSelectedHeadlessServerAsync()
+    {
+        if (_headlessServerStore is null || SelectedHeadlessServer is null) return;
+        try
+        {
+            IsBusy = true;
+            var target = SelectedHeadlessServer;
+            await _headlessServerStore.DeleteAsync(target.Id, CancellationToken.None);
+            HeadlessServers.Remove(target);
+            SelectedHeadlessServer = null;
+            _logger.Info($"Deleted headless server '{target.Name}' ({target.Id}).");
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("Could not delete headless server.", ex);
+            Append($"Could not delete headless server: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private Task StartSelectedHeadlessServerAsync()
+    {
+        // The actual JVM spawn lands in v0.29 alongside the server-jar download pipeline.
+        // For v0.28 we record the intent in the launcher log and the UI status line.
+        const string msg = "Not yet implemented; server jar download is in roadmap.";
+        _logger.Info($"StartHeadlessServer: {msg}");
+        Append(msg);
+        return Task.CompletedTask;
+    }
+
+    private Task StopSelectedHeadlessServerAsync()
+    {
+        const string msg = "Not yet implemented; server jar download is in roadmap.";
+        _logger.Info($"StopHeadlessServer: {msg}");
+        Append(msg);
+        return Task.CompletedTask;
     }
 
     private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
