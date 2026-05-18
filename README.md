@@ -40,21 +40,31 @@ The launcher reads from and writes alongside the same `.minecraft` directory the
 
 | Capability | Hyperion | Mojang official | Prism / MultiMC |
 |---|---|---|---|
-| Microsoft sign-in | yes (device code, no WebView2) | yes (web sign-in) | yes |
+| Microsoft sign-in (multi-account switcher) | yes | yes (one account) | yes |
 | Offline mode | yes | yes | yes |
-| Instance manager (user-created) | yes | no (profiles only) | yes |
-| Auto-import installed versions into instance list | yes | n/a | partial |
-| Per-instance icon picker | yes (15 MC presets) | no | yes |
+| Instance manager + auto-import installed versions | yes | no (profiles only) | yes |
+| Per-instance icon / RAM / JVM / game-dir / resolution overrides | yes | no | yes |
 | News feed (Mojang) | yes | yes | no |
-| Multiplayer server list (servers.dat) | yes | yes | yes |
-| 3D skin + cape viewer | yes | partial | varies |
-| Custom JVM args + memory sliders | yes (UI; forwarding planned) | partial | yes |
-| Forge / Fabric / Quilt / NeoForge install | roadmap | yes | yes |
-| Modrinth mods browser | roadmap | no | yes |
-| Liquid-glass Material UI | yes | partial | no |
-| Cross-platform | Windows today, Linux possible | Windows / macOS / Linux | all three |
+| Multiplayer server list with live ping (servers.dat + SLP) | yes | yes (no ping) | yes |
+| 3D skin + cape viewer, skin upload, cape switcher, skin history | yes | partial | varies |
+| Forge / Fabric / Quilt / NeoForge installer | yes | yes | yes |
+| Modrinth + CurseForge mods browser, per-instance mod manager | yes | no | yes |
+| Modpack import (`.mrpack` Modrinth + CurseForge `.zip`) | yes | no | yes |
+| Instance export / import as `.zip` for sharing | yes | no | yes |
+| Crash report parser with mod-link suggestions | yes | no | yes |
+| Auto-backup `saves/` before launch + restore | yes | no | partial |
+| Headless dedicated-server registry | yes (skeleton) | no | no |
+| CLI mode (`--launch`, `--list-instances`, ...) | yes | no | no |
+| Quick Play (jump into world or server) | yes | yes (1.20.5+) | varies |
+| Auto-download Adoptium JRE per MC version | yes | yes | yes (manual) |
+| Discord Rich Presence | yes | no | no |
+| Update banner via GitHub Releases | yes | n/a | no |
+| 8-language UI (en, ru, es, pt-BR, de, fr, zh-Hans, ja) | yes | yes (more) | yes |
+| Liquid-glass UI (Hyperion brand language) | yes | partial | no |
+| Cross-platform (Windows / Linux AppImage / macOS) | Windows + Linux, macOS roadmap | Windows / macOS / Linux | all three |
+| Open source | yes (MIT) | no | yes |
 
-The honest pitch: Hyperion sits between the official Mojang launcher and Prism / MultiMC. If you want the official launcher's news feed and Microsoft auth path with a Prism-style instance grid and an actually modern UI, this is it. If you primarily need mod-loader install for Forge / Fabric today, stick with Prism until the roadmap items below land.
+The honest pitch: as of v0.31.0, Hyperion ships the full Prism feature set (mod loaders + per-instance settings + mod browser + crash parser + modpack import + zip share) on top of the official launcher's news feed and Microsoft auth path, plus Hyperion-only extras (multi-account switcher, Discord RPC, headless-server skeleton, CLI mode, 8-language UI) and a custom liquid-glass theme drawn from the Tech Tea Studio design language.
 
 ## Build and run
 

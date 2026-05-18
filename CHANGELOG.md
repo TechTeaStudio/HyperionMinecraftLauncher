@@ -3,6 +3,76 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.31.0] - 2026-05-18
+
+Sixth wave of the v0.26 -> v0.31 parallel-agent sprint: full UI localization. The English source `Strings.resx` lives at `src/HyperionMinecraftLauncher.App/Localization/`; 7 translations ship alongside it for a total of 8 locales.
+
+### Added
+- `Core/Localization/ILocalizationService` + `ResxLocalizationService` wrapping the standard `ResourceManager` family. Exposes `this[key]`, `Get(key, args)`, `CurrentCulture`, `SetCultureAsync`, `LanguageChanged` event, `AvailableCultures`.
+- `LauncherSettings.Locale` (string?, default null = "use OS culture") persisted through the existing settings store.
+- Settings page: "Language" card with a dropdown bound to `AvailableLocales`. First entry is "Use system default" (null).
+- 289 user-facing strings extracted from MainWindow.axaml and every dialog into `Strings.resx`. Pattern: `{x:Static loc:Strings.Section_Key}`.
+- New translations (each ~289 entries, full UI parity with English source):
+  - `Strings.ru.resx` Russian
+  - `Strings.es.resx` Spanish (neutral)
+  - `Strings.pt-BR.resx` Brazilian Portuguese
+  - `Strings.de.resx` German (informal "du")
+  - `Strings.fr.resx` French (informal "tu", non-breaking space before colons)
+  - `Strings.zh-Hans.resx` Simplified Chinese
+  - `Strings.ja.resx` Japanese (です・ます polite plain)
+- `Localization/README.md` contributor doc explaining where new strings go and how to add a culture.
+
+### Changed
+- Test fixtures in `MainViewModelTests` force `CurrentUICulture = en` so log-text assertions stay deterministic on non-English dev machines.
+
+## [0.30.0] - 2026-05-18
+
+Fifth wave: closing the Prism / MultiMC feature gap. Seven parallel agents shipped concurrent features.
+
+### Added
+- **Mod-loader installer** (T21a). `IModLoaderInstaller` + `CmlLibModLoaderInstaller` dispatcher honours Fabric / Quilt (from `CmlLib.Core` directly), Forge (`CmlLib.Core.Installer.Forge`), and NeoForge (`CmlLib.Core.Installer.NeoForge`). `IModLoaderVersionFetcher` populates the dropdown on the New Instance dialog when a non-Vanilla chip is picked. On launch, the install runs before CmlLib's regular version install and substitutes the modded version-id into the `LaunchRequest`.
+- **Per-instance overrides** (T21b). New `EditInstanceDialog.axaml` with General (Name + icon picker) and Java & memory (Min/Max RAM sliders, JVM args, game directory + Browse, window resolution NumericUpDowns) tabs. `InstanceLaunchSettings.Merge(Instance, LauncherSettings)` resolves per-instance > global; empty / 0 fields mean "inherit". Context-menu entry "Edit instance..." with the 3-layer auto-imported guard.
+- **Crash report parser** (T21c). `MinecraftCrashReportParser` recognises both Forge pipe-table and Fabric hyphen-list mod blocks, ranks suspect mods by stacktrace frame, and surfaces Modrinth + CurseForge search URLs. New "Crashes" tab on instance detail with a per-suspect Modrinth / CurseForge button strip and an "Open folder" shortcut.
+- **Modpack import** (T21d). `IModpackImporter` with `ModrinthModpackImporter` (.mrpack) and `CurseForgeModpackImporter` (.zip). Auto-detects format. Copies `overrides/` tree, downloads each `files[]` entry, lays out a fresh `Instance` under `LOCALAPPDATA/instances/{newId}/`. UI: "Import modpack..." button on the Installations row + progress strip.
+- **Instance export / import** (T21e). `FileInstanceExporter` + `FileInstanceImporter` produce / consume Hyperion-format zips (`hyperion-instance.json` + `metadata.json` + `gameDir/` filtered). `ExportOptions` default excludes `saves/`, `screenshots/`, `logs/`, `crash-reports/`. Per-tile MenuFlyout "Export to zip..." + top-level "Import from zip..." button.
+- **Auto-backup worlds before launch** (T21f). `IBackupService` + `FileSystemBackupService` zips each subdir of `saves/` to `gameDir/backups/{world}-{ts}.zip` before every launch when `LauncherSettings.AutoBackupBeforeLaunch` is true. Prunes to `AutoBackupKeepLatest` per world. Per-world "Backup now" / "Restore latest backup" context-menu on the Worlds tab.
+
+### Changed (Performance — T18)
+- New `Core/Diagnostics/StartupTimeline`: labelled checkpoints feed one summary log line ("[startup] dispatcher=Xms versions=Yms ... TOTAL=Zms").
+- `MainViewModel.RunStartupRefreshesAsync` parallelises every independent refresh via `Task.WhenAll`. MS-auth silent sign-in stays sequential at the end.
+- Dropped a redundant version re-sort in `CmlLibUnderlyingLauncher.GetAllVersionsAsync` (CmlLib returns newest-first).
+- `SystemRam.RecommendedMaxHeapMb()` now caches via `Lazy<int>`.
+- `ServerStatusJson.DecodeFavicon` slices the data-URI prefix off a `ReadOnlySpan<char>` and decodes base64 with `Convert.TryFromBase64Chars`.
+- App csproj gains a `ReleaseAot` configuration with `PublishAot=true` flagged "future experimentation only".
+
+## [0.29.0] - 2026-05-18
+
+Fourth wave: Liquid Glass UI redesign matching the Tech Tea Studio Flutter prototype.
+
+### Added
+- `Themes/LiquidGlass.axaml` resource dictionary with the full design-token sheet: background gradient `#0D0D1B -> #1A1A28`, surface tints, falling-light gradient + rotation + blur sigma, glass surface gradient (TL->BR), secondary gradient (T->B), rim border, bubble fill + border + three-layer shadow set, radii (15 / 10 / 15), animation timings.
+
+### Changed
+- MainWindow background painted with the new vertical gradient; static blurred falling-light wedge added in the top-right.
+- Sidebar radio buttons: idle background transparent, `:checked` swells into the bubble (fill + rim + shadows); icons scale 1.0 -> 1.25 on selection.
+- Cards (`Classes="Card"`) use the glass surface gradient with the rim border and the new 15dp corner radius. The existing hover-lift transition is preserved.
+- Launch / "+ New Instance" / "Upload skin" / "+ New server" / Save settings buttons share the `Classes="LaunchBtn"` style with the bubble visual.
+- All seven dialogs (NewInstance, EditInstance, EditInstanceIcon, DeviceCode, JoinServer, Worlds, NewHeadlessServer, SkinVariant, ImportModpack) adopt the same glass-on-acrylic look.
+
+## [0.28.0] - 2026-05-18
+
+Third wave: platform / infra.
+
+### Added
+- **Auto-download Adoptium JRE per MC version** (T4). `JavaRequirementResolver.For(string mcVersion)` maps to Java 8 / 17 / 21. `AdoptiumJavaRuntimeManager` downloads and extracts the JRE under `LOCALAPPDATA/HyperionMinecraftLauncher/java/{requirement}/` and patches `LaunchRequest.JavaPath` automatically.
+- **Update notification** (T16). `GitHubReleasesUpdateChecker` polls `repos/TechTeaStudio/HyperionMinecraftLauncher/releases/latest` (1h disk-cached). A dismissible banner across the top of the window opens the release page in the default browser.
+- **Headless dedicated-server registry** (T11). `IHeadlessServerStore` + `FileHeadlessServerStore` create and persist server folders under `LOCALAPPDATA/headless_servers/{id}/` with `metadata.json` + `eula.txt=true` + minimal `server.properties`. New "Headless servers" sidebar page. Start / Stop are placeholders pending v0.32 server-jar download.
+- **CLI mode** (T11.5). Program.cs detects `--help` / `--version` / `--list-instances` / `--list-versions` / `--launch` and runs in console mode (P/Invoke `AttachConsole(-1)` on Windows). Pure `CliArgumentParser` is xUnit-tested.
+- **Linux support** (T20). `IEnvironment` + `XdgPaths` route every Core file consumer through XDG-appropriate roots (`$XDG_STATE_HOME` for logs, `$XDG_CONFIG_HOME` for config, `$XDG_DATA_HOME` for data, `$XDG_CACHE_HOME` for cache). `scripts/build-appimage.sh` produces a self-contained linux-x64 AppImage. CI matrix now runs `ubuntu-latest + windows-latest`.
+
+### Changed
+- Production logger swapped from `FileLauncherLogger` to `SerilogLauncherLogger` (T19): daily-rotated JSON log via Serilog + Serilog.Sinks.File + Serilog.Formatting.Compact. 14-day retention, 32 MB cap per file. `FileLauncherLogger` is `[Obsolete]` but kept for deterministic clock-injected tests.
+
 ## [0.26.0] - 2026-05-18
 
 ### Added
