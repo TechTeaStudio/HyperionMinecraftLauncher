@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +14,14 @@ namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Tests;
 
 public class MainViewModelTests
 {
+    // Force English UI culture so log-string assertions don't break on Russian/Chinese
+    // dev machines after the v0.31.0 localization landed. The launcher itself respects
+    // the user's chosen locale; the tests only verify English source strings.
+    public MainViewModelTests()
+    {
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en");
+    }
+
     [Fact]
     public void Constructor_DefaultsAreSensible()
     {
