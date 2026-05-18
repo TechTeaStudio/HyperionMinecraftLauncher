@@ -390,6 +390,7 @@ public partial class MainWindow : Window
     private void OnInstanceTabScreenshots(object? sender, RoutedEventArgs e) => SetInstanceTab(InstanceDetailTab.Screenshots);
     private void OnInstanceTabWorlds(object? sender, RoutedEventArgs e) => SetInstanceTab(InstanceDetailTab.Worlds);
     private void OnInstanceTabServers(object? sender, RoutedEventArgs e) => SetInstanceTab(InstanceDetailTab.Servers);
+    private void OnInstanceTabCrashes(object? sender, RoutedEventArgs e) => SetInstanceTab(InstanceDetailTab.Crashes);
 
     private void SetInstanceTab(InstanceDetailTab tab)
     {
@@ -414,11 +415,48 @@ public partial class MainWindow : Window
                 case InstanceDetailTab.Servers:
                     await vm.RefreshInstanceServersCommand.ExecuteAsync();
                     break;
+                case InstanceDetailTab.Crashes:
+                    await vm.RefreshInstanceCrashReportsCommand.ExecuteAsync();
+                    break;
             }
         }
         catch
         {
             // Refresh errors already surface in the VM log; the button click shouldn't crash.
+        }
+    }
+
+    /// <summary>"Open folder" button on the Crashes tab - launches the OS file manager at <c>crash-reports/</c>.</summary>
+    private void OnOpenCrashReportsFolder(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm || vm.SelectedInstance is null) return;
+        var root = string.IsNullOrWhiteSpace(vm.SelectedInstance.GameDirectory)
+            ? Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + System.IO.Path.DirectorySeparatorChar + ".minecraft"
+            : vm.SelectedInstance.GameDirectory;
+        var dir = System.IO.Path.Combine(root, "crash-reports");
+        try
+        {
+            if (!System.IO.Directory.Exists(dir))
+                System.IO.Directory.CreateDirectory(dir);
+        }
+        catch
+        {
+            // Creating the folder on-demand is best-effort; OpenWithOsDefault will surface a no-op.
+        }
+        OpenWithOsDefault(dir);
+    }
+
+    /// <summary>One of the Modrinth / CurseForge buttons on a suspect-mod chip was clicked.</summary>
+    private void OnOpenCrashSuspectUrl(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Control c || c.Tag is not string url || string.IsNullOrEmpty(url)) return;
+        try
+        {
+            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        }
+        catch
+        {
+            // Missing default browser shouldn't crash.
         }
     }
 
