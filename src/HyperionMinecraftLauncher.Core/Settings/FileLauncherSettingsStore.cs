@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Platform;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Settings;
 
@@ -68,9 +69,8 @@ public sealed class FileLauncherSettingsStore : ILauncherSettingsStore
 
     private static string DefaultPath()
     {
-        var dir = System.IO.Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "HyperionMinecraftLauncher");
+        // Settings are configuration: XDG_CONFIG_HOME on Linux, %LOCALAPPDATA% elsewhere.
+        var dir = XdgPaths.AppFolder(DefaultEnvironment.Instance, XdgCategory.Config);
         return System.IO.Path.Combine(dir, "settings.json");
     }
 }

@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Platform;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.History;
 
@@ -196,10 +197,8 @@ public sealed class FileSkinHistoryStore : ISkinHistoryStore
 
     private static string DefaultBaseDir()
     {
-        var dir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "HyperionMinecraftLauncher", "skins_history");
-        return dir;
+        // Skin history is user data: XDG_DATA_HOME (~/.local/share) on Linux, %LOCALAPPDATA% elsewhere.
+        return Path.Combine(XdgPaths.AppFolder(DefaultEnvironment.Instance, XdgCategory.Data), "skins_history");
     }
 
     private sealed class PersistedEntry
