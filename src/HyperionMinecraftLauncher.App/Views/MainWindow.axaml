@@ -276,11 +276,14 @@
     <!-- =================== SIDEBAR =================== -->
     <!-- Border.Width is bound to a VM property that flips between 180 (expanded) and 56 (collapsed).
          The DoubleTransition on Width animates the change so the content reflows smoothly.
-         The Auto column on the parent Grid lets this Border drive its own width. -->
+         The Auto column on the parent Grid lets this Border drive its own width.
+
+         Background is the glass surface gradient; a thin LG.GlassRim line on the right
+         separates it from the content area. -->
     <Border Grid.Row="2" Grid.Column="0" Name="SidebarBorder"
             Width="{Binding SidebarWidth}"
-            Background="{DynamicResource MaterialPaperBrush}"
-            BorderBrush="{DynamicResource MaterialPrimaryDarkBrush}" BorderThickness="0,0,2,0"
+            Background="{DynamicResource LG.GlassSurface}"
+            BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="0,0,1,0"
             ClipToBounds="True">
       <Border.Transitions>
         <Transitions>
@@ -1388,12 +1391,16 @@
       </Setter>
     </Style>
 
-    <!-- Sidebar nav radios get a tiny lift in addition to the existing background swap. -->
+    <!-- Sidebar nav radios: animate the bubble background + a small scale on the icon
+         when checked. Idle/hover/checked branches are split across :pointerover and
+         :checked pseudo-classes below. -->
     <Style Selector="RadioButton.Nav /template/ Border#PART_Border">
       <Setter Property="RenderTransform" Value="translate(0px,0px)" />
       <Setter Property="Transitions">
         <Transitions>
-          <BrushTransition Property="Background" Duration="0:0:0.18" />
+          <BrushTransition Property="Background" Duration="0:0:0.41" Easing="QuadraticEaseOut" />
+          <BrushTransition Property="BorderBrush" Duration="0:0:0.41" Easing="QuadraticEaseOut" />
+          <BoxShadowsTransition Property="BoxShadow" Duration="0:0:0.41" Easing="QuadraticEaseOut" />
           <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.18" Easing="QuadraticEaseOut" />
         </Transitions>
       </Setter>
@@ -1452,27 +1459,43 @@
       <Setter Property="Background" Value="{DynamicResource MaterialPrimaryMidBrush}" />
     </Style>
 
-    <!-- Sidebar nav radios styled as full-width tiles. -->
+    <!-- Sidebar nav radios styled as full-width liquid-glass tiles. Idle is fully
+         transparent; hover paints a thin frosted wash; checked gets the bubble
+         gradient + rim + three-layer shadow set from LG.BubbleShadows.
+
+         The Icon ContentPresenter has a small RenderTransform that scales from 1.0
+         to 1.25 on :checked, matching the Flutter prototype's icon bounce. -->
     <Style Selector="RadioButton.Nav">
       <Setter Property="Padding" Value="10,8" />
       <Setter Property="HorizontalAlignment" Value="Stretch" />
       <Setter Property="HorizontalContentAlignment" Value="Stretch" />
       <Setter Property="Background" Value="Transparent" />
-      <Setter Property="CornerRadius" Value="3" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="{DynamicResource LG.RadiusItem}" />
       <Setter Property="FontSize" Value="13" />
+      <Setter Property="Foreground" Value="{DynamicResource LG.TextPrimary}" />
       <Setter Property="Template">
         <ControlTemplate>
           <Border Name="PART_Border"
                   Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
                   CornerRadius="{TemplateBinding CornerRadius}"
                   Padding="{TemplateBinding Padding}">
             <!-- Icon stays in column 0; the label ContentPresenter in column 1 collapses
                  to zero width via IsVisible=false when the sidebar is collapsed, which leaves
                  just the 20x20 icon visible inside the 56px-wide collapsed sidebar. -->
             <Grid ColumnDefinitions="20,Auto">
-              <ContentPresenter Grid.Column="0" Content="{TemplateBinding Tag}"
+              <ContentPresenter Name="PART_IconHost"
+                                Grid.Column="0" Content="{TemplateBinding Tag}"
                                 Width="20" Height="20"
-                                HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                RenderTransformOrigin="50%,50%">
+                <ContentPresenter.RenderTransform>
+                  <ScaleTransform ScaleX="1" ScaleY="1" />
+                </ContentPresenter.RenderTransform>
+              </ContentPresenter>
               <ContentPresenter Grid.Column="1" Content="{TemplateBinding Content}"
                                 VerticalAlignment="Center" Margin="10,0,0,0"
                                 IsVisible="{Binding $parent[Window].((vm:MainViewModel)DataContext).AreSidebarLabelsVisible}" />
@@ -1481,18 +1504,29 @@
         </ControlTemplate>
       </Setter>
     </Style>
-    <Style Selector="RadioButton.Nav /template/ Border#PART_Border">
+    <Style Selector="RadioButton.Nav:pointerover /template/ Border#PART_Border">
+      <Setter Property="Background" Value="{DynamicResource LG.RowHover}" />
+    </Style>
+    <Style Selector="RadioButton.Nav:checked /template/ Border#PART_Border">
+      <Setter Property="Background" Value="{DynamicResource LG.BubbleFillCombined}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LG.GlassRimStrong}" />
+      <Setter Property="BoxShadow" Value="{DynamicResource LG.BubbleShadows}" />
+    </Style>
+    <Style Selector="RadioButton.Nav:checked:pointerover /template/ Border#PART_Border">
+      <Setter Property="Background" Value="{DynamicResource LG.BubbleFillHover}" />
+    </Style>
+
+    <!-- Icon scale: 1.0 idle, 1.25 when the radio is :checked. Animation = 240ms
+         QuadraticEaseOut (Avalonia's closest stock easing to Flutter's easeOutBack). -->
+    <Style Selector="RadioButton.Nav /template/ ContentPresenter#PART_IconHost">
       <Setter Property="Transitions">
         <Transitions>
-          <BrushTransition Property="Background" Duration="0:0:0.18" />
+          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.24" Easing="QuadraticEaseOut" />
         </Transitions>
       </Setter>
     </Style>
-    <Style Selector="RadioButton.Nav:checked /template/ Border#PART_Border">
-      <Setter Property="Background" Value="{DynamicResource MaterialPrimaryMidBrush}" />
-    </Style>
-    <Style Selector="RadioButton.Nav:pointerover /template/ Border#PART_Border">
-      <Setter Property="Background" Value="{DynamicResource MaterialPrimaryDarkBrush}" />
+    <Style Selector="RadioButton.Nav:checked /template/ ContentPresenter#PART_IconHost">
+      <Setter Property="RenderTransform" Value="scale(1.25)" />
     </Style>
 
     <!-- Version-picker filter chips. ToggleButton styled flat: a pill that tints when
