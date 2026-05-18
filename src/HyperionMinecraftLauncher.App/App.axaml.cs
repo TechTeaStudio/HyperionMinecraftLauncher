@@ -15,6 +15,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Diagnostics;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.CrashReports;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Export;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
@@ -139,12 +140,16 @@ public partial class App : Application
             // <gameDir>/backups/{worldName}-{ts}.zip before each launch, gated by
             // LauncherSettings.AutoBackupBeforeLaunch.
             var backupService = new FileSystemBackupService();
+            // Instance export/import (v0.30 T21e). Default implementations; tests substitute their own.
+            var instanceExporter = new FileInstanceExporter();
+            var instanceImporter = new FileInstanceImporter();
 
             var viewModel = new MainViewModel(
                 service, logger, microsoftAuth, settingsStore,
                 presence, instanceBrowser, skinService, skinHistory,
                 modrinthRepo, curseForgeRepo, instanceModManager, accountStore,
-                updateChecker, headlessServerStore, backupService, crashReportListener);
+                updateChecker, headlessServerStore, backupService, crashReportListener,
+                instanceExporter, instanceImporter);
 
             var mainWindow = new MainWindow
             {

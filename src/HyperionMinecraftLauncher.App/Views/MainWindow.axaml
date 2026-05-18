@@ -546,6 +546,10 @@
                   FontFamily="{StaticResource MinecraftFont}" FontSize="12"
                   Padding="14,5"
                   Foreground="White" />
+          <Button Content="Import from zip..." FontSize="11"
+                  Command="{Binding ImportInstanceCommand}"
+                  ToolTip.Tip="Import a shared Hyperion-format instance zip"
+                  Padding="10,5" />
           <Button Content="Refresh" FontSize="11"
                   Command="{Binding RefreshInstancesCommand}"
                   Padding="10,5" />
@@ -580,6 +584,10 @@
                                 Click="OnChangeIconMenuClicked"
                                 Tag="{Binding}"
                                 IsEnabled="{Binding !IsAutoImported}" />
+                      <MenuItem Header="Export to zip..."
+                                Click="OnExportInstanceMenuClicked"
+                                Tag="{Binding}"
+                                IsEnabled="{Binding !IsAutoImported}" />
                     </ContextMenu>
                   </Border.ContextMenu>
                   <Grid>
@@ -606,13 +614,13 @@
                       <TextBlock Text="auto" FontSize="9" Foreground="White"
                                  FontWeight="SemiBold" />
                     </Border>
-                    <!-- Keyboard / discoverability fallback: small overflow button in the
-                         bottom-right corner of every user-created tile. Same handler as the
-                         context-menu item. Hidden on auto-imported tiles. -->
+                    <!-- Discoverability fallback: small overflow button in the bottom-right
+                         corner of every user-created tile. Opens a menu mirroring the right-click
+                         context menu (change icon, export, open folder, delete). Hidden on
+                         auto-imported tiles. -->
                     <Button Content="..."
-                            Click="OnChangeIconMenuClicked"
                             Tag="{Binding}"
-                            ToolTip.Tip="Change icon..."
+                            ToolTip.Tip="More..."
                             Padding="6,0"
                             MinWidth="22" Height="20"
                             FontSize="11"
@@ -620,7 +628,24 @@
                             Margin="0,4,4,0"
                             Background="#66000000" Foreground="White"
                             BorderThickness="0" CornerRadius="3"
-                            IsVisible="{Binding !IsAutoImported}" />
+                            IsVisible="{Binding !IsAutoImported}">
+                      <Button.Flyout>
+                        <MenuFlyout>
+                          <MenuItem Header="Change icon..."
+                                    Click="OnChangeIconMenuClicked"
+                                    Tag="{Binding}" />
+                          <MenuItem Header="Export to zip..."
+                                    Click="OnExportInstanceMenuClicked"
+                                    Tag="{Binding}" />
+                          <MenuItem Header="Open folder"
+                                    Click="OnOpenInstanceFolderMenuClicked"
+                                    Tag="{Binding}" />
+                          <MenuItem Header="Delete"
+                                    Click="OnDeleteInstanceMenuClicked"
+                                    Tag="{Binding}" />
+                        </MenuFlyout>
+                      </Button.Flyout>
+                    </Button>
                   </Grid>
                 </Border>
               </DataTemplate>

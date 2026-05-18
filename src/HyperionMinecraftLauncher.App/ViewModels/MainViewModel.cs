@@ -18,6 +18,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Export;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
@@ -71,6 +72,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private readonly IBackupService? _backupService;
     private bool _autoBackupBeforeLaunch;
     private int _autoBackupKeepLatest;
+    private readonly IInstanceExporter? _instanceExporter;
+    private readonly IInstanceImporter? _instanceImporter;
+    private InstanceExportZipPickRequest? _exportZipPickRequest;
+    private InstanceImportZipPickRequest? _importZipPickRequest;
 
     // Settings-page state (mirrored from LauncherSettings on load, written back on Save).
     private int _minMemoryMb;
@@ -149,7 +154,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IUpdateChecker? updateChecker = null,
         IHeadlessServerStore? headlessServerStore = null,
         IBackupService? backupService = null,
-        ICrashReportListener? crashReportListener = null)
+        ICrashReportListener? crashReportListener = null,
+        IInstanceExporter? instanceExporter = null,
+        IInstanceImporter? instanceImporter = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -169,6 +176,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _updateChecker = updateChecker;
         _headlessServerStore = headlessServerStore;
         _backupService = backupService;
+        _instanceExporter = instanceExporter;
+        _instanceImporter = instanceImporter;
         HeadlessServers = new ObservableCollection<HeadlessServer>();
         _maxAllowedMemoryMb = SystemRam.RecommendedMaxHeapMb();
 
@@ -276,6 +285,15 @@ public sealed class MainViewModel : INotifyPropertyChanged
         RestoreLatestBackupCommand = new AsyncParameterRelayCommand<string>(
             RestoreLatestBackupAsync,
             n => !IsBusy && _backupService is not null && SelectedInstance is not null && !string.IsNullOrEmpty(n));
+
+        // Instance export/import (v0.30 T21e). Export uses the currently-selected instance;
+        // Import asks the View for an existing zip and bolts it into the store on success.
+        ExportInstanceCommand = new AsyncRelayCommand(
+            ExportSelectedInstanceAsync,
+            () => !IsBusy && SelectedInstance is { IsAutoImported: false } && _instanceExporter is not null);
+        ImportInstanceCommand = new AsyncRelayCommand(
+            ImportInstanceAsync,
+            () => !IsBusy && _instanceImporter is not null);
     }
 
     /// <summary>"Backup now" entry on the Worlds tab. Parameter = world folder name.</summary>
@@ -553,6 +571,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 RefreshInstanceWorldsCommand.RaiseCanExecuteChanged();
                 RefreshInstanceServersCommand.RaiseCanExecuteChanged();
                 RefreshInstanceCrashReportsCommand.RaiseCanExecuteChanged();
+                ExportInstanceCommand?.RaiseCanExecuteChanged();
                 OnPropertyChanged(nameof(HasSelectedInstance));
                 // Auto-refresh per-instance detail tabs when the selected instance changes.
                 // Fire-and-forget: the View animates a fade-in while we populate the lists.
@@ -1071,6 +1090,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncParameterRelayCommand<Account> SwitchAccountCommand { get; }
     public AsyncRelayCommand AddAccountCommand { get; }
     public AsyncParameterRelayCommand<Account> RemoveAccountCommand { get; }
+    public AsyncRelayCommand ExportInstanceCommand { get; }
+    public AsyncRelayCommand ImportInstanceCommand { get; }
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -1492,6 +1513,174 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
         _logger.Info($"Instance {updated.Id} ({updated.Name}) icon changed to {newIconKey}.");
         return updated;
+    }
+
+    /// <summary>
+    /// Inject the View's "pick where to save the export zip" delegate. The View calls this
+    /// from its <c>Window.Opened</c> handler once the <c>TopLevel</c> is available.
+    /// </summary>
+    public void SetExportZipPickRequest(InstanceExportZipPickRequest? request)
+    {
+        _exportZipPickRequest = request;
+    }
+
+    /// <summary>Inject the View's "pick the zip to import" delegate.</summary>
+    public void SetImportZipPickRequest(InstanceImportZipPickRequest? request)
+    {
+        _importZipPickRequest = request;
+    }
+
+    /// <summary>
+    /// Export <paramref name="instance"/> to a user-picked <c>.zip</c> path. Wired by the
+    /// per-tile "Export to zip..." menu item. Public so tests can drive the flow directly.
+    /// </summary>
+    public async Task ExportInstanceAsync(Instance instance)
+    {
+        ArgumentNullException.ThrowIfNull(instance);
+        if (_instanceExporter is null)
+        {
+            Append("[error] Instance export is not available.");
+            return;
+        }
+        if (instance.IsAutoImported)
+        {
+            // Auto-imported instances live under .minecraft/versions/ and we don't own
+            // their JSON record - share isn't meaningful here.
+            Append("[error] Cannot export an auto-imported instance.");
+            return;
+        }
+        if (_exportZipPickRequest is null)
+        {
+            Append("[error] Export file picker is not available.");
+            return;
+        }
+
+        var suggested = SanitiseFileName(instance.Name) + ".zip";
+        string? destination;
+        try
+        {
+            destination = await _exportZipPickRequest(suggested, CancellationToken.None).ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not show export file picker: {ex.Message}");
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(destination))
+        {
+            Append("Instance export cancelled.");
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            Append($"Exporting instance '{instance.Name}' to {destination} ...");
+            var progress = new Progress<double>(v =>
+            {
+                // Only log progress at 10% increments so we don't flood the log with every byte tick.
+                var pct = (int)(v * 100);
+                if (pct == 0 || pct == 100 || pct % 25 == 0) Append($"Export progress: {pct}%");
+            });
+
+            await _instanceExporter.ExportAsync(instance, destination, progress, CancellationToken.None).ConfigureAwait(true);
+            Append($"Exported instance '{instance.Name}' to {destination}.");
+            _logger.Info($"Instance {instance.Id} ({instance.Name}) exported to {destination}.");
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not export instance: {ex.Message}");
+            _logger.Warn($"Export of instance {instance.Id} failed: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private Task ExportSelectedInstanceAsync()
+        => SelectedInstance is { } inst ? ExportInstanceAsync(inst) : Task.CompletedTask;
+
+    /// <summary>
+    /// Import an instance from a user-picked Hyperion-format <c>.zip</c>. Wired by the
+    /// "Import from zip..." top-level button. Re-runs <see cref="RefreshInstancesAsync"/>
+    /// on success so the tile grid picks the new entry up.
+    /// </summary>
+    public async Task ImportInstanceAsync()
+    {
+        if (_instanceImporter is null)
+        {
+            Append("[error] Instance import is not available.");
+            return;
+        }
+        if (_importZipPickRequest is null)
+        {
+            Append("[error] Import file picker is not available.");
+            return;
+        }
+
+        string? source;
+        try
+        {
+            source = await _importZipPickRequest(CancellationToken.None).ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not show import file picker: {ex.Message}");
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(source))
+        {
+            Append("Instance import cancelled.");
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            Append($"Importing instance from {source} ...");
+            var progress = new Progress<double>(v =>
+            {
+                var pct = (int)(v * 100);
+                if (pct == 0 || pct == 100 || pct % 25 == 0) Append($"Import progress: {pct}%");
+            });
+
+            var imported = await _instanceImporter.ImportAsync(source, overrideName: null, progress, CancellationToken.None).ConfigureAwait(true);
+            await _service.SaveInstanceAsync(imported, CancellationToken.None).ConfigureAwait(true);
+            await RefreshInstancesAsync().ConfigureAwait(true);
+
+            // Pick the freshly-imported tile so the user can see the result lit up.
+            var match = Instances.FirstOrDefault(i => i.Id == imported.Id);
+            if (match is not null) SelectedInstance = match;
+
+            Append($"Imported instance '{imported.Name}' (id={imported.Id}).");
+            _logger.Info($"Instance imported from {source}: {imported.Id} / {imported.Name}.");
+        }
+        catch (InstanceImportException ex)
+        {
+            // Friendly message - this is the path the spec asks us to surface to the user.
+            Append($"[error] Could not import instance: {ex.Message}");
+            _logger.Warn($"Instance import rejected: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not import instance: {ex.Message}");
+            _logger.Warn($"Instance import failed: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private static string SanitiseFileName(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return "instance";
+        var invalid = Path.GetInvalidFileNameChars();
+        var safe = new System.Text.StringBuilder(raw.Length);
+        foreach (var ch in raw)
+            safe.Append(Array.IndexOf(invalid, ch) >= 0 ? '_' : ch);
+        return safe.ToString();
     }
 
     private async Task SaveSettingsAsync()

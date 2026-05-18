@@ -47,6 +47,106 @@ public partial class MainWindow : Window
         // The view-model has no Avalonia dependency; inject the file-picker + variant-prompt
         // delegate now that the TopLevel is available.
         vm.SetSkinPickRequest(PickSkinAsync);
+        vm.SetExportZipPickRequest(PickExportZipAsync);
+        vm.SetImportZipPickRequest(PickImportZipAsync);
+    }
+
+    /// <summary>
+    /// Save-file dialog for instance export. Returns the picked absolute path, or null on cancel.
+    /// Pre-fills the file name with the sanitised instance name + <c>.zip</c>.
+    /// </summary>
+    private async Task<string?> PickExportZipAsync(string suggestedFileName, CancellationToken cancellationToken)
+    {
+        var topLevel = GetTopLevel(this);
+        if (topLevel?.StorageProvider is null) return null;
+
+        var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Export instance to zip",
+            SuggestedFileName = suggestedFileName,
+            DefaultExtension = "zip",
+            ShowOverwritePrompt = true,
+            FileTypeChoices = new[]
+            {
+                new FilePickerFileType("Hyperion instance zip")
+                {
+                    Patterns = new[] { "*.zip" },
+                    MimeTypes = new[] { "application/zip" },
+                },
+            },
+        });
+        return file?.Path?.LocalPath;
+    }
+
+    /// <summary>Open-file dialog for instance import. Returns the picked path or null on cancel.</summary>
+    private async Task<string?> PickImportZipAsync(CancellationToken cancellationToken)
+    {
+        var topLevel = GetTopLevel(this);
+        if (topLevel?.StorageProvider is null) return null;
+
+        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Import instance from zip",
+            AllowMultiple = false,
+            FileTypeFilter = new[]
+            {
+                new FilePickerFileType("Hyperion instance zip")
+                {
+                    Patterns = new[] { "*.zip" },
+                    MimeTypes = new[] { "application/zip" },
+                },
+            },
+        });
+        if (files.Count == 0) return null;
+        return files[0].Path?.LocalPath;
+    }
+
+    /// <summary>Per-tile "Export to zip..." menu item handler. Tag carries the bound Instance.</summary>
+    private async void OnExportInstanceMenuClicked(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        if (sender is not Control { Tag: TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Instance instance })
+            return;
+        await vm.ExportInstanceAsync(instance);
+    }
+
+    /// <summary>Per-tile "Open folder" menu item handler. Opens the instance's game directory.</summary>
+    private void OnOpenInstanceFolderMenuClicked(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Control { Tag: TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Instance instance })
+            return;
+        var dir = instance.GameDirectory;
+        if (string.IsNullOrWhiteSpace(dir) || !Directory.Exists(dir))
+        {
+            // No per-instance dir set (the launcher uses the shared .minecraft); fall back
+            // silently rather than popping an error - the user picked the menu, not us.
+            return;
+        }
+        try
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                Process.Start(new ProcessStartInfo("explorer.exe", dir) { UseShellExecute = false });
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                Process.Start(new ProcessStartInfo("open", dir) { UseShellExecute = false });
+            else
+                Process.Start(new ProcessStartInfo("xdg-open", dir) { UseShellExecute = false });
+        }
+        catch
+        {
+            // Best-effort: missing shell handler must not crash the launcher.
+        }
+    }
+
+    /// <summary>Per-tile "Delete" menu item handler. Confirms via the existing VM path.</summary>
+    private async void OnDeleteInstanceMenuClicked(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        if (sender is not Control { Tag: TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Instance instance })
+            return;
+        if (instance.IsAutoImported) return;
+        // Select the target so the existing DeleteInstanceCommand path applies.
+        vm.SelectedInstance = instance;
+        await vm.DeleteInstanceCommand.ExecuteAsync();
     }
 
     private void OnVmDeviceCodeRequested(object? sender, MicrosoftDeviceCodeInfo info)
