@@ -32,6 +32,7 @@ The launcher reads from and writes alongside the same `.minecraft` directory the
 
 ### Instances and launch
 - **Unified instance manager.** User-created instances and versions already installed under `.minecraft/versions/` show up in one list, with a small "auto" badge on the auto-imported ones.
+- **Import from MultiMC / Prism.** "Import from MultiMC..." on the Installations page takes either the `.zip` produced by Prism's "Export instance" or a copy of the on-disk instance folder. Hyperion parses `instance.cfg` + `mmc-pack.json`, maps the component UID (`net.minecraft`, `net.minecraftforge`, `net.neoforged`, `net.fabricmc.fabric-loader`, `org.quiltmc.quilt-loader`) to its own `ModLoader`, and copies the `.minecraft/` tree (mods, configs, saves, options, server list) into a fresh per-instance folder. JVM args, min/max RAM, and the iconKey carry over too.
 - **Per-instance overrides.** Edit dialog lets you override RAM, JVM args, game directory, and window resolution per instance. Empty values inherit from global Settings.
 - **Edit instance icon.** Right-click any tile (or the green "..." button) and pick from a 15-tile Minecraft icon set. Auto-imported instances are protected from edits.
 - **Quick Play.** Launch straight into a saved world or a multiplayer server via `--quickPlaySingleplayer` / `--quickPlayMultiplayer`. Servers list grew a "Join" button; the Worlds tab grew a "Resume" button.
@@ -72,7 +73,7 @@ The launcher reads from and writes alongside the same `.minecraft` directory the
 |---|---|---|---|
 | Microsoft sign-in (multi-account switcher) | yes | yes (one account) | yes |
 | Offline mode | yes | yes | yes |
-| Instance manager + auto-import installed versions | yes | no (profiles only) | yes |
+| Instance manager + auto-import installed versions + MultiMC import | yes | no (profiles only) | yes |
 | Per-instance icon / RAM / JVM / game-dir / resolution overrides | yes | no | yes |
 | News feed (Mojang) | yes | yes | no |
 | Multiplayer server list with live ping (servers.dat + SLP) | yes | yes (no ping) | yes |
