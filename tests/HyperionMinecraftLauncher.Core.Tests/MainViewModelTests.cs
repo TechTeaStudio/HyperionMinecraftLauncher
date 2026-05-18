@@ -421,6 +421,14 @@ internal sealed class StubLauncherService : IMinecraftLauncherService
     public Task<IReadOnlyList<TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.ServerListEntry>> ListServersAsync(CancellationToken cancellationToken)
         => Task.FromResult(ServersToReturn);
 
+    public IReadOnlyDictionary<string, TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping.ServerStatus?> PingsToReturn { get; set; }
+        = new System.Collections.Generic.Dictionary<string, TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping.ServerStatus?>();
+
+    public Task<IReadOnlyDictionary<string, TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping.ServerStatus?>> PingServersAsync(
+        IEnumerable<TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.ServerListEntry> entries,
+        CancellationToken cancellationToken)
+        => Task.FromResult(PingsToReturn);
+
     public IReadOnlyList<TechTeaStudio.HyperionMinecraftLauncher.Core.News.NewsEntry> NewsToReturn { get; set; }
         = Array.Empty<TechTeaStudio.HyperionMinecraftLauncher.Core.News.NewsEntry>();
 
