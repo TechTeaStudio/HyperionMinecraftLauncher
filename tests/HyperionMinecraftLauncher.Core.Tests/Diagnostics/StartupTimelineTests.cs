@@ -164,6 +164,72 @@ public class StartupTimelineTests : IDisposable
         Assert.DoesNotContain("late-mark", lineAfter);
     }
 
+    [Fact]
+    public void ReportDeferred_NoBeginDeferred_EmitsEmptyTotalLine()
+    {
+        var line = StartupTimeline.ReportDeferred();
+        Assert.Equal("[startup-deferred] TOTAL=0ms", line);
+    }
+
+    [Fact]
+    public void ReportDeferred_WithCheckpoints_PicksUpEntriesAndSumsTotal()
+    {
+        StartupTimeline.BeginDeferred();
+        StartupTimeline.RecordDeferred("news", 12);
+        StartupTimeline.RecordDeferred("ms-auth", 34);
+        StartupTimeline.RecordDeferred("update-check", 56);
+
+        var line = StartupTimeline.ReportDeferred();
+        Assert.Equal("[startup-deferred] news=12ms ms-auth=34ms update-check=56ms TOTAL=102ms", line);
+    }
+
+    [Fact]
+    public void DeferredTimeline_IsIndependent_OfPrimaryTimeline()
+    {
+        // The whole point of the split: the primary [startup] line measures gating work, the
+        // deferred line measures everything after first paint. They must never bleed into each other.
+        StartupTimeline.Begin();
+        StartupTimeline.Mark("dispatcher");
+        StartupTimeline.BeginDeferred();
+        StartupTimeline.RecordDeferred("news", 100);
+
+        var primary = StartupTimeline.Report();
+        var deferred = StartupTimeline.ReportDeferred();
+
+        Assert.Contains("dispatcher", primary);
+        Assert.DoesNotContain("news", primary);
+        Assert.Contains("news=100ms", deferred);
+        Assert.DoesNotContain("dispatcher", deferred);
+    }
+
+    [Fact]
+    public void ReportDeferredTo_EmitsOneInfoLine()
+    {
+        var logger = new RecordingLogger();
+        StartupTimeline.BeginDeferred();
+        StartupTimeline.RecordDeferred("news", 5);
+        StartupTimeline.ReportDeferredTo(logger);
+
+        Assert.Single(logger.InfoEntries);
+        var line = logger.InfoEntries[0];
+        Assert.StartsWith("[startup-deferred] ", line);
+        Assert.Contains("news=5ms", line);
+        Assert.Contains("TOTAL=5ms", line);
+    }
+
+    [Fact]
+    public void ReportDeferredTo_DeactivatesDeferredTimeline_SoLaterRecordsAreNoOps()
+    {
+        var logger = new RecordingLogger();
+        StartupTimeline.BeginDeferred();
+        StartupTimeline.RecordDeferred("news", 10);
+        StartupTimeline.ReportDeferredTo(logger);
+
+        StartupTimeline.RecordDeferred("late", 999);
+        var lineAfter = StartupTimeline.ReportDeferred();
+        Assert.DoesNotContain("late", lineAfter);
+    }
+
     private sealed class RecordingLogger : ILauncherLogger
     {
         public System.Collections.Generic.List<string> InfoEntries { get; } = new();

@@ -1296,6 +1296,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         // Run news, silent MSAL sign-in, and the update probe in parallel as fire-and-forget
         // background work. Their completion timings land in a separate [startup-deferred] log
         // line so we can still tell which one is dragging without polluting [startup] TOTAL.
+        StartupTimeline.BeginDeferred();
         _ = Task.Run(RunDeferredStartupWorkAsync);
     }
 
@@ -1306,15 +1307,14 @@ public sealed class MainViewModel : INotifyPropertyChanged
     /// </summary>
     private async Task RunDeferredStartupWorkAsync()
     {
-        var totalSw = Stopwatch.StartNew();
-
-        // News fetch was previously in the gating WhenAll. It uses a 1-hour disk cache
-        // so the cold path is the only one that pays network. Push it to deferred so the
-        // first 1.5 s of UI aren't gated on launchercontent.mojang.com.
+        // News fetch was previously in the gating WhenAll. It uses a 1-hour disk cache so the
+        // cold path is the only one that pays network. Push it to deferred so the first 1.5 s
+        // of UI aren't gated on launchercontent.mojang.com.
         var newsSw = Stopwatch.StartNew();
         try { await RefreshNewsAsync().ConfigureAwait(false); }
         catch (Exception ex) { _logger.Warn($"Deferred news refresh failed: {ex.Message}"); }
         newsSw.Stop();
+        StartupTimeline.RecordDeferred("news", newsSw.ElapsedMilliseconds);
 
         // Silent Microsoft sign-in. Wait 2 s so the user's first interaction isn't competing
         // with an MSAL token round-trip on the UI thread. The 2 s constant is the task brief.
@@ -1344,6 +1344,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             }
         }
         msAuthSw.Stop();
+        StartupTimeline.RecordDeferred("ms-auth", msAuthSw.ElapsedMilliseconds);
 
         // T16: launcher update probe. Best-effort. Disabled toggles or a missing checker
         // silently no-op; transport failures are swallowed inside the checker.
@@ -1366,16 +1367,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
             }
         }
         updateSw.Stop();
+        StartupTimeline.RecordDeferred("update-check", updateSw.ElapsedMilliseconds);
 
-        totalSw.Stop();
-
-        // Emit a separate timeline line for the deferred half. Format mirrors the [startup]
-        // line so log-scraping scripts can pick up both deltas.
-        _logger.Info(
-            $"[startup-deferred] news={newsSw.ElapsedMilliseconds}ms " +
-            $"ms-auth={msAuthSw.ElapsedMilliseconds}ms " +
-            $"update-check={updateSw.ElapsedMilliseconds}ms " +
-            $"TOTAL={totalSw.ElapsedMilliseconds}ms");
+        // Emit the [startup-deferred] log line. TOTAL is the sum of the three labels above;
+        // any 2 s Task.Delay between them is intentional and not included.
+        StartupTimeline.ReportDeferredTo(_logger);
     }
 
     /// <summary>
