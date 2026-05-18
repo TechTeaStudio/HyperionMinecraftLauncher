@@ -400,6 +400,29 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
+    /// Opens the full Edit Instance dialog for a single user-created instance. Wired up by
+    /// the tile's context-menu "Edit instance..." entry. Auto-imported tiles are gated three
+    /// ways: the XAML disables the menu item, this handler short-circuits, and
+    /// <see cref="MainViewModel.ApplyEditedInstanceAsync"/> refuses to persist as a last line
+    /// of defense.
+    /// </summary>
+    private async void OnEditInstanceMenuClicked(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        if (sender is not Control { Tag: TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Instance instance })
+            return;
+        if (instance.IsAutoImported) return;
+
+        var dialog = EditInstanceDialog.ForInstance(instance, vm.BuildSettings());
+        await dialog.ShowDialog(this);
+
+        if (dialog.Confirmed && dialog.Result is { } edited)
+        {
+            await vm.ApplyEditedInstanceAsync(instance, edited);
+        }
+    }
+
+    /// <summary>
     /// Opens the icon-picker for a single instance. Wired up by both the tile's
     /// context-menu "Change icon..." entry and the small "..." overflow button.
     /// Sender's <c>Tag</c> carries the bound <see cref="TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Instance"/>.

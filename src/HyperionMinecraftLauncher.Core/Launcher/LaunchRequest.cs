@@ -27,6 +27,18 @@ public sealed record LaunchRequest
     public int? MaximumRamMb { get; init; }
 
     /// <summary>
+    /// Extra JVM arguments appended after the heap flags. Whitespace-separated. <c>null</c> or
+    /// empty = no extras. Honored per-instance (overrides global JVM args at launch time).
+    /// </summary>
+    public string? JvmArguments { get; init; }
+
+    /// <summary>Game window width override. <c>null</c> = let Minecraft decide.</summary>
+    public int? ScreenWidth { get; init; }
+
+    /// <summary>Game window height override. <c>null</c> = let Minecraft decide.</summary>
+    public int? ScreenHeight { get; init; }
+
+    /// <summary>
     /// Quick Play target. Defaults to <see cref="QuickPlay.None"/>, which means a regular
     /// launch into the main menu. Set to <see cref="QuickPlay.Singleplayer"/> or
     /// <see cref="QuickPlay.Multiplayer"/> to deep-link straight into a world or server.

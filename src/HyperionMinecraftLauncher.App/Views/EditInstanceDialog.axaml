@@ -1,0 +1,162 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="using:TechTeaStudio.HyperionMinecraftLauncher.App.Views"
+        xmlns:sys="using:System"
+        mc:Ignorable="d"
+        x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.EditInstanceDialog"
+        Title="Edit instance"
+        Width="580" Height="640"
+        CanResize="False"
+        SystemDecorations="None"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource LG.WindowBackground}"
+        FontFamily="Inter, Segoe UI, system-ui"
+        RenderOptions.BitmapInterpolationMode="None">
+
+  <Border Background="{DynamicResource LG.GlassSurface}"
+          BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="1"
+          CornerRadius="15">
+    <Grid RowDefinitions="36,*,Auto">
+
+      <!-- Title bar -->
+      <Border Grid.Row="0" Background="#400D0D1B"
+              PointerPressed="OnTitleBarPressed">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0" x:Name="TitleText" Text="Edit instance"
+                     FontFamily="{StaticResource MinecraftFont}" FontSize="13"
+                     Foreground="White" VerticalAlignment="Center" Margin="12,0" />
+          <Button Grid.Column="1" Click="OnCancel" Width="36" Height="36"
+                  Background="Transparent" BorderThickness="0" CornerRadius="0">
+            <Path Data="M 0,0 L 10,10 M 10,0 L 0,10" Stroke="White" StrokeThickness="1.2"
+                  Width="10" Height="10" />
+          </Button>
+        </Grid>
+      </Border>
+
+      <!-- Body -->
+      <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="22,16">
+        <StackPanel Spacing="14">
+
+          <!-- General section header -->
+          <TextBlock Text="General" FontFamily="{StaticResource MinecraftFont}"
+                     FontSize="13" Foreground="White" Margin="0,0,0,2" />
+
+          <!-- Name -->
+          <StackPanel Spacing="4">
+            <TextBlock Text="Instance name" FontSize="12" Opacity="0.85" />
+            <TextBox x:Name="NameBox" FontSize="13" />
+          </StackPanel>
+
+          <!-- Icon picker -->
+          <StackPanel Spacing="4">
+            <TextBlock Text="Icon" FontSize="12" Opacity="0.85" />
+            <ItemsControl x:Name="IconPicker">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <WrapPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="sys:String">
+                  <RadioButton GroupName="IconChoice"
+                              Margin="2"
+                              Tag="{Binding}"
+                              Click="OnIconClicked"
+                              Width="48" Height="48"
+                              Background="{DynamicResource MaterialBackgroundBrush}"
+                              BorderBrush="{DynamicResource MaterialPrimaryMidBrush}"
+                              BorderThickness="1">
+                    <Image Source="{ReflectionBinding Converter={x:Static local:IconKeyToUri.Instance}}"
+                           Width="28" Height="28" />
+                  </RadioButton>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+
+          <!-- Java &amp; memory section header -->
+          <TextBlock Text="Java &amp; memory" FontFamily="{StaticResource MinecraftFont}"
+                     FontSize="13" Foreground="White" Margin="0,8,0,2" />
+          <TextBlock Text="Override the global Settings values for this instance only. Leave a field empty / 0 to inherit."
+                     FontSize="10" Opacity="0.55" TextWrapping="Wrap" />
+
+          <!-- Min RAM -->
+          <StackPanel Spacing="4">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Grid.Column="0" Text="Minimum heap (-Xms)" FontSize="12" Opacity="0.85" />
+              <TextBlock Grid.Column="1" x:Name="MinRamLabel" FontSize="11" Opacity="0.85" />
+            </Grid>
+            <Slider x:Name="MinRamSlider" Minimum="256" TickFrequency="256" IsSnapToTickEnabled="True"
+                    ValueChanged="OnMinRamChanged" />
+          </StackPanel>
+
+          <!-- Max RAM -->
+          <StackPanel Spacing="4">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Grid.Column="0" Text="Maximum heap (-Xmx)" FontSize="12" Opacity="0.85" />
+              <TextBlock Grid.Column="1" x:Name="MaxRamLabel" FontSize="11" Opacity="0.85" />
+            </Grid>
+            <Slider x:Name="MaxRamSlider" Minimum="512" TickFrequency="512" IsSnapToTickEnabled="True"
+                    ValueChanged="OnMaxRamChanged" />
+          </StackPanel>
+
+          <!-- JVM arguments -->
+          <StackPanel Spacing="4">
+            <TextBlock Text="Custom JVM arguments" FontSize="12" Opacity="0.85" />
+            <TextBox x:Name="JvmArgsBox"
+                     Watermark="(leave empty to inherit from Settings)"
+                     FontFamily="Cascadia Mono, Consolas, Menlo, monospace" FontSize="11"
+                     AcceptsReturn="True" Height="60" />
+          </StackPanel>
+
+          <!-- Game directory -->
+          <StackPanel Spacing="4">
+            <TextBlock Text="Game directory" FontSize="12" Opacity="0.85" />
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBox Grid.Column="0" x:Name="GameDirBox"
+                       Watermark="(leave empty to inherit the global .minecraft)" FontSize="11" />
+              <Button Grid.Column="1" Content="Browse..." FontSize="11"
+                      Padding="10,4" Margin="6,0,0,0" Click="OnBrowseGameDir" />
+            </Grid>
+          </StackPanel>
+
+          <!-- Window resolution -->
+          <StackPanel Spacing="4">
+            <TextBlock Text="Window resolution" FontSize="12" Opacity="0.85" />
+            <Grid ColumnDefinitions="Auto,Auto,12,Auto,Auto" RowDefinitions="Auto">
+              <TextBlock Grid.Column="0" Text="W " FontSize="11" VerticalAlignment="Center" Opacity="0.7" />
+              <NumericUpDown Grid.Column="1" x:Name="WidthBox" Width="110"
+                             Minimum="0" Maximum="7680" Increment="1" FormatString="0" />
+              <TextBlock Grid.Column="3" Text="H " FontSize="11" VerticalAlignment="Center" Opacity="0.7" />
+              <NumericUpDown Grid.Column="4" x:Name="HeightBox" Width="110"
+                             Minimum="0" Maximum="4320" Increment="1" FormatString="0" />
+            </Grid>
+            <TextBlock Text="Default is 854 x 480. Both zero = inherit (Minecraft's own default)."
+                       FontSize="10" Opacity="0.55" TextWrapping="Wrap" />
+          </StackPanel>
+
+        </StackPanel>
+      </ScrollViewer>
+
+      <!-- Footer -->
+      <Grid Grid.Row="2" Margin="22,4,22,16" ColumnDefinitions="*,Auto,Auto">
+        <Button Grid.Column="1" Content="Cancel" Click="OnCancel"
+                Padding="14,5" FontSize="12" Margin="0,0,8,0" />
+        <Button Grid.Column="2" Content="Save"
+                Click="OnSave"
+                FontFamily="{StaticResource MinecraftFont}" FontSize="13"
+                Padding="14,5"
+                CornerRadius="15"
+                Background="{DynamicResource LG.BubbleFillCombined}"
+                BorderBrush="{DynamicResource LG.GlassRimStrong}"
+                BorderThickness="1"
+                Foreground="White" />
+      </Grid>
+    </Grid>
+  </Border>
+</Window>

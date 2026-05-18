@@ -580,6 +580,10 @@
                        versions/ folder; Hyperion doesn't persist edits for them). -->
                   <Border.ContextMenu>
                     <ContextMenu>
+                      <MenuItem Header="Edit instance..."
+                                Click="OnEditInstanceMenuClicked"
+                                Tag="{Binding}"
+                                IsEnabled="{Binding !IsAutoImported}" />
                       <MenuItem Header="Change icon..."
                                 Click="OnChangeIconMenuClicked"
                                 Tag="{Binding}"

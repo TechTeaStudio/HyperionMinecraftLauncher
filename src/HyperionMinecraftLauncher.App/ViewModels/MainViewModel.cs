@@ -1683,6 +1683,47 @@ public sealed class MainViewModel : INotifyPropertyChanged
         return safe.ToString();
     }
 
+    /// <summary>
+    /// Persist a fully-edited instance record (name, icon, per-instance overrides) from the
+    /// Edit Instance dialog. Refuses auto-imported instances so the dialog never accidentally
+    /// writes a sibling JSON beside the official launcher's <c>versions/</c> folder.
+    /// Returns the persisted record on success, <c>null</c> when refused.
+    /// </summary>
+    public async Task<Instance?> ApplyEditedInstanceAsync(Instance original, Instance edited)
+    {
+        ArgumentNullException.ThrowIfNull(original);
+        ArgumentNullException.ThrowIfNull(edited);
+
+        if (original.IsAutoImported)
+        {
+            Append("Cannot edit an auto-imported instance.");
+            return null;
+        }
+
+        // Keep the immutable identity fields no matter what the dialog returned.
+        var updated = edited with
+        {
+            Id = original.Id,
+            CreatedAt = original.CreatedAt,
+            IsAutoImported = false,
+            LastPlayedAt = original.LastPlayedAt,
+        };
+
+        await _service.SaveInstanceAsync(updated, CancellationToken.None);
+
+        var idx = Instances.IndexOf(original);
+        if (idx >= 0)
+        {
+            Instances[idx] = updated;
+            if (ReferenceEquals(SelectedInstance, original))
+                SelectedInstance = updated;
+        }
+
+        _logger.Info($"Instance {updated.Id} ({updated.Name}) edited.");
+        Append($"Saved changes to '{updated.Name}'.");
+        return updated;
+    }
+
     private async Task SaveSettingsAsync()
     {
         if (_settingsStore is null) return;
@@ -2296,14 +2337,22 @@ public sealed class MainViewModel : INotifyPropertyChanged
             }
 
             Append($"Launching {versionName} (Xms={MinMemoryMb}M, Xmx={MaxMemoryMb}M) ...");
+            // Per-instance overrides win over the global Settings page values; blank or zero
+            // fields on the instance fall through to the Settings defaults (see Merge helper).
+            var resolved = InstanceLaunchSettings.Merge(instance, BuildSettings());
+
+            Append($"Launching {versionName} (Xms={resolved.MinimumRamMb}M, Xmx={resolved.MaximumRamMb}M) ...");
             var result = await _service.LaunchAsync(
                 new LaunchRequest
                 {
                     VersionName = versionName,
                     Session = auth,
-                    GameDirectory = string.IsNullOrWhiteSpace(_gameDirectoryOverride) ? null : _gameDirectoryOverride,
-                    MinimumRamMb = MinMemoryMb,
-                    MaximumRamMb = MaxMemoryMb,
+                    GameDirectory = resolved.GameDirectory,
+                    MinimumRamMb = resolved.MinimumRamMb,
+                    MaximumRamMb = resolved.MaximumRamMb,
+                    JvmArguments = string.IsNullOrWhiteSpace(resolved.JvmArguments) ? null : resolved.JvmArguments,
+                    ScreenWidth = resolved.ResolutionWidth,
+                    ScreenHeight = resolved.ResolutionHeight,
                     QuickPlay = quickPlay,
                     JavaRequirement = javaRequirement,
                     JavaPath = javaOverride,
