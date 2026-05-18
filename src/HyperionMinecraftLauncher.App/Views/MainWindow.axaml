@@ -32,91 +32,62 @@
         RenderOptions.EdgeMode="Aliased">
 
   <Window.Resources>
-    <!-- Liquid-glass: overrides the App.axaml Material palette with semi-transparent
-         variants so the LG.WindowBackground gradient + acrylic tint show through cards
-         and chrome. The originals still live in App.axaml so child windows that don't
-         import the LG theme keep working.
+    <!-- Minecraft palette overrides (v0.32.0): retunes the Material brushes so the
+         entire window reads against the warm-dark Minecraft bed (#171615) instead
+         of the previous purple translucent ramp. The originals still live in
+         App.axaml so child windows that don't merge the Minecraft palette keep
+         working.
 
-         Mapping: Paper / CardBackground both alias to the glass surface gradient (cards).
-         Background -> a slightly darker translucent fill for inset content like log boxes.
-         PrimaryDark -> kept transparent so the header bar / sidebar pull through the
-         falling-light overlay. Divider -> LG.Divider. -->
-    <LinearGradientBrush x:Key="MaterialPaperBrush" StartPoint="0%,0%" EndPoint="100%,100%">
-      <GradientStop Offset="0"   Color="#2EFFFFFF" />
-      <GradientStop Offset="0.5" Color="#3D6C6C73" />
-      <GradientStop Offset="1"   Color="#381A1A28" />
-    </LinearGradientBrush>
-    <LinearGradientBrush x:Key="MaterialCardBackgroundBrush" StartPoint="0%,0%" EndPoint="100%,100%">
-      <GradientStop Offset="0"   Color="#2EFFFFFF" />
-      <GradientStop Offset="0.5" Color="#3D6C6C73" />
-      <GradientStop Offset="1"   Color="#381A1A28" />
-    </LinearGradientBrush>
-    <SolidColorBrush x:Key="MaterialBackgroundBrush"     Color="#330D0D1B" />
-    <SolidColorBrush x:Key="MaterialPrimaryDarkBrush"    Color="#400D0D1B" />
-    <SolidColorBrush x:Key="MaterialDividerBrush"        Color="#22FFFFFF" />
+         Mapping (matches LG.* in MinecraftPalette.axaml):
+           Paper / CardBackground -> flat #262423 (bg-surface, the tile colour).
+           Background             -> flat #312D2C (bg-surface-alt, the slightly
+                                     darker inset for log boxes / nested fills).
+           PrimaryDark            -> flat #202020 (bg-window, header strip).
+           PrimaryMid / Light     -> Minecraft green so "primary" buttons / chips
+                                     tint with the accent.
+           Divider                -> #3D3938 (border-soft). -->
+    <SolidColorBrush x:Key="MaterialPaperBrush"          Color="#262423" />
+    <SolidColorBrush x:Key="MaterialCardBackgroundBrush" Color="#262423" />
+    <SolidColorBrush x:Key="MaterialBackgroundBrush"     Color="#312D2C" />
+    <SolidColorBrush x:Key="MaterialPrimaryDarkBrush"    Color="#202020" />
+    <SolidColorBrush x:Key="MaterialDividerBrush"        Color="#3D3938" />
 
-    <!-- Mid/Light "primary" was Minecraft grass-green; in the LG theme the brand
-         accent moves to the surfaceSelected lavender so chips and "primary" buttons
-         tint with the bubble's signature colour instead of clashing with it. -->
-    <SolidColorBrush x:Key="MaterialPrimaryMidBrush"     Color="#ACAECC" />
-    <SolidColorBrush x:Key="MaterialPrimaryLightBrush"   Color="#C8CAE6" />
+    <SolidColorBrush x:Key="MaterialPrimaryMidBrush"     Color="#3C8527" />
+    <SolidColorBrush x:Key="MaterialPrimaryLightBrush"   Color="#6CC349" />
   </Window.Resources>
 
 
   <Panel>
-    <!-- Acrylic underlay - paints a tinted, blurred frame behind the launcher chrome.
-         The TintColor was retuned to the LG.Background.Top swatch so the system blur
-         (when available) reads as the same near-black violet as the gradient on top.
-         When the OS doesn't support acrylic / mica / blur, the gradient overlay below
-         carries the whole look on its own. -->
+    <!-- Acrylic underlay - paints a flat tinted frame behind the launcher chrome.
+         TintColor is the warm-dark Minecraft window bed (#171615) so the system
+         blur (when available) reads as the same near-black brown as the flat
+         background brush on top. When the OS doesn't support acrylic / mica /
+         blur, the flat brush below carries the whole look on its own. -->
     <ExperimentalAcrylicBorder IsHitTestVisible="False">
       <ExperimentalAcrylicBorder.Material>
         <ExperimentalAcrylicMaterial
           BackgroundSource="Digger"
-          TintColor="#0D0D1B"
+          TintColor="#171615"
           TintOpacity="1"
           MaterialOpacity="0.85" />
       </ExperimentalAcrylicBorder.Material>
     </ExperimentalAcrylicBorder>
 
-    <!-- LG vertical background gradient (#0D0D1B -> #1A1A28). Sits over the acrylic
-         so the launcher has the same colour bed on every platform; the acrylic is
-         what gives it depth where the host OS supports it. -->
+    <!-- Flat Minecraft window background (#171615). Sits over the acrylic so the
+         launcher has the same colour bed on every platform; the acrylic is what
+         gives it depth where the host OS supports it. The previous purple
+         top-to-bottom gradient and falling-light wedge were removed in v0.32. -->
     <Border Background="{DynamicResource LG.WindowBackground}"
             IsHitTestVisible="False" />
-
-    <!-- =================== FALLING-LIGHT OVERLAY ===================
-         Static diagonal white wedge in the top-right corner, blurred by Effect Blur
-         so the boundary fades into the dark gradient. Rotated -28.28deg per the
-         Flutter spec (RenderTransformOrigin pins the rotation to the centre of the
-         brush rectangle). The Border is sized larger than the window's top-right
-         quadrant so the rotated wedge has enough off-window slack on every side and
-         doesn't show a hard edge mid-window.
-
-         Hit-test disabled - this is purely decorative. -->
-    <Border Width="900" Height="500"
-            HorizontalAlignment="Right" VerticalAlignment="Top"
-            Margin="0,-160,-200,0"
-            IsHitTestVisible="False"
-            Background="{DynamicResource LG.FallingLightGradient}"
-            RenderTransformOrigin="50%,50%">
-      <Border.RenderTransform>
-        <RotateTransform Angle="-28.28" />
-      </Border.RenderTransform>
-      <Border.Effect>
-        <BlurEffect Radius="60" />
-      </Border.Effect>
-    </Border>
 
   <Grid ColumnDefinitions="Auto,*" RowDefinitions="48,Auto,*">
 
     <!-- =================== HEADER (drag region + window controls) =================== -->
-    <!-- Header is a thin glass strip: a translucent dark wash over the falling-light
-         overlay, with a single-pixel rim along the bottom edge. The colourful "primary-
-         dark" green is replaced by the LG translucent fill so the new background shows
-         through. -->
-    <Border Grid.ColumnSpan="2" Background="#400D0D1B"
-            BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="0,0,0,1"
+    <!-- Header is the Minecraft system panel (#202020, bg-window) with a hard
+         single-pixel dark-soft separator along the bottom edge so it reads as a
+         distinct strip above the page body. -->
+    <Border Grid.ColumnSpan="2" Background="#202020"
+            BorderBrush="{DynamicResource LG.Divider}" BorderThickness="0,0,0,1"
             PointerPressed="OnTitleBarPressed">
       <Grid Margin="12,0,0,0" ColumnDefinitions="Auto,*,Auto,Auto">
 
@@ -132,15 +103,17 @@
 
         <!-- Account chip (middle-right). The chip itself is a Button whose Flyout lists
              every cached account; clicking a row switches; the footer holds Add / Remove.
-             Empty-state shows "Sign in with Microsoft" as the chip label and Add account in the flyout. -->
+             Empty-state shows "Sign in with Microsoft" as the chip label and Add account in the flyout.
+             Background uses the bg-surface-profile #464242 so the chip reads as the
+             dedicated "profile" tile from the Mojang launcher palette. -->
         <Button x:Name="AccountChipButton"
                 Grid.Column="2"
                 Classes="AccountChip"
                 Padding="8,4" Margin="0,0,8,0"
-                Background="{DynamicResource LG.BubbleFillCombined}"
-                BorderBrush="{DynamicResource LG.GlassRimStrong}"
+                Background="#464242"
+                BorderBrush="{DynamicResource LG.GlassRim}"
                 BorderThickness="1"
-                CornerRadius="16">
+                CornerRadius="4">
           <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
             <Image Source="{Binding AvatarBitmap}"
                    Classes="Avatar"
@@ -245,11 +218,14 @@
 
     <!-- =================== LAUNCHER UPDATE BANNER (T16) =================== -->
     <!-- Visible only when MainViewModel.AvailableUpdate is set. Clicking the banner body
-         opens the release URL in the default browser; the X dismisses for this session. -->
+         opens the release URL in the default browser; the X dismisses for this session.
+         Background is the Minecraft primary green #3C8527 so the banner pops against
+         the warm-dark page bed and the white "click to open release page" caption is
+         unambiguously readable. -->
     <Border Grid.Row="1" Grid.ColumnSpan="2"
             IsVisible="{Binding HasUpdateAvailable}"
-            Background="{DynamicResource MaterialPrimaryMidBrush}"
-            BorderBrush="{DynamicResource MaterialPrimaryDarkBrush}"
+            Background="#3C8527"
+            BorderBrush="#2A641C"
             BorderThickness="0,0,0,1"
             Padding="0">
       <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
@@ -291,7 +267,7 @@
          separates it from the content area. -->
     <Border Grid.Row="2" Grid.Column="0" Name="SidebarBorder"
             Width="{Binding SidebarWidth}"
-            Background="{DynamicResource LG.GlassSurface}"
+            Background="{DynamicResource LG.SurfaceVariant}"
             BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="0,0,1,0"
             ClipToBounds="True">
       <Border.Transitions>
@@ -639,32 +615,44 @@
                     <!-- Discoverability fallback: small overflow button in the bottom-right
                          corner of every user-created tile. Opens a menu mirroring the right-click
                          context menu (change icon, export, open folder, delete). Hidden on
-                         auto-imported tiles. -->
-                    <Button Content="..."
+                         auto-imported tiles.
+
+                         Bug 4 (v0.32.0): the button was invisible against the previous frosted
+                         palette and the MenuFlyout's MenuItems lost their DataContext (Avalonia
+                         hosts the Flyout in a separate popup root, so {Binding} on a MenuItem
+                         resolves to null and the click handler short-circuited). Fixed by
+                         repainting the button against the new Minecraft surface (#3C8527 green
+                         pill with a pixel-style dark outline) and routing the MenuItem Tag
+                         through the Button's own Tag via $parent[Button].Tag, which works
+                         across the popup boundary because it's a name lookup, not a tree walk. -->
+                    <Button x:Name="InstanceMoreButton"
+                            Content="..."
                             Tag="{Binding}"
                             ToolTip.Tip="{x:Static loc:Strings.Installations_MoreTooltip}"
-                            Padding="6,0"
-                            MinWidth="22" Height="20"
-                            FontSize="11"
+                            Padding="0"
+                            Width="26" Height="22"
+                            FontSize="12" FontWeight="Bold"
                             HorizontalAlignment="Right" VerticalAlignment="Top"
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                             Margin="0,4,4,0"
-                            Background="#66000000" Foreground="White"
-                            BorderThickness="0" CornerRadius="3"
+                            Background="#3C8527" Foreground="White"
+                            BorderBrush="#000000" BorderThickness="1"
+                            CornerRadius="3"
                             IsVisible="{Binding !IsAutoImported}">
                       <Button.Flyout>
                         <MenuFlyout>
                           <MenuItem Header="{x:Static loc:Strings.Installations_MenuChangeIcon}"
                                     Click="OnChangeIconMenuClicked"
-                                    Tag="{Binding}" />
+                                    Tag="{Binding #InstanceMoreButton.Tag}" />
                           <MenuItem Header="{x:Static loc:Strings.Installations_MenuExportToZip}"
                                     Click="OnExportInstanceMenuClicked"
-                                    Tag="{Binding}" />
+                                    Tag="{Binding #InstanceMoreButton.Tag}" />
                           <MenuItem Header="{x:Static loc:Strings.Installations_MenuOpenFolder}"
                                     Click="OnOpenInstanceFolderMenuClicked"
-                                    Tag="{Binding}" />
+                                    Tag="{Binding #InstanceMoreButton.Tag}" />
                           <MenuItem Header="{x:Static loc:Strings.Installations_MenuDelete}"
                                     Click="OnDeleteInstanceMenuClicked"
-                                    Tag="{Binding}" />
+                                    Tag="{Binding #InstanceMoreButton.Tag}" />
                         </MenuFlyout>
                       </Button.Flyout>
                     </Button>
@@ -682,29 +670,45 @@
                 MinHeight="220"
                 IsVisible="{Binding HasSelectedInstance}">
           <Grid RowDefinitions="Auto,*">
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="4" Margin="0,0,0,6">
-              <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Screenshots}" GroupName="InstanceTabs"
-                           Classes="DetailTab"
-                           IsChecked="{Binding IsScreenshotsTabSelected, Mode=OneWay}"
-                           Click="OnInstanceTabScreenshots" />
-              <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Worlds}" GroupName="InstanceTabs"
-                           Classes="DetailTab"
-                           IsChecked="{Binding IsWorldsTabSelected, Mode=OneWay}"
-                           Click="OnInstanceTabWorlds" />
-              <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Servers}" GroupName="InstanceTabs"
-                           Classes="DetailTab"
-                           IsChecked="{Binding IsInstanceServersTabSelected, Mode=OneWay}"
-                           Click="OnInstanceTabServers" />
-              <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Crashes}" GroupName="InstanceTabs"
-                           Classes="DetailTab"
-                           IsChecked="{Binding IsCrashesTabSelected, Mode=OneWay}"
-                           Click="OnInstanceTabCrashes" />
-              <Button Content="{x:Static loc:Strings.InstanceTabs_RefreshButton}" FontSize="10" Padding="8,2" Margin="14,0,0,0"
-                      Click="OnRefreshInstanceTab" />
-              <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2" Margin="4,0,0,0"
-                      Click="OnOpenCrashReportsFolder"
-                      IsVisible="{Binding IsCrashesTabSelected}" />
-            </StackPanel>
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,6">
+              <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4">
+                <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Screenshots}" GroupName="InstanceTabs"
+                             Classes="DetailTab"
+                             IsChecked="{Binding IsScreenshotsTabSelected, Mode=OneWay}"
+                             Click="OnInstanceTabScreenshots" />
+                <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Worlds}" GroupName="InstanceTabs"
+                             Classes="DetailTab"
+                             IsChecked="{Binding IsWorldsTabSelected, Mode=OneWay}"
+                             Click="OnInstanceTabWorlds" />
+                <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Servers}" GroupName="InstanceTabs"
+                             Classes="DetailTab"
+                             IsChecked="{Binding IsInstanceServersTabSelected, Mode=OneWay}"
+                             Click="OnInstanceTabServers" />
+                <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Crashes}" GroupName="InstanceTabs"
+                             Classes="DetailTab"
+                             IsChecked="{Binding IsCrashesTabSelected, Mode=OneWay}"
+                             Click="OnInstanceTabCrashes" />
+                <Button Content="{x:Static loc:Strings.InstanceTabs_RefreshButton}" FontSize="10" Padding="8,2" Margin="14,0,0,0"
+                        Click="OnRefreshInstanceTab" />
+                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2" Margin="4,0,0,0"
+                        Click="OnOpenCrashReportsFolder"
+                        IsVisible="{Binding IsCrashesTabSelected}" />
+              </StackPanel>
+              <!-- Bug 3 (v0.32.0): the detail panel had no way to be dismissed. This X
+                   button nulls SelectedInstance, which collapses the whole Border via
+                   the IsVisible="HasSelectedInstance" binding above. Uses the same
+                   WinCtrl style as the header window controls so the click target is
+                   consistent with the rest of the chrome. -->
+              <Button Grid.Column="1"
+                      Classes="WinCtrl"
+                      Width="28" Height="22"
+                      Padding="0"
+                      Command="{Binding CloseInstanceDetailCommand}"
+                      ToolTip.Tip="{x:Static loc:Strings.WindowChrome_Close}">
+                <Path Data="M 0,0 L 9,9 M 9,0 L 0,9" Stroke="White" StrokeThickness="1.4"
+                      Width="9" Height="9" />
+              </Button>
+            </Grid>
 
             <!-- Screenshots tab: WrapPanel of 160x100 thumbnail tiles. Click opens with OS default viewer. -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
@@ -1411,6 +1415,28 @@
               </StackPanel>
             </Border>
 
+            <!-- Bug 5 (v0.32.0): manual "Check for updates" button. The startup probe
+                 only fires if AutoUpdateCheck is enabled AND a newer GitHub release
+                 exists, so the banner could go unseen for entire versions. This card
+                 lets the user trigger the same probe on demand; the result is either
+                 the banner appearing (newer release found) or a "you're on the latest"
+                 line in the launcher log. -->
+            <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
+              <StackPanel Spacing="6">
+                <TextBlock Text="Updates" FontWeight="SemiBold" FontSize="12" />
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Grid.Column="0" FontSize="11" VerticalAlignment="Center"
+                             Text="Manually check GitHub Releases for a newer launcher build." />
+                  <Button Grid.Column="1"
+                          Content="Check for updates"
+                          Command="{Binding CheckForUpdatesCommand}"
+                          FontSize="11" Padding="10,4" />
+                </Grid>
+                <TextBlock FontSize="10" Opacity="0.55" TextWrapping="Wrap"
+                           Text="If a newer release is available a green banner appears at the top of the window. Otherwise the log shows a 'you're on the latest version' line." />
+              </StackPanel>
+            </Border>
+
           </StackPanel>
         </ScrollViewer>
 
@@ -1779,6 +1805,48 @@
     </Style>
     <Style Selector="ToggleButton.Chip:checked:pointerover">
       <Setter Property="Background" Value="{DynamicResource MaterialPrimaryLightBrush}" />
+    </Style>
+
+    <!-- =================== COMBOBOX (v0.32.0 bug 1) ===================
+         The previous translucent MaterialPaperBrush leaked the page through both the
+         closed slot and the open dropdown popup. Pin the closed slot to the surface
+         tile (#262423) with a 1px dark pixel outline, and force the popup's child
+         Border (and inner ScrollViewer / ItemsPresenter) to the same opaque surface
+         so the popup never lets the page bleed through. Two selectors cover both
+         the stock Avalonia popup name (PART_PopupBorder) and the bare Border child
+         of PART_Popup that some Material.Avalonia templates render. -->
+    <Style Selector="ComboBox">
+      <Setter Property="Background" Value="{DynamicResource LG.Surface}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LG.GlassRim}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="{DynamicResource LG.RadiusItem}" />
+      <Setter Property="Foreground" Value="{DynamicResource LG.TextPrimary}" />
+    </Style>
+    <Style Selector="ComboBox /template/ Border#PART_PopupBorder">
+      <Setter Property="Background" Value="{DynamicResource LG.Surface}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LG.GlassRim}" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="ComboBox /template/ Popup#PART_Popup > Border">
+      <Setter Property="Background" Value="{DynamicResource LG.Surface}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LG.GlassRim}" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <!-- Some Material.Avalonia templates wrap the popup in a ScrollViewer rather than
+         a named Border; paint the ScrollViewer too so a transparent ScrollViewer
+         doesn't expose the page underneath. -->
+    <Style Selector="ComboBox /template/ Popup#PART_Popup ScrollViewer">
+      <Setter Property="Background" Value="{DynamicResource LG.Surface}" />
+    </Style>
+    <Style Selector="ComboBoxItem">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource LG.TextPrimary}" />
+    </Style>
+    <Style Selector="ComboBoxItem:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource LG.RowHover}" />
+    </Style>
+    <Style Selector="ComboBoxItem:selected /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource LG.RowSelected}" />
     </Style>
   </Window.Styles>
 

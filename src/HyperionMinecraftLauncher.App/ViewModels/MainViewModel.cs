@@ -294,6 +294,24 @@ public sealed class MainViewModel : INotifyPropertyChanged
         // Dismiss simply clears the banner for the current session (re-checked on next startup).
         OpenReleasePageCommand = new AsyncRelayCommand(OpenReleasePageAsync, () => AvailableUpdate is not null);
         DismissUpdateCommand = new AsyncRelayCommand(DismissUpdateAsync, () => AvailableUpdate is not null);
+
+        // Bug 5 (v0.32.0): manual "Check for updates" button on the Settings page. The
+        // startup probe was the only entry point before; it relied on the user having
+        // auto-checks enabled AND a strictly-newer GitHub release existing, so the
+        // banner never surfaced in practice. This command runs the same checker on
+        // demand and either populates AvailableUpdate (banner appears) or appends a
+        // confirmation log line so the user always gets a response.
+        CheckForUpdatesCommand = new AsyncRelayCommand(
+            CheckForUpdatesAsync,
+            () => !IsBusy && _updateChecker is not null);
+
+        // Bug 3 (v0.32.0): the per-instance detail panel had no dismiss affordance, so once
+        // a tile was clicked the user was stuck looking at it. This command nulls
+        // SelectedInstance, which collapses the whole Border via the HasSelectedInstance
+        // IsVisible binding. Enabled only when an instance is actually selected.
+        CloseInstanceDetailCommand = new AsyncRelayCommand(
+            CloseInstanceDetailAsync,
+            () => SelectedInstance is not null);
         // Headless servers (v0.28 T11). Refresh repopulates the page list; Delete drops the
         // selected entry; Start / Stop are placeholders until the v0.29 server-jar pipeline lands.
         RefreshHeadlessServersCommand = new AsyncRelayCommand(
@@ -604,6 +622,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 RefreshInstanceServersCommand.RaiseCanExecuteChanged();
                 RefreshInstanceCrashReportsCommand.RaiseCanExecuteChanged();
                 ExportInstanceCommand?.RaiseCanExecuteChanged();
+                CloseInstanceDetailCommand?.RaiseCanExecuteChanged();
                 OnPropertyChanged(nameof(HasSelectedInstance));
                 // Auto-refresh per-instance detail tabs when the selected instance changes.
                 // Fire-and-forget: the View animates a fade-in while we populate the lists.
@@ -1032,6 +1051,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 SwitchAccountCommand.RaiseCanExecuteChanged();
                 AddAccountCommand.RaiseCanExecuteChanged();
                 RemoveAccountCommand.RaiseCanExecuteChanged();
+                CheckForUpdatesCommand?.RaiseCanExecuteChanged();
             }
         }
     }
@@ -1320,7 +1340,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     /// "current" side of the comparison. Kept as a constant so a single source of truth
     /// (the .csproj &lt;Version&gt;) bumps in lock-step with this string per release.
     /// </summary>
-    public const string CurrentLauncherVersion = "0.28.0";
+    public const string CurrentLauncherVersion = "0.32.0";
 
     /// <summary>
     /// Re-read the cached-accounts roster (MSAL + offline placeholders), reconcile our
@@ -1342,8 +1362,16 @@ public sealed class MainViewModel : INotifyPropertyChanged
             _logger.Warn($"RefreshAccounts failed: {ex.Message}");
         }
 
+        // Bug 2 (v0.32.0): the flyout used to show the same account twice when the MSAL
+        // cache and the file account store both reported it (e.g. the store's row had a
+        // slightly different Id casing or a stale Uuid). Group by Id and keep the most
+        // recently used entry as the canonical row, so the multi-account switcher lists
+        // every distinct account exactly once.
         Accounts.Clear();
-        foreach (var a in list.OrderByDescending(a => a.LastUsedAt))
+        foreach (var a in list
+                     .GroupBy(a => a.Id, StringComparer.Ordinal)
+                     .Select(g => g.OrderByDescending(a => a.LastUsedAt).First())
+                     .OrderByDescending(a => a.LastUsedAt))
             Accounts.Add(a);
 
         Account? active = null;
@@ -3079,6 +3107,58 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     /// <summary>X button on the banner clears <see cref="AvailableUpdate"/> for this session.</summary>
     public AsyncRelayCommand DismissUpdateCommand { get; }
+
+    /// <summary>
+    /// Bug 5 (v0.32.0): "Check for updates" button on the Settings page. Runs the
+    /// same probe the startup refresh runs, but on demand. Sets
+    /// <see cref="AvailableUpdate"/> on a hit (banner appears) or appends a "you're
+    /// on the latest version" log line on a miss, so the user always gets feedback.
+    /// </summary>
+    public AsyncRelayCommand CheckForUpdatesCommand { get; }
+
+    private async Task CheckForUpdatesAsync()
+    {
+        if (_updateChecker is null)
+        {
+            Append("[update] Update checker is not configured in this build.");
+            return;
+        }
+
+        try
+        {
+            Append($"Checking for updates (current: v{CurrentLauncherVersion}) ...");
+            var info = await _updateChecker.CheckAsync(CurrentLauncherVersion, CancellationToken.None).ConfigureAwait(true);
+            if (info is null)
+            {
+                Append($"[update] You're on the latest version (v{CurrentLauncherVersion}).");
+            }
+            else
+            {
+                AvailableUpdate = info;
+                Append($"A newer launcher version is available: v{info.LatestVersion}");
+            }
+        }
+        catch (Exception ex)
+        {
+            // The checker contract says it shouldn't throw; defend against future drift anyway.
+            _logger.Warn($"Manual update check failed: {ex.Message}");
+            Append($"[update] Update check failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Bug 3 (v0.32.0): X button on the per-instance detail panel. Nulls
+    /// <see cref="SelectedInstance"/>, which collapses the panel via the
+    /// <see cref="HasSelectedInstance"/> binding. Surfaced from the panel's top-right
+    /// corner next to the tab strip.
+    /// </summary>
+    public AsyncRelayCommand CloseInstanceDetailCommand { get; }
+
+    private Task CloseInstanceDetailAsync()
+    {
+        SelectedInstance = null;
+        return Task.CompletedTask;
+    }
 
     private Task OpenReleasePageAsync()
     {
