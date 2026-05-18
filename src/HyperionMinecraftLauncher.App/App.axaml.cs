@@ -17,6 +17,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Diagnostics;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.CrashReports;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Export;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Import.MultiMc;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.Loaders;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
@@ -250,6 +251,11 @@ public partial class App : Application
             // Instance export/import (v0.30 T21e). Default implementations; tests substitute their own.
             var instanceExporter = new FileInstanceExporter();
             var instanceImporter = new FileInstanceImporter();
+            // v0.32.3 (G4): take MultiMC / Prism instance zips and folders. Lives under
+            // the same instances-data root so imported instances look identical on disk to
+            // FileInstanceImporter's outputs (one folder per id, no entanglement with the
+            // official launcher's .minecraft/versions/).
+            var multiMcImporter = new MultiMcInstanceImporter();
 
             // T22a (v0.31.0): localization. Builds a ResxLocalizationService over the App
             // assembly's Strings.resx family. The initial culture comes from the user's
@@ -281,6 +287,7 @@ public partial class App : Application
                 modrinthRepo, curseForgeRepo, instanceModManager, accountStore,
                 updateChecker, headlessServerStore, backupService, crashReportListener,
                 instanceExporter, instanceImporter, modpackImporter,
+                multiMcImporter,
                 // v0.32.1: modLoaderInstaller is unused by the VM (it lives on the service via
                 // Lazy<>). Pass null so we don't accidentally trigger the loader pipeline here.
                 modLoaderInstaller: null,

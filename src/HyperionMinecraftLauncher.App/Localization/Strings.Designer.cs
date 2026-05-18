@@ -91,6 +91,8 @@ public static class Strings
     public static string Installations_NewInstance => L("Installations.NewInstance");
     public static string Installations_ImportFromZip => L("Installations.ImportFromZip");
     public static string Installations_ImportFromZipTooltip => L("Installations.ImportFromZipTooltip");
+    public static string Installations_ImportFromMultiMc => L("Installations.ImportFromMultiMc");
+    public static string Installations_ImportFromMultiMcTooltip => L("Installations.ImportFromMultiMcTooltip");
     public static string Installations_ImportModpack => L("Installations.ImportModpack");
     public static string Installations_Refresh => L("Installations.Refresh");
     public static string Installations_DeleteSelected => L("Installations.DeleteSelected");
@@ -419,4 +421,14 @@ public static class Strings
     public static string Error_InstanceImportUnavailable => L("Error.InstanceImportUnavailable");
     public static string Error_ImportPickerUnavailable => L("Error.ImportPickerUnavailable");
     public static string Error_InstanceImportCancelled => L("Error.InstanceImportCancelled");
+
+    // MultiMC / Prism instance import
+    public static string MultiMc_PickDialogTitle => L("MultiMc.PickDialogTitle");
+    public static string MultiMc_PickDialogPrompt => L("MultiMc.PickDialogPrompt");
+    public static string MultiMc_PickZipButton => L("MultiMc.PickZipButton");
+    public static string MultiMc_PickFolderButton => L("MultiMc.PickFolderButton");
+    public static string MultiMc_ImportedSuccessfully => L("MultiMc.ImportedSuccessfully");
+    public static string Error_MultiMcImporterUnavailable => L("Error.MultiMcImporterUnavailable");
+    public static string Error_MultiMcPickerUnavailable => L("Error.MultiMcPickerUnavailable");
+    public static string Error_MultiMcImportCancelled => L("Error.MultiMcImportCancelled");
 }

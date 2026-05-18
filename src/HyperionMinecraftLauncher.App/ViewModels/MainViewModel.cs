@@ -25,6 +25,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.Loaders;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Export;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Import.MultiMc;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
@@ -106,8 +107,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private int _autoBackupKeepLatest;
     private readonly IInstanceExporter? _instanceExporter;
     private readonly IInstanceImporter? _instanceImporter;
+    private readonly IMultiMcInstanceImporter? _multiMcImporter;
     private InstanceExportZipPickRequest? _exportZipPickRequest;
     private InstanceImportZipPickRequest? _importZipPickRequest;
+    private MultiMcImportPickRequest? _multiMcImportPickRequest;
     private readonly IModpackImporter? _modpackImporter;
     private double _modpackImportProgress;
     private bool _isImportingModpack;
@@ -224,6 +227,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IInstanceExporter? instanceExporter = null,
         IInstanceImporter? instanceImporter = null,
         IModpackImporter? modpackImporter = null,
+        IMultiMcInstanceImporter? multiMcImporter = null,
         IModLoaderInstaller? modLoaderInstaller = null,
         IModLoaderVersionFetcher? modLoaderVersionFetcher = null,
         ILocalizationService? localizationService = null,
@@ -255,6 +259,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _backupService = backupService;
         _instanceExporter = instanceExporter;
         _instanceImporter = instanceImporter;
+        _multiMcImporter = multiMcImporter;
         _modLoaderInstaller = modLoaderInstaller;
         _modLoaderVersionFetcher = modLoaderVersionFetcher;
         _localizationService = localizationService;
@@ -477,6 +482,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
         ImportInstanceCommand = new AsyncRelayCommand(
             ImportInstanceAsync,
             () => !IsBusy && _instanceImporter is not null);
+        ImportMultiMcCommand = new AsyncRelayCommand(
+            ImportMultiMcAsync,
+            () => !IsBusy && _multiMcImporter is not null);
     }
 
     /// <summary>"Backup now" entry on the Worlds tab. Parameter = world folder name.</summary>
@@ -1437,6 +1445,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncParameterRelayCommand<Account> RemoveAccountCommand { get; }
     public AsyncRelayCommand ExportInstanceCommand { get; }
     public AsyncRelayCommand ImportInstanceCommand { get; }
+    public AsyncRelayCommand ImportMultiMcCommand { get; }
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -2159,6 +2168,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _importZipPickRequest = request;
     }
 
+    /// <summary>Inject the View's "pick a MultiMC / Prism zip or instance folder" delegate.</summary>
+    public void SetMultiMcImportPickRequest(MultiMcImportPickRequest? request)
+    {
+        _multiMcImportPickRequest = request;
+    }
+
     /// <summary>
     /// Export <paramref name="instance"/> to a user-picked <c>.zip</c> path. Wired by the
     /// per-tile "Export to zip..." menu item. Public so tests can drive the flow directly.
@@ -2295,6 +2310,79 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             Append($"[error] Could not import instance: {ex.Message}");
             _logger.Warn($"Instance import failed: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// Import an instance from a MultiMC / Prism Launcher <c>.zip</c> or unzipped folder.
+    /// Wired by the "Import from MultiMC..." button on the Installations page. Refreshes the
+    /// instance grid + selects the freshly-imported tile on success so the user can see the
+    /// result immediately.
+    /// </summary>
+    public async Task ImportMultiMcAsync()
+    {
+        if (_multiMcImporter is null)
+        {
+            Append(Strings.Error_MultiMcImporterUnavailable);
+            return;
+        }
+        if (_multiMcImportPickRequest is null)
+        {
+            Append(Strings.Error_MultiMcPickerUnavailable);
+            return;
+        }
+
+        string? source;
+        try
+        {
+            source = await _multiMcImportPickRequest(CancellationToken.None).ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not show MultiMC import picker: {ex.Message}");
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(source))
+        {
+            Append(Strings.Error_MultiMcImportCancelled);
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            Append($"[mmc] Importing MultiMC / Prism instance from {source} ...");
+            var progress = new Progress<double>(v =>
+            {
+                var pct = (int)(v * 100);
+                if (pct == 0 || pct == 100 || pct % 25 == 0) Append($"[mmc] Progress: {pct}%");
+            });
+
+            var imported = await _multiMcImporter.ImportAsync(source, overrideName: null, progress, CancellationToken.None).ConfigureAwait(true);
+            await _service.SaveInstanceAsync(imported, CancellationToken.None).ConfigureAwait(true);
+            await RefreshInstancesAsync().ConfigureAwait(true);
+
+            // Pick the freshly-imported tile so the user sees the result lit up immediately.
+            var match = Instances.FirstOrDefault(i => i.Id == imported.Id);
+            if (match is not null) SelectedInstance = match;
+
+            var loaderLabel = imported.Loader == ModLoader.None ? "vanilla" : imported.Loader.ToString();
+            Append(string.Format(Strings.MultiMc_ImportedSuccessfully, imported.Name, imported.VersionId, loaderLabel, source));
+            _logger.Info($"MultiMC instance imported from {source}: {imported.Id} / {imported.Name} (MC {imported.VersionId}, {loaderLabel}).");
+        }
+        catch (InstanceImportException ex)
+        {
+            Append($"[error] Could not import MultiMC instance: {ex.Message}");
+            _logger.Warn($"MultiMC instance import rejected: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not import MultiMC instance: {ex.Message}");
+            _logger.Warn($"MultiMC instance import failed: {ex.Message}");
         }
         finally
         {

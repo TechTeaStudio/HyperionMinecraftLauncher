@@ -17,3 +17,11 @@ public delegate Task<string?> InstanceExportZipPickRequest(string suggestedFileN
 /// user cancelled.
 /// </summary>
 public delegate Task<string?> InstanceImportZipPickRequest(CancellationToken cancellationToken);
+
+/// <summary>
+/// Delegate the View injects so the view-model can ask the user to pick either a
+/// MultiMC / Prism instance <c>.zip</c> file OR an unzipped instance folder. The View
+/// shows whatever flow is most natural for the host platform (a chooser dialog with two
+/// buttons; the picked path is the return value, or <c>null</c> when cancelled).
+/// </summary>
+public delegate Task<string?> MultiMcImportPickRequest(CancellationToken cancellationToken);
