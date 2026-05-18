@@ -1298,6 +1298,47 @@ public sealed class MainViewModel : INotifyPropertyChanged
         return updated;
     }
 
+    /// <summary>
+    /// Persist a fully-edited instance record (name, icon, per-instance overrides) from the
+    /// Edit Instance dialog. Refuses auto-imported instances so the dialog never accidentally
+    /// writes a sibling JSON beside the official launcher's <c>versions/</c> folder.
+    /// Returns the persisted record on success, <c>null</c> when refused.
+    /// </summary>
+    public async Task<Instance?> ApplyEditedInstanceAsync(Instance original, Instance edited)
+    {
+        ArgumentNullException.ThrowIfNull(original);
+        ArgumentNullException.ThrowIfNull(edited);
+
+        if (original.IsAutoImported)
+        {
+            Append("Cannot edit an auto-imported instance.");
+            return null;
+        }
+
+        // Keep the immutable identity fields no matter what the dialog returned.
+        var updated = edited with
+        {
+            Id = original.Id,
+            CreatedAt = original.CreatedAt,
+            IsAutoImported = false,
+            LastPlayedAt = original.LastPlayedAt,
+        };
+
+        await _service.SaveInstanceAsync(updated, CancellationToken.None);
+
+        var idx = Instances.IndexOf(original);
+        if (idx >= 0)
+        {
+            Instances[idx] = updated;
+            if (ReferenceEquals(SelectedInstance, original))
+                SelectedInstance = updated;
+        }
+
+        _logger.Info($"Instance {updated.Id} ({updated.Name}) edited.");
+        Append($"Saved changes to '{updated.Name}'.");
+        return updated;
+    }
+
     private async Task SaveSettingsAsync()
     {
         if (_settingsStore is null) return;
