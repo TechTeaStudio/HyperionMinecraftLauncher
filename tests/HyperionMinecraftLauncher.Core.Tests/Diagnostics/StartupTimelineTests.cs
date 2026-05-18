@@ -141,6 +141,29 @@ public class StartupTimelineTests : IDisposable
         Assert.Contains("TOTAL=", line);
     }
 
+    [Fact]
+    public void ReportTo_DeactivatesTimeline_SoLaterMarksAreNoOps()
+    {
+        // v0.32.1: RunStartupRefreshesAsync calls ReportTo right after the gating WhenAll, then
+        // spawns deferred work. Verify that any subsequent Record/Mark calls do NOT silently
+        // mutate the already-emitted entries list.
+        var logger = new RecordingLogger();
+        StartupTimeline.Begin();
+        StartupTimeline.Mark("dispatcher");
+        StartupTimeline.ReportTo(logger);
+
+        var emittedAtReport = logger.InfoEntries[0];
+
+        // Anything after ReportTo must be ignored by the timeline.
+        StartupTimeline.Record("ms-auth", 9999);
+        StartupTimeline.Mark("late-mark");
+
+        var lineAfter = StartupTimeline.Report();
+        Assert.Equal(emittedAtReport, lineAfter);
+        Assert.DoesNotContain("ms-auth", lineAfter);
+        Assert.DoesNotContain("late-mark", lineAfter);
+    }
+
     private sealed class RecordingLogger : ILauncherLogger
     {
         public System.Collections.Generic.List<string> InfoEntries { get; } = new();

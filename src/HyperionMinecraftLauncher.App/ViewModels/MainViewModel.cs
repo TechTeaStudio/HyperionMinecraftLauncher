@@ -217,11 +217,14 @@ public sealed class MainViewModel : INotifyPropertyChanged
         if (_microsoftAuth is not null)
             _microsoftAuth.DeviceCodeRequested += OnDeviceCodeRequested;
 
-        // Load persisted settings synchronously - the file is small. Defaults if absent / corrupt.
-        var initial = settingsStore is null
-            ? new LauncherSettings()
-            : settingsStore.LoadAsync(CancellationToken.None).GetAwaiter().GetResult();
-        ApplySettings(initial);
+        // v0.32.1 (T-startup-perf): settings used to be read synchronously in the ctor (~30 ms
+        // file read + JSON parse on a cold disk). The first paint of the main window has no
+        // dependency on these values - the memory/jvm/locale defaults are sane enough for the
+        // bound controls until ApplyLoadedSettingsAsync re-applies the real values during
+        // RunStartupRefreshesAsync. Tests that need specific values can still call
+        // ApplyLoadedSettingsAsync directly (or use the synchronous ApplySettings overload on
+        // an injected LauncherSettings).
+        ApplySettings(new LauncherSettings());
 
         AvailableVersions = new ObservableCollection<VersionMetadata>();
         FilteredVersions = new ObservableCollection<VersionMetadata>();
@@ -858,6 +861,26 @@ public sealed class MainViewModel : INotifyPropertyChanged
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// v0.32.1 (T-startup-perf): async wrapper that reads persisted <see cref="LauncherSettings"/>
+    /// from disk (if a store was injected) and pushes the values into the view-model. Failures
+    /// fall back to defaults so a corrupt settings.json never blocks startup. Public so the
+    /// View / tests can call it explicitly after deferring it from the ctor.
+    /// </summary>
+    public async Task ApplyLoadedSettingsAsync(CancellationToken cancellationToken = default)
+    {
+        if (_settingsStore is null) return;
+        try
+        {
+            var loaded = await _settingsStore.LoadAsync(cancellationToken).ConfigureAwait(true);
+            ApplySettings(loaded);
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn($"Could not load persisted settings ({ex.Message}); keeping defaults.");
+        }
+    }
+
     private void ApplySettings(LauncherSettings s)
     {
         _maxMemoryMb = Math.Clamp(s.MaximumRamMb, 512, _maxAllowedMemoryMb);
@@ -1240,6 +1263,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     public async Task RunStartupRefreshesAsync()
     {
+        // v0.32.1 (T-startup-perf): settings load was previously synchronous in the ctor; now
+        // it runs once here, asynchronously, before any refresh kicks off. The VM was
+        // initialised with default LauncherSettings so bound controls already had something
+        // to render; this overwrite brings in the user's persisted memory / jvm / locale prefs.
+        await ApplyLoadedSettingsAsync().ConfigureAwait(true);
+
         // Announce idle to Discord (no-op when RPC is disabled or Discord isn't running).
         // v0.32.1: presence is now a DeferredPresenceService proxy, so SetIdle records the
         // call and replays it once Discord IPC finishes handshaking on its background thread.
