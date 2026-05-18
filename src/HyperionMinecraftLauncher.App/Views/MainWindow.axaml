@@ -615,32 +615,44 @@
                     <!-- Discoverability fallback: small overflow button in the bottom-right
                          corner of every user-created tile. Opens a menu mirroring the right-click
                          context menu (change icon, export, open folder, delete). Hidden on
-                         auto-imported tiles. -->
-                    <Button Content="..."
+                         auto-imported tiles.
+
+                         Bug 4 (v0.32.0): the button was invisible against the previous frosted
+                         palette and the MenuFlyout's MenuItems lost their DataContext (Avalonia
+                         hosts the Flyout in a separate popup root, so {Binding} on a MenuItem
+                         resolves to null and the click handler short-circuited). Fixed by
+                         repainting the button against the new Minecraft surface (#3C8527 green
+                         pill with a pixel-style dark outline) and routing the MenuItem Tag
+                         through the Button's own Tag via $parent[Button].Tag, which works
+                         across the popup boundary because it's a name lookup, not a tree walk. -->
+                    <Button x:Name="InstanceMoreButton"
+                            Content="..."
                             Tag="{Binding}"
                             ToolTip.Tip="{x:Static loc:Strings.Installations_MoreTooltip}"
-                            Padding="6,0"
-                            MinWidth="22" Height="20"
-                            FontSize="11"
+                            Padding="0"
+                            Width="26" Height="22"
+                            FontSize="12" FontWeight="Bold"
                             HorizontalAlignment="Right" VerticalAlignment="Top"
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                             Margin="0,4,4,0"
-                            Background="#66000000" Foreground="White"
-                            BorderThickness="0" CornerRadius="3"
+                            Background="#3C8527" Foreground="White"
+                            BorderBrush="#000000" BorderThickness="1"
+                            CornerRadius="3"
                             IsVisible="{Binding !IsAutoImported}">
                       <Button.Flyout>
                         <MenuFlyout>
                           <MenuItem Header="{x:Static loc:Strings.Installations_MenuChangeIcon}"
                                     Click="OnChangeIconMenuClicked"
-                                    Tag="{Binding}" />
+                                    Tag="{Binding #InstanceMoreButton.Tag}" />
                           <MenuItem Header="{x:Static loc:Strings.Installations_MenuExportToZip}"
                                     Click="OnExportInstanceMenuClicked"
-                                    Tag="{Binding}" />
+                                    Tag="{Binding #InstanceMoreButton.Tag}" />
                           <MenuItem Header="{x:Static loc:Strings.Installations_MenuOpenFolder}"
                                     Click="OnOpenInstanceFolderMenuClicked"
-                                    Tag="{Binding}" />
+                                    Tag="{Binding #InstanceMoreButton.Tag}" />
                           <MenuItem Header="{x:Static loc:Strings.Installations_MenuDelete}"
                                     Click="OnDeleteInstanceMenuClicked"
-                                    Tag="{Binding}" />
+                                    Tag="{Binding #InstanceMoreButton.Tag}" />
                         </MenuFlyout>
                       </Button.Flyout>
                     </Button>
