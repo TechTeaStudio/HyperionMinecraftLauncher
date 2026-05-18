@@ -1,4 +1,4 @@
-<Window xmlns="https://github.com/avaloniaui"
+﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -149,7 +149,7 @@
           <Button.Flyout>
             <Flyout Placement="BottomEdgeAlignedRight" ShowMode="Transient">
               <Border Padding="6" MinWidth="280" Background="{DynamicResource MaterialPaperBrush}"
-                      CornerRadius="6">
+                      CornerRadius="15">
                 <StackPanel Spacing="3">
                   <TextBlock Text="ACCOUNTS"
                              FontFamily="{StaticResource MinecraftFont}" FontSize="10"
@@ -413,7 +413,7 @@
         </StackPanel>
 
         <!-- Instances (saved + auto-imported from .minecraft/versions/) -->
-        <Border Grid.Row="1" Padding="10" Margin="0,0,0,6" CornerRadius="6"
+        <Border Grid.Row="1" Padding="10" Margin="0,0,0,6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
             <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
@@ -440,7 +440,7 @@
         </Border>
 
         <!-- Manifest versions row -->
-        <Border Grid.Row="2" Padding="10" Margin="0,0,0,6" CornerRadius="6"
+        <Border Grid.Row="2" Padding="10" Margin="0,0,0,6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto,Auto">
             <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="4"
@@ -483,7 +483,7 @@
         </Border>
 
         <!-- Username + Launch row -->
-        <Border Grid.Row="3" Padding="10" Margin="0,0,0,8" CornerRadius="6"
+        <Border Grid.Row="3" Padding="10" Margin="0,0,0,8" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto">
             <Image Grid.Column="0" Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/steve_face.png"
@@ -510,7 +510,7 @@
         </Border>
 
         <!-- Log -->
-        <Border Grid.Row="4" BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1" CornerRadius="6"
+        <Border Grid.Row="4" BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1" CornerRadius="15"
                 Background="{DynamicResource MaterialBackgroundBrush}">
           <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <TextBox Text="{Binding LogText, Mode=OneWay}"
@@ -558,7 +558,7 @@
             </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>
               <DataTemplate DataType="instances:Instance">
-                <Border Width="130" Height="148" Margin="6" CornerRadius="6"
+                <Border Width="130" Height="148" Margin="6" CornerRadius="15"
                         Background="{DynamicResource MaterialPaperBrush}"
                         BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1"
                         Classes="Card"
@@ -622,7 +622,7 @@
         </ScrollViewer>
 
         <!-- Per-instance detail panel: screenshots / worlds / servers, scoped to the selected instance's gameDir. -->
-        <Border Grid.Row="3" Margin="0,8,0,0" Padding="8" CornerRadius="6"
+        <Border Grid.Row="3" Margin="0,8,0,0" Padding="8" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}"
                 BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1"
                 MinHeight="220"
@@ -656,7 +656,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                   <DataTemplate DataType="browsing:ScreenshotEntry">
-                    <Border Width="160" Height="118" Margin="4" CornerRadius="4"
+                    <Border Width="160" Height="118" Margin="4" CornerRadius="10"
                             Background="{DynamicResource MaterialBackgroundBrush}"
                             BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1"
                             Classes="Card"
@@ -745,7 +745,7 @@
         </StackPanel>
 
         <!-- Upload + cape picker row -->
-        <Border Grid.Row="1" Padding="10" Margin="0,0,0,6" CornerRadius="6"
+        <Border Grid.Row="1" Padding="10" Margin="0,0,0,6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <StackPanel Orientation="Horizontal" Spacing="10">
             <Button Content="Upload new skin..."
@@ -776,7 +776,7 @@
         </Border>
 
         <!-- Recent skins gallery (history) -->
-        <Border Grid.Row="2" Padding="6,8" Margin="0,0,0,6" CornerRadius="6"
+        <Border Grid.Row="2" Padding="6,8" Margin="0,0,0,6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <StackPanel Spacing="4">
             <TextBlock Text="Recent skins" FontWeight="SemiBold" FontSize="12" />
@@ -804,7 +804,7 @@
           </StackPanel>
         </Border>
 
-        <Border Grid.Row="3" CornerRadius="6"
+        <Border Grid.Row="3" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <controls:SkinPreview x:Name="SkinViewer" />
         </Border>
@@ -830,7 +830,7 @@
                   Command="{Binding RefreshServerPingsCommand}"
                   Padding="10,4" />
         </StackPanel>
-        <Border Grid.Row="2" Padding="6" CornerRadius="6"
+        <Border Grid.Row="2" Padding="6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <ListBox ItemsSource="{Binding Servers}"
                    Background="Transparent" BorderThickness="0">
@@ -891,7 +891,7 @@
                   Padding="10,5" />
         </StackPanel>
 
-        <Border Grid.Row="2" Padding="6" CornerRadius="6"
+        <Border Grid.Row="2" Padding="6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <ListBox ItemsSource="{Binding HeadlessServers}"
                    SelectedItem="{Binding SelectedHeadlessServer, Mode=TwoWay}"
@@ -937,7 +937,7 @@
         </StackPanel>
 
         <!-- Top search bar -->
-        <Border Grid.Row="1" Padding="10" Margin="0,0,0,6" CornerRadius="6"
+        <Border Grid.Row="1" Padding="10" Margin="0,0,0,6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <Grid ColumnDefinitions="Auto,Auto,*,Auto" RowDefinitions="Auto">
             <!-- Source toggle (Modrinth | CurseForge) -->
@@ -964,7 +964,7 @@
         <!-- Two-pane: results (left) + installed (right) -->
         <Grid Grid.Row="2" ColumnDefinitions="*,*">
           <!-- Search results -->
-          <Border Grid.Column="0" Padding="6" Margin="0,0,4,0" CornerRadius="6"
+          <Border Grid.Column="0" Padding="6" Margin="0,0,4,0" CornerRadius="15"
                   Background="{DynamicResource MaterialPaperBrush}">
             <Grid RowDefinitions="Auto,*">
               <TextBlock Grid.Row="0" Text="Search results"
@@ -975,7 +975,7 @@
                          Background="Transparent" BorderThickness="0">
                   <ListBox.ItemTemplate>
                     <DataTemplate DataType="mods:Mod">
-                      <Border Padding="6" Margin="2" CornerRadius="6"
+                      <Border Padding="6" Margin="2" CornerRadius="15"
                               Background="{DynamicResource MaterialBackgroundBrush}">
                         <Grid ColumnDefinitions="36,*,Auto">
                           <Image Grid.Column="0" Width="32" Height="32" Margin="0,0,8,0"
@@ -1000,7 +1000,7 @@
           </Border>
 
           <!-- Installed mods (requires instance) -->
-          <Border Grid.Column="1" Padding="6" Margin="4,0,0,0" CornerRadius="6"
+          <Border Grid.Column="1" Padding="6" Margin="4,0,0,0" CornerRadius="15"
                   Background="{DynamicResource MaterialPaperBrush}">
             <Grid RowDefinitions="Auto,*">
               <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="6,4">
@@ -1032,7 +1032,7 @@
                          Background="Transparent" BorderThickness="0">
                   <ListBox.ItemTemplate>
                     <DataTemplate DataType="mods:LocalMod">
-                      <Border Padding="6" Margin="2" CornerRadius="6"
+                      <Border Padding="6" Margin="2" CornerRadius="15"
                               Background="{DynamicResource MaterialBackgroundBrush}">
                         <Grid ColumnDefinitions="Auto,*,Auto,Auto">
                           <CheckBox Grid.Column="0" IsChecked="{Binding IsEnabled, Mode=OneWay}"
@@ -1072,13 +1072,13 @@
         <Button Grid.Row="1" Content="Refresh news" FontSize="11"
                 Command="{Binding RefreshNewsCommand}"
                 Padding="10,4" HorizontalAlignment="Left" Margin="0,0,0,6" />
-        <Border Grid.Row="2" Padding="6" CornerRadius="6"
+        <Border Grid.Row="2" Padding="6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <ScrollViewer VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding News}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                  <Border Margin="0,0,0,8" Padding="10" CornerRadius="6"
+                  <Border Margin="0,0,0,8" Padding="10" CornerRadius="15"
                           Background="{DynamicResource MaterialBackgroundBrush}">
                     <Grid ColumnDefinitions="80,*" RowDefinitions="Auto,Auto,Auto,Auto">
                       <Image Grid.RowSpan="4" Grid.Column="0"
@@ -1122,7 +1122,7 @@
           <StackPanel Spacing="8">
 
             <!-- Memory -->
-            <Border Padding="10" Classes="Card" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Memory (JVM heap)" FontWeight="SemiBold" FontSize="12" />
 
@@ -1159,7 +1159,7 @@
             </Border>
 
             <!-- JVM args -->
-            <Border Padding="10" Classes="Card" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Custom JVM arguments" FontWeight="SemiBold" FontSize="12" />
                 <TextBox Text="{Binding JvmArguments, Mode=TwoWay}"
@@ -1172,7 +1172,7 @@
             </Border>
 
             <!-- Game directory -->
-            <Border Padding="10" Classes="Card" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Game directory" FontWeight="SemiBold" FontSize="12" />
                 <Grid ColumnDefinitions="*,Auto">
@@ -1185,7 +1185,7 @@
             </Border>
 
             <!-- Java executable -->
-            <Border Padding="10" Classes="Card" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Java executable" FontWeight="SemiBold" FontSize="12" />
                 <Grid ColumnDefinitions="*,Auto">
@@ -1198,7 +1198,7 @@
             </Border>
 
             <!-- Launcher prefs -->
-            <Border Padding="10" Classes="Card" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Launcher preferences" FontWeight="SemiBold" FontSize="12" />
                 <CheckBox IsChecked="{Binding KeepLauncherOpen, Mode=TwoWay}" FontSize="11"
@@ -1245,7 +1245,7 @@
         </Grid>
 
         <!-- Log viewer -->
-        <Border Grid.Row="2" BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1" CornerRadius="6"
+        <Border Grid.Row="2" BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1" CornerRadius="15"
                 Background="{DynamicResource MaterialBackgroundBrush}">
           <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <TextBox Text="{Binding FilteredLogText, Mode=OneWay}"
@@ -1323,9 +1323,16 @@
       <Setter Property="Background" Value="#E81123" />
     </Style>
 
-    <!-- Launch button: scale + colour shift on hover, with a spring-y feel. -->
+    <!-- Launch button: liquid-glass bubble with a spring-y scale. The bubble gradient
+         + bubble shadow set make it sit "above" the page surface, matching the big
+         CTA bubble in the Flutter prototype. -->
     <Style Selector="Button.LaunchBtn">
       <Setter Property="RenderTransform" Value="scale(1)" />
+      <Setter Property="Background" Value="{DynamicResource LG.BubbleFillCombined}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LG.GlassRimStrong}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="{DynamicResource LG.RadiusButton}" />
+      <Setter Property="Foreground" Value="{DynamicResource LG.TextPrimary}" />
       <Setter Property="Transitions">
         <Transitions>
           <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.18" Easing="QuadraticEaseOut" />
@@ -1333,27 +1340,36 @@
         </Transitions>
       </Setter>
     </Style>
+    <Style Selector="Button.LaunchBtn /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="BoxShadow" Value="{DynamicResource LG.LaunchShadows}" />
+      <Setter Property="CornerRadius" Value="{DynamicResource LG.RadiusButton}" />
+    </Style>
     <Style Selector="Button.LaunchBtn:pointerover">
       <Setter Property="RenderTransform" Value="scale(1.05)" />
-      <Setter Property="Background" Value="{DynamicResource MaterialPrimaryLightBrush}" />
+      <Setter Property="Background" Value="{DynamicResource LG.BubbleFillHover}" />
     </Style>
     <Style Selector="Button.LaunchBtn:pressed">
       <Setter Property="RenderTransform" Value="scale(0.97)" />
     </Style>
 
-    <!-- Card hover: subtle lift + brighter surface. Borders tagged Classes="Card" get this. -->
+    <!-- Card hover: subtle lift + a soft rim glow. Borders tagged Classes="Card" pick this
+         up; the LiquidGlass gradient background is set inline on the Border itself or
+         via DynamicResource MaterialPaperBrush (which has been aliased to the glass
+         gradient at the Window level). -->
     <Style Selector="Border.Card">
       <Setter Property="RenderTransform" Value="translate(0px,0px)" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LG.GlassRim}" />
+      <Setter Property="BorderThickness" Value="1" />
       <Setter Property="Transitions">
         <Transitions>
           <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.16" Easing="QuadraticEaseOut" />
-          <BrushTransition Property="Background" Duration="0:0:0.16" />
+          <BrushTransition Property="BorderBrush" Duration="0:0:0.16" />
         </Transitions>
       </Setter>
     </Style>
     <Style Selector="Border.Card:pointerover">
       <Setter Property="RenderTransform" Value="translate(0px,-2px)" />
-      <Setter Property="Background" Value="#E6262B30" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LG.GlassRimStrong}" />
     </Style>
 
     <!-- Avatar tilts on hover so the chip feels alive. -->
@@ -1563,3 +1579,4 @@
   </Window.Styles>
 
 </Window>
+
