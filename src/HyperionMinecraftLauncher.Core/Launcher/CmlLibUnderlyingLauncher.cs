@@ -139,10 +139,38 @@ public sealed class CmlLibUnderlyingLauncher : IUnderlyingLauncher
         if (request.MinimumRamMb is int min) options.MinimumRamMb = min;
         if (request.MaximumRamMb is int max) options.MaximumRamMb = max;
 
+        // Quick Play: append the corresponding Minecraft 1.20+ game arguments. CmlLib 4.0.6
+        // exposes QuickPlaySingleplayer/Realms/Path on MLaunchOption but no Multiplayer property
+        // (the legacy --server/--port pair lives on ServerIp/ServerPort and Minecraft 1.20+ prefers
+        // the unified --quickPlayMultiplayer host:port flag). We project both branches into
+        // ExtraGameArguments so the args are appended literally regardless of which feature
+        // gates the version manifest declares.
+        var extraArgs = BuildQuickPlayArgs(request.QuickPlay);
+        if (extraArgs.Count > 0)
+        {
+            var marshalled = new List<MArgument>(extraArgs.Count);
+            foreach (var s in extraArgs) marshalled.Add(new MArgument(s));
+            options.ExtraGameArguments = marshalled;
+        }
+
         var process = await _launcher.BuildProcessAsync(request.VersionName, options, cancellationToken).ConfigureAwait(false);
         process.Start();
         return process.Id;
     }
+
+    /// <summary>
+    /// Translate a <see cref="QuickPlay"/> target into the matching Minecraft 1.20+ game-arg pair.
+    /// Returns an empty list for <see cref="QuickPlay.None"/>.
+    /// </summary>
+    /// <remarks>
+    /// Public for unit testing the arg-emission rules without needing a real CmlLib process build.
+    /// </remarks>
+    public static IReadOnlyList<string> BuildQuickPlayArgs(QuickPlay quickPlay) => quickPlay switch
+    {
+        QuickPlay.Multiplayer mp => new[] { "--quickPlayMultiplayer", $"{mp.Host}:{mp.Port}" },
+        QuickPlay.Singleplayer sp => new[] { "--quickPlaySingleplayer", sp.WorldFolderName },
+        _ => Array.Empty<string>(),
+    };
 
     private static string StageFromInstallerEvent(InstallerEventType type) => type switch
     {
