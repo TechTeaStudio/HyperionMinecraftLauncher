@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
+using TechTeaStudio.HyperionMinecraftLauncher.App.Localization;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Diagnostics;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Backups;
@@ -1120,7 +1121,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IsBusy = true;
         try
         {
-            Append("Loading version manifest ...");
+            Append(Strings.Log_LoadingVersionManifest);
             var versions = await _service.ListVersionsAsync(CancellationToken.None);
 
             AvailableVersions.Clear();
@@ -1131,7 +1132,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             // now that the source list has new entries.
             ApplyVersionFilter();
 
-            Append($"Loaded {versions.Count} versions.");
+            Append(string.Format(Strings.Log_LoadedNVersions, versions.Count));
             _logger.Info($"Version manifest refreshed ({versions.Count} entries).");
         }
         catch (LauncherException ex)
@@ -1165,7 +1166,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         //   {versions, instances+installedVersions, profiles, servers, news, accounts, skinHistory}
         //   run concurrently (no shared state writes); ms-auth silent sign-in then runs sequentially
         //   after the batch (it consumes _activeAccount from the accounts refresh).
-        Append("Auto-refreshing on startup ...");
+        Append(Strings.Log_AutoRefreshingOnStartup);
         await Task.WhenAll(
             TimedAsync("versions", RefreshVersionsAsync),
             TimedAsync("instances", RefreshInstancesAsync),
@@ -1183,12 +1184,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             try
             {
-                Append("Silent Microsoft sign-in (cached refresh token) ...");
+                Append(Strings.Log_SilentMsSignInAttempt);
                 if (_activeAccount is { IsOffline: false, Id.Length: > 0 } active)
                     CurrentSession = await _microsoftAuth.SignInSilentlyAsync(active.Id, CancellationToken.None);
                 else
                     CurrentSession = await _microsoftAuth.SignInSilentlyAsync(CancellationToken.None);
-                Append($"Auto-signed in as '{CurrentSession.Username}'.");
+                Append(string.Format(Strings.Log_AutoSignedInAs, CurrentSession.Username));
                 // Populate OwnedSkins + OwnedCapes from the Mojang profile so the Skins
                 // page is fully populated before the user clicks anywhere.
                 await TryRefreshProfileAsync(CurrentSession.AccessToken);
@@ -1199,7 +1200,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             {
                 // Refresh token expired or no cache - leave the user signed out, they can
                 // click Sign in manually to trigger the device-code flow.
-                Append($"Silent sign-in skipped: {ex.Message}");
+                Append(string.Format(Strings.Log_SilentSignInSkipped, ex.Message));
             }
         }
         msAuthSw.Stop();
@@ -1396,7 +1397,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IsBusy = true;
         try
         {
-            Append("Loading instances ...");
+            Append(Strings.Log_LoadingInstances);
             var saved = await _service.ListInstancesAsync(CancellationToken.None);
             var installed = await _service.ListInstalledVersionsAsync(CancellationToken.None);
 
@@ -1458,7 +1459,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             // Auto-imported instances aren't in our store; the version folder belongs to
             // the official launcher and we leave it alone. The Delete button's CanExecute
             // already blocks this path, but the guard keeps the method honest.
-            Append("Cannot delete an auto-imported instance (it lives under .minecraft/versions/).");
+            Append(Strings.Error_CannotDeleteAutoImported);
             return;
         }
         IsBusy = true;
@@ -1538,7 +1539,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     {
         if (_modpackImporter is null)
         {
-            Append("[error] Modpack import is disabled in this build (no importer wired).");
+            Append(Strings.Error_ModpackImporterDisabled);
             return null;
         }
         if (string.IsNullOrWhiteSpace(archivePath) || !File.Exists(archivePath))
@@ -1570,7 +1571,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
         catch (OperationCanceledException)
         {
-            Append("Modpack import cancelled.");
+            Append(Strings.Error_ModpackImportCancelled);
             return null;
         }
         catch (Exception ex)
@@ -1631,7 +1632,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             // Caller (the View) gates the menu item, but the VM keeps the same guard so the
             // contract is enforced regardless of which surface invokes it.
-            Append("Cannot change the icon of an auto-imported instance.");
+            Append(Strings.Error_CannotChangeAutoImportedIcon);
             return null;
         }
 
@@ -1677,19 +1678,19 @@ public sealed class MainViewModel : INotifyPropertyChanged
         ArgumentNullException.ThrowIfNull(instance);
         if (_instanceExporter is null)
         {
-            Append("[error] Instance export is not available.");
+            Append(Strings.Error_InstanceExportUnavailable);
             return;
         }
         if (instance.IsAutoImported)
         {
             // Auto-imported instances live under .minecraft/versions/ and we don't own
             // their JSON record - share isn't meaningful here.
-            Append("[error] Cannot export an auto-imported instance.");
+            Append(Strings.Error_CannotExportAutoImported);
             return;
         }
         if (_exportZipPickRequest is null)
         {
-            Append("[error] Export file picker is not available.");
+            Append(Strings.Error_ExportPickerUnavailable);
             return;
         }
 
@@ -1706,7 +1707,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
         if (string.IsNullOrWhiteSpace(destination))
         {
-            Append("Instance export cancelled.");
+            Append(Strings.Error_InstanceExportCancelled);
             return;
         }
 
@@ -1748,12 +1749,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
     {
         if (_instanceImporter is null)
         {
-            Append("[error] Instance import is not available.");
+            Append(Strings.Error_InstanceImportUnavailable);
             return;
         }
         if (_importZipPickRequest is null)
         {
-            Append("[error] Import file picker is not available.");
+            Append(Strings.Error_ImportPickerUnavailable);
             return;
         }
 
@@ -1769,7 +1770,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
         if (string.IsNullOrWhiteSpace(source))
         {
-            Append("Instance import cancelled.");
+            Append(Strings.Error_InstanceImportCancelled);
             return;
         }
 
@@ -1834,7 +1835,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
         if (original.IsAutoImported)
         {
-            Append("Cannot edit an auto-imported instance.");
+            Append(Strings.Error_CannotEditAutoImported);
             return null;
         }
 
@@ -1868,13 +1869,13 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IsBusy = true;
         try
         {
-            Append("Saving settings ...");
+            Append(Strings.Log_SavingSettings);
             await _settingsStore.SaveAsync(BuildSettings(), CancellationToken.None);
-            Append($"Settings saved (Xms={MinMemoryMb}M, Xmx={MaxMemoryMb}M).");
+            Append(string.Format(Strings.Log_SettingsSaved, MinMemoryMb, MaxMemoryMb));
         }
         catch (Exception ex)
         {
-            Append($"[error] Could not save settings: {ex.Message}");
+            Append(string.Format(Strings.Log_CouldNotSaveSettings, ex.Message));
         }
         finally
         {
@@ -1887,7 +1888,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IsBusy = true;
         try
         {
-            Append("Fetching Minecraft news ...");
+            Append(Strings.Log_FetchingNews);
             var news = await _service.ListNewsAsync(CancellationToken.None);
 
             // T18: Mojang's feed is already newest-first, so we DON'T re-sort here. If you add an
@@ -1897,7 +1898,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             foreach (var n in news)
                 News.Add(n);
 
-            Append($"Loaded {news.Count} news articles.");
+            Append(string.Format(Strings.Log_LoadedNNewsArticles, news.Count));
         }
         catch (LauncherException ex)
         {
@@ -1914,14 +1915,14 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IsBusy = true;
         try
         {
-            Append("Reading servers.dat ...");
+            Append(Strings.Log_ReadingServersDat);
             var servers = await _service.ListServersAsync(CancellationToken.None);
 
             Servers.Clear();
             foreach (var s in servers)
                 Servers.Add(new ServerListItemViewModel(s));
 
-            Append($"Loaded {servers.Count} servers.");
+            Append(string.Format(Strings.Log_LoadedNServers, servers.Count));
             RefreshServerPingsCommand.RaiseCanExecuteChanged();
         }
         catch (LauncherException ex)
@@ -1984,14 +1985,14 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IsBusy = true;
         try
         {
-            Append("Reading launcher_profiles.json ...");
+            Append(Strings.Log_ReadingLauncherProfiles);
             var profiles = await _service.ListProfilesAsync(CancellationToken.None);
 
             Profiles.Clear();
             foreach (var p in profiles)
                 Profiles.Add(p);
 
-            Append($"Loaded {profiles.Count} profiles from launcher_profiles.json.");
+            Append(string.Format(Strings.Log_LoadedNProfiles, profiles.Count));
         }
         catch (LauncherException ex)
         {
@@ -2008,14 +2009,14 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IsBusy = true;
         try
         {
-            Append("Scanning installed versions ...");
+            Append(Strings.Log_ScanningInstalledVersions);
             var versions = await _service.ListInstalledVersionsAsync(CancellationToken.None);
 
             InstalledVersions.Clear();
             foreach (var v in versions)
                 InstalledVersions.Add(v);
 
-            Append($"Found {versions.Count} installed versions.");
+            Append(string.Format(Strings.Log_FoundNInstalledVersions, versions.Count));
             _logger.Info($"Installed versions scanned ({versions.Count} entries).");
         }
         catch (LauncherException ex)
@@ -2042,7 +2043,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         // re-raised DeviceCodeRequested fires on the dispatcher thread (View opens a modal).
         Avalonia.Threading.Dispatcher.UIThread.Post(() =>
         {
-            Append($"Microsoft sign-in: enter code {info.UserCode} at {info.VerificationUrl}");
+            Append(string.Format(Strings.Log_MicrosoftSignInPrompt, info.UserCode, info.VerificationUrl));
             DeviceCodeRequested?.Invoke(this, info);
         });
     }
@@ -2052,13 +2053,13 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IsBusy = true;
         try
         {
-            Append("Signing in with Microsoft ...");
+            Append(Strings.Log_SigningInWithMicrosoft);
             var auth = await _service.AuthenticateAsync(
                 new AuthRequest { Mode = AuthMode.Microsoft, Username = string.Empty },
                 CancellationToken.None);
 
             CurrentSession = auth;
-            Append($"Signed in as '{auth.Username}'.");
+            Append(string.Format(Strings.Log_SignedInAs, auth.Username));
             _logger.Info($"UI: Microsoft sign-in succeeded for '{auth.Username}'.");
 
             // Populate OwnedSkins / OwnedCapes from the Mojang profile so the Skins page
@@ -2093,7 +2094,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             _suppressCapeSelectionWrite = true;
             try { SelectedActiveCape = null; }
             finally { _suppressCapeSelectionWrite = false; }
-            Append("Signed out.");
+            Append(Strings.Log_SignedOut);
             _logger.Info("UI: signed out.");
         }
         finally
@@ -2167,12 +2168,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
     {
         if (_skinService is null || _currentSession is not { IsOffline: false } online)
         {
-            Append("[error] Skin operations require a Microsoft account.");
+            Append(Strings.Error_NoSession);
             return;
         }
         if (_skinPickRequest is null)
         {
-            Append("[error] Skin picker is not available.");
+            Append(Strings.Error_SkinPickerUnavailable);
             return;
         }
 
@@ -2191,7 +2192,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             }
             if (picked is null)
             {
-                Append("Skin upload cancelled.");
+                Append(Strings.Error_SkinUploadCancelled);
                 return;
             }
 
@@ -2254,7 +2255,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     {
         if (_skinService is null || _currentSession is not { IsOffline: false } online)
         {
-            Append("[error] Cape operations require a Microsoft account.");
+            Append(Strings.Error_CapeOpsRequireMsAccount);
             return;
         }
 
@@ -2280,7 +2281,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     {
         if (_skinService is null || _currentSession is not { IsOffline: false } online)
         {
-            Append("[error] Cape operations require a Microsoft account.");
+            Append(Strings.Error_CapeOpsRequireMsAccount);
             return;
         }
 
@@ -2307,7 +2308,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         if (entry is null) return;
         if (_skinService is null || _currentSession is not { IsOffline: false } online)
         {
-            Append("[error] Skin operations require a Microsoft account.");
+            Append(Strings.Error_NoSession);
             return;
         }
 
@@ -2716,13 +2717,13 @@ public sealed class MainViewModel : INotifyPropertyChanged
         var repo = GetActiveModRepository();
         if (repo is null)
         {
-            Append("[mods] No repository configured for the selected source.");
+            Append(Strings.Log_ModsNoRepository);
             return;
         }
         IsBusy = true;
         try
         {
-            Append($"Searching {SelectedModSource} for '{ModSearchTerm}' ...");
+            Append(string.Format(Strings.Log_ModsSearching, SelectedModSource, ModSearchTerm));
             var query = new ModSearchQuery
             {
                 Query = ModSearchTerm,
@@ -2734,7 +2735,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             ModSearchResults.Clear();
             foreach (var m in hits)
                 ModSearchResults.Add(m);
-            Append($"[mods] {hits.Count} result(s).");
+            Append(string.Format(Strings.Log_ModsResultsCount, hits.Count));
         }
         catch (Exception ex)
         {
@@ -2758,24 +2759,24 @@ public sealed class MainViewModel : INotifyPropertyChanged
         });
         if (repo is null)
         {
-            Append("[mods] No repository available to install this mod.");
+            Append(Strings.Log_ModsNoRepositoryForInstall);
             return;
         }
         IsBusy = true;
         try
         {
-            Append($"Resolving files for '{mod.Name}' ({inst.VersionId} / {inst.Loader}) ...");
+            Append(string.Format(Strings.Log_ModsResolvingFiles, mod.Name, inst.VersionId, inst.Loader));
             var files = await repo.ListFilesAsync(mod.Id, inst.VersionId, inst.Loader == ModLoader.None ? null : inst.Loader, CancellationToken.None);
             if (files.Count == 0)
             {
-                Append("[mods] No matching files for this instance.");
+                Append(Strings.Log_ModsNoMatchingFiles);
                 return;
             }
             var file = files[0];
-            Append($"Installing '{file.Filename ?? file.DisplayName}' into '{inst.Name}' ...");
+            Append(string.Format(Strings.Log_ModsInstalling, file.Filename ?? file.DisplayName, inst.Name));
             await _instanceModManager.InstallAsync(inst, file, repo, CancellationToken.None);
             await RefreshInstalledModsAsync();
-            Append("[mods] Install complete.");
+            Append(Strings.Log_ModsInstallComplete);
         }
         catch (Exception ex)
         {
@@ -2797,7 +2798,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             InstalledMods.Clear();
             foreach (var m in list)
                 InstalledMods.Add(m);
-            Append($"[mods] {list.Count} installed in '{inst.Name}'.");
+            Append(string.Format(Strings.Log_ModsInstalledInInstance, list.Count, inst.Name));
         }
         catch (Exception ex)
         {
@@ -2838,7 +2839,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             await _instanceModManager.RemoveAsync(inst, victim.Filename, CancellationToken.None);
             await RefreshInstalledModsAsync();
-            Append($"[mods] Removed '{victim.Filename}'.");
+            Append(string.Format(Strings.Log_ModsRemoved, victim.Filename));
         }
         catch (Exception ex)
         {

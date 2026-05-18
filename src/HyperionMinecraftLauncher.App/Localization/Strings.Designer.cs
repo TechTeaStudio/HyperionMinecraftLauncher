@@ -319,4 +319,56 @@ public static class Strings
     public static string ImportModpackDialog_InstanceNameWatermark => L("ImportModpackDialog.InstanceNameWatermark");
     public static string ImportModpackDialog_Hint => L("ImportModpackDialog.Hint");
     public static string ImportModpackDialog_ImportButton => L("ImportModpackDialog.ImportButton");
+
+    // ViewModel log messages
+    public static string Log_AutoRefreshingOnStartup => L("Log.AutoRefreshingOnStartup");
+    public static string Log_SilentMsSignInAttempt => L("Log.SilentMsSignInAttempt");
+    public static string Log_AutoSignedInAs => L("Log.AutoSignedInAs");
+    public static string Log_SilentSignInSkipped => L("Log.SilentSignInSkipped");
+    public static string Log_LoadingVersionManifest => L("Log.LoadingVersionManifest");
+    public static string Log_LoadedNVersions => L("Log.LoadedNVersions");
+    public static string Log_LoadingInstances => L("Log.LoadingInstances");
+    public static string Log_FetchingNews => L("Log.FetchingNews");
+    public static string Log_LoadedNNewsArticles => L("Log.LoadedNNewsArticles");
+    public static string Log_ReadingServersDat => L("Log.ReadingServersDat");
+    public static string Log_LoadedNServers => L("Log.LoadedNServers");
+    public static string Log_ReadingLauncherProfiles => L("Log.ReadingLauncherProfiles");
+    public static string Log_LoadedNProfiles => L("Log.LoadedNProfiles");
+    public static string Log_ScanningInstalledVersions => L("Log.ScanningInstalledVersions");
+    public static string Log_FoundNInstalledVersions => L("Log.FoundNInstalledVersions");
+    public static string Log_SigningInWithMicrosoft => L("Log.SigningInWithMicrosoft");
+    public static string Log_SignedInAs => L("Log.SignedInAs");
+    public static string Log_MicrosoftSignInPrompt => L("Log.MicrosoftSignInPrompt");
+    public static string Log_SignedOut => L("Log.SignedOut");
+    public static string Log_SavingSettings => L("Log.SavingSettings");
+    public static string Log_SettingsSaved => L("Log.SettingsSaved");
+    public static string Log_CouldNotSaveSettings => L("Log.CouldNotSaveSettings");
+    public static string Log_ModsNoRepository => L("Log.ModsNoRepository");
+    public static string Log_ModsSearching => L("Log.ModsSearching");
+    public static string Log_ModsResultsCount => L("Log.ModsResultsCount");
+    public static string Log_ModsNoRepositoryForInstall => L("Log.ModsNoRepositoryForInstall");
+    public static string Log_ModsResolvingFiles => L("Log.ModsResolvingFiles");
+    public static string Log_ModsNoMatchingFiles => L("Log.ModsNoMatchingFiles");
+    public static string Log_ModsInstalling => L("Log.ModsInstalling");
+    public static string Log_ModsInstallComplete => L("Log.ModsInstallComplete");
+    public static string Log_ModsInstalledInInstance => L("Log.ModsInstalledInInstance");
+    public static string Log_ModsRemoved => L("Log.ModsRemoved");
+
+    // Error messages
+    public static string Error_NoSession => L("Error.NoSession");
+    public static string Error_SkinPickerUnavailable => L("Error.SkinPickerUnavailable");
+    public static string Error_CapeOpsRequireMsAccount => L("Error.CapeOpsRequireMsAccount");
+    public static string Error_SkinUploadCancelled => L("Error.SkinUploadCancelled");
+    public static string Error_CannotDeleteAutoImported => L("Error.CannotDeleteAutoImported");
+    public static string Error_CannotChangeAutoImportedIcon => L("Error.CannotChangeAutoImportedIcon");
+    public static string Error_CannotEditAutoImported => L("Error.CannotEditAutoImported");
+    public static string Error_ModpackImporterDisabled => L("Error.ModpackImporterDisabled");
+    public static string Error_ModpackImportCancelled => L("Error.ModpackImportCancelled");
+    public static string Error_InstanceExportUnavailable => L("Error.InstanceExportUnavailable");
+    public static string Error_CannotExportAutoImported => L("Error.CannotExportAutoImported");
+    public static string Error_ExportPickerUnavailable => L("Error.ExportPickerUnavailable");
+    public static string Error_InstanceExportCancelled => L("Error.InstanceExportCancelled");
+    public static string Error_InstanceImportUnavailable => L("Error.InstanceImportUnavailable");
+    public static string Error_ImportPickerUnavailable => L("Error.ImportPickerUnavailable");
+    public static string Error_InstanceImportCancelled => L("Error.InstanceImportCancelled");
 }
