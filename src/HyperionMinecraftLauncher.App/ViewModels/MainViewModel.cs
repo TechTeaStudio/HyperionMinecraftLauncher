@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Backups;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
@@ -63,6 +64,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private bool _autoUpdateCheckEnabled;
     private readonly IHeadlessServerStore? _headlessServerStore;
     private HeadlessServer? _selectedHeadlessServer;
+    private readonly IBackupService? _backupService;
+    private bool _autoBackupBeforeLaunch;
+    private int _autoBackupKeepLatest;
 
     // Settings-page state (mirrored from LauncherSettings on load, written back on Save).
     private int _minMemoryMb;
@@ -137,7 +141,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IInstanceModManager? instanceModManager = null,
         IAccountStore? accountStore = null,
         IUpdateChecker? updateChecker = null,
-        IHeadlessServerStore? headlessServerStore = null)
+        IHeadlessServerStore? headlessServerStore = null,
+        IBackupService? backupService = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -155,6 +160,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _accountStore = accountStore;
         _updateChecker = updateChecker;
         _headlessServerStore = headlessServerStore;
+        _backupService = backupService;
         HeadlessServers = new ObservableCollection<HeadlessServer>();
         _maxAllowedMemoryMb = SystemRam.RecommendedMaxHeapMb();
 
@@ -651,6 +657,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _showGameLog = s.ShowGameLog;
         _sidebarCollapsed = s.SidebarCollapsed;
         _autoUpdateCheckEnabled = s.AutoUpdateCheckEnabled;
+        _autoBackupBeforeLaunch = s.AutoBackupBeforeLaunch;
+        _autoBackupKeepLatest = s.AutoBackupKeepLatest;
     }
 
     /// <summary>Snapshot the current VM state as a persistable <see cref="LauncherSettings"/>.</summary>
@@ -665,7 +673,23 @@ public sealed class MainViewModel : INotifyPropertyChanged
         ShowGameLog = _showGameLog,
         SidebarCollapsed = _sidebarCollapsed,
         AutoUpdateCheckEnabled = _autoUpdateCheckEnabled,
+        AutoBackupBeforeLaunch = _autoBackupBeforeLaunch,
+        AutoBackupKeepLatest = _autoBackupKeepLatest,
     };
+
+    /// <summary>If true, every launch zips the instance's worlds into <c>&lt;gameDir&gt;/backups/</c> first.</summary>
+    public bool AutoBackupBeforeLaunch
+    {
+        get => _autoBackupBeforeLaunch;
+        set => SetField(ref _autoBackupBeforeLaunch, value);
+    }
+
+    /// <summary>How many world backups to retain per world after pre-launch pruning. 0 = keep everything.</summary>
+    public int AutoBackupKeepLatest
+    {
+        get => _autoBackupKeepLatest;
+        set => SetField(ref _autoBackupKeepLatest, Math.Max(0, value));
+    }
 
     /// <summary>Currently-selected profile on the Installations page. Picking a profile pre-fills the launch context.</summary>
     public LauncherProfile? SelectedProfile
@@ -1899,6 +1923,14 @@ public sealed class MainViewModel : INotifyPropertyChanged
             var javaOverride = string.IsNullOrWhiteSpace(_javaExecutableOverride) ? null : _javaExecutableOverride;
             var javaRequirement = javaOverride is null ? JavaRequirementResolver.For(versionName) : (JavaRequirement?)null;
 
+            // Pre-launch world backup (T21f). Courtesy, not a blocker - any failure is logged and
+            // the launch proceeds. Only runs when the toggle is on, a backup service was injected,
+            // and the instance actually has at least one non-empty world to back up.
+            if (instance is { } toBackup && _autoBackupBeforeLaunch && _backupService is not null)
+            {
+                await BackupInstanceWorldsAsync(toBackup, CancellationToken.None).ConfigureAwait(true);
+            }
+
             Append($"Launching {versionName} (Xms={MinMemoryMb}M, Xmx={MaxMemoryMb}M) ...");
             var result = await _service.LaunchAsync(
                 new LaunchRequest
@@ -2000,6 +2032,57 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             Append($"[error] Could not list instance servers: {ex.Message}");
             InstanceServers = Array.Empty<ServerListEntry>();
+        }
+    }
+
+    /// <summary>
+    /// Zip every non-empty world under the instance's <c>saves/</c> and then prune to
+    /// <see cref="AutoBackupKeepLatest"/>. Stream the per-zip line into the launcher log
+    /// so the user sees what just got snapshotted. Failures are surfaced as <c>[warn]</c>
+    /// lines but never abort the caller.
+    /// </summary>
+    private async Task BackupInstanceWorldsAsync(Instance instance, CancellationToken cancellationToken)
+    {
+        if (_backupService is null) return;
+        try
+        {
+            // Fast-path: skip the whole dance when no worlds exist under saves/. Walking the
+            // browser also keeps us symmetric with the Worlds tab UI - same source of truth.
+            if (_instanceBrowser is not null)
+            {
+                var worlds = await _instanceBrowser.ListWorldsAsync(instance, cancellationToken).ConfigureAwait(false);
+                if (worlds.Count == 0) return;
+            }
+
+            Append("[backup] Snapshotting worlds before launch ...");
+            var produced = await _backupService.BackupAllWorldsAsync(instance, cancellationToken).ConfigureAwait(false);
+            foreach (var e in produced)
+            {
+                var mb = e.SizeBytes / 1024.0 / 1024.0;
+                var sizeLabel = mb >= 1
+                    ? $"{mb.ToString("0.#", CultureInfo.InvariantCulture)} MB"
+                    : $"{(e.SizeBytes / 1024.0).ToString("0.#", CultureInfo.InvariantCulture)} KB";
+                Append($"[backup] {Path.GetFileName(e.ArchivePath)} ({sizeLabel})");
+            }
+            if (produced.Count == 0)
+            {
+                // No worlds had any files - nothing zipped, nothing to prune.
+                return;
+            }
+            if (_autoBackupKeepLatest > 0)
+            {
+                await _backupService.PruneAsync(instance, _autoBackupKeepLatest, cancellationToken).ConfigureAwait(false);
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            // Courtesy, not a blocker - log and let the launch proceed.
+            Append($"[warn] Pre-launch backup failed: {ex.Message}");
+            _logger.Warn($"Pre-launch backup failed: {ex.Message}");
         }
     }
 
