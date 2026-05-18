@@ -11,6 +11,7 @@ using System.Net.Http;
 using System.Threading;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Diagnostics;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
@@ -38,6 +39,10 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        // T18: wall-clock timeline begins at the Avalonia "framework-init-completed" boundary so
+        // the "dispatcher" delta below reflects the time we spent wiring services + the first
+        // window. Subsequent checkpoints land in MainViewModel.RunStartupRefreshesAsync.
+        StartupTimeline.Begin();
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Manual constructor DI - no container. Mirrors the HhStoryGenerator pilot's wiring.
@@ -145,8 +150,13 @@ public partial class App : Application
             // Fire-and-forget: as soon as the dispatcher is idle after window construction,
             // populate Installed / Manifest / Profiles / Servers / News so the user doesn't
             // have to click five "Refresh" buttons before the launcher feels populated.
+            // The "dispatcher" checkpoint captures wall-clock time from Begin() in T18.
             Avalonia.Threading.Dispatcher.UIThread.Post(
-                () => _ = viewModel.RunStartupRefreshesAsync(),
+                () =>
+                {
+                    StartupTimeline.Mark("dispatcher");
+                    _ = viewModel.RunStartupRefreshesAsync();
+                },
                 Avalonia.Threading.DispatcherPriority.Background);
         }
 

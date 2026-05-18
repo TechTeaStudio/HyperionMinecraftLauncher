@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Diagnostics;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
@@ -987,11 +988,21 @@ public sealed class MainViewModel : INotifyPropertyChanged
         await ReloadHistoryAsync();
 
         Append("Auto-refreshing on startup ...");
-        await RefreshInstancesAsync();
-        await RefreshProfilesAsync();
-        await RefreshServersAsync();
-        await RefreshNewsAsync();
         await RefreshVersionsAsync();
+        StartupTimeline.Mark("versions");
+        await RefreshInstancesAsync();
+        StartupTimeline.Mark("instances");
+        await RefreshProfilesAsync();
+        StartupTimeline.Mark("profiles");
+        await RefreshServersAsync();
+        StartupTimeline.Mark("servers");
+        await RefreshNewsAsync();
+        StartupTimeline.Mark("news");
+
+        // ms-auth checkpoint is a no-op when no cached account is present, but recording it
+        // keeps the summary line shape stable across cold-cache vs. warm-cache startups.
+        StartupTimeline.Mark("ms-auth");
+        StartupTimeline.ReportTo(_logger);
 
         // T16: launcher update probe. Best-effort, runs after the heavy refreshes so a slow
         // GitHub round-trip doesn't delay the visible content. Disabled toggles or a missing
