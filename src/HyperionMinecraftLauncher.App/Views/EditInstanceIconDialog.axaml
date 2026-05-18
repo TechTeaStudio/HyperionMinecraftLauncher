@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.EditInstanceIconDialog"
         Title="{x:Static loc:Strings.EditInstanceIconDialog_Title}"
-        Width="420" Height="320"
+        Width="560" Height="440"
         CanResize="False"
         SystemDecorations="None"
         ExtendClientAreaToDecorationsHint="True"
@@ -21,7 +21,7 @@
 
   <Border Background="{DynamicResource LG.GlassSurface}"
           BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="1"
-          CornerRadius="15">
+          CornerRadius="{StaticResource LG.RadiusCard}">
     <Grid RowDefinitions="36,*,Auto">
 
       <!-- Title bar (drag handle + close glyph). Mirrors NewInstanceDialog so the
@@ -40,21 +40,39 @@
         </Grid>
       </Border>
 
-      <!-- Body -->
-      <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="22,16">
-        <StackPanel Spacing="10">
+      <!-- Body: subtitle + preview tile + scrollable centered icon grid. The
+           ScrollViewer wraps the whole body so the picker remains reachable
+           even when the dialog is shrunk; the WrapPanel inside is horizontally
+           centered so tiles never lean against the left edge. -->
+      <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Disabled" Padding="22,16">
+        <StackPanel Spacing="12" HorizontalAlignment="Stretch">
           <TextBlock x:Name="SubtitleText" FontSize="12" Opacity="0.85" TextWrapping="Wrap"
+                     HorizontalAlignment="Center" TextAlignment="Center"
                      Text="{x:Static loc:Strings.EditInstanceIconDialog_Subtitle}" />
-          <ItemsControl x:Name="IconPicker">
+
+          <!-- Live preview of the currently selected icon. The code-behind keeps the
+               Source in sync as the user toggles radio tiles below. -->
+          <Border HorizontalAlignment="Center"
+                  Background="{DynamicResource LG.GlassSecondary}"
+                  BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="1"
+                  CornerRadius="{StaticResource LG.RadiusItem}"
+                  Padding="10">
+            <Image x:Name="PreviewImage" Width="64" Height="64" />
+          </Border>
+
+          <!-- Icon grid: WrapPanel with HorizontalAlignment="Center" so the 15 tiles
+               flow as a centered block regardless of how many fit per row. -->
+          <ItemsControl x:Name="IconPicker" HorizontalAlignment="Center">
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate>
-                <WrapPanel Orientation="Horizontal" />
+                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" />
               </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
               <DataTemplate DataType="sys:String">
                 <RadioButton GroupName="IconChoice"
-                            Margin="2"
+                            Margin="3"
                             Tag="{Binding}"
                             Click="OnIconClicked"
                             Width="48" Height="48"
@@ -70,7 +88,8 @@
         </StackPanel>
       </ScrollViewer>
 
-      <!-- Footer -->
+      <!-- Footer: docks to the bottom of the root grid so it stays visible no matter
+           how far the user scrolls the picker above. -->
       <Grid Grid.Row="2" Margin="22,4,22,16" ColumnDefinitions="*,Auto,Auto">
         <Button Grid.Column="1" Content="{x:Static loc:Strings.Common_Cancel}" Click="OnCancel"
                 Padding="14,5" FontSize="12" Margin="0,0,8,0" />
@@ -78,8 +97,8 @@
                 Click="OnSave"
                 FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                 Padding="14,5"
-                CornerRadius="15"
-                Background="{DynamicResource LG.BubbleFillCombined}"
+                CornerRadius="{StaticResource LG.RadiusButton}"
+                Background="{DynamicResource LG.BubbleGradient}"
                 BorderBrush="{DynamicResource LG.GlassRimStrong}"
                 BorderThickness="1"
                 Foreground="White" />
