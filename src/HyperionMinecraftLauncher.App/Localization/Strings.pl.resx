@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Canonical English source for every user-facing string in Hyperion Minecraft Launcher.
+
+    Conventions:
+      - Keys are UpperCamelCase + dotted scope, e.g. "MainWindow.Title", "Sidebar.Home".
+      - Format strings use positional placeholders {0}, {1}, ... (never named).
+      - Do NOT add triple-hyphen horizontal-rule separators or em-dashes to any translation file:
+        the author tracks these as tells of AI-generated copy. Use hyphens or commas.
+      - Technical identifiers (mod-loader names "Fabric"/"Forge"/etc, IDs, URLs, version numbers)
+        are NOT extracted - they stay as literals in the AXAML.
+
+    To add a new culture: drop "Strings.{culture}.resx" alongside this file with the same keys.
+    Missing keys automatically fall back to the English value here.
+  -->
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- ============================== MainWindow ============================== -->
+  <data name="MainWindow.Title" xml:space="preserve"><value>Hyperion Minecraft Launcher</value></data>
+  <data name="MainWindow.HeaderTitle" xml:space="preserve"><value>Hyperion Minecraft Launcher</value></data>
+
+  <!-- Header / account chip -->
+  <data name="Header.SignInWithMicrosoft" xml:space="preserve"><value>Zaloguj przez Microsoft</value></data>
+  <data name="Header.AccountsLabel" xml:space="preserve"><value>KONTA</value></data>
+  <data name="Header.AddAccount" xml:space="preserve"><value>+ Dodaj konto...</value></data>
+  <data name="Header.RemoveThisAccount" xml:space="preserve"><value>Usuń to konto</value></data>
+
+  <!-- Window controls -->
+  <data name="WindowChrome.Minimize" xml:space="preserve"><value>Minimalizuj</value></data>
+  <data name="WindowChrome.MaximizeRestore" xml:space="preserve"><value>Maksymalizuj / przywróć</value></data>
+  <data name="WindowChrome.Close" xml:space="preserve"><value>Zamknij</value></data>
+  <data name="WindowChrome.Dismiss" xml:space="preserve"><value>Ukryj</value></data>
+
+  <!-- Sidebar -->
+  <data name="Sidebar.CollapseExpand" xml:space="preserve"><value>Zwiń / rozwiń panel boczny</value></data>
+  <data name="Sidebar.Home" xml:space="preserve"><value>Start</value></data>
+  <data name="Sidebar.Installations" xml:space="preserve"><value>Instancje</value></data>
+  <data name="Sidebar.Skins" xml:space="preserve"><value>Skiny</value></data>
+  <data name="Sidebar.Servers" xml:space="preserve"><value>Serwery</value></data>
+  <data name="Sidebar.Headless" xml:space="preserve"><value>Headless</value></data>
+  <data name="Sidebar.HeadlessTooltip" xml:space="preserve"><value>Dedykowane serwery headless</value></data>
+  <data name="Sidebar.Mods" xml:space="preserve"><value>Mody</value></data>
+  <data name="Sidebar.News" xml:space="preserve"><value>Nowości</value></data>
+  <data name="Sidebar.Settings" xml:space="preserve"><value>Ustawienia</value></data>
+  <data name="Sidebar.Logs" xml:space="preserve"><value>Logi</value></data>
+  <data name="Sidebar.ParityBuildLabel" xml:space="preserve"><value>v0.8 - build parity</value></data>
+
+  <!-- Home page -->
+  <data name="Home.Title" xml:space="preserve"><value>Graj w Minecraft</value></data>
+  <data name="Home.Subtitle" xml:space="preserve"><value>Wybierz zainstalowaną wersję albo pobierz z manifestu.</value></data>
+  <data name="Home.YourInstancesLabel" xml:space="preserve"><value>Twoje instancje</value></data>
+  <data name="Home.YourInstancesPlaceholder" xml:space="preserve"><value>(jeszcze brak instancji, utwórz na stronie Instancje)</value></data>
+  <data name="Home.RescanButton" xml:space="preserve"><value>Skanuj ponownie</value></data>
+  <data name="Home.OrInstallAnother" xml:space="preserve"><value>Albo zainstaluj inną wersję</value></data>
+  <data name="Home.SearchVersionWatermark" xml:space="preserve"><value>Szukaj wersji...</value></data>
+  <data name="Home.ChipRelease" xml:space="preserve"><value>Release</value></data>
+  <data name="Home.ChipSnapshot" xml:space="preserve"><value>Snapshot</value></data>
+  <data name="Home.ChipOldBeta" xml:space="preserve"><value>Stara beta</value></data>
+  <data name="Home.ChipOldAlpha" xml:space="preserve"><value>Stara alpha</value></data>
+  <data name="Home.ManifestPlaceholder" xml:space="preserve"><value>(najpierw kliknij "Odśwież manifest")</value></data>
+  <data name="Home.RefreshManifestButton" xml:space="preserve"><value>Odśwież manifest</value></data>
+  <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>Nick offline:</value></data>
+  <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
+  <data name="Home.ResumeWorldButton" xml:space="preserve"><value>Wznów świat...</value></data>
+  <data name="Home.ResumeWorldTooltip" xml:space="preserve"><value>Quick Play: wybierz świat z .minecraft/saves/ i otwórz go od razu.</value></data>
+  <data name="Home.LaunchButton" xml:space="preserve"><value>Uruchom</value></data>
+
+  <!-- Installations page -->
+  <data name="Installations.Title" xml:space="preserve"><value>Instancje</value></data>
+  <data name="Installations.Subtitle" xml:space="preserve"><value>Instancje Hyperion. Każda ma własną wersję, ikonę i (z czasem) JVM / game-dir.</value></data>
+  <data name="Installations.NewInstance" xml:space="preserve"><value>+ Nowa instancja</value></data>
+  <data name="Installations.ImportFromZip" xml:space="preserve"><value>Importuj z zip...</value></data>
+  <data name="Installations.ImportFromZipTooltip" xml:space="preserve"><value>Zaimportuj współdzieloną instancję w formacie zip Hyperion</value></data>
+  <data name="Installations.ImportModpack" xml:space="preserve"><value>Importuj modpack...</value></data>
+  <data name="Installations.Refresh" xml:space="preserve"><value>Odśwież</value></data>
+  <data name="Installations.DeleteSelected" xml:space="preserve"><value>Usuń wybrane</value></data>
+  <data name="Installations.AutoBadge" xml:space="preserve"><value>auto</value></data>
+  <data name="Installations.MoreTooltip" xml:space="preserve"><value>Więcej...</value></data>
+  <data name="Installations.MenuEditInstance" xml:space="preserve"><value>Edytuj instancję...</value></data>
+  <data name="Installations.MenuChangeIcon" xml:space="preserve"><value>Zmień ikonę...</value></data>
+  <data name="Installations.MenuExportToZip" xml:space="preserve"><value>Eksportuj do zip...</value></data>
+  <data name="Installations.MenuOpenFolder" xml:space="preserve"><value>Otwórz folder</value></data>
+  <data name="Installations.MenuDelete" xml:space="preserve"><value>Usuń</value></data>
+
+  <!-- Instance detail tabs -->
+  <data name="InstanceTabs.Screenshots" xml:space="preserve"><value>Zrzuty ekranu</value></data>
+  <data name="InstanceTabs.Worlds" xml:space="preserve"><value>Światy</value></data>
+  <data name="InstanceTabs.Servers" xml:space="preserve"><value>Serwery</value></data>
+  <data name="InstanceTabs.Crashes" xml:space="preserve"><value>Crashe</value></data>
+  <data name="InstanceTabs.RefreshButton" xml:space="preserve"><value>Odśwież</value></data>
+  <data name="InstanceTabs.OpenFolderButton" xml:space="preserve"><value>Otwórz folder</value></data>
+  <data name="InstanceTabs.NoCrashReports" xml:space="preserve"><value>Brak raportów o crashach dla tej instancji.</value></data>
+  <data name="InstanceTabs.SearchModrinth" xml:space="preserve"><value>Modrinth</value></data>
+  <data name="InstanceTabs.SearchCurseForge" xml:space="preserve"><value>CurseForge</value></data>
+  <data name="InstanceTabs.WorldMenuBackupNow" xml:space="preserve"><value>Zrób backup teraz</value></data>
+  <data name="InstanceTabs.WorldMenuRestoreLatest" xml:space="preserve"><value>Przywróć ostatni backup</value></data>
+  <data name="InstanceTabs.WorldMenuOpenFolder" xml:space="preserve"><value>Otwórz folder</value></data>
+  <data name="InstanceTabs.CrashSeparatorDash" xml:space="preserve"><value>  -  </value></data>
+
+  <!-- Skins page -->
+  <data name="Skins.Title" xml:space="preserve"><value>Skiny</value></data>
+  <data name="Skins.Subtitle" xml:space="preserve"><value>Podgląd 3D na żywo, wgrywanie i wybór peleryny (wymaga zalogowania przez Microsoft).</value></data>
+  <data name="Skins.UploadButton" xml:space="preserve"><value>Wgraj nowy skin...</value></data>
+  <data name="Skins.CapeLabel" xml:space="preserve"><value>Peleryna:</value></data>
+  <data name="Skins.CapeNonePlaceholder" xml:space="preserve"><value>(brak)</value></data>
+  <data name="Skins.ClearCape" xml:space="preserve"><value>Zdejmij pelerynę</value></data>
+  <data name="Skins.RecentSkins" xml:space="preserve"><value>Ostatnie skiny</value></data>
+  <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>Zastosuj ten skin ponownie</value></data>
+  <data name="Skins.DragHint" xml:space="preserve"><value>Przeciągnij wewnątrz podglądu głowy, żeby obrócić.</value></data>
+
+  <!-- Servers page -->
+  <data name="Servers.Title" xml:space="preserve"><value>Serwery</value></data>
+  <data name="Servers.Subtitle" xml:space="preserve"><value>Lista serwerów multiplayer (servers.dat NBT). Ping przez protokół Minecraft Server List Ping.</value></data>
+  <data name="Servers.RefreshServers" xml:space="preserve"><value>Odśwież serwery</value></data>
+  <data name="Servers.RefreshPings" xml:space="preserve"><value>Odśwież pingi</value></data>
+  <data name="Servers.JoinButton" xml:space="preserve"><value>Dołącz</value></data>
+  <data name="Servers.JoinTooltip" xml:space="preserve"><value>Quick Play: uruchom i połącz z tym serwerem.</value></data>
+
+  <!-- Headless servers page -->
+  <data name="HeadlessServers.Title" xml:space="preserve"><value>Serwery headless</value></data>
+  <data name="HeadlessServers.Subtitle" xml:space="preserve"><value>Dedykowane serwery Minecraft, które Hyperion śledzi na dysku. Pobieranie server.jar i uruchamianie JVM na roadmapie.</value></data>
+  <data name="HeadlessServers.NewServer" xml:space="preserve"><value>+ Nowy serwer</value></data>
+  <data name="HeadlessServers.Refresh" xml:space="preserve"><value>Odśwież</value></data>
+  <data name="HeadlessServers.Start" xml:space="preserve"><value>Uruchom</value></data>
+  <data name="HeadlessServers.Stop" xml:space="preserve"><value>Zatrzymaj</value></data>
+  <data name="HeadlessServers.Delete" xml:space="preserve"><value>Usuń</value></data>
+  <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>Zaślepka; pobieranie server.jar na roadmapie.</value></data>
+  <data name="HeadlessServers.FootnotePath" xml:space="preserve"><value>Każdy serwer ma własny folder w %LOCALAPPDATA%/HyperionMinecraftLauncher/headless_servers/{id}/. Przy tworzeniu launcher zapisuje tam metadata.json, eula.txt i server.properties.</value></data>
+  <data name="HeadlessServers.DashSeparator" xml:space="preserve"><value> - </value></data>
+  <data name="HeadlessServers.MibAndPort" xml:space="preserve"><value> MiB - port </value></data>
+
+  <!-- Mods page -->
+  <data name="Mods.Title" xml:space="preserve"><value>Mody</value></data>
+  <data name="Mods.Subtitle" xml:space="preserve"><value>Przeglądaj Modrinth lub CurseForge i instaluj mody bezpośrednio do wybranej instancji.</value></data>
+  <data name="Mods.SourceModrinth" xml:space="preserve"><value>Modrinth</value></data>
+  <data name="Mods.SourceCurseForge" xml:space="preserve"><value>CurseForge</value></data>
+  <data name="Mods.SearchLabel" xml:space="preserve"><value>Szukaj:</value></data>
+  <data name="Mods.SearchWatermark" xml:space="preserve"><value>np. fabric-api, sodium, JEI</value></data>
+  <data name="Mods.SearchButton" xml:space="preserve"><value>Szukaj</value></data>
+  <data name="Mods.SearchResults" xml:space="preserve"><value>Wyniki wyszukiwania</value></data>
+  <data name="Mods.InstallButton" xml:space="preserve"><value>Zainstaluj</value></data>
+  <data name="Mods.InstalledInSelectedInstance" xml:space="preserve"><value>Zainstalowane w wybranej instancji</value></data>
+  <data name="Mods.RefreshButton" xml:space="preserve"><value>Odśwież</value></data>
+  <data name="Mods.PickAnInstanceFirst" xml:space="preserve"><value>Najpierw wybierz instancję na stronie Instancje</value></data>
+  <data name="Mods.RightPaneHint" xml:space="preserve"><value>Prawy panel pokazuje zawartość folderu mods/ wybranej instancji i pozwala włączać lub usuwać mody.</value></data>
+  <data name="Mods.RemoveButton" xml:space="preserve"><value>Usuń</value></data>
+  <data name="Mods.DownloadsCountFormat" xml:space="preserve"><value>Pobrań: {0:N0}</value></data>
+  <data name="Mods.FileSizeBytesFormat" xml:space="preserve"><value>{0:N0} B</value></data>
+
+  <!-- News page -->
+  <data name="News.Title" xml:space="preserve"><value>Nowości</value></data>
+  <data name="News.Subtitle" xml:space="preserve"><value>Kanał z launchercontent.mojang.com/news.json, to samo źródło, którego używa oficjalny launcher Mojang.</value></data>
+  <data name="News.RefreshButton" xml:space="preserve"><value>Odśwież nowości</value></data>
+  <data name="News.ReadMore" xml:space="preserve"><value>Czytaj dalej na minecraft.net</value></data>
+
+  <!-- Settings page -->
+  <data name="Settings.Title" xml:space="preserve"><value>Ustawienia</value></data>
+  <data name="Settings.Subtitle" xml:space="preserve"><value>Zapisywane w %LOCALAPPDATA%\HyperionMinecraftLauncher\settings.json. Limity pamięci stosują się przy następnym uruchomieniu.</value></data>
+  <data name="Settings.MemoryHeader" xml:space="preserve"><value>Pamięć (JVM heap)</value></data>
+  <data name="Settings.MinimumXmsLabel" xml:space="preserve"><value>Minimum (-Xms):</value></data>
+  <data name="Settings.MaximumXmxLabel" xml:space="preserve"><value>Maksimum (-Xmx):</value></data>
+  <data name="Settings.MbUnit" xml:space="preserve"><value> MB</value></data>
+  <data name="Settings.CeilingPrefix" xml:space="preserve"><value>Pułap wykryty dla tej maszyny: </value></data>
+  <data name="Settings.CeilingSuffix" xml:space="preserve"><value> MB (~75% systemowego RAM, nie więcej niż 16 GB).</value></data>
+  <data name="Settings.JvmArgsHeader" xml:space="preserve"><value>Dodatkowe argumenty JVM</value></data>
+  <data name="Settings.JvmArgsWatermark" xml:space="preserve"><value>-XX:+UseG1GC -XX:+UnlockExperimentalVMOptions ...</value></data>
+  <data name="Settings.JvmArgsHint" xml:space="preserve"><value>Dodawane po automatycznych flagach -Xms/-Xmx. (Na razie nie są przekazywane do CmlLib process buildera, zaplanowane na dalszy krok.)</value></data>
+  <data name="Settings.GameDirHeader" xml:space="preserve"><value>Folder gry</value></data>
+  <data name="Settings.GameDirWatermark" xml:space="preserve"><value>(zostaw puste, żeby użyć standardowego .minecraft systemu)</value></data>
+  <data name="Settings.BrowseButton" xml:space="preserve"><value>Przeglądaj</value></data>
+  <data name="Settings.JavaExeHeader" xml:space="preserve"><value>Plik wykonywalny Java</value></data>
+  <data name="Settings.JavaExeWatermark" xml:space="preserve"><value>(zostaw puste, żeby CmlLib znalazł sam)</value></data>
+  <data name="Settings.LauncherPrefsHeader" xml:space="preserve"><value>Preferencje launchera</value></data>
+  <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>Trzymaj launcher otwarty po uruchomieniu gry</value></data>
+  <data name="Settings.ShowGameLog" xml:space="preserve"><value>Pokazuj stdout / stderr gry w logu launchera (planowane)</value></data>
+  <data name="Settings.BackupsHeader" xml:space="preserve"><value>Backupy</value></data>
+  <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>Automatycznie backupuj światy przed każdym uruchomieniem</value></data>
+  <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>Zachowaj ostatnich N na świat (0 = zachowaj wszystkie):</value></data>
+  <data name="Settings.BackupHint" xml:space="preserve"><value>Każdy świat jest pakowany do &lt;gameDir&gt;/backups/{world}-{timestamp}.zip. Błąd przy backupie jest logowany, ale nie blokuje uruchomienia.</value></data>
+  <data name="Settings.LanguageHeader" xml:space="preserve"><value>Język</value></data>
+  <data name="Settings.LanguageLabel" xml:space="preserve"><value>Język interfejsu:</value></data>
+  <data name="Settings.LanguageUseSystemDefault" xml:space="preserve"><value>Systemowy domyślny</value></data>
+  <data name="Settings.LanguageHint" xml:space="preserve"><value>Zmiana języka działa od razu dla nowo otwartych stron, a dla całego UI po restarcie launchera.</value></data>
+  <data name="Settings.SaveButton" xml:space="preserve"><value>Zapisz ustawienia</value></data>
+
+  <!-- Logs page -->
+  <data name="Logs.Title" xml:space="preserve"><value>Logi</value></data>
+  <data name="Logs.Subtitle" xml:space="preserve"><value>Dzisiejszy plik logu z dzienną rotacją z %LOCALAPPDATA%\HyperionMinecraftLauncher\logs\.</value></data>
+  <data name="Logs.FilterWatermark" xml:space="preserve"><value>Filtr logu...</value></data>
+  <data name="Logs.RefreshButton" xml:space="preserve"><value>Odśwież</value></data>
+  <data name="Logs.OpenLogsFolderButton" xml:space="preserve"><value>Otwórz folder logów</value></data>
+  <data name="Logs.CopyAllButton" xml:space="preserve"><value>Kopiuj wszystko</value></data>
+
+  <!-- New Instance dialog -->
+  <data name="NewInstanceDialog.Title" xml:space="preserve"><value>Nowa instancja</value></data>
+  <data name="NewInstanceDialog.HeaderTitle" xml:space="preserve"><value>Utwórz nową instancję</value></data>
+  <data name="NewInstanceDialog.InstanceNameLabel" xml:space="preserve"><value>Nazwa instancji</value></data>
+  <data name="NewInstanceDialog.DefaultInstanceName" xml:space="preserve"><value>Moja nowa instancja</value></data>
+  <data name="NewInstanceDialog.MinecraftVersionLabel" xml:space="preserve"><value>Wersja Minecraft</value></data>
+  <data name="NewInstanceDialog.SearchVersionWatermark" xml:space="preserve"><value>Szukaj wersji...</value></data>
+  <data name="NewInstanceDialog.LoadingManifest" xml:space="preserve"><value>(ładowanie manifestu ...)</value></data>
+  <data name="NewInstanceDialog.FiltersSharedHint" xml:space="preserve"><value>Filtry i wyszukiwarka są wspólne z wyborem na stronie Start.</value></data>
+  <data name="NewInstanceDialog.ModLoaderLabel" xml:space="preserve"><value>Mod loader</value></data>
+  <data name="NewInstanceDialog.LoaderVersionLabel" xml:space="preserve"><value>Wersja loadera</value></data>
+  <data name="NewInstanceDialog.LoaderVersionPlaceholder" xml:space="preserve"><value>(najnowsza)</value></data>
+  <data name="NewInstanceDialog.LoaderHint" xml:space="preserve"><value>Najnowsze na górze. Zostaw puste, żeby zainstalować najnowszą wersję stabilną.</value></data>
+  <data name="NewInstanceDialog.LoaderVanilla" xml:space="preserve"><value>Vanilla</value></data>
+  <data name="NewInstanceDialog.LoaderFabric" xml:space="preserve"><value>Fabric</value></data>
+  <data name="NewInstanceDialog.LoaderForge" xml:space="preserve"><value>Forge</value></data>
+  <data name="NewInstanceDialog.LoaderNeoForge" xml:space="preserve"><value>NeoForge</value></data>
+  <data name="NewInstanceDialog.LoaderQuilt" xml:space="preserve"><value>Quilt</value></data>
+  <data name="NewInstanceDialog.IconLabel" xml:space="preserve"><value>Ikona</value></data>
+  <data name="NewInstanceDialog.CreateButton" xml:space="preserve"><value>Utwórz</value></data>
+
+  <!-- Edit Instance dialog -->
+  <data name="EditInstanceDialog.Title" xml:space="preserve"><value>Edycja instancji</value></data>
+  <data name="EditInstanceDialog.HeaderTitle" xml:space="preserve"><value>Edycja instancji</value></data>
+  <data name="EditInstanceDialog.GeneralSection" xml:space="preserve"><value>Ogólne</value></data>
+  <data name="EditInstanceDialog.JavaMemorySection" xml:space="preserve"><value>Java i pamięć</value></data>
+  <data name="EditInstanceDialog.JavaMemoryHint" xml:space="preserve"><value>Nadpisz globalne ustawienia tylko dla tej instancji. Puste pole lub 0 = dziedzicz.</value></data>
+  <data name="EditInstanceDialog.MinHeapLabel" xml:space="preserve"><value>Minimum heap (-Xms)</value></data>
+  <data name="EditInstanceDialog.MaxHeapLabel" xml:space="preserve"><value>Maksimum heap (-Xmx)</value></data>
+  <data name="EditInstanceDialog.JvmArgsLabel" xml:space="preserve"><value>Dodatkowe argumenty JVM</value></data>
+  <data name="EditInstanceDialog.JvmArgsWatermark" xml:space="preserve"><value>(zostaw puste, żeby odziedziczyć z Ustawień)</value></data>
+  <data name="EditInstanceDialog.GameDirLabel" xml:space="preserve"><value>Folder gry</value></data>
+  <data name="EditInstanceDialog.GameDirWatermark" xml:space="preserve"><value>(zostaw puste, żeby odziedziczyć globalny .minecraft)</value></data>
+  <data name="EditInstanceDialog.BrowseButton" xml:space="preserve"><value>Przeglądaj...</value></data>
+  <data name="EditInstanceDialog.WindowResolutionLabel" xml:space="preserve"><value>Rozdzielczość okna</value></data>
+  <data name="EditInstanceDialog.WidthShort" xml:space="preserve"><value>Sz </value></data>
+  <data name="EditInstanceDialog.HeightShort" xml:space="preserve"><value>W </value></data>
+  <data name="EditInstanceDialog.ResolutionHint" xml:space="preserve"><value>Domyślnie 854 x 480. Oba zera = dziedzicz (standard Minecraft).</value></data>
+  <data name="EditInstanceDialog.SaveButton" xml:space="preserve"><value>Zapisz</value></data>
+  <data name="EditInstanceDialog.InstanceNameLabel" xml:space="preserve"><value>Nazwa instancji</value></data>
+  <data name="EditInstanceDialog.IconLabel" xml:space="preserve"><value>Ikona</value></data>
+
+  <!-- Edit Instance Icon dialog -->
+  <data name="EditInstanceIconDialog.Title" xml:space="preserve"><value>Zmień ikonę</value></data>
+  <data name="EditInstanceIconDialog.HeaderTitle" xml:space="preserve"><value>Zmień ikonę</value></data>
+  <data name="EditInstanceIconDialog.Subtitle" xml:space="preserve"><value>Wybierz nową ikonę dla tej instancji.</value></data>
+  <data name="EditInstanceIconDialog.SaveButton" xml:space="preserve"><value>Zapisz</value></data>
+
+  <!-- Common dialog actions -->
+  <data name="Common.Cancel" xml:space="preserve"><value>Anuluj</value></data>
+  <data name="Common.Save" xml:space="preserve"><value>Zapisz</value></data>
+  <data name="Common.Create" xml:space="preserve"><value>Utwórz</value></data>
+  <data name="Common.OK" xml:space="preserve"><value>OK</value></data>
+  <data name="Common.Yes" xml:space="preserve"><value>Tak</value></data>
+  <data name="Common.No" xml:space="preserve"><value>Nie</value></data>
+  <data name="Common.Close" xml:space="preserve"><value>Zamknij</value></data>
+  <data name="Common.Hide" xml:space="preserve"><value>Ukryj</value></data>
+  <data name="Common.Browse" xml:space="preserve"><value>Przeglądaj</value></data>
+
+  <!-- DeviceCode dialog -->
+  <data name="DeviceCodeDialog.Title" xml:space="preserve"><value>Zaloguj przez Microsoft</value></data>
+  <data name="DeviceCodeDialog.HeaderTitle" xml:space="preserve"><value>Zaloguj przez Microsoft</value></data>
+  <data name="DeviceCodeDialog.OpenPagePrompt" xml:space="preserve"><value>Otwórz tę stronę w przeglądarce:</value></data>
+  <data name="DeviceCodeDialog.EnterCodePrompt" xml:space="preserve"><value>I wpisz ten kod:</value></data>
+  <data name="DeviceCodeDialog.Footer" xml:space="preserve"><value>Przeglądarka powinna była się otworzyć automatycznie. Launcher odpytuje Microsoft, jak tylko zalogujesz się, to okno zamknie się samo.</value></data>
+  <data name="DeviceCodeDialog.CopyCode" xml:space="preserve"><value>Kopiuj kod</value></data>
+  <data name="DeviceCodeDialog.OpenBrowser" xml:space="preserve"><value>Otwórz przeglądarkę</value></data>
+
+  <!-- JoinServer dialog -->
+  <data name="JoinServerDialog.Title" xml:space="preserve"><value>Dołącz do serwera</value></data>
+  <data name="JoinServerDialog.HeaderTitle" xml:space="preserve"><value>Quick Play: dołącz do serwera</value></data>
+  <data name="JoinServerDialog.PickInstance" xml:space="preserve"><value>Wybierz instancję</value></data>
+  <data name="JoinServerDialog.NoInstancesPlaceholder" xml:space="preserve"><value>(brak instancji)</value></data>
+  <data name="JoinServerDialog.JoinButton" xml:space="preserve"><value>Dołącz</value></data>
+
+  <!-- Worlds dialog -->
+  <data name="WorldsDialog.Title" xml:space="preserve"><value>Wznów świat</value></data>
+  <data name="WorldsDialog.HeaderTitle" xml:space="preserve"><value>Quick Play: wznów świat</value></data>
+  <data name="WorldsDialog.ResumeButton" xml:space="preserve"><value>Wznów</value></data>
+
+  <!-- NewHeadlessServer dialog -->
+  <data name="NewHeadlessServerDialog.Title" xml:space="preserve"><value>Nowy serwer headless</value></data>
+  <data name="NewHeadlessServerDialog.HeaderTitle" xml:space="preserve"><value>Utwórz nowy serwer headless</value></data>
+  <data name="NewHeadlessServerDialog.Hint" xml:space="preserve"><value>Pobieranie server.jar jest na roadmapie. Na razie launcher zapisuje metadane, eula.txt i minimalny server.properties, żeby folder był gotowy, gdy pipeline zostanie podłączony.</value></data>
+  <data name="NewHeadlessServerDialog.ServerNameLabel" xml:space="preserve"><value>Nazwa serwera</value></data>
+  <data name="NewHeadlessServerDialog.DefaultServerName" xml:space="preserve"><value>Mój dedykowany serwer</value></data>
+  <data name="NewHeadlessServerDialog.MinecraftVersionLabel" xml:space="preserve"><value>Wersja Minecraft</value></data>
+  <data name="NewHeadlessServerDialog.LoadingManifestShort" xml:space="preserve"><value>(ładowanie manifestu...)</value></data>
+  <data name="NewHeadlessServerDialog.MaxHeapLabel" xml:space="preserve"><value>Maksimum heap JVM (MiB)</value></data>
+  <data name="NewHeadlessServerDialog.PortLabel" xml:space="preserve"><value>Port</value></data>
+
+  <!-- SkinVariant dialog -->
+  <data name="SkinVariantDialog.Title" xml:space="preserve"><value>Wybierz wariant skina</value></data>
+  <data name="SkinVariantDialog.HeaderTitle" xml:space="preserve"><value>Wybierz wariant skina</value></data>
+  <data name="SkinVariantDialog.Question" xml:space="preserve"><value>Jakiej szerokości rąk używa ten skin?</value></data>
+  <data name="SkinVariantDialog.Hint" xml:space="preserve"><value>Classic = ręce 4-pikselowe (Steve). Slim = ręce 3-pikselowe (Alex).</value></data>
+  <data name="SkinVariantDialog.Classic" xml:space="preserve"><value>Classic</value></data>
+  <data name="SkinVariantDialog.Slim" xml:space="preserve"><value>Slim</value></data>
+
+  <!-- ImportModpack dialog -->
+  <data name="ImportModpackDialog.Title" xml:space="preserve"><value>Importuj modpack</value></data>
+  <data name="ImportModpackDialog.HeaderTitle" xml:space="preserve"><value>Importuj modpack</value></data>
+  <data name="ImportModpackDialog.ArchiveLabel" xml:space="preserve"><value>Archiwum</value></data>
+  <data name="ImportModpackDialog.NoArchivePicked" xml:space="preserve"><value>(nie wybrano pliku)</value></data>
+  <data name="ImportModpackDialog.InstanceNameLabel" xml:space="preserve"><value>Nazwa instancji</value></data>
+  <data name="ImportModpackDialog.InstanceNameWatermark" xml:space="preserve"><value>(jeśli puste, używana jest nazwa modpacka)</value></data>
+  <data name="ImportModpackDialog.Hint" xml:space="preserve"><value>Typ archiwum jest wykrywany automatycznie (Modrinth .mrpack lub CurseForge .zip) i importowany do nowego folderu instancji.</value></data>
+  <data name="ImportModpackDialog.ImportButton" xml:space="preserve"><value>Importuj</value></data>
+
+  <!-- ViewModel log messages -->
+  <data name="Log.AutoRefreshingOnStartup" xml:space="preserve"><value>Automatyczne odświeżanie przy starcie ...</value></data>
+  <data name="Log.SilentMsSignInAttempt" xml:space="preserve"><value>Ciche logowanie Microsoft (cache refresh-tokena) ...</value></data>
+  <data name="Log.AutoSignedInAs" xml:space="preserve"><value>Auto-zalogowano jako '{0}'.</value></data>
+  <data name="Log.SilentSignInSkipped" xml:space="preserve"><value>Ciche logowanie pominięte: {0}</value></data>
+  <data name="Log.LoadingVersionManifest" xml:space="preserve"><value>Ładowanie manifestu wersji ...</value></data>
+  <data name="Log.LoadedNVersions" xml:space="preserve"><value>Załadowano wersji: {0}.</value></data>
+  <data name="Log.LoadingInstances" xml:space="preserve"><value>Ładowanie instancji ...</value></data>
+  <data name="Log.FetchingNews" xml:space="preserve"><value>Pobieranie nowości Minecraft ...</value></data>
+  <data name="Log.LoadedNNewsArticles" xml:space="preserve"><value>Załadowano nowości: {0}.</value></data>
+  <data name="Log.ReadingServersDat" xml:space="preserve"><value>Czytanie servers.dat ...</value></data>
+  <data name="Log.LoadedNServers" xml:space="preserve"><value>Załadowano serwerów: {0}.</value></data>
+  <data name="Log.ReadingLauncherProfiles" xml:space="preserve"><value>Czytanie launcher_profiles.json ...</value></data>
+  <data name="Log.LoadedNProfiles" xml:space="preserve"><value>Załadowano profili z launcher_profiles.json: {0}.</value></data>
+  <data name="Log.ScanningInstalledVersions" xml:space="preserve"><value>Skanowanie zainstalowanych wersji ...</value></data>
+  <data name="Log.FoundNInstalledVersions" xml:space="preserve"><value>Znaleziono zainstalowanych wersji: {0}.</value></data>
+  <data name="Log.SigningInWithMicrosoft" xml:space="preserve"><value>Logowanie przez Microsoft ...</value></data>
+  <data name="Log.SignedInAs" xml:space="preserve"><value>Zalogowano jako '{0}'.</value></data>
+  <data name="Log.MicrosoftSignInPrompt" xml:space="preserve"><value>Logowanie Microsoft: wpisz kod {0} na {1}</value></data>
+  <data name="Log.SignedOut" xml:space="preserve"><value>Wylogowano.</value></data>
+  <data name="Log.SavingSettings" xml:space="preserve"><value>Zapisywanie ustawień ...</value></data>
+  <data name="Log.SettingsSaved" xml:space="preserve"><value>Ustawienia zapisane (Xms={0}M, Xmx={1}M).</value></data>
+  <data name="Log.CouldNotSaveSettings" xml:space="preserve"><value>[error] Nie udało się zapisać ustawień: {0}</value></data>
+  <data name="Log.SignInCancelled" xml:space="preserve"><value>Logowanie anulowane.</value></data>
+  <data name="Log.SignInFailed" xml:space="preserve"><value>[error] {0}</value></data>
+  <data name="Log.Error" xml:space="preserve"><value>[error] {0}</value></data>
+  <data name="Log.Warn" xml:space="preserve"><value>[warn] {0}</value></data>
+  <data name="Log.ModsNoRepository" xml:space="preserve"><value>[mods] Brak skonfigurowanego repozytorium dla wybranego źródła.</value></data>
+  <data name="Log.ModsSearching" xml:space="preserve"><value>Wyszukiwanie w {0} dla '{1}' ...</value></data>
+  <data name="Log.ModsResultsCount" xml:space="preserve"><value>[mods] wyników: {0}.</value></data>
+  <data name="Log.ModsNoRepositoryForInstall" xml:space="preserve"><value>[mods] Brak dostępnego repozytorium do instalacji tego moda.</value></data>
+  <data name="Log.ModsResolvingFiles" xml:space="preserve"><value>Szukanie plików dla '{0}' ({1} / {2}) ...</value></data>
+  <data name="Log.ModsNoMatchingFiles" xml:space="preserve"><value>[mods] Brak pasujących plików dla tej instancji.</value></data>
+  <data name="Log.ModsInstalling" xml:space="preserve"><value>Instalowanie '{0}' w '{1}' ...</value></data>
+  <data name="Log.ModsInstallComplete" xml:space="preserve"><value>[mods] Instalacja zakończona.</value></data>
+  <data name="Log.ModsInstalledInInstance" xml:space="preserve"><value>[mods] {0} zainstalowane w '{1}'.</value></data>
+  <data name="Log.ModsRemoved" xml:space="preserve"><value>[mods] Usunięto: '{0}'.</value></data>
+
+  <!-- Error messages -->
+  <data name="Error.NoSession" xml:space="preserve"><value>[error] Operacje na skinach wymagają konta Microsoft.</value></data>
+  <data name="Error.SkinPickerUnavailable" xml:space="preserve"><value>[error] Wybór pliku skina niedostępny.</value></data>
+  <data name="Error.CapeOpsRequireMsAccount" xml:space="preserve"><value>[error] Operacje na pelerynie wymagają konta Microsoft.</value></data>
+  <data name="Error.SkinUploadCancelled" xml:space="preserve"><value>Wgrywanie skina anulowane.</value></data>
+  <data name="Error.CannotDeleteAutoImported" xml:space="preserve"><value>Nie można usunąć auto-importowanej instancji (leży w .minecraft/versions/).</value></data>
+  <data name="Error.CannotChangeAutoImportedIcon" xml:space="preserve"><value>Nie można zmienić ikony auto-importowanej instancji.</value></data>
+  <data name="Error.CannotEditAutoImported" xml:space="preserve"><value>Nie można edytować auto-importowanej instancji.</value></data>
+  <data name="Error.ModpackImporterDisabled" xml:space="preserve"><value>[error] Import modpacka jest wyłączony w tej kompilacji (importer nie podłączony).</value></data>
+  <data name="Error.ModpackImportCancelled" xml:space="preserve"><value>Import modpacka anulowany.</value></data>
+  <data name="Error.InstanceExportUnavailable" xml:space="preserve"><value>[error] Eksport instancji niedostępny.</value></data>
+  <data name="Error.CannotExportAutoImported" xml:space="preserve"><value>[error] Nie można wyeksportować auto-importowanej instancji.</value></data>
+  <data name="Error.ExportPickerUnavailable" xml:space="preserve"><value>[error] Wybór pliku do eksportu niedostępny.</value></data>
+  <data name="Error.InstanceExportCancelled" xml:space="preserve"><value>Eksport instancji anulowany.</value></data>
+  <data name="Error.InstanceImportUnavailable" xml:space="preserve"><value>[error] Import instancji niedostępny.</value></data>
+  <data name="Error.ImportPickerUnavailable" xml:space="preserve"><value>[error] Wybór pliku do importu niedostępny.</value></data>
+  <data name="Error.InstanceImportCancelled" xml:space="preserve"><value>Import instancji anulowany.</value></data>
+</root>
+</content>
+</invoke>
