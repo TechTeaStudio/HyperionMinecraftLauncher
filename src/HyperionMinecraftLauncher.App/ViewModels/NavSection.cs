@@ -1,5 +1,17 @@
 namespace TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 
+/// <summary>
+/// Sub-tabs on the Installations page detail panel - shown to the right of the
+/// instance grid once an instance is selected. Three views over the per-instance
+/// gameDir: screenshots, world saves, and the multiplayer server list.
+/// </summary>
+public enum InstanceDetailTab
+{
+    Screenshots,
+    Worlds,
+    Servers,
+}
+
 /// <summary>Identifies the active sidebar item. The content area binds <c>IsVisible</c> to a converter that matches this enum.</summary>
 public enum NavSection
 {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
@@ -8,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
@@ -37,6 +39,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private readonly ILauncherLogger _logger;
     private readonly IMicrosoftAuthService? _microsoftAuth;
     private readonly ILauncherSettingsStore? _settingsStore;
+    private readonly IInstanceBrowser? _instanceBrowser;
 
     // Settings-page state (mirrored from LauncherSettings on load, written back on Save).
     private int _minMemoryMb;
@@ -58,18 +61,24 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private AuthResult? _currentSession;
     private NavSection _selectedSection = NavSection.Home;
     private Bitmap? _avatarBitmap;
+    private IReadOnlyList<ScreenshotEntry> _instanceScreenshots = Array.Empty<ScreenshotEntry>();
+    private IReadOnlyList<WorldEntry> _instanceWorlds = Array.Empty<WorldEntry>();
+    private IReadOnlyList<ServerListEntry> _instanceServers = Array.Empty<ServerListEntry>();
+    private InstanceDetailTab _selectedInstanceTab = InstanceDetailTab.Screenshots;
 
-    /// <summary>Construct with the launcher service and (optional) Microsoft auth provider + settings store.</summary>
+    /// <summary>Construct with the launcher service and (optional) Microsoft auth provider + settings store + instance browser.</summary>
     public MainViewModel(
         IMinecraftLauncherService service,
         ILauncherLogger logger,
         IMicrosoftAuthService? microsoftAuth = null,
-        ILauncherSettingsStore? settingsStore = null)
+        ILauncherSettingsStore? settingsStore = null,
+        IInstanceBrowser? instanceBrowser = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _microsoftAuth = microsoftAuth;
         _settingsStore = settingsStore;
+        _instanceBrowser = instanceBrowser;
         _maxAllowedMemoryMb = SystemRam.RecommendedMaxHeapMb();
 
         // MSAL device-code prompts come from a background thread; surface them in the UI log.
@@ -102,6 +111,15 @@ public sealed class MainViewModel : INotifyPropertyChanged
         LaunchCommand = new AsyncRelayCommand(LaunchAsync, CanLaunch);
         SignInMicrosoftCommand = new AsyncRelayCommand(SignInMicrosoftAsync, () => !IsBusy && !IsSignedInOnline);
         SignOutCommand = new AsyncRelayCommand(SignOutAsync, () => !IsBusy && IsSignedInOnline);
+        RefreshInstanceScreenshotsCommand = new AsyncRelayCommand(
+            RefreshInstanceScreenshotsAsync,
+            () => !IsBusy && SelectedInstance is not null && _instanceBrowser is not null);
+        RefreshInstanceWorldsCommand = new AsyncRelayCommand(
+            RefreshInstanceWorldsAsync,
+            () => !IsBusy && SelectedInstance is not null && _instanceBrowser is not null);
+        RefreshInstanceServersCommand = new AsyncRelayCommand(
+            RefreshInstanceServersAsync,
+            () => !IsBusy && SelectedInstance is not null && _instanceBrowser is not null);
     }
 
     // ---- Account ----
@@ -185,9 +203,68 @@ public sealed class MainViewModel : INotifyPropertyChanged
             {
                 DeleteInstanceCommand.RaiseCanExecuteChanged();
                 LaunchCommand.RaiseCanExecuteChanged();
+                RefreshInstanceScreenshotsCommand.RaiseCanExecuteChanged();
+                RefreshInstanceWorldsCommand.RaiseCanExecuteChanged();
+                RefreshInstanceServersCommand.RaiseCanExecuteChanged();
+                OnPropertyChanged(nameof(HasSelectedInstance));
+                // Auto-refresh per-instance detail tabs when the selected instance changes.
+                // Fire-and-forget: the View animates a fade-in while we populate the lists.
+                if (value is not null && _instanceBrowser is not null)
+                {
+                    _ = RefreshAllInstanceTabsAsync(value);
+                }
+                else
+                {
+                    InstanceScreenshots = Array.Empty<ScreenshotEntry>();
+                    InstanceWorlds = Array.Empty<WorldEntry>();
+                    InstanceServers = Array.Empty<ServerListEntry>();
+                }
             }
         }
     }
+
+    /// <summary>True when an instance is selected - drives the visibility of the detail tab panel.</summary>
+    public bool HasSelectedInstance => _selectedInstance is not null;
+
+    /// <summary>Screenshots under the selected instance's <c>screenshots/</c>, newest first.</summary>
+    public IReadOnlyList<ScreenshotEntry> InstanceScreenshots
+    {
+        get => _instanceScreenshots;
+        private set => SetField(ref _instanceScreenshots, value);
+    }
+
+    /// <summary>Saved worlds under the selected instance's <c>saves/</c>.</summary>
+    public IReadOnlyList<WorldEntry> InstanceWorlds
+    {
+        get => _instanceWorlds;
+        private set => SetField(ref _instanceWorlds, value);
+    }
+
+    /// <summary>Multiplayer entries from the selected instance's <c>servers.dat</c>.</summary>
+    public IReadOnlyList<ServerListEntry> InstanceServers
+    {
+        get => _instanceServers;
+        private set => SetField(ref _instanceServers, value);
+    }
+
+    /// <summary>Active sub-tab in the per-instance detail panel.</summary>
+    public InstanceDetailTab SelectedInstanceTab
+    {
+        get => _selectedInstanceTab;
+        set
+        {
+            if (SetField(ref _selectedInstanceTab, value))
+            {
+                OnPropertyChanged(nameof(IsScreenshotsTabSelected));
+                OnPropertyChanged(nameof(IsWorldsTabSelected));
+                OnPropertyChanged(nameof(IsInstanceServersTabSelected));
+            }
+        }
+    }
+
+    public bool IsScreenshotsTabSelected => SelectedInstanceTab == InstanceDetailTab.Screenshots;
+    public bool IsWorldsTabSelected => SelectedInstanceTab == InstanceDetailTab.Worlds;
+    public bool IsInstanceServersTabSelected => SelectedInstanceTab == InstanceDetailTab.Servers;
 
     // ---- Settings ----
 
@@ -357,6 +434,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 LaunchCommand.RaiseCanExecuteChanged();
                 SignInMicrosoftCommand.RaiseCanExecuteChanged();
                 SignOutCommand.RaiseCanExecuteChanged();
+                RefreshInstanceScreenshotsCommand.RaiseCanExecuteChanged();
+                RefreshInstanceWorldsCommand.RaiseCanExecuteChanged();
+                RefreshInstanceServersCommand.RaiseCanExecuteChanged();
             }
         }
     }
@@ -402,6 +482,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncRelayCommand LaunchCommand { get; }
     public AsyncRelayCommand SignInMicrosoftCommand { get; }
     public AsyncRelayCommand SignOutCommand { get; }
+    public AsyncRelayCommand RefreshInstanceScreenshotsCommand { get; }
+    public AsyncRelayCommand RefreshInstanceWorldsCommand { get; }
+    public AsyncRelayCommand RefreshInstanceServersCommand { get; }
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -841,6 +924,71 @@ public sealed class MainViewModel : INotifyPropertyChanged
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    // ---- Per-instance browser (screenshots / worlds / servers) ----
+
+    private async Task RefreshInstanceScreenshotsAsync()
+    {
+        if (_instanceBrowser is null || SelectedInstance is not { } inst) return;
+        try
+        {
+            InstanceScreenshots = await _instanceBrowser.ListScreenshotsAsync(inst, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not list screenshots: {ex.Message}");
+            InstanceScreenshots = Array.Empty<ScreenshotEntry>();
+        }
+    }
+
+    private async Task RefreshInstanceWorldsAsync()
+    {
+        if (_instanceBrowser is null || SelectedInstance is not { } inst) return;
+        try
+        {
+            InstanceWorlds = await _instanceBrowser.ListWorldsAsync(inst, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not list worlds: {ex.Message}");
+            InstanceWorlds = Array.Empty<WorldEntry>();
+        }
+    }
+
+    private async Task RefreshInstanceServersAsync()
+    {
+        if (_instanceBrowser is null || SelectedInstance is not { } inst) return;
+        try
+        {
+            InstanceServers = await _instanceBrowser.ListServersAsync(inst, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not list instance servers: {ex.Message}");
+            InstanceServers = Array.Empty<ServerListEntry>();
+        }
+    }
+
+    private async Task RefreshAllInstanceTabsAsync(Instance instance)
+    {
+        if (_instanceBrowser is null) return;
+        try
+        {
+            var ssTask = _instanceBrowser.ListScreenshotsAsync(instance, CancellationToken.None);
+            var worldsTask = _instanceBrowser.ListWorldsAsync(instance, CancellationToken.None);
+            var serversTask = _instanceBrowser.ListServersAsync(instance, CancellationToken.None);
+            await Task.WhenAll(ssTask, worldsTask, serversTask);
+            // Guard against the selection moving while we were scanning.
+            if (!ReferenceEquals(SelectedInstance, instance)) return;
+            InstanceScreenshots = ssTask.Result;
+            InstanceWorlds = worldsTask.Result;
+            InstanceServers = serversTask.Result;
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not load instance browser: {ex.Message}");
         }
     }
 

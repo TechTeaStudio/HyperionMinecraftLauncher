@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
@@ -238,6 +239,82 @@ public partial class MainWindow : Window
         if (folders.Count > 0 && folders[0].Path is { } uri)
         {
             vm.GameDirectoryOverride = uri.LocalPath;
+        }
+    }
+
+    // ---- Instance detail panel (Screenshots / Worlds / Servers) ----
+
+    private void OnInstanceTabScreenshots(object? sender, RoutedEventArgs e) => SetInstanceTab(InstanceDetailTab.Screenshots);
+    private void OnInstanceTabWorlds(object? sender, RoutedEventArgs e) => SetInstanceTab(InstanceDetailTab.Worlds);
+    private void OnInstanceTabServers(object? sender, RoutedEventArgs e) => SetInstanceTab(InstanceDetailTab.Servers);
+
+    private void SetInstanceTab(InstanceDetailTab tab)
+    {
+        if (DataContext is MainViewModel vm)
+            vm.SelectedInstanceTab = tab;
+    }
+
+    /// <summary>Refresh the currently-active per-instance tab (the user clicked the small Refresh button).</summary>
+    private async void OnRefreshInstanceTab(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        try
+        {
+            switch (vm.SelectedInstanceTab)
+            {
+                case InstanceDetailTab.Screenshots:
+                    await vm.RefreshInstanceScreenshotsCommand.ExecuteAsync();
+                    break;
+                case InstanceDetailTab.Worlds:
+                    await vm.RefreshInstanceWorldsCommand.ExecuteAsync();
+                    break;
+                case InstanceDetailTab.Servers:
+                    await vm.RefreshInstanceServersCommand.ExecuteAsync();
+                    break;
+            }
+        }
+        catch
+        {
+            // Refresh errors already surface in the VM log; the button click shouldn't crash.
+        }
+    }
+
+    /// <summary>Open a screenshot with the OS default viewer when the thumbnail is clicked.</summary>
+    private void OnScreenshotPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Control c || c.Tag is not string path) return;
+        OpenWithOsDefault(path);
+    }
+
+    /// <summary>Right-click on a world row -> open its folder in the OS file manager.</summary>
+    private void OnWorldRowPointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        if (e.InitialPressMouseButton != MouseButton.Right) return;
+        if (sender is not Control c || c.Tag is not string path) return;
+        OpenWithOsDefault(path);
+    }
+
+    /// <summary>Best-effort cross-platform "open path with default handler".</summary>
+    private static void OpenWithOsDefault(string path)
+    {
+        try
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Process.Start(new ProcessStartInfo("explorer.exe", $"\"{path}\"") { UseShellExecute = true });
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Process.Start(new ProcessStartInfo("open", $"\"{path}\"") { UseShellExecute = false });
+            }
+            else
+            {
+                Process.Start(new ProcessStartInfo("xdg-open", path) { UseShellExecute = false });
+            }
+        }
+        catch
+        {
+            // Missing default handler shouldn't crash the launcher.
         }
     }
 

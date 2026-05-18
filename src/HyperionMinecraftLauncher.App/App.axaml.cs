@@ -6,6 +6,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 using TechTeaStudio.HyperionMinecraftLauncher.App.Views;
 using System.Net.Http;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
@@ -42,7 +43,10 @@ public partial class App : Application
                 new CmlLibUnderlyingLauncher(), logger, microsoftAuth,
                 newsClient: newsClient);
 
-            var viewModel = new MainViewModel(service, logger, microsoftAuth, settingsStore);
+            // Per-instance browser: lists screenshots / worlds / servers under each instance's gameDir.
+            var instanceBrowser = new FileSystemInstanceBrowser();
+
+            var viewModel = new MainViewModel(service, logger, microsoftAuth, settingsStore, instanceBrowser);
 
             desktop.MainWindow = new MainWindow
             {
