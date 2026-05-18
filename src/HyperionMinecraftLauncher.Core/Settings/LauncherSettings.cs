@@ -28,4 +28,7 @@ public sealed record LauncherSettings
 
     /// <summary>If true, the in-app log mirrors the game's stdout/stderr (planned hook - not wired yet).</summary>
     public bool ShowGameLog { get; init; }
+
+    /// <summary>If true, the left sidebar starts collapsed (icons only, no labels). Default false (expanded).</summary>
+    public bool SidebarCollapsed { get; init; }
 }
