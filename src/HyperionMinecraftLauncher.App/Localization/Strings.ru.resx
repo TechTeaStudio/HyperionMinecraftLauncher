@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Canonical English source for every user-facing string in Hyperion Minecraft Launcher.
+
+    Conventions:
+      - Keys are UpperCamelCase + dotted scope, e.g. "MainWindow.Title", "Sidebar.Home".
+      - Format strings use positional placeholders {0}, {1}, ... (never named).
+      - Do NOT add triple-hyphen horizontal-rule separators or em-dashes to any translation file:
+        the author tracks these as tells of AI-generated copy. Use hyphens or commas.
+      - Technical identifiers (mod-loader names "Fabric"/"Forge"/etc, IDs, URLs, version numbers)
+        are NOT extracted - they stay as literals in the AXAML.
+
+    To add a new culture: drop "Strings.{culture}.resx" alongside this file with the same keys.
+    Missing keys automatically fall back to the English value here.
+  -->
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- ============================== MainWindow ============================== -->
+  <data name="MainWindow.Title" xml:space="preserve"><value>Hyperion Minecraft Launcher</value></data>
+  <data name="MainWindow.HeaderTitle" xml:space="preserve"><value>Hyperion Minecraft Launcher</value></data>
+
+  <!-- Header / account chip -->
+  <data name="Header.SignInWithMicrosoft" xml:space="preserve"><value>Войти через Microsoft</value></data>
+  <data name="Header.AccountsLabel" xml:space="preserve"><value>АККАУНТЫ</value></data>
+  <data name="Header.AddAccount" xml:space="preserve"><value>+ Добавить аккаунт...</value></data>
+  <data name="Header.RemoveThisAccount" xml:space="preserve"><value>Удалить этот аккаунт</value></data>
+
+  <!-- Window controls -->
+  <data name="WindowChrome.Minimize" xml:space="preserve"><value>Свернуть</value></data>
+  <data name="WindowChrome.MaximizeRestore" xml:space="preserve"><value>Развернуть / восстановить</value></data>
+  <data name="WindowChrome.Close" xml:space="preserve"><value>Закрыть</value></data>
+  <data name="WindowChrome.Dismiss" xml:space="preserve"><value>Скрыть</value></data>
+
+  <!-- Sidebar -->
+  <data name="Sidebar.CollapseExpand" xml:space="preserve"><value>Свернуть / развернуть боковую панель</value></data>
+  <data name="Sidebar.Home" xml:space="preserve"><value>Главная</value></data>
+  <data name="Sidebar.Installations" xml:space="preserve"><value>Сборки</value></data>
+  <data name="Sidebar.Skins" xml:space="preserve"><value>Скины</value></data>
+  <data name="Sidebar.Servers" xml:space="preserve"><value>Серверы</value></data>
+  <data name="Sidebar.Headless" xml:space="preserve"><value>Headless</value></data>
+  <data name="Sidebar.HeadlessTooltip" xml:space="preserve"><value>Выделенные headless-серверы</value></data>
+  <data name="Sidebar.Mods" xml:space="preserve"><value>Моды</value></data>
+  <data name="Sidebar.News" xml:space="preserve"><value>Новости</value></data>
+  <data name="Sidebar.Settings" xml:space="preserve"><value>Настройки</value></data>
+  <data name="Sidebar.Logs" xml:space="preserve"><value>Логи</value></data>
+  <data name="Sidebar.ParityBuildLabel" xml:space="preserve"><value>v0.8 - parity-сборка</value></data>
+
+  <!-- Home page -->
+  <data name="Home.Title" xml:space="preserve"><value>Играть в Minecraft</value></data>
+  <data name="Home.Subtitle" xml:space="preserve"><value>Выберите установленную версию или подгрузите из манифеста.</value></data>
+  <data name="Home.YourInstancesLabel" xml:space="preserve"><value>Ваши сборки</value></data>
+  <data name="Home.YourInstancesPlaceholder" xml:space="preserve"><value>(сборок пока нет, создайте на странице Сборки)</value></data>
+  <data name="Home.RescanButton" xml:space="preserve"><value>Пересканировать</value></data>
+  <data name="Home.OrInstallAnother" xml:space="preserve"><value>Или установить другую версию</value></data>
+  <data name="Home.SearchVersionWatermark" xml:space="preserve"><value>Поиск версии...</value></data>
+  <data name="Home.ChipRelease" xml:space="preserve"><value>Release</value></data>
+  <data name="Home.ChipSnapshot" xml:space="preserve"><value>Snapshot</value></data>
+  <data name="Home.ChipOldBeta" xml:space="preserve"><value>Старая beta</value></data>
+  <data name="Home.ChipOldAlpha" xml:space="preserve"><value>Старая alpha</value></data>
+  <data name="Home.ManifestPlaceholder" xml:space="preserve"><value>(сначала нажмите "Обновить манифест")</value></data>
+  <data name="Home.RefreshManifestButton" xml:space="preserve"><value>Обновить манифест</value></data>
+  <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>Оффлайн-ник:</value></data>
+  <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
+  <data name="Home.ResumeWorldButton" xml:space="preserve"><value>Продолжить мир...</value></data>
+  <data name="Home.ResumeWorldTooltip" xml:space="preserve"><value>Quick Play: выберите мир из .minecraft/saves/ и сразу откройте его.</value></data>
+  <data name="Home.LaunchButton" xml:space="preserve"><value>Запустить</value></data>
+
+  <!-- Installations page -->
+  <data name="Installations.Title" xml:space="preserve"><value>Сборки</value></data>
+  <data name="Installations.Subtitle" xml:space="preserve"><value>Сборки Hyperion. У каждой своя версия, иконка и (со временем) JVM / game-dir.</value></data>
+  <data name="Installations.NewInstance" xml:space="preserve"><value>+ Новая сборка</value></data>
+  <data name="Installations.ImportFromZip" xml:space="preserve"><value>Импорт из zip...</value></data>
+  <data name="Installations.ImportFromZipTooltip" xml:space="preserve"><value>Импортировать zip-сборку в формате Hyperion</value></data>
+  <data name="Installations.ImportModpack" xml:space="preserve"><value>Импорт сборки модов...</value></data>
+  <data name="Installations.Refresh" xml:space="preserve"><value>Обновить</value></data>
+  <data name="Installations.DeleteSelected" xml:space="preserve"><value>Удалить выбранные</value></data>
+  <data name="Installations.AutoBadge" xml:space="preserve"><value>авто</value></data>
+  <data name="Installations.MoreTooltip" xml:space="preserve"><value>Ещё...</value></data>
+  <data name="Installations.MenuEditInstance" xml:space="preserve"><value>Редактировать сборку...</value></data>
+  <data name="Installations.MenuChangeIcon" xml:space="preserve"><value>Сменить иконку...</value></data>
+  <data name="Installations.MenuExportToZip" xml:space="preserve"><value>Экспорт в zip...</value></data>
+  <data name="Installations.MenuOpenFolder" xml:space="preserve"><value>Открыть папку</value></data>
+  <data name="Installations.MenuDelete" xml:space="preserve"><value>Удалить</value></data>
+
+  <!-- Instance detail tabs -->
+  <data name="InstanceTabs.Screenshots" xml:space="preserve"><value>Скриншоты</value></data>
+  <data name="InstanceTabs.Worlds" xml:space="preserve"><value>Миры</value></data>
+  <data name="InstanceTabs.Servers" xml:space="preserve"><value>Серверы</value></data>
+  <data name="InstanceTabs.Crashes" xml:space="preserve"><value>Краши</value></data>
+  <data name="InstanceTabs.RefreshButton" xml:space="preserve"><value>Обновить</value></data>
+  <data name="InstanceTabs.OpenFolderButton" xml:space="preserve"><value>Открыть папку</value></data>
+  <data name="InstanceTabs.NoCrashReports" xml:space="preserve"><value>Отчётов о крашах для этой сборки нет.</value></data>
+  <data name="InstanceTabs.SearchModrinth" xml:space="preserve"><value>Modrinth</value></data>
+  <data name="InstanceTabs.SearchCurseForge" xml:space="preserve"><value>CurseForge</value></data>
+  <data name="InstanceTabs.WorldMenuBackupNow" xml:space="preserve"><value>Сделать бэкап сейчас</value></data>
+  <data name="InstanceTabs.WorldMenuRestoreLatest" xml:space="preserve"><value>Восстановить последний бэкап</value></data>
+  <data name="InstanceTabs.WorldMenuOpenFolder" xml:space="preserve"><value>Открыть папку</value></data>
+  <data name="InstanceTabs.CrashSeparatorDash" xml:space="preserve"><value>  -  </value></data>
+
+  <!-- Skins page -->
+  <data name="Skins.Title" xml:space="preserve"><value>Скины</value></data>
+  <data name="Skins.Subtitle" xml:space="preserve"><value>3D-превью в реальном времени, загрузка скинов и выбор плаща (нужен вход через Microsoft).</value></data>
+  <data name="Skins.UploadButton" xml:space="preserve"><value>Загрузить новый скин...</value></data>
+  <data name="Skins.CapeLabel" xml:space="preserve"><value>Плащ:</value></data>
+  <data name="Skins.CapeNonePlaceholder" xml:space="preserve"><value>(нет)</value></data>
+  <data name="Skins.ClearCape" xml:space="preserve"><value>Снять плащ</value></data>
+  <data name="Skins.RecentSkins" xml:space="preserve"><value>Недавние скины</value></data>
+  <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>Применить этот скин повторно</value></data>
+  <data name="Skins.DragHint" xml:space="preserve"><value>Перетащите внутри превью головы, чтобы повернуть.</value></data>
+
+  <!-- Servers page -->
+  <data name="Servers.Title" xml:space="preserve"><value>Серверы</value></data>
+  <data name="Servers.Subtitle" xml:space="preserve"><value>Список мультиплеер-серверов (servers.dat NBT). Пинг по протоколу Minecraft Server List Ping.</value></data>
+  <data name="Servers.RefreshServers" xml:space="preserve"><value>Обновить серверы</value></data>
+  <data name="Servers.RefreshPings" xml:space="preserve"><value>Обновить пинги</value></data>
+  <data name="Servers.JoinButton" xml:space="preserve"><value>Подключиться</value></data>
+  <data name="Servers.JoinTooltip" xml:space="preserve"><value>Quick Play: запустить и подключиться к этому серверу.</value></data>
+
+  <!-- Headless servers page -->
+  <data name="HeadlessServers.Title" xml:space="preserve"><value>Headless-серверы</value></data>
+  <data name="HeadlessServers.Subtitle" xml:space="preserve"><value>Выделенные Minecraft-серверы, которые Hyperion отслеживает на диске. Скачивание server.jar и запуск JVM появятся в v0.29.</value></data>
+  <data name="HeadlessServers.NewServer" xml:space="preserve"><value>+ Новый сервер</value></data>
+  <data name="HeadlessServers.Refresh" xml:space="preserve"><value>Обновить</value></data>
+  <data name="HeadlessServers.Start" xml:space="preserve"><value>Запустить</value></data>
+  <data name="HeadlessServers.Stop" xml:space="preserve"><value>Остановить</value></data>
+  <data name="HeadlessServers.Delete" xml:space="preserve"><value>Удалить</value></data>
+  <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>Заглушка; скачивание server.jar в роадмапе на v0.29.</value></data>
+  <data name="HeadlessServers.FootnotePath" xml:space="preserve"><value>У каждого сервера своя папка в %LOCALAPPDATA%/HyperionMinecraftLauncher/headless_servers/{id}/. При создании лаунчер записывает туда metadata.json, eula.txt и server.properties.</value></data>
+  <data name="HeadlessServers.DashSeparator" xml:space="preserve"><value> - </value></data>
+  <data name="HeadlessServers.MibAndPort" xml:space="preserve"><value> MiB - порт </value></data>
+
+  <!-- Mods page -->
+  <data name="Mods.Title" xml:space="preserve"><value>Моды</value></data>
+  <data name="Mods.Subtitle" xml:space="preserve"><value>Ищите в Modrinth или CurseForge и устанавливайте моды прямо в выбранную сборку.</value></data>
+  <data name="Mods.SourceModrinth" xml:space="preserve"><value>Modrinth</value></data>
+  <data name="Mods.SourceCurseForge" xml:space="preserve"><value>CurseForge</value></data>
+  <data name="Mods.SearchLabel" xml:space="preserve"><value>Поиск:</value></data>
+  <data name="Mods.SearchWatermark" xml:space="preserve"><value>напр. fabric-api, sodium, JEI</value></data>
+  <data name="Mods.SearchButton" xml:space="preserve"><value>Найти</value></data>
+  <data name="Mods.SearchResults" xml:space="preserve"><value>Результаты поиска</value></data>
+  <data name="Mods.InstallButton" xml:space="preserve"><value>Установить</value></data>
+  <data name="Mods.InstalledInSelectedInstance" xml:space="preserve"><value>Установлено в выбранной сборке</value></data>
+  <data name="Mods.RefreshButton" xml:space="preserve"><value>Обновить</value></data>
+  <data name="Mods.PickAnInstanceFirst" xml:space="preserve"><value>Сначала выберите сборку на странице Сборки</value></data>
+  <data name="Mods.RightPaneHint" xml:space="preserve"><value>Правая панель показывает содержимое папки mods/ выбранной сборки и позволяет включать или удалять моды.</value></data>
+  <data name="Mods.RemoveButton" xml:space="preserve"><value>Удалить</value></data>
+  <data name="Mods.DownloadsCountFormat" xml:space="preserve"><value>Загрузок: {0:N0}</value></data>
+  <data name="Mods.FileSizeBytesFormat" xml:space="preserve"><value>{0:N0} Б</value></data>
+
+  <!-- News page -->
+  <data name="News.Title" xml:space="preserve"><value>Новости</value></data>
+  <data name="News.Subtitle" xml:space="preserve"><value>Лента с launchercontent.mojang.com/news.json, тот же источник, что у официального лаунчера Mojang.</value></data>
+  <data name="News.RefreshButton" xml:space="preserve"><value>Обновить новости</value></data>
+  <data name="News.ReadMore" xml:space="preserve"><value>Читать дальше на minecraft.net</value></data>
+
+  <!-- Settings page -->
+  <data name="Settings.Title" xml:space="preserve"><value>Настройки</value></data>
+  <data name="Settings.Subtitle" xml:space="preserve"><value>Сохраняются в %LOCALAPPDATA%\HyperionMinecraftLauncher\settings.json. Лимиты памяти применяются при следующем запуске.</value></data>
+  <data name="Settings.MemoryHeader" xml:space="preserve"><value>Память (JVM heap)</value></data>
+  <data name="Settings.MinimumXmsLabel" xml:space="preserve"><value>Минимум (-Xms):</value></data>
+  <data name="Settings.MaximumXmxLabel" xml:space="preserve"><value>Максимум (-Xmx):</value></data>
+  <data name="Settings.MbUnit" xml:space="preserve"><value> МБ</value></data>
+  <data name="Settings.CeilingPrefix" xml:space="preserve"><value>Потолок, определённый для этой машины: </value></data>
+  <data name="Settings.CeilingSuffix" xml:space="preserve"><value> МБ (~75% системного RAM, не больше 16 ГБ).</value></data>
+  <data name="Settings.JvmArgsHeader" xml:space="preserve"><value>Дополнительные аргументы JVM</value></data>
+  <data name="Settings.JvmArgsWatermark" xml:space="preserve"><value>-XX:+UseG1GC -XX:+UnlockExperimentalVMOptions ...</value></data>
+  <data name="Settings.JvmArgsHint" xml:space="preserve"><value>Добавляются после автогенерируемых -Xms/-Xmx. (Пока не пробрасываются в CmlLib process builder, запланировано на следующий шаг.)</value></data>
+  <data name="Settings.GameDirHeader" xml:space="preserve"><value>Папка игры</value></data>
+  <data name="Settings.GameDirWatermark" xml:space="preserve"><value>(оставьте пустым, чтобы использовать стандартную .minecraft)</value></data>
+  <data name="Settings.BrowseButton" xml:space="preserve"><value>Обзор</value></data>
+  <data name="Settings.JavaExeHeader" xml:space="preserve"><value>Исполняемый файл Java</value></data>
+  <data name="Settings.JavaExeWatermark" xml:space="preserve"><value>(оставьте пустым, чтобы CmlLib нашёл сам)</value></data>
+  <data name="Settings.LauncherPrefsHeader" xml:space="preserve"><value>Настройки лаунчера</value></data>
+  <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>Держать лаунчер открытым после запуска игры</value></data>
+  <data name="Settings.ShowGameLog" xml:space="preserve"><value>Показывать stdout / stderr игры в логе лаунчера (запланировано)</value></data>
+  <data name="Settings.BackupsHeader" xml:space="preserve"><value>Бэкапы</value></data>
+  <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>Автоматически бэкапить миры перед каждым запуском</value></data>
+  <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>Хранить последних N на мир (0 = хранить все):</value></data>
+  <data name="Settings.BackupHint" xml:space="preserve"><value>Каждый мир упаковывается в &lt;gameDir&gt;/backups/{world}-{timestamp}.zip. Сбой при бэкапе логируется, но запуск не блокирует.</value></data>
+  <data name="Settings.LanguageHeader" xml:space="preserve"><value>Язык</value></data>
+  <data name="Settings.LanguageLabel" xml:space="preserve"><value>Язык интерфейса:</value></data>
+  <data name="Settings.LanguageUseSystemDefault" xml:space="preserve"><value>Системный по умолчанию</value></data>
+  <data name="Settings.LanguageHint" xml:space="preserve"><value>Смена языка применяется сразу к новым открытым страницам, а ко всему UI после перезапуска лаунчера.</value></data>
+  <data name="Settings.SaveButton" xml:space="preserve"><value>Сохранить настройки</value></data>
+
+  <!-- Logs page -->
+  <data name="Logs.Title" xml:space="preserve"><value>Логи</value></data>
+  <data name="Logs.Subtitle" xml:space="preserve"><value>Сегодняшний лог-файл с ежедневной ротацией из %LOCALAPPDATA%\HyperionMinecraftLauncher\logs\.</value></data>
+  <data name="Logs.FilterWatermark" xml:space="preserve"><value>Фильтр лога...</value></data>
+  <data name="Logs.RefreshButton" xml:space="preserve"><value>Обновить</value></data>
+  <data name="Logs.OpenLogsFolderButton" xml:space="preserve"><value>Открыть папку логов</value></data>
+  <data name="Logs.CopyAllButton" xml:space="preserve"><value>Копировать всё</value></data>
+
+  <!-- New Instance dialog -->
+  <data name="NewInstanceDialog.Title" xml:space="preserve"><value>Новая сборка</value></data>
+  <data name="NewInstanceDialog.HeaderTitle" xml:space="preserve"><value>Создание новой сборки</value></data>
+  <data name="NewInstanceDialog.InstanceNameLabel" xml:space="preserve"><value>Название сборки</value></data>
+  <data name="NewInstanceDialog.DefaultInstanceName" xml:space="preserve"><value>Моя новая сборка</value></data>
+  <data name="NewInstanceDialog.MinecraftVersionLabel" xml:space="preserve"><value>Версия Minecraft</value></data>
+  <data name="NewInstanceDialog.SearchVersionWatermark" xml:space="preserve"><value>Поиск версии...</value></data>
+  <data name="NewInstanceDialog.LoadingManifest" xml:space="preserve"><value>(загрузка манифеста ...)</value></data>
+  <data name="NewInstanceDialog.FiltersSharedHint" xml:space="preserve"><value>Фильтры и поиск общие с выбором на Главной.</value></data>
+  <data name="NewInstanceDialog.ModLoaderLabel" xml:space="preserve"><value>Мод-лоадер</value></data>
+  <data name="NewInstanceDialog.LoaderVersionLabel" xml:space="preserve"><value>Версия лоадера</value></data>
+  <data name="NewInstanceDialog.LoaderVersionPlaceholder" xml:space="preserve"><value>(последняя)</value></data>
+  <data name="NewInstanceDialog.LoaderHint" xml:space="preserve"><value>Сверху новые. Оставьте пустым, чтобы поставить последнюю стабильную сборку.</value></data>
+  <data name="NewInstanceDialog.LoaderVanilla" xml:space="preserve"><value>Vanilla</value></data>
+  <data name="NewInstanceDialog.LoaderFabric" xml:space="preserve"><value>Fabric</value></data>
+  <data name="NewInstanceDialog.LoaderForge" xml:space="preserve"><value>Forge</value></data>
+  <data name="NewInstanceDialog.LoaderNeoForge" xml:space="preserve"><value>NeoForge</value></data>
+  <data name="NewInstanceDialog.LoaderQuilt" xml:space="preserve"><value>Quilt</value></data>
+  <data name="NewInstanceDialog.IconLabel" xml:space="preserve"><value>Иконка</value></data>
+  <data name="NewInstanceDialog.CreateButton" xml:space="preserve"><value>Создать</value></data>
+
+  <!-- Edit Instance dialog -->
+  <data name="EditInstanceDialog.Title" xml:space="preserve"><value>Редактирование сборки</value></data>
+  <data name="EditInstanceDialog.HeaderTitle" xml:space="preserve"><value>Редактирование сборки</value></data>
+  <data name="EditInstanceDialog.GeneralSection" xml:space="preserve"><value>Общее</value></data>
+  <data name="EditInstanceDialog.JavaMemorySection" xml:space="preserve"><value>Java и память</value></data>
+  <data name="EditInstanceDialog.JavaMemoryHint" xml:space="preserve"><value>Переопределить глобальные настройки только для этой сборки. Пустое поле или 0 = наследовать.</value></data>
+  <data name="EditInstanceDialog.MinHeapLabel" xml:space="preserve"><value>Минимум heap (-Xms)</value></data>
+  <data name="EditInstanceDialog.MaxHeapLabel" xml:space="preserve"><value>Максимум heap (-Xmx)</value></data>
+  <data name="EditInstanceDialog.JvmArgsLabel" xml:space="preserve"><value>Дополнительные аргументы JVM</value></data>
+  <data name="EditInstanceDialog.JvmArgsWatermark" xml:space="preserve"><value>(оставьте пустым, чтобы наследовать из настроек)</value></data>
+  <data name="EditInstanceDialog.GameDirLabel" xml:space="preserve"><value>Папка игры</value></data>
+  <data name="EditInstanceDialog.GameDirWatermark" xml:space="preserve"><value>(оставьте пустым, чтобы наследовать общую .minecraft)</value></data>
+  <data name="EditInstanceDialog.BrowseButton" xml:space="preserve"><value>Обзор...</value></data>
+  <data name="EditInstanceDialog.WindowResolutionLabel" xml:space="preserve"><value>Разрешение окна</value></data>
+  <data name="EditInstanceDialog.WidthShort" xml:space="preserve"><value>Ш </value></data>
+  <data name="EditInstanceDialog.HeightShort" xml:space="preserve"><value>В </value></data>
+  <data name="EditInstanceDialog.ResolutionHint" xml:space="preserve"><value>По умолчанию 854 x 480. Оба нуля = наследовать (стандарт Minecraft).</value></data>
+  <data name="EditInstanceDialog.SaveButton" xml:space="preserve"><value>Сохранить</value></data>
+  <data name="EditInstanceDialog.InstanceNameLabel" xml:space="preserve"><value>Название сборки</value></data>
+  <data name="EditInstanceDialog.IconLabel" xml:space="preserve"><value>Иконка</value></data>
+
+  <!-- Edit Instance Icon dialog -->
+  <data name="EditInstanceIconDialog.Title" xml:space="preserve"><value>Смена иконки</value></data>
+  <data name="EditInstanceIconDialog.HeaderTitle" xml:space="preserve"><value>Смена иконки</value></data>
+  <data name="EditInstanceIconDialog.Subtitle" xml:space="preserve"><value>Выберите новую иконку для этой сборки.</value></data>
+  <data name="EditInstanceIconDialog.SaveButton" xml:space="preserve"><value>Сохранить</value></data>
+
+  <!-- Common dialog actions -->
+  <data name="Common.Cancel" xml:space="preserve"><value>Отмена</value></data>
+  <data name="Common.Save" xml:space="preserve"><value>Сохранить</value></data>
+  <data name="Common.Create" xml:space="preserve"><value>Создать</value></data>
+  <data name="Common.OK" xml:space="preserve"><value>OK</value></data>
+  <data name="Common.Yes" xml:space="preserve"><value>Да</value></data>
+  <data name="Common.No" xml:space="preserve"><value>Нет</value></data>
+  <data name="Common.Close" xml:space="preserve"><value>Закрыть</value></data>
+  <data name="Common.Hide" xml:space="preserve"><value>Скрыть</value></data>
+  <data name="Common.Browse" xml:space="preserve"><value>Обзор</value></data>
+
+  <!-- DeviceCode dialog -->
+  <data name="DeviceCodeDialog.Title" xml:space="preserve"><value>Войти через Microsoft</value></data>
+  <data name="DeviceCodeDialog.HeaderTitle" xml:space="preserve"><value>Войти через Microsoft</value></data>
+  <data name="DeviceCodeDialog.OpenPagePrompt" xml:space="preserve"><value>Откройте эту страницу в браузере:</value></data>
+  <data name="DeviceCodeDialog.EnterCodePrompt" xml:space="preserve"><value>И введите этот код:</value></data>
+  <data name="DeviceCodeDialog.Footer" xml:space="preserve"><value>Браузер должен был открыться автоматически. Лаунчер опрашивает Microsoft, как только вы завершите вход, окно закроется само.</value></data>
+  <data name="DeviceCodeDialog.CopyCode" xml:space="preserve"><value>Скопировать код</value></data>
+  <data name="DeviceCodeDialog.OpenBrowser" xml:space="preserve"><value>Открыть браузер</value></data>
+
+  <!-- JoinServer dialog -->
+  <data name="JoinServerDialog.Title" xml:space="preserve"><value>Подключение к серверу</value></data>
+  <data name="JoinServerDialog.HeaderTitle" xml:space="preserve"><value>Quick Play: подключение к серверу</value></data>
+  <data name="JoinServerDialog.PickInstance" xml:space="preserve"><value>Выберите сборку</value></data>
+  <data name="JoinServerDialog.NoInstancesPlaceholder" xml:space="preserve"><value>(сборок нет)</value></data>
+  <data name="JoinServerDialog.JoinButton" xml:space="preserve"><value>Подключиться</value></data>
+
+  <!-- Worlds dialog -->
+  <data name="WorldsDialog.Title" xml:space="preserve"><value>Продолжить мир</value></data>
+  <data name="WorldsDialog.HeaderTitle" xml:space="preserve"><value>Quick Play: продолжить мир</value></data>
+  <data name="WorldsDialog.ResumeButton" xml:space="preserve"><value>Продолжить</value></data>
+
+  <!-- NewHeadlessServer dialog -->
+  <data name="NewHeadlessServerDialog.Title" xml:space="preserve"><value>Новый headless-сервер</value></data>
+  <data name="NewHeadlessServerDialog.HeaderTitle" xml:space="preserve"><value>Создание headless-сервера</value></data>
+  <data name="NewHeadlessServerDialog.Hint" xml:space="preserve"><value>Скачивание server.jar появится в v0.29. Пока лаунчер пишет метаданные, eula.txt и минимальный server.properties, чтобы папка была готова, когда подключим пайплайн.</value></data>
+  <data name="NewHeadlessServerDialog.ServerNameLabel" xml:space="preserve"><value>Название сервера</value></data>
+  <data name="NewHeadlessServerDialog.DefaultServerName" xml:space="preserve"><value>Мой выделенный сервер</value></data>
+  <data name="NewHeadlessServerDialog.MinecraftVersionLabel" xml:space="preserve"><value>Версия Minecraft</value></data>
+  <data name="NewHeadlessServerDialog.LoadingManifestShort" xml:space="preserve"><value>(загрузка манифеста...)</value></data>
+  <data name="NewHeadlessServerDialog.MaxHeapLabel" xml:space="preserve"><value>Максимум heap JVM (MiB)</value></data>
+  <data name="NewHeadlessServerDialog.PortLabel" xml:space="preserve"><value>Порт</value></data>
+
+  <!-- SkinVariant dialog -->
+  <data name="SkinVariantDialog.Title" xml:space="preserve"><value>Выбор модели скина</value></data>
+  <data name="SkinVariantDialog.HeaderTitle" xml:space="preserve"><value>Выбор модели скина</value></data>
+  <data name="SkinVariantDialog.Question" xml:space="preserve"><value>Какая ширина рук у этого скина?</value></data>
+  <data name="SkinVariantDialog.Hint" xml:space="preserve"><value>Classic = руки в 4 пикселя (Steve). Slim = руки в 3 пикселя (Alex).</value></data>
+  <data name="SkinVariantDialog.Classic" xml:space="preserve"><value>Classic</value></data>
+  <data name="SkinVariantDialog.Slim" xml:space="preserve"><value>Slim</value></data>
+
+  <!-- ImportModpack dialog -->
+  <data name="ImportModpackDialog.Title" xml:space="preserve"><value>Импорт сборки модов</value></data>
+  <data name="ImportModpackDialog.HeaderTitle" xml:space="preserve"><value>Импорт сборки модов</value></data>
+  <data name="ImportModpackDialog.ArchiveLabel" xml:space="preserve"><value>Архив</value></data>
+  <data name="ImportModpackDialog.NoArchivePicked" xml:space="preserve"><value>(файл не выбран)</value></data>
+  <data name="ImportModpackDialog.InstanceNameLabel" xml:space="preserve"><value>Название сборки</value></data>
+  <data name="ImportModpackDialog.InstanceNameWatermark" xml:space="preserve"><value>(если пусто, берётся название модпака)</value></data>
+  <data name="ImportModpackDialog.Hint" xml:space="preserve"><value>Тип архива определяется автоматически (Modrinth .mrpack или CurseForge .zip) и импортируется в новую папку сборки.</value></data>
+  <data name="ImportModpackDialog.ImportButton" xml:space="preserve"><value>Импорт</value></data>
+
+  <!-- ViewModel log messages -->
+  <data name="Log.AutoRefreshingOnStartup" xml:space="preserve"><value>Автообновление при запуске ...</value></data>
+  <data name="Log.SilentMsSignInAttempt" xml:space="preserve"><value>Тихий вход Microsoft (кэшированный refresh-токен) ...</value></data>
+  <data name="Log.AutoSignedInAs" xml:space="preserve"><value>Авто-вход выполнен как '{0}'.</value></data>
+  <data name="Log.SilentSignInSkipped" xml:space="preserve"><value>Тихий вход пропущен: {0}</value></data>
+  <data name="Log.LoadingVersionManifest" xml:space="preserve"><value>Загрузка манифеста версий ...</value></data>
+  <data name="Log.LoadedNVersions" xml:space="preserve"><value>Загружено версий: {0}.</value></data>
+  <data name="Log.LoadingInstances" xml:space="preserve"><value>Загрузка сборок ...</value></data>
+  <data name="Log.FetchingNews" xml:space="preserve"><value>Получение новостей Minecraft ...</value></data>
+  <data name="Log.LoadedNNewsArticles" xml:space="preserve"><value>Загружено новостей: {0}.</value></data>
+  <data name="Log.ReadingServersDat" xml:space="preserve"><value>Чтение servers.dat ...</value></data>
+  <data name="Log.LoadedNServers" xml:space="preserve"><value>Загружено серверов: {0}.</value></data>
+  <data name="Log.ReadingLauncherProfiles" xml:space="preserve"><value>Чтение launcher_profiles.json ...</value></data>
+  <data name="Log.LoadedNProfiles" xml:space="preserve"><value>Загружено профилей из launcher_profiles.json: {0}.</value></data>
+  <data name="Log.ScanningInstalledVersions" xml:space="preserve"><value>Сканирование установленных версий ...</value></data>
+  <data name="Log.FoundNInstalledVersions" xml:space="preserve"><value>Найдено установленных версий: {0}.</value></data>
+  <data name="Log.SigningInWithMicrosoft" xml:space="preserve"><value>Вход через Microsoft ...</value></data>
+  <data name="Log.SignedInAs" xml:space="preserve"><value>Вход выполнен как '{0}'.</value></data>
+  <data name="Log.MicrosoftSignInPrompt" xml:space="preserve"><value>Вход Microsoft: введите код {0} на {1}</value></data>
+  <data name="Log.SignedOut" xml:space="preserve"><value>Выход выполнен.</value></data>
+  <data name="Log.SavingSettings" xml:space="preserve"><value>Сохранение настроек ...</value></data>
+  <data name="Log.SettingsSaved" xml:space="preserve"><value>Настройки сохранены (Xms={0}M, Xmx={1}M).</value></data>
+  <data name="Log.CouldNotSaveSettings" xml:space="preserve"><value>[error] Не удалось сохранить настройки: {0}</value></data>
+  <data name="Log.SignInCancelled" xml:space="preserve"><value>Вход отменён.</value></data>
+  <data name="Log.SignInFailed" xml:space="preserve"><value>[error] {0}</value></data>
+  <data name="Log.Error" xml:space="preserve"><value>[error] {0}</value></data>
+  <data name="Log.Warn" xml:space="preserve"><value>[warn] {0}</value></data>
+  <data name="Log.ModsNoRepository" xml:space="preserve"><value>[mods] Для выбранного источника нет настроенного репозитория.</value></data>
+  <data name="Log.ModsSearching" xml:space="preserve"><value>Поиск в {0} по запросу '{1}' ...</value></data>
+  <data name="Log.ModsResultsCount" xml:space="preserve"><value>[mods] результатов: {0}.</value></data>
+  <data name="Log.ModsNoRepositoryForInstall" xml:space="preserve"><value>[mods] Нет доступного репозитория для установки этого мода.</value></data>
+  <data name="Log.ModsResolvingFiles" xml:space="preserve"><value>Поиск файлов для '{0}' ({1} / {2}) ...</value></data>
+  <data name="Log.ModsNoMatchingFiles" xml:space="preserve"><value>[mods] Для этой сборки нет подходящих файлов.</value></data>
+  <data name="Log.ModsInstalling" xml:space="preserve"><value>Установка '{0}' в '{1}' ...</value></data>
+  <data name="Log.ModsInstallComplete" xml:space="preserve"><value>[mods] Установка завершена.</value></data>
+  <data name="Log.ModsInstalledInInstance" xml:space="preserve"><value>[mods] {0} установлено в '{1}'.</value></data>
+  <data name="Log.ModsRemoved" xml:space="preserve"><value>[mods] Удалено: '{0}'.</value></data>
+
+  <!-- Error messages -->
+  <data name="Error.NoSession" xml:space="preserve"><value>[error] Для операций со скинами нужен аккаунт Microsoft.</value></data>
+  <data name="Error.SkinPickerUnavailable" xml:space="preserve"><value>[error] Выбор файла скина недоступен.</value></data>
+  <data name="Error.CapeOpsRequireMsAccount" xml:space="preserve"><value>[error] Для операций с плащом нужен аккаунт Microsoft.</value></data>
+  <data name="Error.SkinUploadCancelled" xml:space="preserve"><value>Загрузка скина отменена.</value></data>
+  <data name="Error.CannotDeleteAutoImported" xml:space="preserve"><value>Нельзя удалить автоимпортированную сборку (она лежит в .minecraft/versions/).</value></data>
+  <data name="Error.CannotChangeAutoImportedIcon" xml:space="preserve"><value>Нельзя сменить иконку у автоимпортированной сборки.</value></data>
+  <data name="Error.CannotEditAutoImported" xml:space="preserve"><value>Нельзя редактировать автоимпортированную сборку.</value></data>
+  <data name="Error.ModpackImporterDisabled" xml:space="preserve"><value>[error] Импорт сборки модов отключён в этой сборке (импортер не подключён).</value></data>
+  <data name="Error.ModpackImportCancelled" xml:space="preserve"><value>Импорт сборки модов отменён.</value></data>
+  <data name="Error.InstanceExportUnavailable" xml:space="preserve"><value>[error] Экспорт сборки недоступен.</value></data>
+  <data name="Error.CannotExportAutoImported" xml:space="preserve"><value>[error] Нельзя экспортировать автоимпортированную сборку.</value></data>
+  <data name="Error.ExportPickerUnavailable" xml:space="preserve"><value>[error] Выбор файла для экспорта недоступен.</value></data>
+  <data name="Error.InstanceExportCancelled" xml:space="preserve"><value>Экспорт сборки отменён.</value></data>
+  <data name="Error.InstanceImportUnavailable" xml:space="preserve"><value>[error] Импорт сборки недоступен.</value></data>
+  <data name="Error.ImportPickerUnavailable" xml:space="preserve"><value>[error] Выбор файла для импорта недоступен.</value></data>
+  <data name="Error.InstanceImportCancelled" xml:space="preserve"><value>Импорт сборки отменён.</value></data>
+</root>
