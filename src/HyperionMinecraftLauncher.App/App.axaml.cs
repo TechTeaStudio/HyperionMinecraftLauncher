@@ -146,10 +146,17 @@ public partial class App : Application
             // Mod repositories: Modrinth always-on (no key needed); CurseForge inert until
             // the user pastes a key into Settings. Both share their own HttpClient with a
             // 20 s timeout so big project pages don't hang the UI.
+            //
+            // v0.32.1 (T-cf-onboarding): the CurseForge repo now reads the key through a
+            // delegate so the onboarding dialog can hand a fresh value to the VM and the
+            // very next SearchAsync picks it up - no launcher restart required. The VM
+            // mutates this slot via SetCurseForgeApiKey on Save; the closure here just
+            // surfaces the current value to the repo.
             var modsHttp = new System.Net.Http.HttpClient { Timeout = System.TimeSpan.FromSeconds(20) };
             var modrinthRepo = new ModrinthRepository(modsHttp);
             var curseForgeHttp = new System.Net.Http.HttpClient { Timeout = System.TimeSpan.FromSeconds(20) };
-            var curseForgeRepo = new CurseForgeRepository(curseForgeHttp, initialSettings.CurseForgeApiKey, logger);
+            var liveCurseForgeKey = new LiveCurseForgeKey(initialSettings.CurseForgeApiKey);
+            var curseForgeRepo = new CurseForgeRepository(curseForgeHttp, liveCurseForgeKey.Read, logger);
             var instanceModManager = new FileSystemInstanceModManager();
 
             // Modpack import (v0.30.0 T21d). Both importers share the same instances dir under
@@ -201,7 +208,8 @@ public partial class App : Application
                 modrinthRepo, curseForgeRepo, instanceModManager, accountStore,
                 updateChecker, headlessServerStore, backupService, crashReportListener,
                 instanceExporter, instanceImporter, modpackImporter,
-                modLoaderInstaller, modLoaderVersionFetcher, localizationService);
+                modLoaderInstaller, modLoaderVersionFetcher, localizationService,
+                curseForgeKeySetter: liveCurseForgeKey.Set);
 
             var mainWindow = new MainWindow
             {
@@ -229,6 +237,29 @@ public partial class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    /// <summary>
+    /// Thread-safe holder for the live CurseForge API key. Constructed with the value
+    /// from <see cref="LauncherSettings.CurseForgeApiKey"/> at startup; <see cref="Set"/>
+    /// is called by the view-model after the onboarding dialog so the next
+    /// <see cref="CurseForgeRepository.SearchAsync"/> resolves the fresh key via
+    /// <see cref="Read"/> without rebuilding the repository.
+    /// </summary>
+    private sealed class LiveCurseForgeKey
+    {
+        private string _value;
+
+        public LiveCurseForgeKey(string initial)
+        {
+            _value = initial ?? string.Empty;
+        }
+
+        /// <summary>Current key. Volatile read is enough; we never observe torn strings.</summary>
+        public string Read() => System.Threading.Volatile.Read(ref _value) ?? string.Empty;
+
+        /// <summary>Replace the key. <c>null</c> is normalised to empty.</summary>
+        public void Set(string? newKey) => System.Threading.Volatile.Write(ref _value, newKey ?? string.Empty);
     }
 
     /// <summary>

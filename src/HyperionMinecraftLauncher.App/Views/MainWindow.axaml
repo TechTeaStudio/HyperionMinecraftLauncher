@@ -1130,7 +1130,39 @@
             <Grid RowDefinitions="Auto,*">
               <TextBlock Grid.Row="0" Text="{x:Static loc:Strings.Mods_SearchResults}"
                          FontWeight="SemiBold" FontSize="12" Margin="6,4" />
-              <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+
+              <!-- v0.32.1 (T-cf-onboarding): friendly empty-state for the CurseForge tab
+                   before the user has configured an API key. Hides the search list and
+                   surfaces a "Get started" button that opens the onboarding dialog. -->
+              <Border Grid.Row="1" IsVisible="{Binding ShouldShowCurseForgeEmptyState}"
+                      Padding="18" Background="Transparent">
+                <StackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            MaxWidth="380">
+                  <materialIcons:MaterialIcon Kind="KeyOutline" Width="40" Height="40"
+                                              Foreground="{DynamicResource MaterialPrimaryMidBrush}"
+                                              HorizontalAlignment="Center" />
+                  <TextBlock Text="{x:Static loc:Strings.Mods_ConnectHeadline}"
+                             FontSize="13" FontWeight="SemiBold"
+                             HorizontalAlignment="Center" TextAlignment="Center"
+                             TextWrapping="Wrap" />
+                  <TextBlock Text="{x:Static loc:Strings.Mods_ConnectSubhead}"
+                             FontSize="11" Opacity="0.7"
+                             HorizontalAlignment="Center" TextAlignment="Center"
+                             TextWrapping="Wrap" />
+                  <Button Content="{x:Static loc:Strings.Mods_GetStartedButton}"
+                          Command="{Binding OpenCurseForgeOnboardingCommand}"
+                          HorizontalAlignment="Center"
+                          Padding="18,6" FontSize="12"
+                          CornerRadius="4"
+                          Background="{DynamicResource LG.BubbleFillCombined}"
+                          BorderBrush="{DynamicResource LG.GlassRimStrong}"
+                          BorderThickness="1"
+                          Foreground="White" />
+                </StackPanel>
+              </Border>
+
+              <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                            IsVisible="{Binding !ShouldShowCurseForgeEmptyState}">
                 <ListBox ItemsSource="{Binding ModSearchResults}"
                          SelectedItem="{Binding SelectedModSearchResult, Mode=TwoWay}"
                          Background="Transparent" BorderThickness="0">
