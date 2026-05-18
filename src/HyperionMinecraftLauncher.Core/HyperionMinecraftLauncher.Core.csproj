@@ -11,6 +11,15 @@
 
   <ItemGroup>
     <PackageReference Include="CmlLib.Core" Version="4.0.6" />
+    <!--
+      Mod-loader installers (T21a, v0.30.0). Forge + NeoForge ship as .NET
+      packages on top of CmlLib.Core 4.x. Fabric and Quilt have no NuGet
+      installer of their own - the installer we ship calls their official
+      meta APIs (meta.fabricmc.net / meta.quiltmc.org) directly, which is
+      what every third-party launcher (Prism, MultiMC, ATLauncher) does.
+    -->
+    <PackageReference Include="CmlLib.Core.Installer.Forge" Version="1.1.1" />
+    <PackageReference Include="CmlLib.Core.Installer.NeoForge" Version="4.0.1" />
     <PackageReference Include="fNbt" Version="1.0.0" />
     <!--
       Logging stack for SerilogLauncherLogger. The house Serilog.TechTeaStudio.Wrap
