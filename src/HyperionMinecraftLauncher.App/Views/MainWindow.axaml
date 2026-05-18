@@ -354,7 +354,20 @@
                 <Border Width="130" Height="148" Margin="6" CornerRadius="6"
                         Background="{DynamicResource MaterialPaperBrush}"
                         BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1"
-                        Classes="Card">
+                        Classes="Card"
+                        Tag="{Binding}">
+                  <!-- Right-click + "..." overflow both route into the same handler so
+                       the user can change the icon either way. The menu/button is hidden
+                       on auto-imported tiles (those belong to the official launcher's
+                       versions/ folder; Hyperion doesn't persist edits for them). -->
+                  <Border.ContextMenu>
+                    <ContextMenu>
+                      <MenuItem Header="Change icon..."
+                                Click="OnChangeIconMenuClicked"
+                                Tag="{Binding}"
+                                IsEnabled="{Binding !IsAutoImported}" />
+                    </ContextMenu>
+                  </Border.ContextMenu>
                   <Grid>
                     <Grid RowDefinitions="*,Auto,Auto">
                       <Image Grid.Row="0"
@@ -379,6 +392,21 @@
                       <TextBlock Text="auto" FontSize="9" Foreground="White"
                                  FontWeight="SemiBold" />
                     </Border>
+                    <!-- Keyboard / discoverability fallback: small overflow button in the
+                         bottom-right corner of every user-created tile. Same handler as the
+                         context-menu item. Hidden on auto-imported tiles. -->
+                    <Button Content="..."
+                            Click="OnChangeIconMenuClicked"
+                            Tag="{Binding}"
+                            ToolTip.Tip="Change icon..."
+                            Padding="6,0"
+                            MinWidth="22" Height="20"
+                            FontSize="11"
+                            HorizontalAlignment="Right" VerticalAlignment="Top"
+                            Margin="0,4,4,0"
+                            Background="#66000000" Foreground="White"
+                            BorderThickness="0" CornerRadius="3"
+                            IsVisible="{Binding !IsAutoImported}" />
                   </Grid>
                 </Border>
               </DataTemplate>

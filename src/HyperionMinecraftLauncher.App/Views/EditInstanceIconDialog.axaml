@@ -1,0 +1,82 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="using:TechTeaStudio.HyperionMinecraftLauncher.App.Views"
+        xmlns:sys="using:System"
+        mc:Ignorable="d"
+        x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.EditInstanceIconDialog"
+        Title="Change icon"
+        Width="420" Height="320"
+        CanResize="False"
+        SystemDecorations="None"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource MaterialPaperBrush}"
+        FontFamily="Inter, Segoe UI, system-ui"
+        RenderOptions.BitmapInterpolationMode="None">
+
+  <Border BorderBrush="{DynamicResource MaterialPrimaryMidBrush}" BorderThickness="1" CornerRadius="6">
+    <Grid RowDefinitions="36,*,Auto">
+
+      <!-- Title bar (drag handle + close glyph). Mirrors NewInstanceDialog so the
+           two icon-picker modals feel like siblings. -->
+      <Border Grid.Row="0" Background="{DynamicResource MaterialPrimaryDarkBrush}"
+              PointerPressed="OnTitleBarPressed">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0" x:Name="TitleText" Text="Change icon"
+                     FontFamily="{StaticResource MinecraftFont}" FontSize="13"
+                     Foreground="White" VerticalAlignment="Center" Margin="12,0" />
+          <Button Grid.Column="1" Click="OnCancel" Width="36" Height="36"
+                  Background="Transparent" BorderThickness="0" CornerRadius="0">
+            <Path Data="M 0,0 L 10,10 M 10,0 L 0,10" Stroke="White" StrokeThickness="1.2"
+                  Width="10" Height="10" />
+          </Button>
+        </Grid>
+      </Border>
+
+      <!-- Body -->
+      <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="22,16">
+        <StackPanel Spacing="10">
+          <TextBlock x:Name="SubtitleText" FontSize="12" Opacity="0.85" TextWrapping="Wrap"
+                     Text="Pick a new icon for this instance." />
+          <ItemsControl x:Name="IconPicker">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <WrapPanel Orientation="Horizontal" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="sys:String">
+                <RadioButton GroupName="IconChoice"
+                            Margin="2"
+                            Tag="{Binding}"
+                            Click="OnIconClicked"
+                            Width="48" Height="48"
+                            Background="{DynamicResource MaterialBackgroundBrush}"
+                            BorderBrush="{DynamicResource MaterialPrimaryMidBrush}"
+                            BorderThickness="1">
+                  <Image Source="{ReflectionBinding Converter={x:Static local:IconKeyToUri.Instance}}"
+                         Width="28" Height="28" />
+                </RadioButton>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </ScrollViewer>
+
+      <!-- Footer -->
+      <Grid Grid.Row="2" Margin="22,4,22,16" ColumnDefinitions="*,Auto,Auto">
+        <Button Grid.Column="1" Content="Cancel" Click="OnCancel"
+                Padding="14,5" FontSize="12" Margin="0,0,8,0" />
+        <Button Grid.Column="2" Content="Save"
+                Click="OnSave"
+                FontFamily="{StaticResource MinecraftFont}" FontSize="13"
+                Padding="14,5"
+                Background="{DynamicResource MaterialPrimaryMidBrush}" Foreground="White" />
+      </Grid>
+    </Grid>
+  </Border>
+</Window>
