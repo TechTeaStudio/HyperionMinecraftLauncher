@@ -188,6 +188,15 @@ public class BackupBeforeLaunchTests
 
         public Task<IReadOnlyList<ServerListEntry>> ListServersAsync(Instance instance, CancellationToken cancellationToken)
             => Task.FromResult<IReadOnlyList<ServerListEntry>>(Array.Empty<ServerListEntry>());
+
+        public Task<IReadOnlyList<ResourcePackEntry>> ListResourcePacksAsync(Instance instance, CancellationToken cancellationToken)
+            => Task.FromResult<IReadOnlyList<ResourcePackEntry>>(Array.Empty<ResourcePackEntry>());
+
+        public Task<IReadOnlyList<ShaderPackEntry>> ListShaderPacksAsync(Instance instance, CancellationToken cancellationToken)
+            => Task.FromResult<IReadOnlyList<ShaderPackEntry>>(Array.Empty<ShaderPackEntry>());
+
+        public Task<IReadOnlyList<DataPackEntry>> ListDataPacksAsync(Instance instance, CancellationToken cancellationToken)
+            => Task.FromResult<IReadOnlyList<DataPackEntry>>(Array.Empty<DataPackEntry>());
     }
 
     private sealed class RecordingLauncherService : IMinecraftLauncherService

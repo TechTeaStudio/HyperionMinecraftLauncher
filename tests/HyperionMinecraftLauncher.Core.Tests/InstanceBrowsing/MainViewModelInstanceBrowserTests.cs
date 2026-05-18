@@ -76,5 +76,14 @@ public class MainViewModelInstanceBrowserTests
             ServersCallTcs.TrySetResult();
             return Task.FromResult<IReadOnlyList<ServerListEntry>>(System.Array.Empty<ServerListEntry>());
         }
+
+        public Task<IReadOnlyList<ResourcePackEntry>> ListResourcePacksAsync(Instance instance, CancellationToken cancellationToken)
+            => Task.FromResult<IReadOnlyList<ResourcePackEntry>>(System.Array.Empty<ResourcePackEntry>());
+
+        public Task<IReadOnlyList<ShaderPackEntry>> ListShaderPacksAsync(Instance instance, CancellationToken cancellationToken)
+            => Task.FromResult<IReadOnlyList<ShaderPackEntry>>(System.Array.Empty<ShaderPackEntry>());
+
+        public Task<IReadOnlyList<DataPackEntry>> ListDataPacksAsync(Instance instance, CancellationToken cancellationToken)
+            => Task.FromResult<IReadOnlyList<DataPackEntry>>(System.Array.Empty<DataPackEntry>());
     }
 }

@@ -123,6 +123,154 @@ public sealed class FileSystemInstanceBrowser : IInstanceBrowser
         return _serversStore.LoadAsync(path, cancellationToken);
     }
 
+    /// <inheritdoc />
+    public Task<IReadOnlyList<ResourcePackEntry>> ListResourcePacksAsync(Instance instance, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(instance);
+        var dir = Path.Combine(ResolveRoot(instance), "resourcepacks");
+
+        return Task.Run<IReadOnlyList<ResourcePackEntry>>(() =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (!Directory.Exists(dir)) return Array.Empty<ResourcePackEntry>();
+
+            var entries = new List<ResourcePackEntry>();
+            foreach (var path in Directory.EnumerateFiles(dir, "*", SearchOption.TopDirectoryOnly))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (!IsZipOrDisabled(path, out bool enabled)) continue;
+                try
+                {
+                    var info = new FileInfo(path);
+                    entries.Add(new ResourcePackEntry
+                    {
+                        FullPath = info.FullName,
+                        Filename = info.Name,
+                        SizeBytes = info.Length,
+                        IsEnabled = enabled,
+                    });
+                }
+                catch
+                {
+                    // Skip unreadable entries - never crash the whole list.
+                }
+            }
+
+            return entries
+                .OrderBy(e => e.Filename, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+        }, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<ShaderPackEntry>> ListShaderPacksAsync(Instance instance, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(instance);
+        var dir = Path.Combine(ResolveRoot(instance), "shaderpacks");
+
+        return Task.Run<IReadOnlyList<ShaderPackEntry>>(() =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (!Directory.Exists(dir)) return Array.Empty<ShaderPackEntry>();
+
+            var entries = new List<ShaderPackEntry>();
+            foreach (var path in Directory.EnumerateFiles(dir, "*", SearchOption.TopDirectoryOnly))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (!IsZipOrDisabled(path, out bool enabled)) continue;
+                try
+                {
+                    var info = new FileInfo(path);
+                    entries.Add(new ShaderPackEntry
+                    {
+                        FullPath = info.FullName,
+                        Filename = info.Name,
+                        SizeBytes = info.Length,
+                        IsEnabled = enabled,
+                    });
+                }
+                catch
+                {
+                    // Skip unreadable entries.
+                }
+            }
+
+            return entries
+                .OrderBy(e => e.Filename, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+        }, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<DataPackEntry>> ListDataPacksAsync(Instance instance, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(instance);
+        var savesDir = Path.Combine(ResolveRoot(instance), "saves");
+
+        return Task.Run<IReadOnlyList<DataPackEntry>>(() =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (!Directory.Exists(savesDir)) return Array.Empty<DataPackEntry>();
+
+            var entries = new List<DataPackEntry>();
+            foreach (var worldDir in Directory.EnumerateDirectories(savesDir))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var packDir = Path.Combine(worldDir, "datapacks");
+                if (!Directory.Exists(packDir)) continue;
+                var worldName = Path.GetFileName(worldDir);
+
+                foreach (var path in Directory.EnumerateFiles(packDir, "*", SearchOption.TopDirectoryOnly))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    if (!IsZipOrDisabled(path, out bool enabled)) continue;
+                    try
+                    {
+                        var info = new FileInfo(path);
+                        entries.Add(new DataPackEntry
+                        {
+                            FullPath = info.FullName,
+                            Filename = info.Name,
+                            SizeBytes = info.Length,
+                            WorldFolderName = worldName,
+                            IsEnabled = enabled,
+                        });
+                    }
+                    catch
+                    {
+                        // Skip unreadable entries.
+                    }
+                }
+            }
+
+            return entries
+                .OrderBy(e => e.WorldFolderName, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(e => e.Filename, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+        }, cancellationToken);
+    }
+
+    /// <summary>
+    /// Treat <c>.zip</c> as enabled, <c>.zip.disabled</c> as disabled, everything else as ignored.
+    /// Tightening this to a positive whitelist avoids picking up random files (READMEs, .DS_Store)
+    /// in pack directories.
+    /// </summary>
+    private static bool IsZipOrDisabled(string path, out bool isEnabled)
+    {
+        if (path.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+        {
+            isEnabled = true;
+            return true;
+        }
+        if (path.EndsWith(".zip.disabled", StringComparison.OrdinalIgnoreCase))
+        {
+            isEnabled = false;
+            return true;
+        }
+        isEnabled = false;
+        return false;
+    }
+
     private static string ResolveRoot(Instance instance)
     {
         return !string.IsNullOrWhiteSpace(instance.GameDirectory)
