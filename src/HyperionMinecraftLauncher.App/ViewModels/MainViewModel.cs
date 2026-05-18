@@ -25,6 +25,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Settings;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.History;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Updates;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
@@ -55,6 +56,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private readonly IModRepository? _curseForgeRepository;
     private readonly IInstanceModManager? _instanceModManager;
     private readonly IAccountStore? _accountStore;
+    private readonly IUpdateChecker? _updateChecker;
+    private UpdateInfo? _availableUpdate;
+    private bool _autoUpdateCheckEnabled;
 
     // Settings-page state (mirrored from LauncherSettings on load, written back on Save).
     private int _minMemoryMb;
@@ -127,7 +131,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IModRepository? modrinthRepository = null,
         IModRepository? curseForgeRepository = null,
         IInstanceModManager? instanceModManager = null,
-        IAccountStore? accountStore = null)
+        IAccountStore? accountStore = null,
+        IUpdateChecker? updateChecker = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -143,6 +148,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _curseForgeRepository = curseForgeRepository;
         _instanceModManager = instanceModManager;
         _accountStore = accountStore;
+        _updateChecker = updateChecker;
         _maxAllowedMemoryMb = SystemRam.RecommendedMaxHeapMb();
 
         // MSAL device-code prompts come from a background thread; surface them in the UI log.
@@ -215,6 +221,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
         RemoveAccountCommand = new AsyncParameterRelayCommand<Account>(
             RemoveAccountAsync,
             a => !IsBusy && a is not null && _microsoftAuth is not null);
+
+        // Launcher update banner: only enabled once the startup probe populates AvailableUpdate;
+        // Dismiss simply clears the banner for the current session (re-checked on next startup).
+        OpenReleasePageCommand = new AsyncRelayCommand(OpenReleasePageAsync, () => AvailableUpdate is not null);
+        DismissUpdateCommand = new AsyncRelayCommand(DismissUpdateAsync, () => AvailableUpdate is not null);
     }
 
     // ---- Account ----
@@ -618,6 +629,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _keepLauncherOpen = s.KeepLauncherOpen;
         _showGameLog = s.ShowGameLog;
         _sidebarCollapsed = s.SidebarCollapsed;
+        _autoUpdateCheckEnabled = s.AutoUpdateCheckEnabled;
     }
 
     /// <summary>Snapshot the current VM state as a persistable <see cref="LauncherSettings"/>.</summary>
@@ -631,6 +643,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         KeepLauncherOpen = _keepLauncherOpen,
         ShowGameLog = _showGameLog,
         SidebarCollapsed = _sidebarCollapsed,
+        AutoUpdateCheckEnabled = _autoUpdateCheckEnabled,
     };
 
     /// <summary>Currently-selected profile on the Installations page. Picking a profile pre-fills the launch context.</summary>
@@ -952,7 +965,35 @@ public sealed class MainViewModel : INotifyPropertyChanged
         await RefreshServersAsync();
         await RefreshNewsAsync();
         await RefreshVersionsAsync();
+
+        // T16: launcher update probe. Best-effort, runs after the heavy refreshes so a slow
+        // GitHub round-trip doesn't delay the visible content. Disabled toggles or a missing
+        // checker silently no-op; transport failures are swallowed inside the checker.
+        if (_autoUpdateCheckEnabled && _updateChecker is not null)
+        {
+            try
+            {
+                var info = await _updateChecker.CheckAsync(CurrentLauncherVersion, CancellationToken.None).ConfigureAwait(false);
+                if (info is not null)
+                {
+                    AvailableUpdate = info;
+                    Append($"A newer launcher version is available: v{info.LatestVersion}");
+                }
+            }
+            catch (Exception ex)
+            {
+                // The checker contract says it shouldn't throw; defend against future drift anyway.
+                _logger.Warn($"Update check failed: {ex.Message}");
+            }
+        }
     }
+
+    /// <summary>
+    /// The currently running launcher version, advertised to the update checker as the
+    /// "current" side of the comparison. Kept as a constant so a single source of truth
+    /// (the .csproj &lt;Version&gt;) bumps in lock-step with this string per release.
+    /// </summary>
+    public const string CurrentLauncherVersion = "0.28.0";
 
     /// <summary>
     /// Re-read the cached-accounts roster (MSAL + offline placeholders), reconcile our
@@ -2204,6 +2245,72 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             IsBusy = false;
         }
+    }
+
+    // ---- Launcher self-update banner (T16) ----
+
+    /// <summary>
+    /// Latest update reported by the GitHub Releases probe (strictly newer than the running
+    /// build), or <c>null</c> when no update is available / probe was disabled / the user
+    /// dismissed the banner. INPC-bound; the View shows the banner when this is non-null.
+    /// </summary>
+    public UpdateInfo? AvailableUpdate
+    {
+        get => _availableUpdate;
+        private set
+        {
+            if (SetField(ref _availableUpdate, value))
+            {
+                OnPropertyChanged(nameof(HasUpdateAvailable));
+                OnPropertyChanged(nameof(UpdateBannerText));
+                OpenReleasePageCommand.RaiseCanExecuteChanged();
+                DismissUpdateCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    /// <summary>Convenience helper for the XAML banner's <c>IsVisible</c> binding.</summary>
+    public bool HasUpdateAvailable => _availableUpdate is not null;
+
+    /// <summary>Single-line banner caption: "Launcher update available: v0.99.0 - click to open release page".</summary>
+    public string UpdateBannerText => _availableUpdate is null
+        ? string.Empty
+        : $"Launcher update available: v{_availableUpdate.LatestVersion} · click to open release page";
+
+    /// <summary>Click on the banner opens <see cref="UpdateInfo.ReleaseUrl"/> in the default browser.</summary>
+    public AsyncRelayCommand OpenReleasePageCommand { get; }
+
+    /// <summary>X button on the banner clears <see cref="AvailableUpdate"/> for this session.</summary>
+    public AsyncRelayCommand DismissUpdateCommand { get; }
+
+    private Task OpenReleasePageAsync()
+    {
+        var info = _availableUpdate;
+        if (info is null || string.IsNullOrWhiteSpace(info.ReleaseUrl)) return Task.CompletedTask;
+
+        try
+        {
+            // UseShellExecute=true forces the default browser to handle the http(s) scheme
+            // on every supported OS; .NET 6+ would otherwise default to false on .NET Core.
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(info.ReleaseUrl)
+            {
+                UseShellExecute = true,
+            });
+        }
+        catch (Exception ex)
+        {
+            // Cosmetic: log and keep the banner up so the user knows the link is still there.
+            _logger.Warn($"Could not open release page: {ex.Message}");
+            Append($"[warn] Could not open release page: {ex.Message}");
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task DismissUpdateAsync()
+    {
+        AvailableUpdate = null;
+        return Task.CompletedTask;
     }
 
     private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
