@@ -182,7 +182,7 @@ public partial class App : Application
             // assembly's Strings.resx family. The initial culture comes from the user's
             // persisted setting (LauncherSettings.Locale); if null we fall back to the OS
             // display language. AvailableCultures lists every culture the launcher ships
-            // translations for - v0.31.0 ships English only; the next wave adds the rest.
+            // translations for - v0.31.0 ships 8 locales (en source + 7 translations).
             // Switching CurrentUICulture here means any code that reads
             // ResourceManager.GetString without an explicit culture (the Strings.Designer
             // properties used by AXAML's {x:Static ...}) picks up the override too.
@@ -192,7 +192,7 @@ public partial class App : Application
             var localizationService = new ResxLocalizationService(
                 TechTeaStudio.HyperionMinecraftLauncher.App.Localization.Strings.ResourceManager,
                 initialLocale,
-                new[] { "en" });
+                new[] { "en", "ru", "es", "pt-BR", "de", "fr", "zh-Hans", "ja" });
 
             var viewModel = new MainViewModel(
                 service, logger, microsoftAuth, settingsStore,
