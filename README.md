@@ -210,7 +210,7 @@ HyperionMinecraftLauncher/
 The launcher version is stored in **one file**: `/VERSION` at the repo root. The build picks it up automatically:
 
 ```
-+- VERSION                          (currently: 0.32.0)
++- VERSION                          (currently: 0.32.1)
 +- Directory.Build.props            (reads VERSION into <Version>)
 +- src/*.csproj                     (inherit <Version>, no per-project override)
 ```
@@ -224,7 +224,23 @@ dotnet build HyperionMinecraftLauncher.slnx
 
 Format is 3-part SemVer (`X.Y.Z`); commit format is `vX.Y.Z <short description>` capped at 72 characters.
 
+### Continuous integration
+
 Pushing to the `product` branch triggers `.github/workflows/dotnet.yml` (restore + build + test on Ubuntu and Windows matrix, .NET 10). There is no NuGet publish step; this is an application.
+
+### Tag-driven release flow
+
+Cutting a new public release is a four-step ritual. The packaging job is intentionally decoupled from per-commit CI so day-to-day pushes do not burn artifact storage.
+
+1. Edit `/VERSION` to the new number (e.g. `0.33.0`).
+2. `git commit -am "vX.Y.Z Release X.Y.Z"`.
+3. `git tag vX.Y.Z && git push origin vX.Y.Z` to trigger the release workflow.
+4. The workflow (`.github/workflows/release.yml`) builds Windows, Linux, and macOS artifacts in parallel and publishes a GitHub Release with the tag's body. The matrix runs:
+   - `ubuntu-latest` -> Linux AppImage via `scripts/build-appimage.sh`
+   - `windows-latest` -> self-contained `win-x64` single-file publish, zipped
+   - `macos-latest` -> self-contained `osx-arm64` publish, zipped (a proper `.app` packaging script is still on the roadmap)
+
+The release job uses `softprops/action-gh-release` with `body_path: CHANGELOG.md`. Branch pushes never trigger this workflow; only tags matching `v*.*.*` do.
 
 See [CHANGELOG.md](CHANGELOG.md) for the full release history.
 
