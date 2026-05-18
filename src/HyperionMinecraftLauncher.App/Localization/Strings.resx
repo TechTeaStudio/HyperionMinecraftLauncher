@@ -130,13 +130,17 @@
 
   <!-- Headless servers page -->
   <data name="HeadlessServers.Title" xml:space="preserve"><value>Headless servers</value></data>
-  <data name="HeadlessServers.Subtitle" xml:space="preserve"><value>Dedicated Minecraft servers Hyperion tracks on disk. Server jar download and JVM spawn are on the roadmap.</value></data>
+  <data name="HeadlessServers.Subtitle" xml:space="preserve"><value>Dedicated Minecraft servers Hyperion tracks on disk. Hyperion downloads server.jar, starts the JVM, and streams stdout into the console pane below.</value></data>
   <data name="HeadlessServers.NewServer" xml:space="preserve"><value>+ New server</value></data>
   <data name="HeadlessServers.Refresh" xml:space="preserve"><value>Refresh</value></data>
   <data name="HeadlessServers.Start" xml:space="preserve"><value>Start</value></data>
   <data name="HeadlessServers.Stop" xml:space="preserve"><value>Stop</value></data>
   <data name="HeadlessServers.Delete" xml:space="preserve"><value>Delete</value></data>
   <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>Placeholder; server jar download is on the roadmap.</value></data>
+  <data name="HeadlessServers.ConsoleHeader" xml:space="preserve"><value>Server console</value></data>
+  <data name="HeadlessServers.CommandWatermark" xml:space="preserve"><value>Type a server command (e.g. say hi, op &lt;name&gt;, stop)</value></data>
+  <data name="HeadlessServers.SendButton" xml:space="preserve"><value>Send</value></data>
+  <data name="HeadlessServers.StatusLabel" xml:space="preserve"><value>Status:</value></data>
   <data name="HeadlessServers.FootnotePath" xml:space="preserve"><value>Each server gets its own folder under %LOCALAPPDATA%/HyperionMinecraftLauncher/headless_servers/{id}/. The launcher writes metadata.json, eula.txt and server.properties on Create.</value></data>
   <data name="HeadlessServers.DashSeparator" xml:space="preserve"><value> - </value></data>
   <data name="HeadlessServers.MibAndPort" xml:space="preserve"><value> MiB - port </value></data>
