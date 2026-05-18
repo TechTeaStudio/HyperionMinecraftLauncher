@@ -1,4 +1,5 @@
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 
@@ -31,4 +32,18 @@ public sealed record LaunchRequest
     /// <see cref="QuickPlay.Multiplayer"/> to deep-link straight into a world or server.
     /// </summary>
     public QuickPlay QuickPlay { get; init; } = new QuickPlay.None();
+
+    /// <summary>
+    /// Which Java feature version this Minecraft build needs. <c>null</c> means "no managed
+    /// JRE - use whatever's on PATH". The view-model populates this via
+    /// <see cref="JavaRequirementResolver.For"/> when the user hasn't supplied a manual override.
+    /// </summary>
+    public JavaRequirement? JavaRequirement { get; init; }
+
+    /// <summary>
+    /// Pre-resolved absolute path to the <c>java(.exe)</c> the underlying launcher should use.
+    /// Set by the service after <see cref="IJavaRuntimeManager.EnsureRuntimeAsync"/> returns.
+    /// <c>null</c> means "let CmlLib decide".
+    /// </summary>
+    public string? JavaPath { get; init; }
 }

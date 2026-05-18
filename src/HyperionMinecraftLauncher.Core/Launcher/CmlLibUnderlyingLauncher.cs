@@ -139,6 +139,11 @@ public sealed class CmlLibUnderlyingLauncher : IUnderlyingLauncher
         if (request.MinimumRamMb is int min) options.MinimumRamMb = min;
         if (request.MaximumRamMb is int max) options.MaximumRamMb = max;
 
+        // Auto-downloaded Adoptium Temurin: when the service has pre-resolved a JRE for the
+        // requested Java family (1.20.5+ -> Java 21, etc.), thread the absolute path through to
+        // CmlLib so its JVM auto-detect is bypassed entirely.
+        if (!string.IsNullOrWhiteSpace(request.JavaPath)) options.JavaPath = request.JavaPath;
+
         // Quick Play: append the corresponding Minecraft 1.20+ game arguments. CmlLib 4.0.6
         // exposes QuickPlaySingleplayer/Realms/Path on MLaunchOption but no Multiplayer property
         // (the legacy --server/--port pair lives on ServerIp/ServerPort and Minecraft 1.20+ prefers
