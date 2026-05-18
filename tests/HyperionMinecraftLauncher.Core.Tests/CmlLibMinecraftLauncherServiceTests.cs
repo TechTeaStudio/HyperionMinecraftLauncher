@@ -427,6 +427,29 @@ internal sealed class FakeMicrosoftAuthService : IMicrosoftAuthService
         SignOutCalled = true;
         return Task.CompletedTask;
     }
+
+    // ----- multi-account surface (v0.27.0) -----
+
+    public System.Collections.Generic.IReadOnlyList<TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts.Account> CachedAccounts { get; set; }
+        = System.Array.Empty<TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts.Account>();
+    public string? LastSignInSilentlyId { get; private set; }
+    public string? LastSignOutId { get; private set; }
+
+    public Task<System.Collections.Generic.IReadOnlyList<TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts.Account>> ListCachedAsync(CancellationToken cancellationToken)
+        => Task.FromResult(CachedAccounts);
+
+    public Task<AuthResult> SignInSilentlyAsync(string accountId, CancellationToken cancellationToken)
+    {
+        LastSignInSilentlyId = accountId;
+        if (ThrowOnSignInSilently is not null) throw ThrowOnSignInSilently;
+        return Task.FromResult(ResultToReturn);
+    }
+
+    public Task SignOutAsync(string accountId, CancellationToken cancellationToken)
+    {
+        LastSignOutId = accountId;
+        return Task.CompletedTask;
+    }
 }
 
 internal sealed class RecordingLogger : ILauncherLogger
