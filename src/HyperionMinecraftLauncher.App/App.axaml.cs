@@ -57,7 +57,8 @@ public partial class App : Application
             // logging. FileLauncherLogger is kept (marked [Obsolete]) for deterministic tests
             // that need a clock-injected file logger.
             var logger = new SerilogLauncherLogger(DefaultLogDirectory.Resolve());
-            logger.Info($"HyperionMinecraftLauncher 0.28.0 starting on {System.Runtime.InteropServices.RuntimeInformation.OSDescription}.");
+            var asmVersion = typeof(App).Assembly.GetName().Version?.ToString(3) ?? "?.?.?";
+            logger.Info($"HyperionMinecraftLauncher {asmVersion} starting on {System.Runtime.InteropServices.RuntimeInformation.OSDescription}.");
 
             // Shared account store: the v0.27.0 multi-account roster lives next to MSAL's own
             // refresh-token cache. The Microsoft auth service reads/writes it on every sign-in;
