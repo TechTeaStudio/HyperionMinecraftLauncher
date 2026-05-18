@@ -15,15 +15,17 @@
         ExtendClientAreaChromeHints="NoChrome"
         ExtendClientAreaTitleBarHeightHint="-1"
         WindowStartupLocation="CenterOwner"
-        Background="{DynamicResource MaterialPaperBrush}"
+        Background="{DynamicResource LG.WindowBackground}"
         FontFamily="Inter, Segoe UI, system-ui"
         RenderOptions.BitmapInterpolationMode="None">
 
-  <Border BorderBrush="{DynamicResource MaterialPrimaryMidBrush}" BorderThickness="1" CornerRadius="6">
+  <Border Background="{DynamicResource LG.GlassSurface}"
+          BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="1"
+          CornerRadius="15">
     <Grid RowDefinitions="36,*,Auto">
 
       <!-- Title bar -->
-      <Border Grid.Row="0" Background="{DynamicResource MaterialPrimaryDarkBrush}"
+      <Border Grid.Row="0" Background="#400D0D1B"
               PointerPressed="OnTitleBarPressed">
         <Grid ColumnDefinitions="*,Auto">
           <TextBlock Grid.Column="0" Text="Create a new headless server"
@@ -97,7 +99,11 @@
                 Click="OnCreate"
                 FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                 Padding="14,5"
-                Background="{DynamicResource MaterialPrimaryMidBrush}" Foreground="White" />
+                CornerRadius="15"
+                Background="{DynamicResource LG.BubbleFillCombined}"
+                BorderBrush="{DynamicResource LG.GlassRimStrong}"
+                BorderThickness="1"
+                Foreground="White" />
       </Grid>
     </Grid>
   </Border>

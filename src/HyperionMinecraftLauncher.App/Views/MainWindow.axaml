@@ -1,4 +1,4 @@
-<Window xmlns="https://github.com/avaloniaui"
+﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -30,36 +30,91 @@
         RenderOptions.EdgeMode="Aliased">
 
   <Window.Resources>
-    <!-- Liquid-glass: overrides the App.axaml palette with semi-transparent variants so the
-         acrylic tint under the window shows through cards / chrome. Solid brushes still live
-         in App.axaml for any other window (the device-code modal in particular). -->
-    <SolidColorBrush x:Key="MaterialPaperBrush"          Color="#CC1F2326" />
-    <SolidColorBrush x:Key="MaterialBackgroundBrush"     Color="#A6131614" />
-    <SolidColorBrush x:Key="MaterialCardBackgroundBrush" Color="#CC1F2326" />
-    <SolidColorBrush x:Key="MaterialPrimaryDarkBrush"    Color="#E62A5616" />
-    <SolidColorBrush x:Key="MaterialDividerBrush"        Color="#33FFFFFF" />
+    <!-- Liquid-glass: overrides the App.axaml Material palette with semi-transparent
+         variants so the LG.WindowBackground gradient + acrylic tint show through cards
+         and chrome. The originals still live in App.axaml so child windows that don't
+         import the LG theme keep working.
+
+         Mapping: Paper / CardBackground both alias to the glass surface gradient (cards).
+         Background -> a slightly darker translucent fill for inset content like log boxes.
+         PrimaryDark -> kept transparent so the header bar / sidebar pull through the
+         falling-light overlay. Divider -> LG.Divider. -->
+    <LinearGradientBrush x:Key="MaterialPaperBrush" StartPoint="0%,0%" EndPoint="100%,100%">
+      <GradientStop Offset="0"   Color="#2EFFFFFF" />
+      <GradientStop Offset="0.5" Color="#3D6C6C73" />
+      <GradientStop Offset="1"   Color="#381A1A28" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="MaterialCardBackgroundBrush" StartPoint="0%,0%" EndPoint="100%,100%">
+      <GradientStop Offset="0"   Color="#2EFFFFFF" />
+      <GradientStop Offset="0.5" Color="#3D6C6C73" />
+      <GradientStop Offset="1"   Color="#381A1A28" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="MaterialBackgroundBrush"     Color="#330D0D1B" />
+    <SolidColorBrush x:Key="MaterialPrimaryDarkBrush"    Color="#400D0D1B" />
+    <SolidColorBrush x:Key="MaterialDividerBrush"        Color="#22FFFFFF" />
+
+    <!-- Mid/Light "primary" was Minecraft grass-green; in the LG theme the brand
+         accent moves to the surfaceSelected lavender so chips and "primary" buttons
+         tint with the bubble's signature colour instead of clashing with it. -->
+    <SolidColorBrush x:Key="MaterialPrimaryMidBrush"     Color="#ACAECC" />
+    <SolidColorBrush x:Key="MaterialPrimaryLightBrush"   Color="#C8CAE6" />
   </Window.Resources>
 
 
   <Panel>
     <!-- Acrylic underlay - paints a tinted, blurred frame behind the launcher chrome.
-         When the OS doesn't support acrylic / mica / blur, the system falls back to a flat
-         dark surface so we don't lose readability. -->
+         The TintColor was retuned to the LG.Background.Top swatch so the system blur
+         (when available) reads as the same near-black violet as the gradient on top.
+         When the OS doesn't support acrylic / mica / blur, the gradient overlay below
+         carries the whole look on its own. -->
     <ExperimentalAcrylicBorder IsHitTestVisible="False">
       <ExperimentalAcrylicBorder.Material>
         <ExperimentalAcrylicMaterial
           BackgroundSource="Digger"
-          TintColor="#0F1410"
+          TintColor="#0D0D1B"
           TintOpacity="1"
-          MaterialOpacity="0.78" />
+          MaterialOpacity="0.85" />
       </ExperimentalAcrylicBorder.Material>
     </ExperimentalAcrylicBorder>
+
+    <!-- LG vertical background gradient (#0D0D1B -> #1A1A28). Sits over the acrylic
+         so the launcher has the same colour bed on every platform; the acrylic is
+         what gives it depth where the host OS supports it. -->
+    <Border Background="{DynamicResource LG.WindowBackground}"
+            IsHitTestVisible="False" />
+
+    <!-- =================== FALLING-LIGHT OVERLAY ===================
+         Static diagonal white wedge in the top-right corner, blurred by Effect Blur
+         so the boundary fades into the dark gradient. Rotated -28.28deg per the
+         Flutter spec (RenderTransformOrigin pins the rotation to the centre of the
+         brush rectangle). The Border is sized larger than the window's top-right
+         quadrant so the rotated wedge has enough off-window slack on every side and
+         doesn't show a hard edge mid-window.
+
+         Hit-test disabled - this is purely decorative. -->
+    <Border Width="900" Height="500"
+            HorizontalAlignment="Right" VerticalAlignment="Top"
+            Margin="0,-160,-200,0"
+            IsHitTestVisible="False"
+            Background="{DynamicResource LG.FallingLightGradient}"
+            RenderTransformOrigin="50%,50%">
+      <Border.RenderTransform>
+        <RotateTransform Angle="-28.28" />
+      </Border.RenderTransform>
+      <Border.Effect>
+        <BlurEffect Radius="60" />
+      </Border.Effect>
+    </Border>
 
   <Grid ColumnDefinitions="Auto,*" RowDefinitions="48,Auto,*">
 
     <!-- =================== HEADER (drag region + window controls) =================== -->
-    <Border Grid.ColumnSpan="2" Background="{DynamicResource MaterialPrimaryDarkBrush}"
-            BorderBrush="{DynamicResource MaterialPrimaryMidBrush}" BorderThickness="0,0,0,2"
+    <!-- Header is a thin glass strip: a translucent dark wash over the falling-light
+         overlay, with a single-pixel rim along the bottom edge. The colourful "primary-
+         dark" green is replaced by the LG translucent fill so the new background shows
+         through. -->
+    <Border Grid.ColumnSpan="2" Background="#400D0D1B"
+            BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="0,0,0,1"
             PointerPressed="OnTitleBarPressed">
       <Grid Margin="12,0,0,0" ColumnDefinitions="Auto,*,Auto,Auto">
 
@@ -80,8 +135,9 @@
                 Grid.Column="2"
                 Classes="AccountChip"
                 Padding="8,4" Margin="0,0,8,0"
-                Background="{DynamicResource MaterialPrimaryMidBrush}"
-                BorderThickness="0"
+                Background="{DynamicResource LG.BubbleFillCombined}"
+                BorderBrush="{DynamicResource LG.GlassRimStrong}"
+                BorderThickness="1"
                 CornerRadius="16">
           <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
             <Image Source="{Binding AvatarBitmap}"
@@ -100,7 +156,7 @@
           <Button.Flyout>
             <Flyout Placement="BottomEdgeAlignedRight" ShowMode="Transient">
               <Border Padding="6" MinWidth="280" Background="{DynamicResource MaterialPaperBrush}"
-                      CornerRadius="6">
+                      CornerRadius="15">
                 <StackPanel Spacing="3">
                   <TextBlock Text="ACCOUNTS"
                              FontFamily="{StaticResource MinecraftFont}" FontSize="10"
@@ -227,11 +283,14 @@
     <!-- =================== SIDEBAR =================== -->
     <!-- Border.Width is bound to a VM property that flips between 180 (expanded) and 56 (collapsed).
          The DoubleTransition on Width animates the change so the content reflows smoothly.
-         The Auto column on the parent Grid lets this Border drive its own width. -->
+         The Auto column on the parent Grid lets this Border drive its own width.
+
+         Background is the glass surface gradient; a thin LG.GlassRim line on the right
+         separates it from the content area. -->
     <Border Grid.Row="2" Grid.Column="0" Name="SidebarBorder"
             Width="{Binding SidebarWidth}"
-            Background="{DynamicResource MaterialPaperBrush}"
-            BorderBrush="{DynamicResource MaterialPrimaryDarkBrush}" BorderThickness="0,0,2,0"
+            Background="{DynamicResource LG.GlassSurface}"
+            BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="0,0,1,0"
             ClipToBounds="True">
       <Border.Transitions>
         <Transitions>
@@ -361,7 +420,7 @@
         </StackPanel>
 
         <!-- Instances (saved + auto-imported from .minecraft/versions/) -->
-        <Border Grid.Row="1" Padding="10" Margin="0,0,0,6" CornerRadius="6"
+        <Border Grid.Row="1" Padding="10" Margin="0,0,0,6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
             <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
@@ -388,7 +447,7 @@
         </Border>
 
         <!-- Manifest versions row -->
-        <Border Grid.Row="2" Padding="10" Margin="0,0,0,6" CornerRadius="6"
+        <Border Grid.Row="2" Padding="10" Margin="0,0,0,6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto,Auto">
             <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="4"
@@ -431,7 +490,7 @@
         </Border>
 
         <!-- Username + Launch row -->
-        <Border Grid.Row="3" Padding="10" Margin="0,0,0,8" CornerRadius="6"
+        <Border Grid.Row="3" Padding="10" Margin="0,0,0,8" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto">
             <Image Grid.Column="0" Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/steve_face.png"
@@ -452,13 +511,12 @@
                     FontFamily="{StaticResource MinecraftFont}"
                     FontSize="14"
                     Padding="18,6" Margin="8,0,0,0"
-                    Background="{DynamicResource MaterialPrimaryMidBrush}"
                     Foreground="White" />
           </Grid>
         </Border>
 
         <!-- Log -->
-        <Border Grid.Row="4" BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1" CornerRadius="6"
+        <Border Grid.Row="4" BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1" CornerRadius="15"
                 Background="{DynamicResource MaterialBackgroundBrush}">
           <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <TextBox Text="{Binding LogText, Mode=OneWay}"
@@ -483,9 +541,9 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
           <Button Content="+ New Instance"
                   Click="OnNewInstanceClicked"
+                  Classes="LaunchBtn"
                   FontFamily="{StaticResource MinecraftFont}" FontSize="12"
                   Padding="14,5"
-                  Background="{DynamicResource MaterialPrimaryMidBrush}"
                   Foreground="White" />
           <Button Content="Refresh" FontSize="11"
                   Command="{Binding RefreshInstancesCommand}"
@@ -506,7 +564,7 @@
             </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>
               <DataTemplate DataType="instances:Instance">
-                <Border Width="130" Height="148" Margin="6" CornerRadius="6"
+                <Border Width="130" Height="148" Margin="6" CornerRadius="15"
                         Background="{DynamicResource MaterialPaperBrush}"
                         BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1"
                         Classes="Card"
@@ -570,7 +628,7 @@
         </ScrollViewer>
 
         <!-- Per-instance detail panel: screenshots / worlds / servers, scoped to the selected instance's gameDir. -->
-        <Border Grid.Row="3" Margin="0,8,0,0" Padding="8" CornerRadius="6"
+        <Border Grid.Row="3" Margin="0,8,0,0" Padding="8" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}"
                 BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1"
                 MinHeight="220"
@@ -604,7 +662,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                   <DataTemplate DataType="browsing:ScreenshotEntry">
-                    <Border Width="160" Height="118" Margin="4" CornerRadius="4"
+                    <Border Width="160" Height="118" Margin="4" CornerRadius="10"
                             Background="{DynamicResource MaterialBackgroundBrush}"
                             BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1"
                             Classes="Card"
@@ -693,14 +751,14 @@
         </StackPanel>
 
         <!-- Upload + cape picker row -->
-        <Border Grid.Row="1" Padding="10" Margin="0,0,0,6" CornerRadius="6"
+        <Border Grid.Row="1" Padding="10" Margin="0,0,0,6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <StackPanel Orientation="Horizontal" Spacing="10">
             <Button Content="Upload new skin..."
                     Command="{Binding UploadSkinCommand}"
+                    Classes="LaunchBtn"
                     FontFamily="{StaticResource MinecraftFont}" FontSize="12"
                     Padding="14,5"
-                    Background="{DynamicResource MaterialPrimaryMidBrush}"
                     Foreground="White" />
             <Border Width="1" Background="{DynamicResource MaterialDividerBrush}" Margin="2,0" />
             <TextBlock Text="Cape:" VerticalAlignment="Center" FontSize="12"
@@ -724,7 +782,7 @@
         </Border>
 
         <!-- Recent skins gallery (history) -->
-        <Border Grid.Row="2" Padding="6,8" Margin="0,0,0,6" CornerRadius="6"
+        <Border Grid.Row="2" Padding="6,8" Margin="0,0,0,6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <StackPanel Spacing="4">
             <TextBlock Text="Recent skins" FontWeight="SemiBold" FontSize="12" />
@@ -752,7 +810,7 @@
           </StackPanel>
         </Border>
 
-        <Border Grid.Row="3" CornerRadius="6"
+        <Border Grid.Row="3" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <controls:SkinPreview x:Name="SkinViewer" />
         </Border>
@@ -778,7 +836,7 @@
                   Command="{Binding RefreshServerPingsCommand}"
                   Padding="10,4" />
         </StackPanel>
-        <Border Grid.Row="2" Padding="6" CornerRadius="6"
+        <Border Grid.Row="2" Padding="6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <ListBox ItemsSource="{Binding Servers}"
                    Background="Transparent" BorderThickness="0">
@@ -819,9 +877,9 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
           <Button Content="+ New server"
                   Click="OnNewHeadlessServerClicked"
+                  Classes="LaunchBtn"
                   FontFamily="{StaticResource MinecraftFont}" FontSize="12"
                   Padding="14,5"
-                  Background="{DynamicResource MaterialPrimaryMidBrush}"
                   Foreground="White" />
           <Button Content="Refresh" FontSize="11"
                   Command="{Binding RefreshHeadlessServersCommand}"
@@ -839,7 +897,7 @@
                   Padding="10,5" />
         </StackPanel>
 
-        <Border Grid.Row="2" Padding="6" CornerRadius="6"
+        <Border Grid.Row="2" Padding="6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <ListBox ItemsSource="{Binding HeadlessServers}"
                    SelectedItem="{Binding SelectedHeadlessServer, Mode=TwoWay}"
@@ -885,7 +943,7 @@
         </StackPanel>
 
         <!-- Top search bar -->
-        <Border Grid.Row="1" Padding="10" Margin="0,0,0,6" CornerRadius="6"
+        <Border Grid.Row="1" Padding="10" Margin="0,0,0,6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <Grid ColumnDefinitions="Auto,Auto,*,Auto" RowDefinitions="Auto">
             <!-- Source toggle (Modrinth | CurseForge) -->
@@ -912,7 +970,7 @@
         <!-- Two-pane: results (left) + installed (right) -->
         <Grid Grid.Row="2" ColumnDefinitions="*,*">
           <!-- Search results -->
-          <Border Grid.Column="0" Padding="6" Margin="0,0,4,0" CornerRadius="6"
+          <Border Grid.Column="0" Padding="6" Margin="0,0,4,0" CornerRadius="15"
                   Background="{DynamicResource MaterialPaperBrush}">
             <Grid RowDefinitions="Auto,*">
               <TextBlock Grid.Row="0" Text="Search results"
@@ -923,7 +981,7 @@
                          Background="Transparent" BorderThickness="0">
                   <ListBox.ItemTemplate>
                     <DataTemplate DataType="mods:Mod">
-                      <Border Padding="6" Margin="2" CornerRadius="6"
+                      <Border Padding="6" Margin="2" CornerRadius="15"
                               Background="{DynamicResource MaterialBackgroundBrush}">
                         <Grid ColumnDefinitions="36,*,Auto">
                           <Image Grid.Column="0" Width="32" Height="32" Margin="0,0,8,0"
@@ -948,7 +1006,7 @@
           </Border>
 
           <!-- Installed mods (requires instance) -->
-          <Border Grid.Column="1" Padding="6" Margin="4,0,0,0" CornerRadius="6"
+          <Border Grid.Column="1" Padding="6" Margin="4,0,0,0" CornerRadius="15"
                   Background="{DynamicResource MaterialPaperBrush}">
             <Grid RowDefinitions="Auto,*">
               <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="6,4">
@@ -980,7 +1038,7 @@
                          Background="Transparent" BorderThickness="0">
                   <ListBox.ItemTemplate>
                     <DataTemplate DataType="mods:LocalMod">
-                      <Border Padding="6" Margin="2" CornerRadius="6"
+                      <Border Padding="6" Margin="2" CornerRadius="15"
                               Background="{DynamicResource MaterialBackgroundBrush}">
                         <Grid ColumnDefinitions="Auto,*,Auto,Auto">
                           <CheckBox Grid.Column="0" IsChecked="{Binding IsEnabled, Mode=OneWay}"
@@ -1020,13 +1078,13 @@
         <Button Grid.Row="1" Content="Refresh news" FontSize="11"
                 Command="{Binding RefreshNewsCommand}"
                 Padding="10,4" HorizontalAlignment="Left" Margin="0,0,0,6" />
-        <Border Grid.Row="2" Padding="6" CornerRadius="6"
+        <Border Grid.Row="2" Padding="6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <ScrollViewer VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding News}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                  <Border Margin="0,0,0,8" Padding="10" CornerRadius="6"
+                  <Border Margin="0,0,0,8" Padding="10" CornerRadius="15"
                           Background="{DynamicResource MaterialBackgroundBrush}">
                     <Grid ColumnDefinitions="80,*" RowDefinitions="Auto,Auto,Auto,Auto">
                       <Image Grid.RowSpan="4" Grid.Column="0"
@@ -1070,7 +1128,7 @@
           <StackPanel Spacing="8">
 
             <!-- Memory -->
-            <Border Padding="10" Classes="Card" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Memory (JVM heap)" FontWeight="SemiBold" FontSize="12" />
 
@@ -1107,7 +1165,7 @@
             </Border>
 
             <!-- JVM args -->
-            <Border Padding="10" Classes="Card" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Custom JVM arguments" FontWeight="SemiBold" FontSize="12" />
                 <TextBox Text="{Binding JvmArguments, Mode=TwoWay}"
@@ -1120,7 +1178,7 @@
             </Border>
 
             <!-- Game directory -->
-            <Border Padding="10" Classes="Card" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Game directory" FontWeight="SemiBold" FontSize="12" />
                 <Grid ColumnDefinitions="*,Auto">
@@ -1133,7 +1191,7 @@
             </Border>
 
             <!-- Java executable -->
-            <Border Padding="10" Classes="Card" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Java executable" FontWeight="SemiBold" FontSize="12" />
                 <Grid ColumnDefinitions="*,Auto">
@@ -1146,7 +1204,7 @@
             </Border>
 
             <!-- Launcher prefs -->
-            <Border Padding="10" Classes="Card" CornerRadius="6" Background="{DynamicResource MaterialPaperBrush}">
+            <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
                 <TextBlock Text="Launcher preferences" FontWeight="SemiBold" FontSize="12" />
                 <CheckBox IsChecked="{Binding KeepLauncherOpen, Mode=TwoWay}" FontSize="11"
@@ -1161,9 +1219,10 @@
 
         <Button Grid.Row="2" Content="Save settings"
                 Command="{Binding SaveSettingsCommand}"
+                Classes="LaunchBtn"
                 FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                 Padding="18,6" HorizontalAlignment="Right" Margin="0,8,0,0"
-                Background="{DynamicResource MaterialPrimaryMidBrush}" Foreground="White" />
+                Foreground="White" />
       </Grid>
 
       <!-- ==== LOGS PAGE ==== -->
@@ -1193,7 +1252,7 @@
         </Grid>
 
         <!-- Log viewer -->
-        <Border Grid.Row="2" BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1" CornerRadius="6"
+        <Border Grid.Row="2" BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1" CornerRadius="15"
                 Background="{DynamicResource MaterialBackgroundBrush}">
           <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <TextBox Text="{Binding FilteredLogText, Mode=OneWay}"
@@ -1271,9 +1330,16 @@
       <Setter Property="Background" Value="#E81123" />
     </Style>
 
-    <!-- Launch button: scale + colour shift on hover, with a spring-y feel. -->
+    <!-- Launch button: liquid-glass bubble with a spring-y scale. The bubble gradient
+         + bubble shadow set make it sit "above" the page surface, matching the big
+         CTA bubble in the Flutter prototype. -->
     <Style Selector="Button.LaunchBtn">
       <Setter Property="RenderTransform" Value="scale(1)" />
+      <Setter Property="Background" Value="{DynamicResource LG.BubbleFillCombined}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LG.GlassRimStrong}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="{DynamicResource LG.RadiusButton}" />
+      <Setter Property="Foreground" Value="{DynamicResource LG.TextPrimary}" />
       <Setter Property="Transitions">
         <Transitions>
           <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.18" Easing="QuadraticEaseOut" />
@@ -1281,27 +1347,36 @@
         </Transitions>
       </Setter>
     </Style>
+    <Style Selector="Button.LaunchBtn /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="BoxShadow" Value="{DynamicResource LG.LaunchShadows}" />
+      <Setter Property="CornerRadius" Value="{DynamicResource LG.RadiusButton}" />
+    </Style>
     <Style Selector="Button.LaunchBtn:pointerover">
       <Setter Property="RenderTransform" Value="scale(1.05)" />
-      <Setter Property="Background" Value="{DynamicResource MaterialPrimaryLightBrush}" />
+      <Setter Property="Background" Value="{DynamicResource LG.BubbleFillHover}" />
     </Style>
     <Style Selector="Button.LaunchBtn:pressed">
       <Setter Property="RenderTransform" Value="scale(0.97)" />
     </Style>
 
-    <!-- Card hover: subtle lift + brighter surface. Borders tagged Classes="Card" get this. -->
+    <!-- Card hover: subtle lift + a soft rim glow. Borders tagged Classes="Card" pick this
+         up; the LiquidGlass gradient background is set inline on the Border itself or
+         via DynamicResource MaterialPaperBrush (which has been aliased to the glass
+         gradient at the Window level). -->
     <Style Selector="Border.Card">
       <Setter Property="RenderTransform" Value="translate(0px,0px)" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LG.GlassRim}" />
+      <Setter Property="BorderThickness" Value="1" />
       <Setter Property="Transitions">
         <Transitions>
           <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.16" Easing="QuadraticEaseOut" />
-          <BrushTransition Property="Background" Duration="0:0:0.16" />
+          <BrushTransition Property="BorderBrush" Duration="0:0:0.16" />
         </Transitions>
       </Setter>
     </Style>
     <Style Selector="Border.Card:pointerover">
       <Setter Property="RenderTransform" Value="translate(0px,-2px)" />
-      <Setter Property="Background" Value="#E6262B30" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LG.GlassRimStrong}" />
     </Style>
 
     <!-- Avatar tilts on hover so the chip feels alive. -->
@@ -1339,12 +1414,16 @@
       </Setter>
     </Style>
 
-    <!-- Sidebar nav radios get a tiny lift in addition to the existing background swap. -->
+    <!-- Sidebar nav radios: animate the bubble background + a small scale on the icon
+         when checked. Idle/hover/checked branches are split across :pointerover and
+         :checked pseudo-classes below. -->
     <Style Selector="RadioButton.Nav /template/ Border#PART_Border">
       <Setter Property="RenderTransform" Value="translate(0px,0px)" />
       <Setter Property="Transitions">
         <Transitions>
-          <BrushTransition Property="Background" Duration="0:0:0.18" />
+          <BrushTransition Property="Background" Duration="0:0:0.41" Easing="QuadraticEaseOut" />
+          <BrushTransition Property="BorderBrush" Duration="0:0:0.41" Easing="QuadraticEaseOut" />
+          <BoxShadowsTransition Property="BoxShadow" Duration="0:0:0.41" Easing="QuadraticEaseOut" />
           <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.18" Easing="QuadraticEaseOut" />
         </Transitions>
       </Setter>
@@ -1403,27 +1482,43 @@
       <Setter Property="Background" Value="{DynamicResource MaterialPrimaryMidBrush}" />
     </Style>
 
-    <!-- Sidebar nav radios styled as full-width tiles. -->
+    <!-- Sidebar nav radios styled as full-width liquid-glass tiles. Idle is fully
+         transparent; hover paints a thin frosted wash; checked gets the bubble
+         gradient + rim + three-layer shadow set from LG.BubbleShadows.
+
+         The Icon ContentPresenter has a small RenderTransform that scales from 1.0
+         to 1.25 on :checked, matching the Flutter prototype's icon bounce. -->
     <Style Selector="RadioButton.Nav">
       <Setter Property="Padding" Value="10,8" />
       <Setter Property="HorizontalAlignment" Value="Stretch" />
       <Setter Property="HorizontalContentAlignment" Value="Stretch" />
       <Setter Property="Background" Value="Transparent" />
-      <Setter Property="CornerRadius" Value="3" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="{DynamicResource LG.RadiusItem}" />
       <Setter Property="FontSize" Value="13" />
+      <Setter Property="Foreground" Value="{DynamicResource LG.TextPrimary}" />
       <Setter Property="Template">
         <ControlTemplate>
           <Border Name="PART_Border"
                   Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
                   CornerRadius="{TemplateBinding CornerRadius}"
                   Padding="{TemplateBinding Padding}">
             <!-- Icon stays in column 0; the label ContentPresenter in column 1 collapses
                  to zero width via IsVisible=false when the sidebar is collapsed, which leaves
                  just the 20x20 icon visible inside the 56px-wide collapsed sidebar. -->
             <Grid ColumnDefinitions="20,Auto">
-              <ContentPresenter Grid.Column="0" Content="{TemplateBinding Tag}"
+              <ContentPresenter Name="PART_IconHost"
+                                Grid.Column="0" Content="{TemplateBinding Tag}"
                                 Width="20" Height="20"
-                                HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                RenderTransformOrigin="50%,50%">
+                <ContentPresenter.RenderTransform>
+                  <ScaleTransform ScaleX="1" ScaleY="1" />
+                </ContentPresenter.RenderTransform>
+              </ContentPresenter>
               <ContentPresenter Grid.Column="1" Content="{TemplateBinding Content}"
                                 VerticalAlignment="Center" Margin="10,0,0,0"
                                 IsVisible="{Binding $parent[Window].((vm:MainViewModel)DataContext).AreSidebarLabelsVisible}" />
@@ -1432,18 +1527,29 @@
         </ControlTemplate>
       </Setter>
     </Style>
-    <Style Selector="RadioButton.Nav /template/ Border#PART_Border">
+    <Style Selector="RadioButton.Nav:pointerover /template/ Border#PART_Border">
+      <Setter Property="Background" Value="{DynamicResource LG.RowHover}" />
+    </Style>
+    <Style Selector="RadioButton.Nav:checked /template/ Border#PART_Border">
+      <Setter Property="Background" Value="{DynamicResource LG.BubbleFillCombined}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LG.GlassRimStrong}" />
+      <Setter Property="BoxShadow" Value="{DynamicResource LG.BubbleShadows}" />
+    </Style>
+    <Style Selector="RadioButton.Nav:checked:pointerover /template/ Border#PART_Border">
+      <Setter Property="Background" Value="{DynamicResource LG.BubbleFillHover}" />
+    </Style>
+
+    <!-- Icon scale: 1.0 idle, 1.25 when the radio is :checked. Animation = 240ms
+         QuadraticEaseOut (Avalonia's closest stock easing to Flutter's easeOutBack). -->
+    <Style Selector="RadioButton.Nav /template/ ContentPresenter#PART_IconHost">
       <Setter Property="Transitions">
         <Transitions>
-          <BrushTransition Property="Background" Duration="0:0:0.18" />
+          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.24" Easing="QuadraticEaseOut" />
         </Transitions>
       </Setter>
     </Style>
-    <Style Selector="RadioButton.Nav:checked /template/ Border#PART_Border">
-      <Setter Property="Background" Value="{DynamicResource MaterialPrimaryMidBrush}" />
-    </Style>
-    <Style Selector="RadioButton.Nav:pointerover /template/ Border#PART_Border">
-      <Setter Property="Background" Value="{DynamicResource MaterialPrimaryDarkBrush}" />
+    <Style Selector="RadioButton.Nav:checked /template/ ContentPresenter#PART_IconHost">
+      <Setter Property="RenderTransform" Value="scale(1.25)" />
     </Style>
 
     <!-- Version-picker filter chips. ToggleButton styled flat: a pill that tints when
@@ -1480,3 +1586,4 @@
   </Window.Styles>
 
 </Window>
+
