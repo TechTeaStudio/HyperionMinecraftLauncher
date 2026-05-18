@@ -110,7 +110,18 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private bool _keepLauncherOpen;
     private bool _showGameLog;
     private bool _sidebarCollapsed;
+    private string _curseForgeApiKey = string.Empty;
     private readonly int _maxAllowedMemoryMb;
+
+    // v0.32.1 (T-cf-onboarding): the App passes this delegate down so the VM can push a
+    // freshly-entered CurseForge API key into the live CurseForgeRepository slot. Without
+    // it the user would have to restart the launcher between pasting the key and the next
+    // search hitting the network.
+    private readonly Action<string?>? _curseForgeKeySetter;
+
+    // Injected by the View on Window.Opened (same pattern as SkinPickRequest). Returns the
+    // entered key on Save, or null when the user cancelled the dialog.
+    private CurseForgeKeyRequest? _curseForgeKeyRequest;
 
     // Sidebar widths in DIPs - kept in one place so XAML transitions hit predictable targets.
     /// <summary>Sidebar width when expanded (icons + labels). Matches the legacy fixed-column width.</summary>
@@ -187,7 +198,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IModpackImporter? modpackImporter = null,
         IModLoaderInstaller? modLoaderInstaller = null,
         IModLoaderVersionFetcher? modLoaderVersionFetcher = null,
-        ILocalizationService? localizationService = null)
+        ILocalizationService? localizationService = null,
+        Action<string?>? curseForgeKeySetter = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -212,6 +224,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _modLoaderInstaller = modLoaderInstaller;
         _modLoaderVersionFetcher = modLoaderVersionFetcher;
         _localizationService = localizationService;
+        _curseForgeKeySetter = curseForgeKeySetter;
         HeadlessServers = new ObservableCollection<HeadlessServer>();
         _modpackImporter = modpackImporter;
         _maxAllowedMemoryMb = SystemRam.RecommendedMaxHeapMb();
@@ -319,6 +332,15 @@ public sealed class MainViewModel : INotifyPropertyChanged
             () => !IsBusy && SelectedInstalledMod is not null && SelectedInstance is not null && _instanceModManager is not null);
         RemoveInstalledModCommand = new AsyncRelayCommand(RemoveSelectedInstalledModAsync,
             () => !IsBusy && SelectedInstalledMod is not null && SelectedInstance is not null && _instanceModManager is not null);
+
+        // T-cf-onboarding (v0.32.1): the "Set up CurseForge" entry points - Settings card,
+        // Mods empty-state panel - all route through this command. The View injects a
+        // CurseForgeKeyRequest delegate on Window.Opened; the VM calls it, persists the
+        // result through the settings store, and pushes the live key into the repository
+        // via _curseForgeKeySetter so the next search hits the network without restart.
+        OpenCurseForgeOnboardingCommand = new AsyncRelayCommand(
+            OpenCurseForgeOnboardingAsync,
+            () => !IsBusy && _curseForgeKeyRequest is not null && _settingsStore is not null);
 
         // Multi-account roster (v0.27.0): switch silently by id, add a fresh device-code
         // sign-in, or sign-out + remove the chosen account from the cache.
@@ -959,6 +981,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _autoBackupBeforeLaunch = s.AutoBackupBeforeLaunch;
         _autoBackupKeepLatest = s.AutoBackupKeepLatest;
         _locale = s.Locale;
+        _curseForgeApiKey = s.CurseForgeApiKey ?? string.Empty;
     }
 
     /// <summary>Snapshot the current VM state as a persistable <see cref="LauncherSettings"/>.</summary>
@@ -976,7 +999,25 @@ public sealed class MainViewModel : INotifyPropertyChanged
         AutoBackupBeforeLaunch = _autoBackupBeforeLaunch,
         AutoBackupKeepLatest = _autoBackupKeepLatest,
         Locale = string.IsNullOrWhiteSpace(_locale) ? null : _locale,
+        CurseForgeApiKey = _curseForgeApiKey ?? string.Empty,
     };
+
+    /// <summary>
+    /// True when the user has stored a CurseForge API key. Drives the Mods page empty-state
+    /// (hide the panel when configured) and the Settings card status row. Updated on
+    /// settings load and whenever the onboarding dialog persists a fresh value.
+    /// </summary>
+    public bool HasCurseForgeKey => !string.IsNullOrWhiteSpace(_curseForgeApiKey);
+
+    /// <summary>
+    /// True when the user has clicked the CurseForge source toggle on the Mods page AND no
+    /// API key is configured yet. Drives the friendly empty-state panel that points to the
+    /// onboarding dialog.
+    /// </summary>
+    public bool ShouldShowCurseForgeEmptyState => IsCurseForgeSelected && !HasCurseForgeKey;
+
+    /// <summary>The currently-stored CurseForge API key (read-only; mutation goes through the dialog).</summary>
+    public string CurseForgeApiKey => _curseForgeApiKey ?? string.Empty;
 
     /// <summary>If true, every launch zips the instance's worlds into <c>&lt;gameDir&gt;/backups/</c> first.</summary>
     public bool AutoBackupBeforeLaunch
@@ -1220,6 +1261,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             {
                 OnPropertyChanged(nameof(IsModrinthSelected));
                 OnPropertyChanged(nameof(IsCurseForgeSelected));
+                OnPropertyChanged(nameof(ShouldShowCurseForgeEmptyState));
                 SearchModsCommand.RaiseCanExecuteChanged();
             }
         }
@@ -1298,6 +1340,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncRelayCommand RefreshInstalledModsCommand { get; }
     public AsyncRelayCommand ToggleInstalledModCommand { get; }
     public AsyncRelayCommand RemoveInstalledModCommand { get; }
+    public AsyncRelayCommand OpenCurseForgeOnboardingCommand { get; }
     public AsyncParameterRelayCommand<Account> SwitchAccountCommand { get; }
     public AsyncRelayCommand AddAccountCommand { get; }
     public AsyncParameterRelayCommand<Account> RemoveAccountCommand { get; }
@@ -2412,6 +2455,72 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public void SetSkinPickRequest(SkinPickRequest? request)
     {
         _skinPickRequest = request;
+    }
+
+    /// <summary>
+    /// Inject the View's CurseForge onboarding-dialog delegate. The View calls this from its
+    /// <c>Window.Opened</c> handler so the VM can request "show the onboarding dialog and
+    /// give me back the entered key" without taking a direct Avalonia dependency.
+    /// </summary>
+    public void SetCurseForgeKeyRequest(CurseForgeKeyRequest? request)
+    {
+        _curseForgeKeyRequest = request;
+        OpenCurseForgeOnboardingCommand.RaiseCanExecuteChanged();
+    }
+
+    /// <summary>
+    /// Show the CurseForge onboarding modal and, if the user pasted a key and clicked Save,
+    /// persist it through the settings store and push it into the live repository slot so
+    /// the next search hits CurseForge without the user having to restart the launcher.
+    /// </summary>
+    private async Task OpenCurseForgeOnboardingAsync()
+    {
+        if (_settingsStore is null || _curseForgeKeyRequest is null) return;
+        IsBusy = true;
+        try
+        {
+            string? newKey;
+            try
+            {
+                newKey = await _curseForgeKeyRequest(_curseForgeApiKey ?? string.Empty, CancellationToken.None)
+                    .ConfigureAwait(true);
+            }
+            catch (Exception ex)
+            {
+                Append($"[error] Could not open CurseForge onboarding: {ex.Message}");
+                return;
+            }
+            if (newKey is null)
+            {
+                // User cancelled - leave existing key untouched, no log spam.
+                return;
+            }
+
+            try
+            {
+                // Load-modify-save so any other fields the user has touched in this session
+                // but not yet committed via Save Settings are preserved.
+                var current = await _settingsStore.LoadAsync(CancellationToken.None).ConfigureAwait(true);
+                var patched = current with { CurseForgeApiKey = newKey };
+                await _settingsStore.SaveAsync(patched, CancellationToken.None).ConfigureAwait(true);
+                _curseForgeApiKey = newKey;
+                // Push the new key into the live repo slot so the next SearchAsync resolves
+                // the fresh value (otherwise the user would have to restart the launcher).
+                _curseForgeKeySetter?.Invoke(newKey);
+                OnPropertyChanged(nameof(HasCurseForgeKey));
+                OnPropertyChanged(nameof(ShouldShowCurseForgeEmptyState));
+                OnPropertyChanged(nameof(CurseForgeApiKey));
+                Append("[mods] CurseForge API key saved. Try searching now.");
+            }
+            catch (Exception ex)
+            {
+                Append($"[error] Could not persist CurseForge key: {ex.Message}");
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     private async Task UploadSkinAsync()

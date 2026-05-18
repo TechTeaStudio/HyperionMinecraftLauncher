@@ -310,6 +310,29 @@
   <data name="SkinVariantDialog.Classic" xml:space="preserve"><value>Classic</value></data>
   <data name="SkinVariantDialog.Slim" xml:space="preserve"><value>Slim</value></data>
 
+  <!-- CurseForge onboarding dialog -->
+  <data name="CurseForgeOnboardingDialog.Title" xml:space="preserve"><value>Connect to CurseForge</value></data>
+  <data name="CurseForgeOnboardingDialog.HeaderTitle" xml:space="preserve"><value>Connect to CurseForge</value></data>
+  <data name="CurseForgeOnboardingDialog.Heading" xml:space="preserve"><value>Connect to CurseForge</value></data>
+  <data name="CurseForgeOnboardingDialog.Step1Body" xml:space="preserve"><value>CurseForge requires per-developer API keys. We don't ship one. Click the button below to open the CurseForge console in your browser.</value></data>
+  <data name="CurseForgeOnboardingDialog.Step2Button" xml:space="preserve"><value>Open console.curseforge.com</value></data>
+  <data name="CurseForgeOnboardingDialog.Step3Label" xml:space="preserve"><value>Paste your API key:</value></data>
+  <data name="CurseForgeOnboardingDialog.KeyWatermark" xml:space="preserve"><value>$2a$10$...</value></data>
+  <data name="CurseForgeOnboardingDialog.SaveButton" xml:space="preserve"><value>Save and close</value></data>
+  <data name="CurseForgeOnboardingDialog.CancelButton" xml:space="preserve"><value>Cancel</value></data>
+
+  <!-- Mods page CurseForge empty state -->
+  <data name="Mods.ConnectHeadline" xml:space="preserve"><value>Connect to CurseForge to browse mods.</value></data>
+  <data name="Mods.ConnectSubhead" xml:space="preserve"><value>CurseForge needs a free per-developer API key. Hyperion does not ship one. It's a 2-minute signup at console.curseforge.com.</value></data>
+  <data name="Mods.GetStartedButton" xml:space="preserve"><value>Get started</value></data>
+
+  <!-- Settings page Mods card -->
+  <data name="Settings.ModsHeader" xml:space="preserve"><value>Mods</value></data>
+  <data name="Settings.CurseForgeStatusNotConfigured" xml:space="preserve"><value>CurseForge: Not configured.</value></data>
+  <data name="Settings.CurseForgeStatusConfigured" xml:space="preserve"><value>CurseForge: Configured.</value></data>
+  <data name="Settings.SetUpCurseForgeButton" xml:space="preserve"><value>Set up CurseForge</value></data>
+  <data name="Settings.ChangeKeyButton" xml:space="preserve"><value>Change key</value></data>
+
   <!-- ImportModpack dialog -->
   <data name="ImportModpackDialog.Title" xml:space="preserve"><value>Import modpack</value></data>
   <data name="ImportModpackDialog.HeaderTitle" xml:space="preserve"><value>Import modpack</value></data>

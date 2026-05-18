@@ -50,6 +50,19 @@ public partial class MainWindow : Window
         vm.SetSkinPickRequest(PickSkinAsync);
         vm.SetExportZipPickRequest(PickExportZipAsync);
         vm.SetImportZipPickRequest(PickImportZipAsync);
+        vm.SetCurseForgeKeyRequest(RequestCurseForgeKeyAsync);
+    }
+
+    /// <summary>
+    /// Show the CurseForge onboarding modal pre-populated with the user's existing key (if any)
+    /// and return the new key on Save, or <c>null</c> when the user cancelled. Same shape as
+    /// <see cref="PickSkinAsync"/> - the VM stays Avalonia-free.
+    /// </summary>
+    private async Task<string?> RequestCurseForgeKeyAsync(string existingKey, CancellationToken cancellationToken)
+    {
+        var dialog = CurseForgeOnboardingDialog.WithExistingKey(existingKey);
+        await dialog.ShowDialog(this);
+        return dialog.ResultApiKey;
     }
 
     /// <summary>

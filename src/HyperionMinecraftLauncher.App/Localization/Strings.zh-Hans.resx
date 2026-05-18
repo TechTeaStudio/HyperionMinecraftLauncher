@@ -302,6 +302,29 @@
   <data name="SkinVariantDialog.Classic" xml:space="preserve"><value>Classic</value></data>
   <data name="SkinVariantDialog.Slim" xml:space="preserve"><value>Slim</value></data>
 
+  <!-- CurseForge onboarding dialog -->
+  <data name="CurseForgeOnboardingDialog.Title" xml:space="preserve"><value>连接到 CurseForge</value></data>
+  <data name="CurseForgeOnboardingDialog.HeaderTitle" xml:space="preserve"><value>连接到 CurseForge</value></data>
+  <data name="CurseForgeOnboardingDialog.Heading" xml:space="preserve"><value>连接到 CurseForge</value></data>
+  <data name="CurseForgeOnboardingDialog.Step1Body" xml:space="preserve"><value>CurseForge 要求每位开发者使用各自的 API 密钥。我们不会内置密钥。点击下方按钮，在浏览器中打开 CurseForge 控制台。</value></data>
+  <data name="CurseForgeOnboardingDialog.Step2Button" xml:space="preserve"><value>打开 console.curseforge.com</value></data>
+  <data name="CurseForgeOnboardingDialog.Step3Label" xml:space="preserve"><value>粘贴你的 API 密钥：</value></data>
+  <data name="CurseForgeOnboardingDialog.KeyWatermark" xml:space="preserve"><value>$2a$10$...</value></data>
+  <data name="CurseForgeOnboardingDialog.SaveButton" xml:space="preserve"><value>保存并关闭</value></data>
+  <data name="CurseForgeOnboardingDialog.CancelButton" xml:space="preserve"><value>取消</value></data>
+
+  <!-- Mods page CurseForge empty state -->
+  <data name="Mods.ConnectHeadline" xml:space="preserve"><value>连接到 CurseForge 以浏览模组。</value></data>
+  <data name="Mods.ConnectSubhead" xml:space="preserve"><value>CurseForge 需要每位开发者使用免费的 API 密钥。Hyperion 不会内置密钥。在 console.curseforge.com 上注册仅需 2 分钟。</value></data>
+  <data name="Mods.GetStartedButton" xml:space="preserve"><value>开始</value></data>
+
+  <!-- Settings page Mods card -->
+  <data name="Settings.ModsHeader" xml:space="preserve"><value>模组</value></data>
+  <data name="Settings.CurseForgeStatusNotConfigured" xml:space="preserve"><value>CurseForge：未配置。</value></data>
+  <data name="Settings.CurseForgeStatusConfigured" xml:space="preserve"><value>CurseForge：已配置。</value></data>
+  <data name="Settings.SetUpCurseForgeButton" xml:space="preserve"><value>设置 CurseForge</value></data>
+  <data name="Settings.ChangeKeyButton" xml:space="preserve"><value>更改密钥</value></data>
+
   <!-- ImportModpack dialog -->
   <data name="ImportModpackDialog.Title" xml:space="preserve"><value>导入整合包</value></data>
   <data name="ImportModpackDialog.HeaderTitle" xml:space="preserve"><value>导入整合包</value></data>

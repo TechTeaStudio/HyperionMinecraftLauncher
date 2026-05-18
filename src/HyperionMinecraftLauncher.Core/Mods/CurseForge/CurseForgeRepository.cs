@@ -36,7 +36,7 @@ public sealed class CurseForgeRepository : IModRepository
     };
 
     private readonly HttpClient _http;
-    private readonly string _apiKey;
+    private readonly Func<string> _apiKeyProvider;
     private readonly ILauncherLogger _logger;
     private bool _keyWarningEmitted;
 
@@ -45,14 +45,42 @@ public sealed class CurseForgeRepository : IModRepository
     /// is set to <see cref="DefaultBaseAddress"/> when missing. An empty <paramref name="apiKey"/>
     /// disables the network integration; the constructor itself never throws.
     /// </summary>
+    /// <remarks>
+    /// This overload snapshots the key at construction time. New callers should prefer the
+    /// <see cref="CurseForgeRepository(HttpClient, Func{string}, ILauncherLogger)"/> overload
+    /// so the live key from <c>LauncherSettings</c> is picked up on each call without
+    /// rebuilding the repository (otherwise the user has to restart the launcher after
+    /// pasting a key into Settings - the v0.32.1 onboarding bug).
+    /// </remarks>
     public CurseForgeRepository(HttpClient http, string apiKey, ILauncherLogger logger)
+        : this(http, () => apiKey ?? string.Empty, logger)
+    {
+    }
+
+    /// <summary>
+    /// Construct the repository with an injected <see cref="HttpClient"/> and a delegate that
+    /// resolves the current API key on every request. This is the live-settings variant used
+    /// by the App so the user can paste a key into the onboarding dialog and have the next
+    /// search hit CurseForge without restarting the launcher.
+    /// </summary>
+    public CurseForgeRepository(HttpClient http, Func<string> apiKeyProvider, ILauncherLogger logger)
     {
         _http = http ?? throw new ArgumentNullException(nameof(http));
-        _apiKey = apiKey ?? string.Empty;
+        _apiKeyProvider = apiKeyProvider ?? throw new ArgumentNullException(nameof(apiKeyProvider));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         if (_http.BaseAddress is null)
             _http.BaseAddress = new Uri(DefaultBaseAddress);
+    }
+
+    /// <summary>
+    /// Resolve the current API key via the configured provider. Empty / null is normalised
+    /// to <see cref="string.Empty"/> so call-sites can check via <see cref="string.IsNullOrEmpty"/>.
+    /// </summary>
+    private string CurrentApiKey()
+    {
+        try { return _apiKeyProvider() ?? string.Empty; }
+        catch { return string.Empty; }
     }
 
     /// <inheritdoc />
@@ -63,7 +91,8 @@ public sealed class CurseForgeRepository : IModRepository
     {
         ArgumentNullException.ThrowIfNull(query);
 
-        if (string.IsNullOrEmpty(_apiKey))
+        var apiKey = CurrentApiKey();
+        if (string.IsNullOrEmpty(apiKey))
         {
             if (!_keyWarningEmitted)
             {
@@ -72,6 +101,9 @@ public sealed class CurseForgeRepository : IModRepository
             }
             return Array.Empty<Mod>();
         }
+        // The user pasted a fresh key after the last "no key" warning - reset the latch so a
+        // future unset+set cycle gets its own warning line in the log.
+        _keyWarningEmitted = false;
 
         var sb = new StringBuilder("mods/search?gameId=").Append(MinecraftGameId);
         if (!string.IsNullOrEmpty(query.Query))
@@ -83,7 +115,7 @@ public sealed class CurseForgeRepository : IModRepository
         sb.Append("&pageSize=").Append(query.Limit);
         sb.Append("&index=").Append(query.Offset);
 
-        using var request = NewRequest(HttpMethod.Get, sb.ToString());
+        using var request = NewRequest(HttpMethod.Get, sb.ToString(), apiKey);
         using var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
@@ -95,7 +127,8 @@ public sealed class CurseForgeRepository : IModRepository
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(modId);
 
-        if (string.IsNullOrEmpty(_apiKey))
+        var apiKey = CurrentApiKey();
+        if (string.IsNullOrEmpty(apiKey))
             throw new NotSupportedException(KeyMissingMessage);
 
         var sb = new StringBuilder("mods/").Append(Uri.EscapeDataString(modId)).Append("/files?");
@@ -111,7 +144,7 @@ public sealed class CurseForgeRepository : IModRepository
             sb.Append("modLoaderType=").Append(loaderType);
         }
 
-        using var request = NewRequest(HttpMethod.Get, sb.ToString());
+        using var request = NewRequest(HttpMethod.Get, sb.ToString(), apiKey);
         using var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
@@ -124,11 +157,12 @@ public sealed class CurseForgeRepository : IModRepository
         ArgumentNullException.ThrowIfNull(file);
         ArgumentNullException.ThrowIfNull(destination);
 
-        if (string.IsNullOrEmpty(_apiKey))
+        var apiKey = CurrentApiKey();
+        if (string.IsNullOrEmpty(apiKey))
             throw new NotSupportedException(KeyMissingMessage);
 
         using var request = new HttpRequestMessage(HttpMethod.Get, file.DownloadUrl);
-        request.Headers.TryAddWithoutValidation("x-api-key", _apiKey);
+        request.Headers.TryAddWithoutValidation("x-api-key", apiKey);
         using var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
@@ -147,10 +181,10 @@ public sealed class CurseForgeRepository : IModRepository
         }
     }
 
-    private HttpRequestMessage NewRequest(HttpMethod method, string relativeUrl)
+    private HttpRequestMessage NewRequest(HttpMethod method, string relativeUrl, string apiKey)
     {
         var req = new HttpRequestMessage(method, relativeUrl);
-        req.Headers.TryAddWithoutValidation("x-api-key", _apiKey);
+        req.Headers.TryAddWithoutValidation("x-api-key", apiKey);
         req.Headers.TryAddWithoutValidation("Accept", "application/json");
         return req;
     }

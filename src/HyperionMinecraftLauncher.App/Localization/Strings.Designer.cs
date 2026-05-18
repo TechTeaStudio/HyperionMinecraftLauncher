@@ -318,6 +318,29 @@ public static class Strings
     public static string SkinVariantDialog_Classic => L("SkinVariantDialog.Classic");
     public static string SkinVariantDialog_Slim => L("SkinVariantDialog.Slim");
 
+    // CurseForgeOnboardingDialog
+    public static string CurseForgeOnboardingDialog_Title => L("CurseForgeOnboardingDialog.Title");
+    public static string CurseForgeOnboardingDialog_HeaderTitle => L("CurseForgeOnboardingDialog.HeaderTitle");
+    public static string CurseForgeOnboardingDialog_Heading => L("CurseForgeOnboardingDialog.Heading");
+    public static string CurseForgeOnboardingDialog_Step1Body => L("CurseForgeOnboardingDialog.Step1Body");
+    public static string CurseForgeOnboardingDialog_Step2Button => L("CurseForgeOnboardingDialog.Step2Button");
+    public static string CurseForgeOnboardingDialog_Step3Label => L("CurseForgeOnboardingDialog.Step3Label");
+    public static string CurseForgeOnboardingDialog_KeyWatermark => L("CurseForgeOnboardingDialog.KeyWatermark");
+    public static string CurseForgeOnboardingDialog_SaveButton => L("CurseForgeOnboardingDialog.SaveButton");
+    public static string CurseForgeOnboardingDialog_CancelButton => L("CurseForgeOnboardingDialog.CancelButton");
+
+    // Mods page CurseForge empty state
+    public static string Mods_ConnectHeadline => L("Mods.ConnectHeadline");
+    public static string Mods_ConnectSubhead => L("Mods.ConnectSubhead");
+    public static string Mods_GetStartedButton => L("Mods.GetStartedButton");
+
+    // Settings page Mods card
+    public static string Settings_ModsHeader => L("Settings.ModsHeader");
+    public static string Settings_CurseForgeStatusNotConfigured => L("Settings.CurseForgeStatusNotConfigured");
+    public static string Settings_CurseForgeStatusConfigured => L("Settings.CurseForgeStatusConfigured");
+    public static string Settings_SetUpCurseForgeButton => L("Settings.SetUpCurseForgeButton");
+    public static string Settings_ChangeKeyButton => L("Settings.ChangeKeyButton");
+
     // ImportModpackDialog
     public static string ImportModpackDialog_Title => L("ImportModpackDialog.Title");
     public static string ImportModpackDialog_HeaderTitle => L("ImportModpackDialog.HeaderTitle");
