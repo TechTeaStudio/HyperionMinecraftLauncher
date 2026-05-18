@@ -30,36 +30,85 @@
         RenderOptions.EdgeMode="Aliased">
 
   <Window.Resources>
-    <!-- Liquid-glass: overrides the App.axaml palette with semi-transparent variants so the
-         acrylic tint under the window shows through cards / chrome. Solid brushes still live
-         in App.axaml for any other window (the device-code modal in particular). -->
-    <SolidColorBrush x:Key="MaterialPaperBrush"          Color="#CC1F2326" />
-    <SolidColorBrush x:Key="MaterialBackgroundBrush"     Color="#A6131614" />
-    <SolidColorBrush x:Key="MaterialCardBackgroundBrush" Color="#CC1F2326" />
-    <SolidColorBrush x:Key="MaterialPrimaryDarkBrush"    Color="#E62A5616" />
-    <SolidColorBrush x:Key="MaterialDividerBrush"        Color="#33FFFFFF" />
+    <!-- Liquid-glass: overrides the App.axaml Material palette with semi-transparent
+         variants so the LG.WindowBackground gradient + acrylic tint show through cards
+         and chrome. The originals still live in App.axaml so child windows that don't
+         import the LG theme keep working.
+
+         Mapping: Paper / CardBackground both alias to the glass surface gradient (cards).
+         Background -> a slightly darker translucent fill for inset content like log boxes.
+         PrimaryDark -> kept transparent so the header bar / sidebar pull through the
+         falling-light overlay. Divider -> LG.Divider. -->
+    <LinearGradientBrush x:Key="MaterialPaperBrush" StartPoint="0%,0%" EndPoint="100%,100%">
+      <GradientStop Offset="0"   Color="#2EFFFFFF" />
+      <GradientStop Offset="0.5" Color="#3D6C6C73" />
+      <GradientStop Offset="1"   Color="#381A1A28" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="MaterialCardBackgroundBrush" StartPoint="0%,0%" EndPoint="100%,100%">
+      <GradientStop Offset="0"   Color="#2EFFFFFF" />
+      <GradientStop Offset="0.5" Color="#3D6C6C73" />
+      <GradientStop Offset="1"   Color="#381A1A28" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="MaterialBackgroundBrush"     Color="#330D0D1B" />
+    <SolidColorBrush x:Key="MaterialPrimaryDarkBrush"    Color="#400D0D1B" />
+    <SolidColorBrush x:Key="MaterialDividerBrush"        Color="#22FFFFFF" />
   </Window.Resources>
 
 
   <Panel>
     <!-- Acrylic underlay - paints a tinted, blurred frame behind the launcher chrome.
-         When the OS doesn't support acrylic / mica / blur, the system falls back to a flat
-         dark surface so we don't lose readability. -->
+         The TintColor was retuned to the LG.Background.Top swatch so the system blur
+         (when available) reads as the same near-black violet as the gradient on top.
+         When the OS doesn't support acrylic / mica / blur, the gradient overlay below
+         carries the whole look on its own. -->
     <ExperimentalAcrylicBorder IsHitTestVisible="False">
       <ExperimentalAcrylicBorder.Material>
         <ExperimentalAcrylicMaterial
           BackgroundSource="Digger"
-          TintColor="#0F1410"
+          TintColor="#0D0D1B"
           TintOpacity="1"
-          MaterialOpacity="0.78" />
+          MaterialOpacity="0.85" />
       </ExperimentalAcrylicBorder.Material>
     </ExperimentalAcrylicBorder>
+
+    <!-- LG vertical background gradient (#0D0D1B -> #1A1A28). Sits over the acrylic
+         so the launcher has the same colour bed on every platform; the acrylic is
+         what gives it depth where the host OS supports it. -->
+    <Border Background="{DynamicResource LG.WindowBackground}"
+            IsHitTestVisible="False" />
+
+    <!-- =================== FALLING-LIGHT OVERLAY ===================
+         Static diagonal white wedge in the top-right corner, blurred by Effect Blur
+         so the boundary fades into the dark gradient. Rotated -28.28deg per the
+         Flutter spec (RenderTransformOrigin pins the rotation to the centre of the
+         brush rectangle). The Border is sized larger than the window's top-right
+         quadrant so the rotated wedge has enough off-window slack on every side and
+         doesn't show a hard edge mid-window.
+
+         Hit-test disabled - this is purely decorative. -->
+    <Border Width="900" Height="500"
+            HorizontalAlignment="Right" VerticalAlignment="Top"
+            Margin="0,-160,-200,0"
+            IsHitTestVisible="False"
+            Background="{DynamicResource LG.FallingLightGradient}"
+            RenderTransformOrigin="50%,50%">
+      <Border.RenderTransform>
+        <RotateTransform Angle="-28.28" />
+      </Border.RenderTransform>
+      <Border.Effect>
+        <BlurEffect Radius="60" />
+      </Border.Effect>
+    </Border>
 
   <Grid ColumnDefinitions="Auto,*" RowDefinitions="48,Auto,*">
 
     <!-- =================== HEADER (drag region + window controls) =================== -->
-    <Border Grid.ColumnSpan="2" Background="{DynamicResource MaterialPrimaryDarkBrush}"
-            BorderBrush="{DynamicResource MaterialPrimaryMidBrush}" BorderThickness="0,0,0,2"
+    <!-- Header is a thin glass strip: a translucent dark wash over the falling-light
+         overlay, with a single-pixel rim along the bottom edge. The colourful "primary-
+         dark" green is replaced by the LG translucent fill so the new background shows
+         through. -->
+    <Border Grid.ColumnSpan="2" Background="#400D0D1B"
+            BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="0,0,0,1"
             PointerPressed="OnTitleBarPressed">
       <Grid Margin="12,0,0,0" ColumnDefinitions="Auto,*,Auto,Auto">
 
