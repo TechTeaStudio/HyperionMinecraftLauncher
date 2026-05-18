@@ -468,6 +468,87 @@ public class MainViewModelTests
         Assert.Equal(3, vm.FilteredVersions.Count);
     }
 
+    [Fact]
+    public async Task RefreshAccountsAsync_PopulatesAccountsAndPicksMostRecentAsActive_WhenStoreHasNoActive()
+    {
+        var fakeAuth = new FakeMicrosoftAuthService
+        {
+            CachedAccounts = new[]
+            {
+                new TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts.Account
+                {
+                    Id = "a", Username = "Alex",
+                    Uuid = "11111111111111111111111111111111",
+                    LastUsedAt = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                    IsOffline = false,
+                },
+                new TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts.Account
+                {
+                    Id = "b", Username = "Steve",
+                    Uuid = "22222222222222222222222222222222",
+                    LastUsedAt = new DateTimeOffset(2025, 6, 1, 0, 0, 0, TimeSpan.Zero),
+                    IsOffline = false,
+                },
+            },
+        };
+        var vm = new MainViewModel(new StubLauncherService(), new RecordingLogger(), fakeAuth);
+
+        await vm.RefreshAccountsAsync(CancellationToken.None);
+
+        Assert.Equal(2, vm.Accounts.Count);
+        // Most-recent first.
+        Assert.Equal("Steve", vm.Accounts[0].Username);
+        // Without an explicit active id from the store, the VM falls back to the top entry.
+        Assert.NotNull(vm.ActiveAccount);
+        Assert.Equal("b", vm.ActiveAccount!.Id);
+    }
+
+    [Fact]
+    public async Task SwitchAccount_CallsSilentSignIn_AndSetsCurrentSession()
+    {
+        var fakeAuth = new FakeMicrosoftAuthService
+        {
+            ResultToReturn = new AuthResult
+            {
+                Username = "Notch", Uuid = "00000000",
+                AccessToken = "t", IsOffline = false,
+            },
+            CachedAccounts = new[]
+            {
+                new TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts.Account
+                {
+                    Id = "msal-target", Username = "Notch", Uuid = "00000000",
+                    LastUsedAt = DateTimeOffset.UtcNow, IsOffline = false,
+                },
+            },
+        };
+        var vm = new MainViewModel(new StubLauncherService(), new RecordingLogger(), fakeAuth);
+        await vm.RefreshAccountsAsync(CancellationToken.None);
+        var target = vm.Accounts[0];
+
+        await vm.SwitchAccountCommand.ExecuteAsync(target);
+
+        Assert.Equal("msal-target", fakeAuth.LastSignInSilentlyId);
+        Assert.NotNull(vm.CurrentSession);
+        Assert.Equal("Notch", vm.CurrentSession!.Username);
+    }
+
+    [Fact]
+    public async Task RemoveAccount_CallsSignOutAsync_WithId_AndClearsActiveSession()
+    {
+        var fakeAuth = new FakeMicrosoftAuthService();
+        var vm = new MainViewModel(new StubLauncherService(), new RecordingLogger(), fakeAuth);
+        var target = new TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts.Account
+        {
+            Id = "doomed", Username = "X", Uuid = "x",
+            LastUsedAt = DateTimeOffset.UtcNow, IsOffline = false,
+        };
+
+        await vm.RemoveAccountCommand.ExecuteAsync(target);
+
+        Assert.Equal("doomed", fakeAuth.LastSignOutId);
+    }
+
     private static MainViewModel NewVm(out StubLauncherService service, out RecordingLogger logger)
     {
         service = new StubLauncherService();

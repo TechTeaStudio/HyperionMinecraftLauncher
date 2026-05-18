@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
@@ -53,6 +54,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private readonly IModRepository? _modrinthRepository;
     private readonly IModRepository? _curseForgeRepository;
     private readonly IInstanceModManager? _instanceModManager;
+    private readonly IAccountStore? _accountStore;
 
     // Settings-page state (mirrored from LauncherSettings on load, written back on Save).
     private int _minMemoryMb;
@@ -110,6 +112,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private LocalMod? _selectedInstalledMod;
 
     /// <summary>Construct with the launcher service and (optional) Microsoft auth provider + settings store + mod repos / manager.</summary>
+    private Account? _activeAccount;
+
+    /// <summary>Construct with the launcher service and (optional) Microsoft auth provider + settings store + account store.</summary>
     public MainViewModel(
         IMinecraftLauncherService service,
         ILauncherLogger logger,
@@ -121,7 +126,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         ISkinHistoryStore? skinHistory = null,
         IModRepository? modrinthRepository = null,
         IModRepository? curseForgeRepository = null,
-        IInstanceModManager? instanceModManager = null)
+        IInstanceModManager? instanceModManager = null,
+        IAccountStore? accountStore = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -136,6 +142,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _modrinthRepository = modrinthRepository;
         _curseForgeRepository = curseForgeRepository;
         _instanceModManager = instanceModManager;
+        _accountStore = accountStore;
         _maxAllowedMemoryMb = SystemRam.RecommendedMaxHeapMb();
 
         // MSAL device-code prompts come from a background thread; surface them in the UI log.
@@ -157,6 +164,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         Instances = new ObservableCollection<Instance>();
         ModSearchResults = new ObservableCollection<Mod>();
         InstalledMods = new ObservableCollection<LocalMod>();
+        Accounts = new ObservableCollection<Account>();
 
         RefreshVersionsCommand = new AsyncRelayCommand(RefreshVersionsAsync, () => !IsBusy);
         RefreshInstalledVersionsCommand = new AsyncRelayCommand(RefreshInstalledVersionsAsync, () => !IsBusy);
@@ -197,6 +205,16 @@ public sealed class MainViewModel : INotifyPropertyChanged
             () => !IsBusy && SelectedInstalledMod is not null && SelectedInstance is not null && _instanceModManager is not null);
         RemoveInstalledModCommand = new AsyncRelayCommand(RemoveSelectedInstalledModAsync,
             () => !IsBusy && SelectedInstalledMod is not null && SelectedInstance is not null && _instanceModManager is not null);
+
+        // Multi-account roster (v0.27.0): switch silently by id, add a fresh device-code
+        // sign-in, or sign-out + remove the chosen account from the cache.
+        SwitchAccountCommand = new AsyncParameterRelayCommand<Account>(
+            SwitchAccountAsync,
+            a => !IsBusy && a is not null && _microsoftAuth is not null);
+        AddAccountCommand = new AsyncRelayCommand(AddAccountAsync, () => !IsBusy && _microsoftAuth is not null);
+        RemoveAccountCommand = new AsyncParameterRelayCommand<Account>(
+            RemoveAccountAsync,
+            a => !IsBusy && a is not null && _microsoftAuth is not null);
     }
 
     // ---- Account ----
@@ -243,6 +261,22 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 SetActiveCapeCommand.RaiseCanExecuteChanged();
                 ClearActiveCapeCommand.RaiseCanExecuteChanged();
                 ReapplyHistoricSkinCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    /// <summary>Every cached account known to the launcher (Microsoft + offline placeholders). Drives the header-chip flyout.</summary>
+    public ObservableCollection<Account> Accounts { get; }
+
+    /// <summary>The account whose session is currently in <see cref="CurrentSession"/>. <c>null</c> on a fresh install.</summary>
+    public Account? ActiveAccount
+    {
+        get => _activeAccount;
+        private set
+        {
+            if (SetField(ref _activeAccount, value))
+            {
+                RemoveAccountCommand.RaiseCanExecuteChanged();
             }
         }
     }
@@ -692,6 +726,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 RefreshInstalledModsCommand.RaiseCanExecuteChanged();
                 ToggleInstalledModCommand.RaiseCanExecuteChanged();
                 RemoveInstalledModCommand.RaiseCanExecuteChanged();
+                SwitchAccountCommand.RaiseCanExecuteChanged();
+                AddAccountCommand.RaiseCanExecuteChanged();
+                RemoveAccountCommand.RaiseCanExecuteChanged();
             }
         }
     }
@@ -822,6 +859,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncRelayCommand RefreshInstalledModsCommand { get; }
     public AsyncRelayCommand ToggleInstalledModCommand { get; }
     public AsyncRelayCommand RemoveInstalledModCommand { get; }
+    public AsyncParameterRelayCommand<Account> SwitchAccountCommand { get; }
+    public AsyncRelayCommand AddAccountCommand { get; }
+    public AsyncParameterRelayCommand<Account> RemoveAccountCommand { get; }
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -874,16 +914,26 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
         // 0) If MSAL still holds a refresh token from the last session, restore the user
         //    silently so they don't have to re-enter a device code on every launch.
+        // 0) Populate the cached-accounts roster + decide who the active account is.
+        await RefreshAccountsAsync(CancellationToken.None).ConfigureAwait(false);
+
+        // 0a) If we still hold a refresh token for the active account, restore the user
+        //     silently so they don't have to re-enter a device code on every launch.
         if (_microsoftAuth is { HasCachedAccount: true })
         {
             try
             {
                 Append("Silent Microsoft sign-in (cached refresh token) ...");
-                CurrentSession = await _microsoftAuth.SignInSilentlyAsync(CancellationToken.None);
+                if (_activeAccount is { IsOffline: false, Id.Length: > 0 } active)
+                    CurrentSession = await _microsoftAuth.SignInSilentlyAsync(active.Id, CancellationToken.None);
+                else
+                    CurrentSession = await _microsoftAuth.SignInSilentlyAsync(CancellationToken.None);
                 Append($"Auto-signed in as '{CurrentSession.Username}'.");
                 // Populate OwnedSkins + OwnedCapes from the Mojang profile so the Skins
                 // page is fully populated before the user clicks anywhere.
                 await TryRefreshProfileAsync(CurrentSession.AccessToken);
+                // The post-sign-in store update may have changed the account list / active id.
+                await RefreshAccountsAsync(CancellationToken.None).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -902,6 +952,133 @@ public sealed class MainViewModel : INotifyPropertyChanged
         await RefreshServersAsync();
         await RefreshNewsAsync();
         await RefreshVersionsAsync();
+    }
+
+    /// <summary>
+    /// Re-read the cached-accounts roster (MSAL + offline placeholders), reconcile our
+    /// observable list, and update <see cref="ActiveAccount"/>. Safe to call repeatedly.
+    /// </summary>
+    public async Task RefreshAccountsAsync(CancellationToken cancellationToken)
+    {
+        if (_microsoftAuth is null && _accountStore is null) return;
+
+        IReadOnlyList<Account> list = Array.Empty<Account>();
+        try
+        {
+            list = _microsoftAuth is not null
+                ? await _microsoftAuth.ListCachedAsync(cancellationToken).ConfigureAwait(false)
+                : await _accountStore!.ListAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn($"RefreshAccounts failed: {ex.Message}");
+        }
+
+        Accounts.Clear();
+        foreach (var a in list.OrderByDescending(a => a.LastUsedAt))
+            Accounts.Add(a);
+
+        Account? active = null;
+        try
+        {
+            active = _accountStore is null
+                ? null
+                : await _accountStore.GetActiveAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn($"GetActive failed: {ex.Message}");
+        }
+        // Fall back to the most-recent account when the store didn't pin one (single-account upgrade path).
+        active ??= Accounts.FirstOrDefault();
+        ActiveAccount = active;
+    }
+
+    /// <summary>Silent-sign-in the picked account and mark it active. Surfaced via the header chip flyout.</summary>
+    private async Task SwitchAccountAsync(Account? target)
+    {
+        if (target is null || _microsoftAuth is null) return;
+        IsBusy = true;
+        try
+        {
+            Append($"Switching to '{target.Username}' ...");
+            if (target.IsOffline)
+            {
+                // Offline placeholder: just retire the online session, mark active, the offline launch
+                // path will pick the username up from ActiveAccount.
+                if (_accountStore is not null)
+                    await _accountStore.SetActiveAsync(target.Id, CancellationToken.None).ConfigureAwait(false);
+                CurrentSession = null;
+                ActiveAccount = target;
+                Username = target.Username;
+                Append($"Switched to offline account '{target.Username}'.");
+                return;
+            }
+
+            var auth = await _microsoftAuth.SignInSilentlyAsync(target.Id, CancellationToken.None).ConfigureAwait(false);
+            CurrentSession = auth;
+            ActiveAccount = target with { LastUsedAt = DateTimeOffset.UtcNow };
+            Append($"Switched to '{auth.Username}'.");
+            await RefreshAccountsAsync(CancellationToken.None).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not switch account: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    /// <summary>Run a fresh device-code sign-in and add the resulting account to the roster.</summary>
+    private async Task AddAccountAsync()
+    {
+        if (_microsoftAuth is null) return;
+        IsBusy = true;
+        try
+        {
+            Append("Adding new Microsoft account (device-code) ...");
+            var auth = await _microsoftAuth.SignInInteractiveAsync(CancellationToken.None).ConfigureAwait(false);
+            CurrentSession = auth;
+            Append($"Added '{auth.Username}'.");
+            await RefreshAccountsAsync(CancellationToken.None).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not add account: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    /// <summary>Remove the picked account from MSAL's cache and our roster.</summary>
+    private async Task RemoveAccountAsync(Account? target)
+    {
+        if (target is null || _microsoftAuth is null) return;
+        IsBusy = true;
+        try
+        {
+            Append($"Removing account '{target.Username}' ...");
+            await _microsoftAuth.SignOutAsync(target.Id, CancellationToken.None).ConfigureAwait(false);
+            if (ActiveAccount?.Id == target.Id)
+            {
+                CurrentSession = null;
+                ActiveAccount = null;
+            }
+            await RefreshAccountsAsync(CancellationToken.None).ConfigureAwait(false);
+            Append($"Removed '{target.Username}'.");
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not remove account: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     /// <summary>

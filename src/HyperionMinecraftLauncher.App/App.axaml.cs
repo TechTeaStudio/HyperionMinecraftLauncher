@@ -9,6 +9,7 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
@@ -40,7 +41,11 @@ public partial class App : Application
             var logger = new FileLauncherLogger(DefaultLogDirectory.Resolve());
             logger.Info("HyperionMinecraftLauncher starting.");
 
-            var microsoftAuth = new MicrosoftAuthService(logger);
+            // Shared account store: the v0.27.0 multi-account roster lives next to MSAL's own
+            // refresh-token cache. The Microsoft auth service reads/writes it on every sign-in;
+            // the view-model surfaces it through the header chip flyout.
+            var accountStore = new FileAccountStore();
+            var microsoftAuth = new MicrosoftAuthService(logger, DefaultMsalAccountCachePath(), accountStore);
             var settingsStore = new FileLauncherSettingsStore();
 
             // Shared disk cache for news, player skins, and anything else network-bound.
@@ -76,7 +81,6 @@ public partial class App : Application
                 logger.Warn($"Could not init Discord presence ({ex.Message}); falling back to no-op.");
                 presence = new NullPresenceService();
             }
-
             // Per-instance browser: lists screenshots / worlds / servers under each instance's gameDir.
             var instanceBrowser = new FileSystemInstanceBrowser();
 
@@ -99,7 +103,7 @@ public partial class App : Application
             var viewModel = new MainViewModel(
                 service, logger, microsoftAuth, settingsStore,
                 presence, instanceBrowser, skinService, skinHistory,
-                modrinthRepo, curseForgeRepo, instanceModManager);
+                modrinthRepo, curseForgeRepo, instanceModManager, accountStore);
 
             var mainWindow = new MainWindow
             {
@@ -122,5 +126,17 @@ public partial class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    /// <summary>
+    /// The legacy XboxAuthNet account-manager file path. Kept alongside the new
+    /// accounts.v2.json so the migration in <see cref="FileAccountStore"/> can detect it.
+    /// </summary>
+    private static string DefaultMsalAccountCachePath()
+    {
+        var dir = System.IO.Path.Combine(
+            System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData),
+            "HyperionMinecraftLauncher");
+        return System.IO.Path.Combine(dir, "accounts.json");
     }
 }

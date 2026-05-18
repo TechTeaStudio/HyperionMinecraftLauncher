@@ -164,6 +164,9 @@ public class MainViewModelSkinTests : IDisposable
         public Task<IReadOnlyList<TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.ServerListEntry>> ListServersAsync(CancellationToken cancellationToken)
             => Task.FromResult<IReadOnlyList<TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.ServerListEntry>>(Array.Empty<TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.ServerListEntry>());
 
+        public Task<IReadOnlyDictionary<string, TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping.ServerStatus?>> PingServersAsync(IEnumerable<TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.ServerListEntry> entries, CancellationToken cancellationToken)
+            => Task.FromResult<IReadOnlyDictionary<string, TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping.ServerStatus?>>(new Dictionary<string, TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping.ServerStatus?>());
+
         public Task<IReadOnlyList<TechTeaStudio.HyperionMinecraftLauncher.Core.News.NewsEntry>> ListNewsAsync(CancellationToken cancellationToken)
             => Task.FromResult<IReadOnlyList<TechTeaStudio.HyperionMinecraftLauncher.Core.News.NewsEntry>>(Array.Empty<TechTeaStudio.HyperionMinecraftLauncher.Core.News.NewsEntry>());
 
