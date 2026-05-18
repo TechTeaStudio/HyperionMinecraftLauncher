@@ -11,6 +11,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using MinecraftSkinRender.Image;
 using SkiaSharp;
@@ -18,6 +19,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.History;
 using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App.Views;
@@ -38,6 +40,9 @@ public partial class MainWindow : Window
         if (DataContext is not MainViewModel vm) return;
         vm.DeviceCodeRequested += OnVmDeviceCodeRequested;
         vm.PropertyChanged += OnVmPropertyChanged;
+        // The view-model has no Avalonia dependency; inject the file-picker + variant-prompt
+        // delegate now that the TopLevel is available.
+        vm.SetSkinPickRequest(PickSkinAsync);
     }
 
     private void OnVmDeviceCodeRequested(object? sender, MicrosoftDeviceCodeInfo info)
@@ -288,7 +293,6 @@ public partial class MainWindow : Window
             }
             else
             {
-                // Linux + other Unixes - xdg-open is the de-facto standard.
                 Process.Start(new ProcessStartInfo("xdg-open", dir) { UseShellExecute = false });
             }
         }
@@ -388,6 +392,70 @@ public partial class MainWindow : Window
         {
             // Missing default handler shouldn't crash the launcher.
         }
+    }
+
+    /// <summary>
+    /// Open a file picker for a PNG, validate the signature + size (32 KB cap), then
+    /// prompt for the variant. Returns null if the user cancels at any step.
+    /// </summary>
+    private async Task<SkinPickResult?> PickSkinAsync(CancellationToken cancellationToken)
+    {
+        if (DataContext is not MainViewModel vm) return null;
+        var topLevel = GetTopLevel(this);
+        if (topLevel?.StorageProvider is null) return null;
+
+        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Pick skin PNG",
+            AllowMultiple = false,
+            FileTypeFilter = new[]
+            {
+                new FilePickerFileType("PNG image")
+                {
+                    Patterns = new[] { "*.png" },
+                    MimeTypes = new[] { "image/png" },
+                },
+            },
+        });
+        if (files.Count == 0) return null;
+
+        var path = files[0].Path?.LocalPath;
+        if (string.IsNullOrEmpty(path) || !File.Exists(path))
+        {
+            vm.Append("[error] Selected file could not be read.");
+            return null;
+        }
+
+        byte[] bytes;
+        try
+        {
+            bytes = await File.ReadAllBytesAsync(path, cancellationToken).ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            vm.Append($"[error] Could not read PNG: {ex.Message}");
+            return null;
+        }
+
+        if (!PngHeader.IsAcceptableSkinPng(bytes))
+        {
+            vm.Append("[error] File is not a valid PNG or exceeds 32 KB.");
+            return null;
+        }
+
+        var dialog = new SkinVariantDialog();
+        await dialog.ShowDialog(this);
+        if (dialog.SelectedVariant is not { } variant) return null;
+
+        return new SkinPickResult(bytes, variant);
+    }
+
+    /// <summary>Re-apply a skin from the history gallery (button bound via <c>Tag</c>).</summary>
+    private async void OnReapplyHistoricSkinClicked(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        if (sender is not Button { Tag: SkinHistoryEntry entry }) return;
+        await vm.ReapplyHistoricSkinCommand.ExecuteAsync(entry);
     }
 
     private async void OnBrowseJavaExe(object? sender, RoutedEventArgs e)

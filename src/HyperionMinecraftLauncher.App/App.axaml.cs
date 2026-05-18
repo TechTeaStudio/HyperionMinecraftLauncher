@@ -5,6 +5,8 @@ using TechTeaStudio.HyperionMinecraftLauncher.App.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.App.Presence;
 using TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 using TechTeaStudio.HyperionMinecraftLauncher.App.Views;
+using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
@@ -15,6 +17,8 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Presence;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Settings;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.History;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App;
 
@@ -73,7 +77,16 @@ public partial class App : Application
             // Per-instance browser: lists screenshots / worlds / servers under each instance's gameDir.
             var instanceBrowser = new FileSystemInstanceBrowser();
 
-            var viewModel = new MainViewModel(service, logger, microsoftAuth, settingsStore, presence, instanceBrowser);
+            // Skin upload + cape + history services. Reuse the launcher's shared HttpClient.
+            var skinService = new MojangSkinService(httpClient);
+            var skinHistoryDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "HyperionMinecraftLauncher", "skins_history");
+            var skinHistory = new FileSkinHistoryStore(skinHistoryDir);
+
+            var viewModel = new MainViewModel(
+                service, logger, microsoftAuth, settingsStore,
+                presence, instanceBrowser, skinService, skinHistory);
 
             var mainWindow = new MainWindow
             {
