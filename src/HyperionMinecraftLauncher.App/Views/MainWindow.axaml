@@ -1119,17 +1119,17 @@
           </StackPanel>
         </Border>
 
-        <!-- Row 3: 3D preview (left) and NameMC community browser (right). -->
+        <!-- Row 3: 3D preview (left) and community skin browser (right). -->
         <Grid Grid.Row="3" ColumnDefinitions="*,8,2*">
           <Border Grid.Column="0" CornerRadius="15"
                   Background="{DynamicResource MaterialPaperBrush}">
             <controls:SkinPreview x:Name="SkinViewer" />
           </Border>
 
-          <!-- ===== NameMC community skin browser (T-namemc, v0.32.1) =====
-               NameMC publishes no official API; the parser walks public HTML pages and
-               can break if the site is restructured. Treat the gallery as a convenience,
-               not a contract. -->
+          <!-- ===== Community skin browser (T-namemc, v0.32.1; pivoted to MineSkin in v0.32.3) =====
+               Originally NameMC (Cloudflare-blocked since v0.32.2); now MineSkin v2 REST.
+               Treat the gallery as a convenience, not a contract: any community source
+               can disappear, rate-limit us, or change its schema. -->
           <Border Grid.Column="2" CornerRadius="15" Padding="8"
                   Background="{DynamicResource MaterialPaperBrush}"
                   IsVisible="{Binding IsSkinBrowserAvailable}">

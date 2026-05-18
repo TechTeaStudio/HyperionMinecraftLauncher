@@ -2,6 +2,11 @@ using System.Linq;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.Browser;
 
+// v0.32.3: NameMcSkinBrowser is [Obsolete] (Cloudflare killed pure-HTTP NameMC
+// access), but the parser is still exercised here as a regression contract so a
+// future provider with similar HTML can crib the selector strategy.
+#pragma warning disable CS0618
+
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Tests.Skins.Browser;
 
 /// <summary>

@@ -5,15 +5,21 @@ using System.Threading.Tasks;
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.Browser;
 
 /// <summary>
-/// Community skin gallery (NameMC and similar). Returns a list of
+/// Community skin gallery (MineSkin and similar). Returns a list of
 /// <see cref="BrowsedSkin"/> records the user can preview in the UI and then push
 /// to the active Mojang account via the existing <see cref="ISkinService"/>.
 /// </summary>
 /// <remarks>
-/// IMPORTANT: NameMC publishes no official API. The current implementation
-/// (<see cref="NameMcSkinBrowser"/>) parses public HTML pages and may break if
-/// the site is restructured. Treat this interface as a convenience surface,
-/// not a contract with any third party.
+/// <para>
+/// The live implementation in v0.32.3+ is <see cref="MineSkinBrowser"/>, which talks
+/// to the public MineSkin v2 REST API. The earlier <see cref="NameMcSkinBrowser"/>
+/// is kept around (marked <c>[Obsolete]</c>) for reference, but pure-HTTP access to
+/// NameMC was killed by Cloudflare's JavaScript challenge.
+/// </para>
+/// <para>
+/// Treat this interface as a convenience surface, not a contract with any third
+/// party: any community source can disappear, rate-limit us, or change its schema.
+/// </para>
 /// </remarks>
 public interface ISkinBrowser
 {
