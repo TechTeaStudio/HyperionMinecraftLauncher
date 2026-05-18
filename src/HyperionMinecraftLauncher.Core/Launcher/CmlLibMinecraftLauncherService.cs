@@ -74,6 +74,49 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     public static CmlLibMinecraftLauncherService Create(ILauncherLogger logger, IMicrosoftAuthService? microsoftAuth = null)
         => new(new CmlLibUnderlyingLauncher(), logger, microsoftAuth);
 
+    /// <summary>
+    /// Parse a <c>host</c> or <c>host:port</c> string (the shape stored in <c>servers.dat</c>) into
+    /// its two parts. Empty / whitespace input throws <see cref="ArgumentException"/>; a missing
+    /// port falls back to the Minecraft default (25565); an unparseable port preserves the
+    /// numeric default rather than crashing.
+    /// </summary>
+    /// <param name="hostPort">e.g. <c>"mc.hypixel.net"</c>, <c>"127.0.0.1:25577"</c>, or an IPv6 bracketed form.</param>
+    /// <returns>The host (lowercased trim) and TCP port.</returns>
+    public static (string Host, int Port) ParseHostPort(string hostPort)
+    {
+        if (string.IsNullOrWhiteSpace(hostPort))
+            throw new ArgumentException("host:port is required", nameof(hostPort));
+
+        var trimmed = hostPort.Trim();
+        const int DefaultPort = 25565;
+
+        // IPv6 in brackets: [::1]:25565 or [::1]
+        if (trimmed.StartsWith('['))
+        {
+            var close = trimmed.IndexOf(']');
+            if (close > 0)
+            {
+                var host = trimmed.Substring(1, close - 1);
+                if (close + 1 < trimmed.Length && trimmed[close + 1] == ':'
+                    && int.TryParse(trimmed.AsSpan(close + 2), out var p6) && p6 is > 0 and <= 65535)
+                    return (host, p6);
+                return (host, DefaultPort);
+            }
+        }
+
+        // Plain host[:port].
+        var idx = trimmed.LastIndexOf(':');
+        if (idx <= 0 || idx == trimmed.Length - 1)
+            return (trimmed, DefaultPort);
+
+        var hostPart = trimmed.Substring(0, idx);
+        var portPart = trimmed.Substring(idx + 1);
+        if (int.TryParse(portPart, out var port) && port is > 0 and <= 65535)
+            return (hostPart, port);
+
+        return (hostPart, DefaultPort);
+    }
+
     /// <inheritdoc />
     public async Task<IReadOnlyList<NewsEntry>> ListNewsAsync(CancellationToken cancellationToken)
     {
@@ -177,42 +220,6 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
             _logger.Warn($"Ping failed for '{ip}': {ex.Message}");
             return (ip, null);
         }
-    }
-
-    /// <summary>
-    /// Parse <c>host</c> or <c>host:port</c>. Accepts IPv6-in-brackets (<c>[::1]:25565</c>) too.
-    /// Empty <paramref name="raw"/> returns an empty host. The default port matches vanilla.
-    /// </summary>
-    internal static (string host, int port) ParseHostPort(string raw)
-    {
-        if (string.IsNullOrWhiteSpace(raw))
-            return (string.Empty, TcpServerPinger.DefaultPort);
-
-        var trimmed = raw.Trim();
-        // IPv6 in brackets: "[::1]:25565" or "[::1]"
-        if (trimmed.StartsWith("["))
-        {
-            int closing = trimmed.IndexOf(']');
-            if (closing > 0)
-            {
-                var host6 = trimmed.Substring(1, closing - 1);
-                var rest = trimmed.Substring(closing + 1);
-                int port6 = TcpServerPinger.DefaultPort;
-                if (rest.StartsWith(":") && int.TryParse(rest.AsSpan(1), out var parsed6) && parsed6 > 0 && parsed6 <= 65535)
-                    port6 = parsed6;
-                return (host6, port6);
-            }
-        }
-        // Plain host[:port] (IPv4 / hostname).
-        int colon = trimmed.LastIndexOf(':');
-        if (colon < 0)
-            return (trimmed, TcpServerPinger.DefaultPort);
-
-        var host = trimmed.Substring(0, colon);
-        var portSlice = trimmed.AsSpan(colon + 1);
-        if (int.TryParse(portSlice, out var parsedPort) && parsedPort > 0 && parsedPort <= 65535)
-            return (host, parsedPort);
-        return (trimmed, TcpServerPinger.DefaultPort);
     }
 
     /// <inheritdoc />
@@ -433,14 +440,7 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
 
         try
         {
-            var pid = await _underlying.StartProcessAsync(
-                request.VersionName,
-                request.Session.Username,
-                request.Session.Uuid,
-                request.Session.AccessToken,
-                request.MinimumRamMb,
-                request.MaximumRamMb,
-                cancellationToken).ConfigureAwait(false);
+            var pid = await _underlying.StartProcessAsync(request, cancellationToken).ConfigureAwait(false);
 
             _logger.Info($"Minecraft '{request.VersionName}' started (pid {pid}).");
             return new LaunchResult { ProcessId = pid, VersionName = request.VersionName };

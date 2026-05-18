@@ -24,4 +24,11 @@ public sealed record LaunchRequest
 
     /// <summary>JVM maximum heap in MiB. <c>null</c> leaves it to CmlLib's default.</summary>
     public int? MaximumRamMb { get; init; }
+
+    /// <summary>
+    /// Quick Play target. Defaults to <see cref="QuickPlay.None"/>, which means a regular
+    /// launch into the main menu. Set to <see cref="QuickPlay.Singleplayer"/> or
+    /// <see cref="QuickPlay.Multiplayer"/> to deep-link straight into a world or server.
+    /// </summary>
+    public QuickPlay QuickPlay { get; init; } = new QuickPlay.None();
 }

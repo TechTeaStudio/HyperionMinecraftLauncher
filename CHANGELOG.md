@@ -11,6 +11,19 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   - Logs a single `ILauncherLogger.Info` line per change: `Instance {Id} ({Name}) icon changed to {NewIconKey}.`
 - New `EditInstanceIconDialog.axaml(.cs)` view and `MainViewModel.ChangeInstanceIconAsync(Instance, string)` method.
 - xUnit coverage in `FileInstanceStoreTests` verifying `SaveInstanceAsync` round-trips a changed `IconKey` through the file store (overwrite + fresh-load assertion).
+## [0.27.0] - 2026-05-18
+
+### Added
+- **Quick Play.** Launch straight into a server or world instead of the main menu, exactly like the official launcher's Quick Play feature.
+  - `QuickPlay` closed discriminated union (`QuickPlay.None` / `QuickPlay.Singleplayer(WorldFolderName)` / `QuickPlay.Multiplayer(Host, Port=25565)`) on `LaunchRequest`. Default is `None`, so every existing launch path keeps working unchanged.
+  - `CmlLibUnderlyingLauncher.BuildQuickPlayArgs` projects the QuickPlay target into Minecraft 1.20+ game arguments (`--quickPlaySingleplayer <world>` / `--quickPlayMultiplayer <host:port>`), appended via `MLaunchOption.ExtraGameArguments` so the launch args are emitted literally regardless of which feature gates the version manifest declares.
+  - Servers page gets a "Join" button per row. Click opens a `JoinServerDialog` modal ("Join &lt;name&gt; on &lt;ip&gt;?") with a "Pick instance" combobox defaulting to the currently-selected instance. Confirm sets `QuickPlay = Multiplayer(host, port)` and launches.
+  - Home page gets a "Resume world..." button. Click opens a `WorldsDialog` modal that lists subfolders of `&lt;gameDir&gt;/saves/`; confirm sets `QuickPlay = Singleplayer(folderName)` and launches.
+  - `CmlLibMinecraftLauncherService.ParseHostPort(string)` splits `host[:port]` (with IPv6 bracket support and graceful fallback to port 25565) - used by the Servers Join path.
+  - Log line: "Quick play: joining &lt;target&gt;." precedes every Quick Play launch.
+
+### Changed
+- `IUnderlyingLauncher.StartProcessAsync` collapsed from a 6-parameter shape to `StartProcessAsync(LaunchRequest, CancellationToken)` so future LaunchRequest additions don't churn the seam interface.
 
 ## [0.25.2] - 2026-05-16
 

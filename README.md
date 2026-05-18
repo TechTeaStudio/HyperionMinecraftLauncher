@@ -15,6 +15,7 @@
   <a href="https://github.com/TechTeaStudio/HyperionMinecraftLauncher/actions/workflows/dotnet.yml"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/TechTeaStudio/HyperionMinecraftLauncher/dotnet.yml?branch=product&amp;logo=github&amp;label=build" /></a>
   <a href="LICENSE.txt"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
   <img alt="Tests" src="https://img.shields.io/badge/tests-86%20passing-brightgreen" />
+  <img alt="Tests" src="https://img.shields.io/badge/tests-111%20passing-brightgreen" />
 </p>
 
 ## Overview
@@ -129,6 +130,8 @@ Both shipping `.csproj` files carry a synchronized `<Version>`:
 ```xml
 <Version>0.26.0</Version>  <!-- src/HyperionMinecraftLauncher.Core/HyperionMinecraftLauncher.Core.csproj -->
 <Version>0.26.0</Version>  <!-- src/HyperionMinecraftLauncher.App/HyperionMinecraftLauncher.App.csproj -->
+<Version>0.27.0</Version>  <!-- src/HyperionMinecraftLauncher.Core/HyperionMinecraftLauncher.Core.csproj -->
+<Version>0.27.0</Version>  <!-- src/HyperionMinecraftLauncher.App/HyperionMinecraftLauncher.App.csproj -->
 ```
 
 The Core library and the App ship together as one application. Both `<Version>` values bump in lock-step; the tests project keeps the default `1.0.0` since it never ships. Format is 3-part SemVer (`X.Y.Z`); commit format is `vX.Y.Z <short description>` capped at 72 characters.

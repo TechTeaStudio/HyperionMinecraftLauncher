@@ -1770,6 +1770,34 @@ public sealed class MainViewModel : INotifyPropertyChanged
         if (string.IsNullOrEmpty(versionName))
             return;
 
+        await LaunchCoreAsync(SelectedInstance, versionName, new QuickPlay.None());
+    }
+
+    /// <summary>
+    /// Quick Play launch entry: deep-link straight into a world or server. Used by the Servers
+    /// "Join" button and the Worlds "Resume" button. Overrides the user's normal launch selection -
+    /// resolves the version from the provided instance.
+    /// </summary>
+    /// <param name="instance">The instance whose version should be launched. Required.</param>
+    /// <param name="target">Quick Play target. <see cref="QuickPlay.None"/> is allowed but will
+    /// produce a regular launch (the caller should use the plain Launch button in that case).</param>
+    public async Task QuickPlayLaunchAsync(Instance instance, QuickPlay target)
+    {
+        ArgumentNullException.ThrowIfNull(instance);
+        ArgumentNullException.ThrowIfNull(target);
+
+        var targetLabel = target switch
+        {
+            QuickPlay.Multiplayer mp => $"{mp.Host}:{mp.Port}",
+            QuickPlay.Singleplayer sp => sp.WorldFolderName,
+            _ => "main menu",
+        };
+        Append($"Quick play: joining {targetLabel}.");
+        await LaunchCoreAsync(instance, instance.VersionId, target);
+    }
+
+    private async Task LaunchCoreAsync(Instance? instance, string versionName, QuickPlay quickPlay)
+    {
         IsBusy = true;
         try
         {
@@ -1806,6 +1834,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                     GameDirectory = string.IsNullOrWhiteSpace(_gameDirectoryOverride) ? null : _gameDirectoryOverride,
                     MinimumRamMb = MinMemoryMb,
                     MaximumRamMb = MaxMemoryMb,
+                    QuickPlay = quickPlay,
                 },
                 progress,
                 CancellationToken.None);
@@ -1821,7 +1850,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             // Mark "last played" on the running instance so the grid sorts it to the front next time.
             // Auto-imported instances aren't in our store - just refresh their in-memory copy
             // so the UI reacts, without persisting.
-            if (SelectedInstance is { } inst)
+            if (instance is { } inst)
             {
                 var bumped = inst with { LastPlayedAt = DateTimeOffset.UtcNow };
                 try
@@ -1833,7 +1862,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
                     {
                         Instances.RemoveAt(idx);
                         Instances.Insert(0, bumped);
-                        SelectedInstance = bumped;
+                        if (ReferenceEquals(SelectedInstance, inst))
+                            SelectedInstance = bumped;
                     }
                 }
                 catch (Exception ex)

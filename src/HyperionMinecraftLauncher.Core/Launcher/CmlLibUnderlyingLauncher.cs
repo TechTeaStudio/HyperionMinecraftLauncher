@@ -114,25 +114,21 @@ public sealed class CmlLibUnderlyingLauncher : IUnderlyingLauncher
     }
 
     /// <inheritdoc />
-    public async Task<int> StartProcessAsync(
-        string versionName,
-        string username,
-        string uuid,
-        string accessToken,
-        int? minimumRamMb,
-        int? maximumRamMb,
-        CancellationToken cancellationToken)
+    public async Task<int> StartProcessAsync(LaunchRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(versionName))
-            throw new ArgumentException("versionName is required", nameof(versionName));
-        if (string.IsNullOrWhiteSpace(username))
-            throw new ArgumentException("username is required", nameof(username));
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(request.Session);
+
+        if (string.IsNullOrWhiteSpace(request.VersionName))
+            throw new ArgumentException("VersionName is required", nameof(request));
+        if (string.IsNullOrWhiteSpace(request.Session.Username))
+            throw new ArgumentException("Session.Username is required", nameof(request));
 
         var session = new MSession
         {
-            Username = username,
-            UUID = uuid,
-            AccessToken = accessToken,
+            Username = request.Session.Username,
+            UUID = request.Session.Uuid,
+            AccessToken = request.Session.AccessToken,
         };
 
         var options = new MLaunchOption
@@ -140,13 +136,41 @@ public sealed class CmlLibUnderlyingLauncher : IUnderlyingLauncher
             Session = session,
         };
 
-        if (minimumRamMb is int min) options.MinimumRamMb = min;
-        if (maximumRamMb is int max) options.MaximumRamMb = max;
+        if (request.MinimumRamMb is int min) options.MinimumRamMb = min;
+        if (request.MaximumRamMb is int max) options.MaximumRamMb = max;
 
-        var process = await _launcher.BuildProcessAsync(versionName, options, cancellationToken).ConfigureAwait(false);
+        // Quick Play: append the corresponding Minecraft 1.20+ game arguments. CmlLib 4.0.6
+        // exposes QuickPlaySingleplayer/Realms/Path on MLaunchOption but no Multiplayer property
+        // (the legacy --server/--port pair lives on ServerIp/ServerPort and Minecraft 1.20+ prefers
+        // the unified --quickPlayMultiplayer host:port flag). We project both branches into
+        // ExtraGameArguments so the args are appended literally regardless of which feature
+        // gates the version manifest declares.
+        var extraArgs = BuildQuickPlayArgs(request.QuickPlay);
+        if (extraArgs.Count > 0)
+        {
+            var marshalled = new List<MArgument>(extraArgs.Count);
+            foreach (var s in extraArgs) marshalled.Add(new MArgument(s));
+            options.ExtraGameArguments = marshalled;
+        }
+
+        var process = await _launcher.BuildProcessAsync(request.VersionName, options, cancellationToken).ConfigureAwait(false);
         process.Start();
         return process.Id;
     }
+
+    /// <summary>
+    /// Translate a <see cref="QuickPlay"/> target into the matching Minecraft 1.20+ game-arg pair.
+    /// Returns an empty list for <see cref="QuickPlay.None"/>.
+    /// </summary>
+    /// <remarks>
+    /// Public for unit testing the arg-emission rules without needing a real CmlLib process build.
+    /// </remarks>
+    public static IReadOnlyList<string> BuildQuickPlayArgs(QuickPlay quickPlay) => quickPlay switch
+    {
+        QuickPlay.Multiplayer mp => new[] { "--quickPlayMultiplayer", $"{mp.Host}:{mp.Port}" },
+        QuickPlay.Singleplayer sp => new[] { "--quickPlaySingleplayer", sp.WorldFolderName },
+        _ => Array.Empty<string>(),
+    };
 
     private static string StageFromInstallerEvent(InstallerEventType type) => type switch
     {

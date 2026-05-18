@@ -549,6 +549,63 @@ public class MainViewModelTests
         Assert.Equal("doomed", fakeAuth.LastSignOutId);
     }
 
+    [Fact]
+    public async Task QuickPlayLaunchAsync_Multiplayer_LogsTargetAndPassesQuickPlayToService()
+    {
+        var vm = NewVm(out var service, out _);
+        service.LaunchResultToReturn = new LaunchResult { ProcessId = 555, VersionName = "1.21.5" };
+
+        var inst = new TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Instance
+        {
+            Id = "modpack", Name = "My SMP", VersionId = "1.21.5",
+        };
+
+        await vm.QuickPlayLaunchAsync(inst, new QuickPlay.Multiplayer("mc.hypixel.net", 25577));
+
+        Assert.Contains("Quick play: joining mc.hypixel.net:25577.", vm.LogText);
+        Assert.NotNull(service.LastLaunchRequest);
+        var mp = Assert.IsType<QuickPlay.Multiplayer>(service.LastLaunchRequest!.QuickPlay);
+        Assert.Equal("mc.hypixel.net", mp.Host);
+        Assert.Equal(25577, mp.Port);
+        Assert.Equal("1.21.5", service.LastLaunchRequest.VersionName);
+    }
+
+    [Fact]
+    public async Task QuickPlayLaunchAsync_Singleplayer_LogsWorldFolderAndPassesQuickPlay()
+    {
+        var vm = NewVm(out var service, out _);
+        var inst = new TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Instance
+        {
+            Id = "vanilla", Name = "Vanilla 1.21", VersionId = "1.21.5",
+        };
+
+        await vm.QuickPlayLaunchAsync(inst, new QuickPlay.Singleplayer("My Survival"));
+
+        Assert.Contains("Quick play: joining My Survival.", vm.LogText);
+        var sp = Assert.IsType<QuickPlay.Singleplayer>(service.LastLaunchRequest!.QuickPlay);
+        Assert.Equal("My Survival", sp.WorldFolderName);
+    }
+
+    [Fact]
+    public async Task QuickPlayLaunchAsync_NullInstance_Throws()
+    {
+        var vm = NewVm(out _, out _);
+        await Assert.ThrowsAsync<ArgumentNullException>(() =>
+            vm.QuickPlayLaunchAsync(null!, new QuickPlay.Singleplayer("w")));
+    }
+
+    [Fact]
+    public async Task LaunchAsync_NormalLaunch_PassesQuickPlayNoneToService()
+    {
+        var vm = NewVm(out var service, out _);
+        vm.SelectedVersion = new VersionMetadata { Name = "1.21.5", Type = "release" };
+
+        await vm.LaunchCommand.ExecuteAsync();
+
+        Assert.NotNull(service.LastLaunchRequest);
+        Assert.IsType<QuickPlay.None>(service.LastLaunchRequest!.QuickPlay);
+    }
+
     private static MainViewModel NewVm(out StubLauncherService service, out RecordingLogger logger)
     {
         service = new StubLauncherService();
@@ -637,8 +694,11 @@ internal sealed class StubLauncherService : IMinecraftLauncherService
         });
     }
 
+    public LaunchRequest? LastLaunchRequest { get; private set; }
+
     public Task<LaunchResult> LaunchAsync(LaunchRequest request, IProgress<LaunchProgress>? progress, CancellationToken cancellationToken)
     {
+        LastLaunchRequest = request;
         foreach (var p in ProgressEvents) progress?.Report(p);
         if (LaunchException is not null) throw LaunchException;
         return Task.FromResult(LaunchResultToReturn);
