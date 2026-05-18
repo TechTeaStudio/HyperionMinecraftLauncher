@@ -46,7 +46,14 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private string _javaExecutableOverride = string.Empty;
     private bool _keepLauncherOpen;
     private bool _showGameLog;
+    private bool _sidebarCollapsed;
     private readonly int _maxAllowedMemoryMb;
+
+    // Sidebar widths in DIPs - kept in one place so XAML transitions hit predictable targets.
+    /// <summary>Sidebar width when expanded (icons + labels). Matches the legacy fixed-column width.</summary>
+    public const double SidebarExpandedWidth = 180.0;
+    /// <summary>Sidebar width when collapsed (icons only, labels hidden, tooltips on hover).</summary>
+    public const double SidebarCollapsedWidth = 56.0;
 
     private string _username = "Steve";
     private VersionMetadata? _selectedVersion;
@@ -99,6 +106,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             DeleteSelectedInstanceAsync,
             () => !IsBusy && SelectedInstance is { IsAutoImported: false });
         SaveSettingsCommand = new AsyncRelayCommand(SaveSettingsAsync, () => !IsBusy && _settingsStore is not null);
+        ToggleSidebarCommand = new AsyncRelayCommand(ToggleSidebarAsync, () => true);
         LaunchCommand = new AsyncRelayCommand(LaunchAsync, CanLaunch);
         SignInMicrosoftCommand = new AsyncRelayCommand(SignInMicrosoftAsync, () => !IsBusy && !IsSignedInOnline);
         SignOutCommand = new AsyncRelayCommand(SignOutAsync, () => !IsBusy && IsSignedInOnline);
@@ -255,6 +263,55 @@ public sealed class MainViewModel : INotifyPropertyChanged
         set => SetField(ref _showGameLog, value);
     }
 
+    /// <summary>
+    /// True when the left sidebar is collapsed to icons-only. Persists immediately through the
+    /// settings store (fire-and-forget) so the next launch starts in the user's preferred mode.
+    /// Setter also raises <see cref="SidebarWidth"/> so the bound Border width transitions.
+    /// </summary>
+    public bool IsSidebarCollapsed
+    {
+        get => _sidebarCollapsed;
+        set
+        {
+            if (SetField(ref _sidebarCollapsed, value))
+            {
+                OnPropertyChanged(nameof(SidebarWidth));
+                OnPropertyChanged(nameof(AreSidebarLabelsVisible));
+                // Fire-and-forget persist; the file store is small and atomic. We deliberately
+                // don't await here so the UI toggle stays snappy and the transition runs even
+                // if disk I/O blips.
+                _ = PersistSidebarCollapsedAsync(value);
+            }
+        }
+    }
+
+    /// <summary>Live sidebar width in DIPs, driven by <see cref="IsSidebarCollapsed"/>. Bound to a Border in MainWindow.</summary>
+    public double SidebarWidth => _sidebarCollapsed ? SidebarCollapsedWidth : SidebarExpandedWidth;
+
+    /// <summary>True when the sidebar labels should render (i.e. the sidebar is expanded).</summary>
+    public bool AreSidebarLabelsVisible => !_sidebarCollapsed;
+
+    private async Task PersistSidebarCollapsedAsync(bool collapsed)
+    {
+        if (_settingsStore is null) return;
+        try
+        {
+            // Preserve every other field by loading first, then writing the patched record.
+            var current = await _settingsStore.LoadAsync(CancellationToken.None).ConfigureAwait(false);
+            await _settingsStore.SaveAsync(current with { SidebarCollapsed = collapsed }, CancellationToken.None).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn($"Could not persist SidebarCollapsed={collapsed}: {ex.Message}");
+        }
+    }
+
+    private Task ToggleSidebarAsync()
+    {
+        IsSidebarCollapsed = !IsSidebarCollapsed;
+        return Task.CompletedTask;
+    }
+
     private void ApplySettings(LauncherSettings s)
     {
         _maxMemoryMb = Math.Clamp(s.MaximumRamMb, 512, _maxAllowedMemoryMb);
@@ -264,6 +321,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _javaExecutableOverride = s.JavaExecutable ?? string.Empty;
         _keepLauncherOpen = s.KeepLauncherOpen;
         _showGameLog = s.ShowGameLog;
+        _sidebarCollapsed = s.SidebarCollapsed;
     }
 
     /// <summary>Snapshot the current VM state as a persistable <see cref="LauncherSettings"/>.</summary>
@@ -276,6 +334,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         JavaExecutable = string.IsNullOrWhiteSpace(_javaExecutableOverride) ? null : _javaExecutableOverride,
         KeepLauncherOpen = _keepLauncherOpen,
         ShowGameLog = _showGameLog,
+        SidebarCollapsed = _sidebarCollapsed,
     };
 
     /// <summary>Currently-selected profile on the Installations page. Picking a profile pre-fills the launch context.</summary>
@@ -399,6 +458,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncRelayCommand RefreshInstancesCommand { get; }
     public AsyncRelayCommand DeleteInstanceCommand { get; }
     public AsyncRelayCommand SaveSettingsCommand { get; }
+    public AsyncRelayCommand ToggleSidebarCommand { get; }
     public AsyncRelayCommand LaunchCommand { get; }
     public AsyncRelayCommand SignInMicrosoftCommand { get; }
     public AsyncRelayCommand SignOutCommand { get; }

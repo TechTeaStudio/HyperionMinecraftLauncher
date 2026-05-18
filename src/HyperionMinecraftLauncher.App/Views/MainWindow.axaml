@@ -8,6 +8,7 @@
         xmlns:instances="using:TechTeaStudio.HyperionMinecraftLauncher.Core.Instances"
         xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
         xmlns:assists="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
+        xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.MainWindow"
         x:DataType="vm:MainViewModel"
@@ -50,7 +51,7 @@
       </ExperimentalAcrylicBorder.Material>
     </ExperimentalAcrylicBorder>
 
-  <Grid ColumnDefinitions="180,*" RowDefinitions="48,*">
+  <Grid ColumnDefinitions="Auto,*" RowDefinitions="48,*">
 
     <!-- =================== HEADER (drag region + window controls) =================== -->
     <Border Grid.ColumnSpan="2" Background="{DynamicResource MaterialPrimaryDarkBrush}"
@@ -110,14 +111,40 @@
     </Border>
 
     <!-- =================== SIDEBAR =================== -->
-    <Border Grid.Row="1" Grid.Column="0"
+    <!-- Border.Width is bound to a VM property that flips between 180 (expanded) and 56 (collapsed).
+         The DoubleTransition on Width animates the change so the content reflows smoothly.
+         The Auto column on the parent Grid lets this Border drive its own width. -->
+    <Border Grid.Row="1" Grid.Column="0" Name="SidebarBorder"
+            Width="{Binding SidebarWidth}"
             Background="{DynamicResource MaterialPaperBrush}"
-            BorderBrush="{DynamicResource MaterialPrimaryDarkBrush}" BorderThickness="0,0,2,0">
+            BorderBrush="{DynamicResource MaterialPrimaryDarkBrush}" BorderThickness="0,0,2,0"
+            ClipToBounds="True">
+      <Border.Transitions>
+        <Transitions>
+          <DoubleTransition Property="Width" Duration="0:0:0.18" Easing="QuadraticEaseOut" />
+        </Transitions>
+      </Border.Transitions>
       <StackPanel Spacing="1" Margin="6">
+
+        <!-- Collapse / expand toggle (icon-only, sits above the nav radios). Chevron flips
+             direction based on state. Tooltip explains the action since the button is icon-only. -->
+        <Button Classes="SidebarToggle"
+                Command="{Binding ToggleSidebarCommand}"
+                HorizontalAlignment="Right"
+                ToolTip.Tip="Collapse / expand sidebar"
+                Margin="0,0,0,6">
+          <Panel>
+            <materialIcons:MaterialIcon Kind="ChevronLeft" Width="18" Height="18"
+                                        IsVisible="{Binding !IsSidebarCollapsed}" />
+            <materialIcons:MaterialIcon Kind="ChevronRight" Width="18" Height="18"
+                                        IsVisible="{Binding IsSidebarCollapsed}" />
+          </Panel>
+        </Button>
 
         <RadioButton Content="Home" GroupName="Nav"
                      IsChecked="{Binding IsHomeSelected, Mode=OneWay}"
-                     Click="OnNavHome" Classes="Nav">
+                     Click="OnNavHome" Classes="Nav"
+                     ToolTip.Tip="Home">
           <RadioButton.Tag>
             <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/grass_block_side.png"
                    Width="20" Height="20" />
@@ -125,7 +152,8 @@
         </RadioButton>
         <RadioButton Content="Installations" GroupName="Nav"
                      IsChecked="{Binding IsInstallationsSelected, Mode=OneWay}"
-                     Click="OnNavInstallations" Classes="Nav">
+                     Click="OnNavInstallations" Classes="Nav"
+                     ToolTip.Tip="Installations">
           <RadioButton.Tag>
             <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/chest_iso.png"
                    Width="22" Height="22" />
@@ -133,7 +161,8 @@
         </RadioButton>
         <RadioButton Content="Skins" GroupName="Nav"
                      IsChecked="{Binding IsSkinsSelected, Mode=OneWay}"
-                     Click="OnNavSkins" Classes="Nav">
+                     Click="OnNavSkins" Classes="Nav"
+                     ToolTip.Tip="Skins">
           <RadioButton.Tag>
             <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/steve_face.png"
                    Width="20" Height="20" />
@@ -141,7 +170,8 @@
         </RadioButton>
         <RadioButton Content="Servers" GroupName="Nav"
                      IsChecked="{Binding IsServersSelected, Mode=OneWay}"
-                     Click="OnNavServers" Classes="Nav">
+                     Click="OnNavServers" Classes="Nav"
+                     ToolTip.Tip="Servers">
           <RadioButton.Tag>
             <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/ender_pearl.png"
                    Width="20" Height="20" />
@@ -149,7 +179,8 @@
         </RadioButton>
         <RadioButton Content="News" GroupName="Nav"
                      IsChecked="{Binding IsNewsSelected, Mode=OneWay}"
-                     Click="OnNavNews" Classes="Nav">
+                     Click="OnNavNews" Classes="Nav"
+                     ToolTip.Tip="News">
           <RadioButton.Tag>
             <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/writable_book.png"
                    Width="20" Height="20" />
@@ -157,7 +188,8 @@
         </RadioButton>
         <RadioButton Content="Settings" GroupName="Nav"
                      IsChecked="{Binding IsSettingsSelected, Mode=OneWay}"
-                     Click="OnNavSettings" Classes="Nav">
+                     Click="OnNavSettings" Classes="Nav"
+                     ToolTip.Tip="Settings">
           <RadioButton.Tag>
             <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/comparator.png"
                    Width="20" Height="20" />
@@ -168,7 +200,8 @@
 
         <TextBlock Text="v0.8 - parity build"
                    FontFamily="{StaticResource MinecraftFont}" FontSize="10"
-                   Opacity="0.55" Margin="10,2,0,0" />
+                   Opacity="0.55" Margin="10,2,0,0"
+                   IsVisible="{Binding AreSidebarLabelsVisible}" />
       </StackPanel>
     </Border>
 
@@ -555,6 +588,32 @@
     <!-- Custom window-control buttons (min / max / close) in the title bar, with a 150 ms hover fade
          and no Material elevation shadow. ShadowDepth0 + zero BoxShadow on the templated Border
          covers both Material.Avalonia's own elevation system and any leftover BoxShadow setters. -->
+    <!-- Sidebar collapse / expand toggle: a slim icon-only button at the top of the sidebar.
+         Keeps the same flat aesthetic as the window-controls (no Material elevation). -->
+    <Style Selector="Button.SidebarToggle">
+      <Setter Property="Width" Value="32" />
+      <Setter Property="Height" Value="28" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="assists:ShadowAssist.ShadowDepth" Value="Depth0" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.15" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Button.SidebarToggle /template/ Border#PART_RootBorder">
+      <Setter Property="BoxShadow" Value="0 0 0 0 #00000000" />
+    </Style>
+    <Style Selector="Button.SidebarToggle:pointerover">
+      <Setter Property="Background" Value="#33FFFFFF" />
+    </Style>
+
     <Style Selector="Button.WinCtrl">
       <Setter Property="Width" Value="44" />
       <Setter Property="Height" Value="48" />
@@ -694,12 +753,16 @@
                   Background="{TemplateBinding Background}"
                   CornerRadius="{TemplateBinding CornerRadius}"
                   Padding="{TemplateBinding Padding}">
-            <Grid ColumnDefinitions="Auto,*">
+            <!-- Icon stays in column 0; the label ContentPresenter in column 1 collapses
+                 to zero width via IsVisible=false when the sidebar is collapsed, which leaves
+                 just the 20x20 icon visible inside the 56px-wide collapsed sidebar. -->
+            <Grid ColumnDefinitions="20,Auto">
               <ContentPresenter Grid.Column="0" Content="{TemplateBinding Tag}"
-                                Width="20" Height="20" Margin="0,0,10,0"
-                                VerticalAlignment="Center" />
+                                Width="20" Height="20"
+                                HorizontalAlignment="Center" VerticalAlignment="Center" />
               <ContentPresenter Grid.Column="1" Content="{TemplateBinding Content}"
-                                VerticalAlignment="Center" />
+                                VerticalAlignment="Center" Margin="10,0,0,0"
+                                IsVisible="{Binding $parent[Window].((vm:MainViewModel)DataContext).AreSidebarLabelsVisible}" />
             </Grid>
           </Border>
         </ControlTemplate>
