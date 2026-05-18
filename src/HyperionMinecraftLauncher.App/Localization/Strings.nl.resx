@@ -367,4 +367,16 @@
   <data name="Error.InstanceImportUnavailable" xml:space="preserve"><value>[error] Instance-import is niet beschikbaar.</value></data>
   <data name="Error.ImportPickerUnavailable" xml:space="preserve"><value>[error] Import-bestandskiezer is niet beschikbaar.</value></data>
   <data name="Error.InstanceImportCancelled" xml:space="preserve"><value>Instance-import geannuleerd.</value></data>
+
+  <!-- MultiMC / Prism instance import (v0.32.3) -->
+  <data name="Installations.ImportFromMultiMc" xml:space="preserve"><value>Importeren uit MultiMC...</value></data>
+  <data name="Installations.ImportFromMultiMcTooltip" xml:space="preserve"><value>Importeer een instance geëxporteerd vanuit MultiMC of Prism Launcher (zip of map)</value></data>
+  <data name="MultiMc.PickDialogTitle" xml:space="preserve"><value>Importeren uit MultiMC / Prism</value></data>
+  <data name="MultiMc.PickDialogPrompt" xml:space="preserve"><value>Kies een Prism / MultiMC instance-zip... of een map.</value></data>
+  <data name="MultiMc.PickZipButton" xml:space="preserve"><value>Kies zip-bestand...</value></data>
+  <data name="MultiMc.PickFolderButton" xml:space="preserve"><value>Kies map...</value></data>
+  <data name="MultiMc.ImportedSuccessfully" xml:space="preserve"><value>[mmc] '{0}' geïmporteerd (MC {1}, {2}) uit {3}.</value></data>
+  <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] Import uit MultiMC is niet beschikbaar.</value></data>
+  <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] Bestands- of mapkiezer voor MultiMC-import is niet beschikbaar.</value></data>
+  <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>Import uit MultiMC geannuleerd.</value></data>
 </root>

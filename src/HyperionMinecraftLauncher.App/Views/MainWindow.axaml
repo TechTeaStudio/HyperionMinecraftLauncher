@@ -536,6 +536,13 @@
                   Command="{Binding ImportInstanceCommand}"
                   ToolTip.Tip="{x:Static loc:Strings.Installations_ImportFromZipTooltip}"
                   Padding="10,5" />
+          <Button Content="{x:Static loc:Strings.Installations_ImportFromMultiMc}" FontSize="11"
+                  Command="{Binding ImportMultiMcCommand}"
+                  Classes="LaunchBtn"
+                  FontFamily="{StaticResource MinecraftFont}"
+                  ToolTip.Tip="{x:Static loc:Strings.Installations_ImportFromMultiMcTooltip}"
+                  Foreground="White"
+                  Padding="10,5" />
           <Button Content="{x:Static loc:Strings.Installations_ImportModpack}"
                   Click="OnImportModpackClicked"
                   IsVisible="{Binding CanImportModpack}"

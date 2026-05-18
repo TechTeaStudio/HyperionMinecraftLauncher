@@ -403,4 +403,16 @@
   <data name="Error.InstanceImportUnavailable" xml:space="preserve"><value>[error] 实例导入功能不可用。</value></data>
   <data name="Error.ImportPickerUnavailable" xml:space="preserve"><value>[error] 导入文件选择器不可用。</value></data>
   <data name="Error.InstanceImportCancelled" xml:space="preserve"><value>实例导入已取消。</value></data>
+
+  <!-- MultiMC / Prism instance import (v0.32.3) -->
+  <data name="Installations.ImportFromMultiMc" xml:space="preserve"><value>从 MultiMC 导入...</value></data>
+  <data name="Installations.ImportFromMultiMcTooltip" xml:space="preserve"><value>从 MultiMC 或 Prism Launcher 导出的实例（zip 或文件夹）导入</value></data>
+  <data name="MultiMc.PickDialogTitle" xml:space="preserve"><value>从 MultiMC / Prism 导入</value></data>
+  <data name="MultiMc.PickDialogPrompt" xml:space="preserve"><value>选择 Prism / MultiMC 实例的 zip 文件... 或文件夹。</value></data>
+  <data name="MultiMc.PickZipButton" xml:space="preserve"><value>选择 zip 文件...</value></data>
+  <data name="MultiMc.PickFolderButton" xml:space="preserve"><value>选择文件夹...</value></data>
+  <data name="MultiMc.ImportedSuccessfully" xml:space="preserve"><value>[mmc] 已从 {3} 导入“{0}”（MC {1}，{2}）。</value></data>
+  <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] MultiMC 导入功能不可用。</value></data>
+  <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] MultiMC 导入文件或文件夹选择器不可用。</value></data>
+  <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>MultiMC 导入已取消。</value></data>
 </root>

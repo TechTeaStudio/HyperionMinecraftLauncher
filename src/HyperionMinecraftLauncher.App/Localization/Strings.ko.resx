@@ -367,4 +367,16 @@
   <data name="Error.InstanceImportUnavailable" xml:space="preserve"><value>[error] 인스턴스 가져오기를 사용할 수 없습니다.</value></data>
   <data name="Error.ImportPickerUnavailable" xml:space="preserve"><value>[error] 가져오기 파일 선택기를 사용할 수 없습니다.</value></data>
   <data name="Error.InstanceImportCancelled" xml:space="preserve"><value>인스턴스 가져오기가 취소되었습니다.</value></data>
+
+  <!-- MultiMC / Prism instance import (v0.32.3) -->
+  <data name="Installations.ImportFromMultiMc" xml:space="preserve"><value>MultiMC에서 가져오기...</value></data>
+  <data name="Installations.ImportFromMultiMcTooltip" xml:space="preserve"><value>MultiMC 또는 Prism Launcher에서 내보낸 인스턴스를 가져옵니다 (zip 또는 폴더)</value></data>
+  <data name="MultiMc.PickDialogTitle" xml:space="preserve"><value>MultiMC / Prism에서 가져오기</value></data>
+  <data name="MultiMc.PickDialogPrompt" xml:space="preserve"><value>Prism / MultiMC 인스턴스 zip... 또는 폴더를 선택하세요.</value></data>
+  <data name="MultiMc.PickZipButton" xml:space="preserve"><value>zip 파일 선택...</value></data>
+  <data name="MultiMc.PickFolderButton" xml:space="preserve"><value>폴더 선택...</value></data>
+  <data name="MultiMc.ImportedSuccessfully" xml:space="preserve"><value>[mmc] '{0}' 가져오기 완료 (MC {1}, {2}) 출처: {3}.</value></data>
+  <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] MultiMC 가져오기를 사용할 수 없습니다.</value></data>
+  <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] MultiMC 가져오기용 파일 또는 폴더 선택기를 사용할 수 없습니다.</value></data>
+  <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>MultiMC 가져오기가 취소되었습니다.</value></data>
 </root>

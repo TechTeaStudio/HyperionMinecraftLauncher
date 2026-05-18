@@ -367,4 +367,16 @@
   <data name="Error.InstanceImportUnavailable" xml:space="preserve"><value>[error] Instance içe aktarma kullanılamıyor.</value></data>
   <data name="Error.ImportPickerUnavailable" xml:space="preserve"><value>[error] İçe aktarma dosya seçici kullanılamıyor.</value></data>
   <data name="Error.InstanceImportCancelled" xml:space="preserve"><value>Instance içe aktarma iptal edildi.</value></data>
+
+  <!-- MultiMC / Prism instance import (v0.32.3) -->
+  <data name="Installations.ImportFromMultiMc" xml:space="preserve"><value>MultiMC'den içe aktar...</value></data>
+  <data name="Installations.ImportFromMultiMcTooltip" xml:space="preserve"><value>MultiMC veya Prism Launcher'dan dışa aktarılmış bir instance'ı içe aktar (zip veya klasör)</value></data>
+  <data name="MultiMc.PickDialogTitle" xml:space="preserve"><value>MultiMC / Prism'den içe aktar</value></data>
+  <data name="MultiMc.PickDialogPrompt" xml:space="preserve"><value>Bir Prism / MultiMC instance zip dosyası... veya klasör seçin.</value></data>
+  <data name="MultiMc.PickZipButton" xml:space="preserve"><value>Zip dosyası seç...</value></data>
+  <data name="MultiMc.PickFolderButton" xml:space="preserve"><value>Klasör seç...</value></data>
+  <data name="MultiMc.ImportedSuccessfully" xml:space="preserve"><value>[mmc] '{0}' içe aktarıldı (MC {1}, {2}) kaynak: {3}.</value></data>
+  <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] MultiMC içe aktarma kullanılamıyor.</value></data>
+  <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] MultiMC için dosya veya klasör seçici kullanılamıyor.</value></data>
+  <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>MultiMC içe aktarma iptal edildi.</value></data>
 </root>

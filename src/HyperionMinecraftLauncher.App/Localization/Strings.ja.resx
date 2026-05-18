@@ -400,4 +400,16 @@
   <data name="Error.InstanceImportUnavailable" xml:space="preserve"><value>[error] インスタンスのインポートを利用できません。</value></data>
   <data name="Error.ImportPickerUnavailable" xml:space="preserve"><value>[error] インポート用のファイルピッカーを利用できません。</value></data>
   <data name="Error.InstanceImportCancelled" xml:space="preserve"><value>インスタンスのインポートをキャンセルしました。</value></data>
+
+  <!-- MultiMC / Prism instance import (v0.32.3) -->
+  <data name="Installations.ImportFromMultiMc" xml:space="preserve"><value>MultiMC からインポート...</value></data>
+  <data name="Installations.ImportFromMultiMcTooltip" xml:space="preserve"><value>MultiMC または Prism Launcher からエクスポートしたインスタンスを取り込みます（zip またはフォルダー）</value></data>
+  <data name="MultiMc.PickDialogTitle" xml:space="preserve"><value>MultiMC / Prism からインポート</value></data>
+  <data name="MultiMc.PickDialogPrompt" xml:space="preserve"><value>Prism / MultiMC インスタンスの zip... もしくはフォルダーを選択してください。</value></data>
+  <data name="MultiMc.PickZipButton" xml:space="preserve"><value>zip ファイルを選択...</value></data>
+  <data name="MultiMc.PickFolderButton" xml:space="preserve"><value>フォルダーを選択...</value></data>
+  <data name="MultiMc.ImportedSuccessfully" xml:space="preserve"><value>[mmc] 「{0}」をインポートしました（MC {1}, {2}） 元: {3}。</value></data>
+  <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] MultiMC インポートを利用できません。</value></data>
+  <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] MultiMC インポート用のファイル/フォルダーピッカーを利用できません。</value></data>
+  <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>MultiMC インポートをキャンセルしました。</value></data>
 </root>

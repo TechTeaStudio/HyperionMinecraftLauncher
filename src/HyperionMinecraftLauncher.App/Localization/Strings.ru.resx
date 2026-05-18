@@ -403,4 +403,16 @@
   <data name="Error.InstanceImportUnavailable" xml:space="preserve"><value>[error] Импорт сборки недоступен.</value></data>
   <data name="Error.ImportPickerUnavailable" xml:space="preserve"><value>[error] Выбор файла для импорта недоступен.</value></data>
   <data name="Error.InstanceImportCancelled" xml:space="preserve"><value>Импорт сборки отменён.</value></data>
+
+  <!-- MultiMC / Prism instance import (v0.32.3) -->
+  <data name="Installations.ImportFromMultiMc" xml:space="preserve"><value>Импорт из MultiMC...</value></data>
+  <data name="Installations.ImportFromMultiMcTooltip" xml:space="preserve"><value>Импортировать сборку из MultiMC или Prism Launcher (zip или папка)</value></data>
+  <data name="MultiMc.PickDialogTitle" xml:space="preserve"><value>Импорт из MultiMC / Prism</value></data>
+  <data name="MultiMc.PickDialogPrompt" xml:space="preserve"><value>Выберите zip сборки Prism / MultiMC... или папку.</value></data>
+  <data name="MultiMc.PickZipButton" xml:space="preserve"><value>Выбрать zip...</value></data>
+  <data name="MultiMc.PickFolderButton" xml:space="preserve"><value>Выбрать папку...</value></data>
+  <data name="MultiMc.ImportedSuccessfully" xml:space="preserve"><value>[mmc] Импортировано '{0}' (MC {1}, {2}) из {3}.</value></data>
+  <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] Импорт из MultiMC недоступен.</value></data>
+  <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] Выбор файла или папки для импорта из MultiMC недоступен.</value></data>
+  <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>Импорт из MultiMC отменён.</value></data>
 </root>

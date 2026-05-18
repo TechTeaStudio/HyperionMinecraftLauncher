@@ -50,6 +50,7 @@ public partial class MainWindow : Window
         vm.SetSkinPickRequest(PickSkinAsync);
         vm.SetExportZipPickRequest(PickExportZipAsync);
         vm.SetImportZipPickRequest(PickImportZipAsync);
+        vm.SetMultiMcImportPickRequest(PickMultiMcImportAsync);
         vm.SetCurseForgeKeyRequest(RequestCurseForgeKeyAsync);
     }
 
@@ -90,6 +91,54 @@ public partial class MainWindow : Window
             },
         });
         return file?.Path?.LocalPath;
+    }
+
+    /// <summary>
+    /// "Import from MultiMC..." picker. Shows the two-button dialog first (zip vs folder),
+    /// then drives the matching <see cref="IStorageProvider"/> picker. Returns the selected
+    /// path (zip file path OR unzipped instance folder path) or null on cancel.
+    /// </summary>
+    private async Task<string?> PickMultiMcImportAsync(CancellationToken cancellationToken)
+    {
+        var topLevel = GetTopLevel(this);
+        if (topLevel?.StorageProvider is null) return null;
+
+        var dialog = new MultiMcImportPickDialog();
+        await dialog.ShowDialog(this);
+
+        switch (dialog.Result)
+        {
+            case MultiMcImportPickResult.Zip:
+            {
+                var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+                {
+                    Title = "Import MultiMC / Prism instance zip",
+                    AllowMultiple = false,
+                    FileTypeFilter = new[]
+                    {
+                        new FilePickerFileType("MultiMC / Prism instance zip")
+                        {
+                            Patterns = new[] { "*.zip" },
+                            MimeTypes = new[] { "application/zip" },
+                        },
+                    },
+                });
+                if (files.Count == 0) return null;
+                return files[0].Path?.LocalPath;
+            }
+            case MultiMcImportPickResult.Folder:
+            {
+                var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+                {
+                    Title = "Pick a MultiMC / Prism instance folder",
+                    AllowMultiple = false,
+                });
+                if (folders.Count == 0) return null;
+                return folders[0].Path?.LocalPath;
+            }
+            default:
+                return null;
+        }
     }
 
     /// <summary>Open-file dialog for instance import. Returns the picked path or null on cancel.</summary>

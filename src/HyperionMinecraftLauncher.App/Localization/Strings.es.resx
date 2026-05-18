@@ -403,4 +403,16 @@
   <data name="Error.InstanceImportUnavailable" xml:space="preserve"><value>[error] La importación de instancias no está disponible.</value></data>
   <data name="Error.ImportPickerUnavailable" xml:space="preserve"><value>[error] El selector de archivos para importar no está disponible.</value></data>
   <data name="Error.InstanceImportCancelled" xml:space="preserve"><value>Importación de instancia cancelada.</value></data>
+
+  <!-- MultiMC / Prism instance import (v0.32.3) -->
+  <data name="Installations.ImportFromMultiMc" xml:space="preserve"><value>Importar desde MultiMC...</value></data>
+  <data name="Installations.ImportFromMultiMcTooltip" xml:space="preserve"><value>Importar una instancia exportada desde MultiMC o Prism Launcher (zip o carpeta)</value></data>
+  <data name="MultiMc.PickDialogTitle" xml:space="preserve"><value>Importar desde MultiMC / Prism</value></data>
+  <data name="MultiMc.PickDialogPrompt" xml:space="preserve"><value>Elige un zip de instancia Prism / MultiMC... o una carpeta.</value></data>
+  <data name="MultiMc.PickZipButton" xml:space="preserve"><value>Elegir zip...</value></data>
+  <data name="MultiMc.PickFolderButton" xml:space="preserve"><value>Elegir carpeta...</value></data>
+  <data name="MultiMc.ImportedSuccessfully" xml:space="preserve"><value>[mmc] Importado '{0}' (MC {1}, {2}) desde {3}.</value></data>
+  <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] La importación desde MultiMC no está disponible.</value></data>
+  <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] El selector de archivos o carpetas para MultiMC no está disponible.</value></data>
+  <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>Importación desde MultiMC cancelada.</value></data>
 </root>
