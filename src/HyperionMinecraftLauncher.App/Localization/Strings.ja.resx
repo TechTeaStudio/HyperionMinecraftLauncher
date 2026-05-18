@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Japanese translation for Hyperion Minecraft Launcher.
+
+    Conventions:
+      - Keys mirror Strings.resx (UpperCamelCase + dotted scope).
+      - Positional placeholders {0}, {1}, ... preserved exactly.
+      - Technical identifiers (Minecraft, Java, Modrinth, CurseForge, Fabric, Forge, Quilt,
+        NeoForge, Mojang, Microsoft, MSAL, JVM, RAM, etc.) stay in English.
+      - Polite plain register (です・ます形). No keigo.
+      - No em-dashes; uses 、 or 。 per Japanese typography.
+  -->
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- ============================== MainWindow ============================== -->
+  <data name="MainWindow.Title" xml:space="preserve"><value>Hyperion Minecraft Launcher</value></data>
+  <data name="MainWindow.HeaderTitle" xml:space="preserve"><value>Hyperion Minecraft Launcher</value></data>
+
+  <!-- Header / account chip -->
+  <data name="Header.SignInWithMicrosoft" xml:space="preserve"><value>Microsoft でサインイン</value></data>
+  <data name="Header.AccountsLabel" xml:space="preserve"><value>アカウント</value></data>
+  <data name="Header.AddAccount" xml:space="preserve"><value>+ アカウントを追加...</value></data>
+  <data name="Header.RemoveThisAccount" xml:space="preserve"><value>このアカウントを削除</value></data>
+
+  <!-- Window controls -->
+  <data name="WindowChrome.Minimize" xml:space="preserve"><value>最小化</value></data>
+  <data name="WindowChrome.MaximizeRestore" xml:space="preserve"><value>最大化 / 元に戻す</value></data>
+  <data name="WindowChrome.Close" xml:space="preserve"><value>閉じる</value></data>
+  <data name="WindowChrome.Dismiss" xml:space="preserve"><value>閉じる</value></data>
+
+  <!-- Sidebar -->
+  <data name="Sidebar.CollapseExpand" xml:space="preserve"><value>サイドバーを折りたたみ / 展開</value></data>
+  <data name="Sidebar.Home" xml:space="preserve"><value>ホーム</value></data>
+  <data name="Sidebar.Installations" xml:space="preserve"><value>インストール</value></data>
+  <data name="Sidebar.Skins" xml:space="preserve"><value>スキン</value></data>
+  <data name="Sidebar.Servers" xml:space="preserve"><value>サーバー</value></data>
+  <data name="Sidebar.Headless" xml:space="preserve"><value>ヘッドレス</value></data>
+  <data name="Sidebar.HeadlessTooltip" xml:space="preserve"><value>ヘッドレス専用サーバー</value></data>
+  <data name="Sidebar.Mods" xml:space="preserve"><value>MOD</value></data>
+  <data name="Sidebar.News" xml:space="preserve"><value>ニュース</value></data>
+  <data name="Sidebar.Settings" xml:space="preserve"><value>設定</value></data>
+  <data name="Sidebar.Logs" xml:space="preserve"><value>ログ</value></data>
+  <data name="Sidebar.ParityBuildLabel" xml:space="preserve"><value>v0.8 - パリティビルド</value></data>
+
+  <!-- Home page -->
+  <data name="Home.Title" xml:space="preserve"><value>Minecraft をプレイ</value></data>
+  <data name="Home.Subtitle" xml:space="preserve"><value>インストール済みのバージョンを選ぶか、マニフェストから取得してください。</value></data>
+  <data name="Home.YourInstancesLabel" xml:space="preserve"><value>あなたのインスタンス</value></data>
+  <data name="Home.YourInstancesPlaceholder" xml:space="preserve"><value>(まだインスタンスがありません。インストールページで作成してください)</value></data>
+  <data name="Home.RescanButton" xml:space="preserve"><value>再スキャン</value></data>
+  <data name="Home.OrInstallAnother" xml:space="preserve"><value>または別のバージョンをインストール</value></data>
+  <data name="Home.SearchVersionWatermark" xml:space="preserve"><value>バージョンを検索...</value></data>
+  <data name="Home.ChipRelease" xml:space="preserve"><value>Release</value></data>
+  <data name="Home.ChipSnapshot" xml:space="preserve"><value>Snapshot</value></data>
+  <data name="Home.ChipOldBeta" xml:space="preserve"><value>旧 Beta</value></data>
+  <data name="Home.ChipOldAlpha" xml:space="preserve"><value>旧 Alpha</value></data>
+  <data name="Home.ManifestPlaceholder" xml:space="preserve"><value>(先にマニフェストを更新してください)</value></data>
+  <data name="Home.RefreshManifestButton" xml:space="preserve"><value>マニフェストを更新</value></data>
+  <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>オフラインユーザー名:</value></data>
+  <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
+  <data name="Home.ResumeWorldButton" xml:space="preserve"><value>ワールドを再開...</value></data>
+  <data name="Home.ResumeWorldTooltip" xml:space="preserve"><value>Quick Play: .minecraft/saves/ 配下のワールドを選んで直接開きます。</value></data>
+  <data name="Home.LaunchButton" xml:space="preserve"><value>起動</value></data>
+
+  <!-- Installations page -->
+  <data name="Installations.Title" xml:space="preserve"><value>インストール</value></data>
+  <data name="Installations.Subtitle" xml:space="preserve"><value>Hyperion のインスタンス一覧。各インスタンスは独自のバージョン、アイコン、(将来的に) JVM / ゲームディレクトリを持ちます。</value></data>
+  <data name="Installations.NewInstance" xml:space="preserve"><value>+ 新しいインスタンス</value></data>
+  <data name="Installations.ImportFromZip" xml:space="preserve"><value>ZIP からインポート...</value></data>
+  <data name="Installations.ImportFromZipTooltip" xml:space="preserve"><value>共有された Hyperion 形式のインスタンス ZIP をインポートします</value></data>
+  <data name="Installations.ImportModpack" xml:space="preserve"><value>MODパックをインポート...</value></data>
+  <data name="Installations.Refresh" xml:space="preserve"><value>更新</value></data>
+  <data name="Installations.DeleteSelected" xml:space="preserve"><value>選択項目を削除</value></data>
+  <data name="Installations.AutoBadge" xml:space="preserve"><value>自動</value></data>
+  <data name="Installations.MoreTooltip" xml:space="preserve"><value>その他...</value></data>
+  <data name="Installations.MenuEditInstance" xml:space="preserve"><value>インスタンスを編集...</value></data>
+  <data name="Installations.MenuChangeIcon" xml:space="preserve"><value>アイコンを変更...</value></data>
+  <data name="Installations.MenuExportToZip" xml:space="preserve"><value>ZIP にエクスポート...</value></data>
+  <data name="Installations.MenuOpenFolder" xml:space="preserve"><value>フォルダーを開く</value></data>
+  <data name="Installations.MenuDelete" xml:space="preserve"><value>削除</value></data>
+
+  <!-- Instance detail tabs -->
+  <data name="InstanceTabs.Screenshots" xml:space="preserve"><value>スクリーンショット</value></data>
+  <data name="InstanceTabs.Worlds" xml:space="preserve"><value>ワールド</value></data>
+  <data name="InstanceTabs.Servers" xml:space="preserve"><value>サーバー</value></data>
+  <data name="InstanceTabs.Crashes" xml:space="preserve"><value>クラッシュ</value></data>
+  <data name="InstanceTabs.RefreshButton" xml:space="preserve"><value>更新</value></data>
+  <data name="InstanceTabs.OpenFolderButton" xml:space="preserve"><value>フォルダーを開く</value></data>
+  <data name="InstanceTabs.NoCrashReports" xml:space="preserve"><value>このインスタンスのクラッシュレポートはありません。</value></data>
+  <data name="InstanceTabs.SearchModrinth" xml:space="preserve"><value>Modrinth</value></data>
+  <data name="InstanceTabs.SearchCurseForge" xml:space="preserve"><value>CurseForge</value></data>
+  <data name="InstanceTabs.WorldMenuBackupNow" xml:space="preserve"><value>今すぐバックアップ</value></data>
+  <data name="InstanceTabs.WorldMenuRestoreLatest" xml:space="preserve"><value>最新のバックアップから復元</value></data>
+  <data name="InstanceTabs.WorldMenuOpenFolder" xml:space="preserve"><value>フォルダーを開く</value></data>
+  <data name="InstanceTabs.CrashSeparatorDash" xml:space="preserve"><value>  -  </value></data>
+
+  <!-- Skins page -->
+  <data name="Skins.Title" xml:space="preserve"><value>スキン</value></data>
+  <data name="Skins.Subtitle" xml:space="preserve"><value>リアルタイム 3D プレビューに加え、アップロードとケープの選択ができます (Microsoft サインインが必要)。</value></data>
+  <data name="Skins.UploadButton" xml:space="preserve"><value>新しいスキンをアップロード...</value></data>
+  <data name="Skins.CapeLabel" xml:space="preserve"><value>ケープ:</value></data>
+  <data name="Skins.CapeNonePlaceholder" xml:space="preserve"><value>(なし)</value></data>
+  <data name="Skins.ClearCape" xml:space="preserve"><value>ケープをクリア</value></data>
+  <data name="Skins.RecentSkins" xml:space="preserve"><value>最近のスキン</value></data>
+  <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>このスキンを再適用</value></data>
+  <data name="Skins.DragHint" xml:space="preserve"><value>頭部プレビューの内側をドラッグして回転させます。</value></data>
+
+  <!-- Servers page -->
+  <data name="Servers.Title" xml:space="preserve"><value>サーバー</value></data>
+  <data name="Servers.Subtitle" xml:space="preserve"><value>マルチプレイヤーサーバー一覧 (servers.dat NBT)。Minecraft Server List Ping プロトコルで Ping します。</value></data>
+  <data name="Servers.RefreshServers" xml:space="preserve"><value>サーバーを更新</value></data>
+  <data name="Servers.RefreshPings" xml:space="preserve"><value>Ping を更新</value></data>
+  <data name="Servers.JoinButton" xml:space="preserve"><value>参加</value></data>
+  <data name="Servers.JoinTooltip" xml:space="preserve"><value>Quick Play: このサーバーを起動して接続します。</value></data>
+
+  <!-- Headless servers page -->
+  <data name="HeadlessServers.Title" xml:space="preserve"><value>ヘッドレスサーバー</value></data>
+  <data name="HeadlessServers.Subtitle" xml:space="preserve"><value>Hyperion がディスク上で管理する Minecraft 専用サーバーです。サーバー jar のダウンロードと JVM 起動は v0.29 で対応予定です。</value></data>
+  <data name="HeadlessServers.NewServer" xml:space="preserve"><value>+ 新しいサーバー</value></data>
+  <data name="HeadlessServers.Refresh" xml:space="preserve"><value>更新</value></data>
+  <data name="HeadlessServers.Start" xml:space="preserve"><value>開始</value></data>
+  <data name="HeadlessServers.Stop" xml:space="preserve"><value>停止</value></data>
+  <data name="HeadlessServers.Delete" xml:space="preserve"><value>削除</value></data>
+  <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>仮実装です。サーバー jar のダウンロードは v0.29 のロードマップにあります。</value></data>
+  <data name="HeadlessServers.FootnotePath" xml:space="preserve"><value>各サーバーは %LOCALAPPDATA%/HyperionMinecraftLauncher/headless_servers/{id}/ 配下に専用フォルダーを持ちます。作成時にランチャーが metadata.json、eula.txt、server.properties を書き込みます。</value></data>
+  <data name="HeadlessServers.DashSeparator" xml:space="preserve"><value> - </value></data>
+  <data name="HeadlessServers.MibAndPort" xml:space="preserve"><value> MiB - ポート </value></data>
+
+  <!-- Mods page -->
+  <data name="Mods.Title" xml:space="preserve"><value>MOD</value></data>
+  <data name="Mods.Subtitle" xml:space="preserve"><value>Modrinth または CurseForge を閲覧して、選択中のインスタンスに直接 MOD をインストールします。</value></data>
+  <data name="Mods.SourceModrinth" xml:space="preserve"><value>Modrinth</value></data>
+  <data name="Mods.SourceCurseForge" xml:space="preserve"><value>CurseForge</value></data>
+  <data name="Mods.SearchLabel" xml:space="preserve"><value>検索:</value></data>
+  <data name="Mods.SearchWatermark" xml:space="preserve"><value>例: fabric-api、sodium、JEI</value></data>
+  <data name="Mods.SearchButton" xml:space="preserve"><value>検索</value></data>
+  <data name="Mods.SearchResults" xml:space="preserve"><value>検索結果</value></data>
+  <data name="Mods.InstallButton" xml:space="preserve"><value>インストール</value></data>
+  <data name="Mods.InstalledInSelectedInstance" xml:space="preserve"><value>選択中のインスタンスにインストール済み</value></data>
+  <data name="Mods.RefreshButton" xml:space="preserve"><value>更新</value></data>
+  <data name="Mods.PickAnInstanceFirst" xml:space="preserve"><value>先にインストールページでインスタンスを選択してください</value></data>
+  <data name="Mods.RightPaneHint" xml:space="preserve"><value>右側のペインには、そのインスタンスの mods/ フォルダーの内容が表示され、MOD の有効化や削除ができます。</value></data>
+  <data name="Mods.RemoveButton" xml:space="preserve"><value>削除</value></data>
+  <data name="Mods.DownloadsCountFormat" xml:space="preserve"><value>{0:N0} ダウンロード</value></data>
+  <data name="Mods.FileSizeBytesFormat" xml:space="preserve"><value>{0:N0} B</value></data>
+
+  <!-- News page -->
+  <data name="News.Title" xml:space="preserve"><value>ニュース</value></data>
+  <data name="News.Subtitle" xml:space="preserve"><value>launchercontent.mojang.com/news.json からのライブフィードで、Mojang 公式ランチャーと同じソースを使用しています。</value></data>
+  <data name="News.RefreshButton" xml:space="preserve"><value>ニュースを更新</value></data>
+  <data name="News.ReadMore" xml:space="preserve"><value>minecraft.net で続きを読む</value></data>
+
+  <!-- Settings page -->
+  <data name="Settings.Title" xml:space="preserve"><value>設定</value></data>
+  <data name="Settings.Subtitle" xml:space="preserve"><value>%LOCALAPPDATA%\HyperionMinecraftLauncher\settings.json に保存されます。メモリ制限は次回の起動から適用されます。</value></data>
+  <data name="Settings.MemoryHeader" xml:space="preserve"><value>メモリ (JVM ヒープ)</value></data>
+  <data name="Settings.MinimumXmsLabel" xml:space="preserve"><value>最小 (-Xms):</value></data>
+  <data name="Settings.MaximumXmxLabel" xml:space="preserve"><value>最大 (-Xmx):</value></data>
+  <data name="Settings.MbUnit" xml:space="preserve"><value> MB</value></data>
+  <data name="Settings.CeilingPrefix" xml:space="preserve"><value>このマシンから自動検出された上限値: </value></data>
+  <data name="Settings.CeilingSuffix" xml:space="preserve"><value> MB (システム RAM の約 75%、上限 16 GB)。</value></data>
+  <data name="Settings.JvmArgsHeader" xml:space="preserve"><value>カスタム JVM 引数</value></data>
+  <data name="Settings.JvmArgsWatermark" xml:space="preserve"><value>-XX:+UseG1GC -XX:+UnlockExperimentalVMOptions ...</value></data>
+  <data name="Settings.JvmArgsHint" xml:space="preserve"><value>自動生成された -Xms / -Xmx フラグの後に追加されます。(現時点では CmlLib のプロセスビルダーには渡されていません。今後対応予定です。)</value></data>
+  <data name="Settings.GameDirHeader" xml:space="preserve"><value>ゲームディレクトリ</value></data>
+  <data name="Settings.GameDirWatermark" xml:space="preserve"><value>(空のままで OS 既定の .minecraft を使用)</value></data>
+  <data name="Settings.BrowseButton" xml:space="preserve"><value>参照</value></data>
+  <data name="Settings.JavaExeHeader" xml:space="preserve"><value>Java 実行ファイル</value></data>
+  <data name="Settings.JavaExeWatermark" xml:space="preserve"><value>(空のままで CmlLib に自動検出させます)</value></data>
+  <data name="Settings.LauncherPrefsHeader" xml:space="preserve"><value>ランチャーの環境設定</value></data>
+  <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>ゲーム開始後もランチャーを開いたままにする</value></data>
+  <data name="Settings.ShowGameLog" xml:space="preserve"><value>ゲームの stdout / stderr をランチャーのログに表示する (予定)</value></data>
+  <data name="Settings.BackupsHeader" xml:space="preserve"><value>バックアップ</value></data>
+  <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>起動前に各ワールドを自動バックアップする</value></data>
+  <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>ワールドごとに保持する最新 N 件 (0 = すべて保持):</value></data>
+  <data name="Settings.BackupHint" xml:space="preserve"><value>各ワールドは &lt;gameDir&gt;/backups/{world}-{timestamp}.zip として ZIP 化されます。バックアップ失敗はログに記録されますが、起動を妨げることはありません。</value></data>
+  <data name="Settings.LanguageHeader" xml:space="preserve"><value>言語</value></data>
+  <data name="Settings.LanguageLabel" xml:space="preserve"><value>表示言語:</value></data>
+  <data name="Settings.LanguageUseSystemDefault" xml:space="preserve"><value>システム既定を使用</value></data>
+  <data name="Settings.LanguageHint" xml:space="preserve"><value>言語の切り替えは、新しく開いたページには即座に反映されます。UI 全体に反映するにはランチャーの再起動が必要です。</value></data>
+  <data name="Settings.SaveButton" xml:space="preserve"><value>設定を保存</value></data>
+
+  <!-- Logs page -->
+  <data name="Logs.Title" xml:space="preserve"><value>ログ</value></data>
+  <data name="Logs.Subtitle" xml:space="preserve"><value>%LOCALAPPDATA%\HyperionMinecraftLauncher\logs\ にある今日の日次ローテーションログファイルです。</value></data>
+  <data name="Logs.FilterWatermark" xml:space="preserve"><value>ログをフィルター...</value></data>
+  <data name="Logs.RefreshButton" xml:space="preserve"><value>更新</value></data>
+  <data name="Logs.OpenLogsFolderButton" xml:space="preserve"><value>ログフォルダーを開く</value></data>
+  <data name="Logs.CopyAllButton" xml:space="preserve"><value>すべてコピー</value></data>
+
+  <!-- New Instance dialog -->
+  <data name="NewInstanceDialog.Title" xml:space="preserve"><value>新しいインスタンス</value></data>
+  <data name="NewInstanceDialog.HeaderTitle" xml:space="preserve"><value>新しいインスタンスを作成</value></data>
+  <data name="NewInstanceDialog.InstanceNameLabel" xml:space="preserve"><value>インスタンス名</value></data>
+  <data name="NewInstanceDialog.DefaultInstanceName" xml:space="preserve"><value>新しいインスタンス</value></data>
+  <data name="NewInstanceDialog.MinecraftVersionLabel" xml:space="preserve"><value>Minecraft バージョン</value></data>
+  <data name="NewInstanceDialog.SearchVersionWatermark" xml:space="preserve"><value>バージョンを検索...</value></data>
+  <data name="NewInstanceDialog.LoadingManifest" xml:space="preserve"><value>(マニフェストを読み込み中 ...)</value></data>
+  <data name="NewInstanceDialog.FiltersSharedHint" xml:space="preserve"><value>フィルターチップと検索はホームページのピッカーと共通です。</value></data>
+  <data name="NewInstanceDialog.ModLoaderLabel" xml:space="preserve"><value>MOD ローダー</value></data>
+  <data name="NewInstanceDialog.LoaderVersionLabel" xml:space="preserve"><value>ローダーバージョン</value></data>
+  <data name="NewInstanceDialog.LoaderVersionPlaceholder" xml:space="preserve"><value>(最新)</value></data>
+  <data name="NewInstanceDialog.LoaderHint" xml:space="preserve"><value>新しい順に並びます。空のままにすると最新の安定版をインストールします。</value></data>
+  <data name="NewInstanceDialog.LoaderVanilla" xml:space="preserve"><value>Vanilla</value></data>
+  <data name="NewInstanceDialog.LoaderFabric" xml:space="preserve"><value>Fabric</value></data>
+  <data name="NewInstanceDialog.LoaderForge" xml:space="preserve"><value>Forge</value></data>
+  <data name="NewInstanceDialog.LoaderNeoForge" xml:space="preserve"><value>NeoForge</value></data>
+  <data name="NewInstanceDialog.LoaderQuilt" xml:space="preserve"><value>Quilt</value></data>
+  <data name="NewInstanceDialog.IconLabel" xml:space="preserve"><value>アイコン</value></data>
+  <data name="NewInstanceDialog.CreateButton" xml:space="preserve"><value>作成</value></data>
+
+  <!-- Edit Instance dialog -->
+  <data name="EditInstanceDialog.Title" xml:space="preserve"><value>インスタンスを編集</value></data>
+  <data name="EditInstanceDialog.HeaderTitle" xml:space="preserve"><value>インスタンスを編集</value></data>
+  <data name="EditInstanceDialog.GeneralSection" xml:space="preserve"><value>全般</value></data>
+  <data name="EditInstanceDialog.JavaMemorySection" xml:space="preserve"><value>Java とメモリ</value></data>
+  <data name="EditInstanceDialog.JavaMemoryHint" xml:space="preserve"><value>このインスタンスに限り、グローバルな設定値を上書きします。空欄または 0 のままにすると継承されます。</value></data>
+  <data name="EditInstanceDialog.MinHeapLabel" xml:space="preserve"><value>最小ヒープ (-Xms)</value></data>
+  <data name="EditInstanceDialog.MaxHeapLabel" xml:space="preserve"><value>最大ヒープ (-Xmx)</value></data>
+  <data name="EditInstanceDialog.JvmArgsLabel" xml:space="preserve"><value>カスタム JVM 引数</value></data>
+  <data name="EditInstanceDialog.JvmArgsWatermark" xml:space="preserve"><value>(空のままで設定から継承)</value></data>
+  <data name="EditInstanceDialog.GameDirLabel" xml:space="preserve"><value>ゲームディレクトリ</value></data>
+  <data name="EditInstanceDialog.GameDirWatermark" xml:space="preserve"><value>(空のままでグローバルな .minecraft を継承)</value></data>
+  <data name="EditInstanceDialog.BrowseButton" xml:space="preserve"><value>参照...</value></data>
+  <data name="EditInstanceDialog.WindowResolutionLabel" xml:space="preserve"><value>ウィンドウ解像度</value></data>
+  <data name="EditInstanceDialog.WidthShort" xml:space="preserve"><value>幅 </value></data>
+  <data name="EditInstanceDialog.HeightShort" xml:space="preserve"><value>高さ </value></data>
+  <data name="EditInstanceDialog.ResolutionHint" xml:space="preserve"><value>既定は 854 x 480 です。両方 0 で継承 (Minecraft 自体の既定)。</value></data>
+  <data name="EditInstanceDialog.SaveButton" xml:space="preserve"><value>保存</value></data>
+  <data name="EditInstanceDialog.InstanceNameLabel" xml:space="preserve"><value>インスタンス名</value></data>
+  <data name="EditInstanceDialog.IconLabel" xml:space="preserve"><value>アイコン</value></data>
+
+  <!-- Edit Instance Icon dialog -->
+  <data name="EditInstanceIconDialog.Title" xml:space="preserve"><value>アイコンを変更</value></data>
+  <data name="EditInstanceIconDialog.HeaderTitle" xml:space="preserve"><value>アイコンを変更</value></data>
+  <data name="EditInstanceIconDialog.Subtitle" xml:space="preserve"><value>このインスタンス用の新しいアイコンを選択してください。</value></data>
+  <data name="EditInstanceIconDialog.SaveButton" xml:space="preserve"><value>保存</value></data>
+
+  <!-- Common dialog actions -->
+  <data name="Common.Cancel" xml:space="preserve"><value>キャンセル</value></data>
+  <data name="Common.Save" xml:space="preserve"><value>保存</value></data>
+  <data name="Common.Create" xml:space="preserve"><value>作成</value></data>
+  <data name="Common.OK" xml:space="preserve"><value>OK</value></data>
+  <data name="Common.Yes" xml:space="preserve"><value>はい</value></data>
+  <data name="Common.No" xml:space="preserve"><value>いいえ</value></data>
+  <data name="Common.Close" xml:space="preserve"><value>閉じる</value></data>
+  <data name="Common.Hide" xml:space="preserve"><value>非表示</value></data>
+  <data name="Common.Browse" xml:space="preserve"><value>参照</value></data>
+
+  <!-- DeviceCode dialog -->
+  <data name="DeviceCodeDialog.Title" xml:space="preserve"><value>Microsoft でサインイン</value></data>
+  <data name="DeviceCodeDialog.HeaderTitle" xml:space="preserve"><value>Microsoft でサインイン</value></data>
+  <data name="DeviceCodeDialog.OpenPagePrompt" xml:space="preserve"><value>このページをブラウザーで開いてください:</value></data>
+  <data name="DeviceCodeDialog.EnterCodePrompt" xml:space="preserve"><value>このコードを入力してください:</value></data>
+  <data name="DeviceCodeDialog.Footer" xml:space="preserve"><value>ブラウザーは自動的に開きます。ランチャーが Microsoft にポーリングし、サインインが完了するとこのウィンドウは自動で閉じます。</value></data>
+  <data name="DeviceCodeDialog.CopyCode" xml:space="preserve"><value>コードをコピー</value></data>
+  <data name="DeviceCodeDialog.OpenBrowser" xml:space="preserve"><value>ブラウザーを開く</value></data>
+
+  <!-- JoinServer dialog -->
+  <data name="JoinServerDialog.Title" xml:space="preserve"><value>サーバーに参加</value></data>
+  <data name="JoinServerDialog.HeaderTitle" xml:space="preserve"><value>Quick Play: サーバーに参加</value></data>
+  <data name="JoinServerDialog.PickInstance" xml:space="preserve"><value>インスタンスを選択</value></data>
+  <data name="JoinServerDialog.NoInstancesPlaceholder" xml:space="preserve"><value>(インスタンスがありません)</value></data>
+  <data name="JoinServerDialog.JoinButton" xml:space="preserve"><value>参加</value></data>
+
+  <!-- Worlds dialog -->
+  <data name="WorldsDialog.Title" xml:space="preserve"><value>ワールドを再開</value></data>
+  <data name="WorldsDialog.HeaderTitle" xml:space="preserve"><value>Quick Play: ワールドを再開</value></data>
+  <data name="WorldsDialog.ResumeButton" xml:space="preserve"><value>再開</value></data>
+
+  <!-- NewHeadlessServer dialog -->
+  <data name="NewHeadlessServerDialog.Title" xml:space="preserve"><value>新しいヘッドレスサーバー</value></data>
+  <data name="NewHeadlessServerDialog.HeaderTitle" xml:space="preserve"><value>新しいヘッドレスサーバーを作成</value></data>
+  <data name="NewHeadlessServerDialog.Hint" xml:space="preserve"><value>サーバー jar のダウンロードは v0.29 で対応予定です。現時点ではランチャーがメタデータ、eula.txt、最小限の server.properties を書き込み、パイプライン連携時にフォルダーが使えるよう準備します。</value></data>
+  <data name="NewHeadlessServerDialog.ServerNameLabel" xml:space="preserve"><value>サーバー名</value></data>
+  <data name="NewHeadlessServerDialog.DefaultServerName" xml:space="preserve"><value>専用サーバー</value></data>
+  <data name="NewHeadlessServerDialog.MinecraftVersionLabel" xml:space="preserve"><value>Minecraft バージョン</value></data>
+  <data name="NewHeadlessServerDialog.LoadingManifestShort" xml:space="preserve"><value>(マニフェストを読み込み中...)</value></data>
+  <data name="NewHeadlessServerDialog.MaxHeapLabel" xml:space="preserve"><value>JVM 最大ヒープ (MiB)</value></data>
+  <data name="NewHeadlessServerDialog.PortLabel" xml:space="preserve"><value>ポート</value></data>
+
+  <!-- SkinVariant dialog -->
+  <data name="SkinVariantDialog.Title" xml:space="preserve"><value>スキンタイプを選択</value></data>
+  <data name="SkinVariantDialog.HeaderTitle" xml:space="preserve"><value>スキンタイプを選択</value></data>
+  <data name="SkinVariantDialog.Question" xml:space="preserve"><value>このスキンの腕の太さはどちらですか?</value></data>
+  <data name="SkinVariantDialog.Hint" xml:space="preserve"><value>Classic = 4 ピクセルの腕 (Steve)。Slim = 3 ピクセルの腕 (Alex)。</value></data>
+  <data name="SkinVariantDialog.Classic" xml:space="preserve"><value>Classic</value></data>
+  <data name="SkinVariantDialog.Slim" xml:space="preserve"><value>Slim</value></data>
+
+  <!-- ImportModpack dialog -->
+  <data name="ImportModpackDialog.Title" xml:space="preserve"><value>MODパックをインポート</value></data>
+  <data name="ImportModpackDialog.HeaderTitle" xml:space="preserve"><value>MODパックをインポート</value></data>
+  <data name="ImportModpackDialog.ArchiveLabel" xml:space="preserve"><value>アーカイブ</value></data>
+  <data name="ImportModpackDialog.NoArchivePicked" xml:space="preserve"><value>(ファイル未選択)</value></data>
+  <data name="ImportModpackDialog.InstanceNameLabel" xml:space="preserve"><value>インスタンス名</value></data>
+  <data name="ImportModpackDialog.InstanceNameWatermark" xml:space="preserve"><value>(空欄ならパック名を使用)</value></data>
+  <data name="ImportModpackDialog.Hint" xml:space="preserve"><value>アーカイブは Modrinth の .mrpack または CurseForge の .zip として自動判定され、新しいインスタンスフォルダーにインポートされます。</value></data>
+  <data name="ImportModpackDialog.ImportButton" xml:space="preserve"><value>インポート</value></data>
+
+  <!-- ViewModel log messages -->
+  <data name="Log.AutoRefreshingOnStartup" xml:space="preserve"><value>起動時に自動更新しています ...</value></data>
+  <data name="Log.SilentMsSignInAttempt" xml:space="preserve"><value>Microsoft へのサイレントサインイン (キャッシュされた更新トークン) ...</value></data>
+  <data name="Log.AutoSignedInAs" xml:space="preserve"><value>'{0}' として自動サインインしました。</value></data>
+  <data name="Log.SilentSignInSkipped" xml:space="preserve"><value>サイレントサインインをスキップしました: {0}</value></data>
+  <data name="Log.LoadingVersionManifest" xml:space="preserve"><value>バージョンマニフェストを読み込んでいます ...</value></data>
+  <data name="Log.LoadedNVersions" xml:space="preserve"><value>バージョンを {0} 件読み込みました。</value></data>
+  <data name="Log.LoadingInstances" xml:space="preserve"><value>インスタンスを読み込んでいます ...</value></data>
+  <data name="Log.FetchingNews" xml:space="preserve"><value>Minecraft のニュースを取得しています ...</value></data>
+  <data name="Log.LoadedNNewsArticles" xml:space="preserve"><value>ニュース記事を {0} 件読み込みました。</value></data>
+  <data name="Log.ReadingServersDat" xml:space="preserve"><value>servers.dat を読み込んでいます ...</value></data>
+  <data name="Log.LoadedNServers" xml:space="preserve"><value>サーバーを {0} 件読み込みました。</value></data>
+  <data name="Log.ReadingLauncherProfiles" xml:space="preserve"><value>launcher_profiles.json を読み込んでいます ...</value></data>
+  <data name="Log.LoadedNProfiles" xml:space="preserve"><value>launcher_profiles.json からプロファイルを {0} 件読み込みました。</value></data>
+  <data name="Log.ScanningInstalledVersions" xml:space="preserve"><value>インストール済みバージョンをスキャンしています ...</value></data>
+  <data name="Log.FoundNInstalledVersions" xml:space="preserve"><value>インストール済みバージョンを {0} 件検出しました。</value></data>
+  <data name="Log.SigningInWithMicrosoft" xml:space="preserve"><value>Microsoft でサインインしています ...</value></data>
+  <data name="Log.SignedInAs" xml:space="preserve"><value>'{0}' としてサインインしました。</value></data>
+  <data name="Log.MicrosoftSignInPrompt" xml:space="preserve"><value>Microsoft サインイン: {1} でコード {0} を入力してください</value></data>
+  <data name="Log.SignedOut" xml:space="preserve"><value>サインアウトしました。</value></data>
+  <data name="Log.SavingSettings" xml:space="preserve"><value>設定を保存しています ...</value></data>
+  <data name="Log.SettingsSaved" xml:space="preserve"><value>設定を保存しました (Xms={0}M、Xmx={1}M)。</value></data>
+  <data name="Log.CouldNotSaveSettings" xml:space="preserve"><value>[error] 設定を保存できませんでした: {0}</value></data>
+  <data name="Log.SignInCancelled" xml:space="preserve"><value>サインインをキャンセルしました。</value></data>
+  <data name="Log.SignInFailed" xml:space="preserve"><value>[error] {0}</value></data>
+  <data name="Log.Error" xml:space="preserve"><value>[error] {0}</value></data>
+  <data name="Log.Warn" xml:space="preserve"><value>[warn] {0}</value></data>
+  <data name="Log.ModsNoRepository" xml:space="preserve"><value>[mods] 選択されたソースに対応するリポジトリが設定されていません。</value></data>
+  <data name="Log.ModsSearching" xml:space="preserve"><value>{0} で '{1}' を検索しています ...</value></data>
+  <data name="Log.ModsResultsCount" xml:space="preserve"><value>[mods] 結果 {0} 件。</value></data>
+  <data name="Log.ModsNoRepositoryForInstall" xml:space="preserve"><value>[mods] この MOD をインストールできるリポジトリがありません。</value></data>
+  <data name="Log.ModsResolvingFiles" xml:space="preserve"><value>'{0}' のファイルを解決しています ({1} / {2}) ...</value></data>
+  <data name="Log.ModsNoMatchingFiles" xml:space="preserve"><value>[mods] このインスタンスに一致するファイルがありません。</value></data>
+  <data name="Log.ModsInstalling" xml:space="preserve"><value>'{0}' を '{1}' にインストールしています ...</value></data>
+  <data name="Log.ModsInstallComplete" xml:space="preserve"><value>[mods] インストールが完了しました。</value></data>
+  <data name="Log.ModsInstalledInInstance" xml:space="preserve"><value>[mods] {0} を '{1}' にインストールしました。</value></data>
+  <data name="Log.ModsRemoved" xml:space="preserve"><value>[mods] '{0}' を削除しました。</value></data>
+
+  <!-- Error messages -->
+  <data name="Error.NoSession" xml:space="preserve"><value>[error] スキン操作には Microsoft アカウントが必要です。</value></data>
+  <data name="Error.SkinPickerUnavailable" xml:space="preserve"><value>[error] スキンピッカーを利用できません。</value></data>
+  <data name="Error.CapeOpsRequireMsAccount" xml:space="preserve"><value>[error] ケープ操作には Microsoft アカウントが必要です。</value></data>
+  <data name="Error.SkinUploadCancelled" xml:space="preserve"><value>スキンのアップロードをキャンセルしました。</value></data>
+  <data name="Error.CannotDeleteAutoImported" xml:space="preserve"><value>自動インポートされたインスタンスは削除できません (.minecraft/versions/ 配下にあります)。</value></data>
+  <data name="Error.CannotChangeAutoImportedIcon" xml:space="preserve"><value>自動インポートされたインスタンスのアイコンは変更できません。</value></data>
+  <data name="Error.CannotEditAutoImported" xml:space="preserve"><value>自動インポートされたインスタンスは編集できません。</value></data>
+  <data name="Error.ModpackImporterDisabled" xml:space="preserve"><value>[error] このビルドでは MODパックのインポートが無効です (インポーターが組み込まれていません)。</value></data>
+  <data name="Error.ModpackImportCancelled" xml:space="preserve"><value>MODパックのインポートをキャンセルしました。</value></data>
+  <data name="Error.InstanceExportUnavailable" xml:space="preserve"><value>[error] インスタンスのエクスポートを利用できません。</value></data>
+  <data name="Error.CannotExportAutoImported" xml:space="preserve"><value>[error] 自動インポートされたインスタンスはエクスポートできません。</value></data>
+  <data name="Error.ExportPickerUnavailable" xml:space="preserve"><value>[error] エクスポート用のファイルピッカーを利用できません。</value></data>
+  <data name="Error.InstanceExportCancelled" xml:space="preserve"><value>インスタンスのエクスポートをキャンセルしました。</value></data>
+  <data name="Error.InstanceImportUnavailable" xml:space="preserve"><value>[error] インスタンスのインポートを利用できません。</value></data>
+  <data name="Error.ImportPickerUnavailable" xml:space="preserve"><value>[error] インポート用のファイルピッカーを利用できません。</value></data>
+  <data name="Error.InstanceImportCancelled" xml:space="preserve"><value>インスタンスのインポートをキャンセルしました。</value></data>
+</root>
