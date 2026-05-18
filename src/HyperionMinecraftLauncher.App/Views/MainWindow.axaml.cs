@@ -254,9 +254,16 @@ public partial class MainWindow : Window
         if (png.Length == 0) return;
         try
         {
-            // Feed the full skin to the Skins-page preview.
-            using (var ms = new MemoryStream(png))
-                SkinViewer.SkinSource = new Bitmap(ms);
+            // v0.32.2: feed the raw PNG bytes directly to the SkinPreview so the cube renderer
+            // sees the *exact* original texture. The earlier path went
+            //   byte[] -> Avalonia.Bitmap -> Bitmap.Save(stream) -> SKBitmap.Decode -> SKBitmap
+            // which re-encoded through Skia. Avalonia decodes PNGs into a pre-multiplied-alpha
+            // BGRA surface; round-tripping that back through Skia's PNG encoder applies un-pre-
+            // multiplication with integer rounding, which silently corrupts the semi-transparent
+            // hat / jacket overlay pixels. Skin3DHeadTypeB samples those pixels onto the outer
+            // cube faces, so the rounding error showed up as wrong textures on the head.
+            SkinViewer.SkinPngSource = png;
+            SkinViewer.SkinSource = null;
 
             // Build the chip avatar: crop the 8x8 face from the skin, then re-encode as PNG for
             // an Avalonia Bitmap. `Skin2DHeadTypeA.MakeHeadImage` returns the 2-layer-merged head,
