@@ -1,0 +1,166 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!--
+    Minecraft palette resource dictionary (v0.32.0).
+
+    Replaces the previous "Liquid Glass" lavender bubble/glass tokens with the
+    warm-dark green-accent palette of the official Minecraft Launcher. Every
+    LG.* key keeps its old name (so the ~30 XAML files that bind to them keep
+    working untouched) but the underlying value is remapped to the Mojang
+    palette below. The CSS reference the values were taken from:
+
+      bg-window          #202020   top system panel
+      bg-main            #171615   main page background
+      bg-surface         #262423   fields, cards, input
+      bg-surface-alt     #312D2C   sidebar, inactive elements
+      bg-surface-profile #464242   profile block on the left
+
+      border-black       #000000   hard pixel outline
+      border-dark        #0D0C0C   dark separators
+      border-soft        #3D3938   soft separators
+      border-light       #514D4C   highlight / top edge
+
+      accent-green       #3C8527   primary green button
+      accent-green-dark  #2A641C   dark edge of button
+      accent-green-hover #6CC349   light edge / hover
+      accent-green-light #86D562   search border
+
+      text-primary       #FFFFFF
+      text-soft          #EDE5E2
+      text-secondary     #BAAFAB
+      text-muted         #8A8988
+      text-disabled      #636060
+
+      accent-yellow      #F5CA2D
+  -->
+
+  <!-- ====== Colors ====== -->
+  <!-- Background.Top / Background.Bottom kept as separate keys to preserve the
+       LG.WindowBackground gradient slot, but both resolve to the same warm-dark
+       brown so the window is a flat #171615 instead of the old purple ramp. -->
+  <Color x:Key="LG.Background.TopColor">#171615</Color>
+  <Color x:Key="LG.Background.BottomColor">#171615</Color>
+  <Color x:Key="LG.SurfaceColor">#262423</Color>
+  <Color x:Key="LG.SurfaceVariantColor">#312D2C</Color>
+  <Color x:Key="LG.SurfaceSelectedColor">#3C8527</Color>
+  <Color x:Key="LG.TextPrimaryColor">#FFFFFF</Color>
+  <Color x:Key="LG.TextSecondaryColor">#BAAFAB</Color>
+  <Color x:Key="LG.AccentLinkColor">#86D562</Color>
+
+  <!-- Extra Minecraft palette swatches surfaced as colors for any future inline use. -->
+  <Color x:Key="MC.BgWindowColor">#202020</Color>
+  <Color x:Key="MC.SurfaceProfileColor">#464242</Color>
+  <Color x:Key="MC.BorderBlackColor">#000000</Color>
+  <Color x:Key="MC.BorderDarkColor">#0D0C0C</Color>
+  <Color x:Key="MC.BorderSoftColor">#3D3938</Color>
+  <Color x:Key="MC.BorderLightColor">#514D4C</Color>
+  <Color x:Key="MC.AccentGreenColor">#3C8527</Color>
+  <Color x:Key="MC.AccentGreenDarkColor">#2A641C</Color>
+  <Color x:Key="MC.AccentGreenHoverColor">#6CC349</Color>
+  <Color x:Key="MC.AccentGreenLightColor">#86D562</Color>
+  <Color x:Key="MC.TextSoftColor">#EDE5E2</Color>
+  <Color x:Key="MC.TextMutedColor">#8A8988</Color>
+  <Color x:Key="MC.TextDisabledColor">#636060</Color>
+  <Color x:Key="MC.AccentYellowColor">#F5CA2D</Color>
+
+  <!-- ====== Solid brushes ====== -->
+  <SolidColorBrush x:Key="LG.Background.Top"     Color="#171615" />
+  <SolidColorBrush x:Key="LG.Background.Bottom"  Color="#171615" />
+  <SolidColorBrush x:Key="LG.Surface"            Color="#262423" />
+  <SolidColorBrush x:Key="LG.SurfaceVariant"     Color="#312D2C" />
+  <SolidColorBrush x:Key="LG.SurfaceSelected"    Color="#3C8527" />
+  <SolidColorBrush x:Key="LG.TextPrimary"        Color="#FFFFFF" />
+  <SolidColorBrush x:Key="LG.TextSecondary"      Color="#BAAFAB" />
+  <SolidColorBrush x:Key="LG.AccentLink"         Color="#86D562" />
+
+  <!-- Extra Minecraft palette swatches surfaced as brushes for any future direct use. -->
+  <SolidColorBrush x:Key="MC.BgWindow"            Color="#202020" />
+  <SolidColorBrush x:Key="MC.SurfaceProfile"      Color="#464242" />
+  <SolidColorBrush x:Key="MC.BorderBlack"         Color="#000000" />
+  <SolidColorBrush x:Key="MC.BorderDark"          Color="#0D0C0C" />
+  <SolidColorBrush x:Key="MC.BorderSoft"          Color="#3D3938" />
+  <SolidColorBrush x:Key="MC.BorderLight"         Color="#514D4C" />
+  <SolidColorBrush x:Key="MC.AccentGreen"         Color="#3C8527" />
+  <SolidColorBrush x:Key="MC.AccentGreenDark"     Color="#2A641C" />
+  <SolidColorBrush x:Key="MC.AccentGreenHover"    Color="#6CC349" />
+  <SolidColorBrush x:Key="MC.AccentGreenLight"    Color="#86D562" />
+  <SolidColorBrush x:Key="MC.TextSoft"            Color="#EDE5E2" />
+  <SolidColorBrush x:Key="MC.TextMuted"           Color="#8A8988" />
+  <SolidColorBrush x:Key="MC.TextDisabled"        Color="#636060" />
+  <SolidColorBrush x:Key="MC.AccentYellow"        Color="#F5CA2D" />
+
+  <!-- Borders / rims / dividers. The "rim" is no longer a frosted white edge; the
+       Minecraft palette uses a pixel-style dark outline (border-dark) for chrome
+       borders and a hard black outline (border-black) for the selected state. -->
+  <SolidColorBrush x:Key="LG.GlassRim"           Color="#0D0C0C" />
+  <SolidColorBrush x:Key="LG.GlassRimStrong"     Color="#000000" />
+  <SolidColorBrush x:Key="LG.Divider"            Color="#3D3938" />
+
+  <!-- ====== Window background ======
+       Flat dark brown. Defined as a SolidColorBrush rather than a LinearGradient
+       so cards and chrome read on a uniform Mojang bed instead of the old
+       top-to-bottom violet ramp. -->
+  <SolidColorBrush x:Key="LG.WindowBackground"   Color="#171615" />
+
+  <!-- ====== Card / inner surfaces ======
+       Glass gradients flattened to opaque Minecraft surface fills. The card body
+       reads as a flat #262423 tile; the secondary inner surface (e.g. log boxes)
+       drops to #312D2C so it sinks slightly into the card. -->
+  <SolidColorBrush x:Key="LG.GlassSurface"       Color="#262423" />
+  <SolidColorBrush x:Key="LG.GlassSecondary"     Color="#312D2C" />
+
+  <!-- ====== Selected bubble (sidebar nav radio when checked, big buttons) ======
+       BubbleFill is the flat green primary; BubbleGradient is the vertical
+       light-top dark-bottom shading that matches Minecraft's pixel button style;
+       BubbleFillCombined uses the same gradient for controls that take a single
+       brush slot; BubbleFillHover is the brighter (lighter green) hover state. -->
+  <SolidColorBrush x:Key="LG.BubbleFill"  Color="#3C8527" />
+
+  <LinearGradientBrush x:Key="LG.BubbleGradient"
+                       StartPoint="0%,0%" EndPoint="0%,100%">
+    <GradientStop Offset="0" Color="#6CC349" />
+    <GradientStop Offset="1" Color="#3C8527" />
+  </LinearGradientBrush>
+
+  <LinearGradientBrush x:Key="LG.BubbleFillCombined"
+                       StartPoint="0%,0%" EndPoint="0%,100%">
+    <GradientStop Offset="0" Color="#6CC349" />
+    <GradientStop Offset="1" Color="#3C8527" />
+  </LinearGradientBrush>
+
+  <SolidColorBrush x:Key="LG.BubbleFillHover"    Color="#6CC349" />
+
+  <!-- Idle hover for sidebar / list rows: subtle soft-border wash. Selection
+       row keeps the green accent at 25% so the row reads as "this is picked"
+       without overpowering the green selected bubble. -->
+  <SolidColorBrush x:Key="LG.RowHover"           Color="#3D3938" />
+  <SolidColorBrush x:Key="LG.RowSelected"        Color="#3C8527" Opacity="0.25" />
+
+  <!-- ====== Bubble shadow set ======
+       Minecraft buttons aren't drop-shadowed; their depth comes from a pixel
+       outline plus an inset top-light and bottom-dark edge. The BoxShadows
+       attached property concatenates three layers:
+         hard 1px drop : 1 1 0 0 #000000           (sits as a single-pixel offset behind the button)
+         top-light edge: 0 -1 0 0 inset #514D4C    (the highlight "rim" on the upper side)
+         bottom-dark   : 0 1 0 0 inset #2A641C     (the green-dark shading on the lower side)
+       The same set is reused for the big Launch CTA; the size difference alone
+       carries the visual hierarchy. -->
+  <BoxShadows x:Key="LG.BubbleShadows">1 1 0 0 #000000, 0 -1 0 0 #514D4C inset, 0 1 0 0 #2A641C inset</BoxShadows>
+  <BoxShadows x:Key="LG.LaunchShadows">1 1 0 0 #000000, 0 -1 0 0 #514D4C inset, 0 1 0 0 #2A641C inset</BoxShadows>
+
+  <!-- ====== Radii ======
+       Minecraft's UI is pixel-y, not rounded-iPhone. Every corner drops to 4px so
+       cards and bubbles feel like Mojang tiles rather than glass capsules. -->
+  <CornerRadius x:Key="LG.RadiusCard">4</CornerRadius>
+  <CornerRadius x:Key="LG.RadiusItem">4</CornerRadius>
+  <CornerRadius x:Key="LG.RadiusButton">4</CornerRadius>
+  <CornerRadius x:Key="LG.RadiusNav">4</CornerRadius>
+  <CornerRadius x:Key="LG.RadiusBubble">4</CornerRadius>
+
+  <!-- Plain doubles for template properties that want a number, not a CornerRadius. -->
+  <x:Double x:Key="LG.RadiusCardValue">4</x:Double>
+  <x:Double x:Key="LG.RadiusItemValue">4</x:Double>
+  <x:Double x:Key="LG.RadiusButtonValue">4</x:Double>
+  <x:Double x:Key="LG.RadiusNavValue">4</x:Double>
+
+</ResourceDictionary>
