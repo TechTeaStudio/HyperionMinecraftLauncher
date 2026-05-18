@@ -9,6 +9,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Settings;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App;
@@ -38,9 +39,14 @@ public partial class App : Application
             var httpClient = new System.Net.Http.HttpClient { Timeout = System.TimeSpan.FromSeconds(15) };
             var newsClient = new MojangNewsClient(httpClient, cache);
 
+            // Live server-status pings over TCP - one round-trip per row on the Servers page.
+            // The default 1.8 protocol number keeps us compatible with virtually every modern server.
+            var serverPinger = new TcpServerPinger();
+
             var service = new CmlLibMinecraftLauncherService(
                 new CmlLibUnderlyingLauncher(), logger, microsoftAuth,
-                newsClient: newsClient);
+                newsClient: newsClient,
+                serverPinger: serverPinger);
 
             var viewModel = new MainViewModel(service, logger, microsoftAuth, settingsStore);
 

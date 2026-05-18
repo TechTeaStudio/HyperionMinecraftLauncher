@@ -16,6 +16,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Settings;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
@@ -106,7 +107,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         FilteredVersions = new ObservableCollection<VersionMetadata>();
         InstalledVersions = new ObservableCollection<InstalledVersion>();
         Profiles = new ObservableCollection<LauncherProfile>();
-        Servers = new ObservableCollection<ServerListEntry>();
+        Servers = new ObservableCollection<ServerListItemViewModel>();
         News = new ObservableCollection<NewsEntry>();
         Instances = new ObservableCollection<Instance>();
 
@@ -114,6 +115,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         RefreshInstalledVersionsCommand = new AsyncRelayCommand(RefreshInstalledVersionsAsync, () => !IsBusy);
         RefreshProfilesCommand = new AsyncRelayCommand(RefreshProfilesAsync, () => !IsBusy);
         RefreshServersCommand = new AsyncRelayCommand(RefreshServersAsync, () => !IsBusy);
+        RefreshServerPingsCommand = new AsyncRelayCommand(RefreshServerPingsAsync, () => !IsBusy && Servers.Count > 0);
         RefreshNewsCommand = new AsyncRelayCommand(RefreshNewsAsync, () => !IsBusy);
         RefreshInstancesCommand = new AsyncRelayCommand(RefreshInstancesAsync, () => !IsBusy);
         DeleteInstanceCommand = new AsyncRelayCommand(
@@ -293,8 +295,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
     /// <summary>Profiles parsed from Mojang's <c>launcher_profiles.json</c>.</summary>
     public ObservableCollection<LauncherProfile> Profiles { get; }
 
-    /// <summary>Multiplayer servers parsed from <c>servers.dat</c>.</summary>
-    public ObservableCollection<ServerListEntry> Servers { get; }
+    /// <summary>
+    /// Multiplayer servers parsed from <c>servers.dat</c>, wrapped so each row carries the latest
+    /// ping status alongside the underlying NBT entry.
+    /// </summary>
+    public ObservableCollection<ServerListItemViewModel> Servers { get; }
 
     /// <summary>News from Mojang's launcher feed.</summary>
     public ObservableCollection<NewsEntry> News { get; }
@@ -528,6 +533,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 RefreshInstalledVersionsCommand.RaiseCanExecuteChanged();
                 RefreshProfilesCommand.RaiseCanExecuteChanged();
                 RefreshServersCommand.RaiseCanExecuteChanged();
+                RefreshServerPingsCommand.RaiseCanExecuteChanged();
                 RefreshNewsCommand.RaiseCanExecuteChanged();
                 RefreshInstancesCommand.RaiseCanExecuteChanged();
                 DeleteInstanceCommand.RaiseCanExecuteChanged();
@@ -581,6 +587,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncRelayCommand RefreshInstalledVersionsCommand { get; }
     public AsyncRelayCommand RefreshProfilesCommand { get; }
     public AsyncRelayCommand RefreshServersCommand { get; }
+    public AsyncRelayCommand RefreshServerPingsCommand { get; }
     public AsyncRelayCommand RefreshNewsCommand { get; }
     public AsyncRelayCommand RefreshInstancesCommand { get; }
     public AsyncRelayCommand DeleteInstanceCommand { get; }
@@ -863,13 +870,59 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
             Servers.Clear();
             foreach (var s in servers)
-                Servers.Add(s);
+                Servers.Add(new ServerListItemViewModel(s));
 
             Append($"Loaded {servers.Count} servers.");
+            RefreshServerPingsCommand.RaiseCanExecuteChanged();
         }
         catch (LauncherException ex)
         {
             Append($"[error] {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// Fire one ping per server (3-second timeout each) and update the per-row VM in place.
+    /// Marked busy for the whole batch so the user can't fire it twice; pings run in parallel
+    /// under <see cref="IMinecraftLauncherService.PingServersAsync"/>.
+    /// </summary>
+    private async Task RefreshServerPingsAsync()
+    {
+        if (Servers.Count == 0) return;
+        IsBusy = true;
+        try
+        {
+            Append($"Pinging {Servers.Count} servers ...");
+            foreach (var row in Servers) row.IsPinging = true;
+
+            var entries = new System.Collections.Generic.List<ServerListEntry>(Servers.Count);
+            foreach (var row in Servers) entries.Add(row.Entry);
+
+            var results = await _service.PingServersAsync(entries, CancellationToken.None);
+
+            int reachable = 0;
+            foreach (var row in Servers)
+            {
+                row.IsPinging = false;
+                results.TryGetValue(row.Entry.Ip ?? string.Empty, out var status);
+                row.ApplyStatus(status);
+                if (status is not null) reachable++;
+            }
+            Append($"Pinged {Servers.Count} servers ({reachable} reachable).");
+        }
+        catch (LauncherException ex)
+        {
+            foreach (var row in Servers) row.IsPinging = false;
+            Append($"[error] {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            foreach (var row in Servers) row.IsPinging = false;
+            Append($"[error] Ping failed: {ex.Message}");
         }
         finally
         {

@@ -8,6 +8,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
@@ -41,6 +42,15 @@ public interface IMinecraftLauncherService
     /// Returns an empty list when the file is absent or malformed.
     /// </summary>
     Task<IReadOnlyList<ServerListEntry>> ListServersAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Ping every server in <paramref name="entries"/> in parallel using the Minecraft
+    /// Server List Ping protocol. Each ping has its own 3-second timeout; unreachable
+    /// servers map to <c>null</c> in the returned dictionary (keyed by <see cref="ServerListEntry.Ip"/>).
+    /// </summary>
+    Task<IReadOnlyDictionary<string, ServerStatus?>> PingServersAsync(
+        IEnumerable<ServerListEntry> entries,
+        CancellationToken cancellationToken);
 
     /// <summary>
     /// Fetch Minecraft news from Mojang's official launcher feed.

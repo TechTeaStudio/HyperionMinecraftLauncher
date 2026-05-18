@@ -12,6 +12,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Profiles;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
@@ -30,6 +31,7 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     private readonly IMinecraftInstallationLocator _installationLocator;
     private readonly ILauncherProfilesStore _profilesStore;
     private readonly IServersStore _serversStore;
+    private readonly IServerPinger _serverPinger;
     private readonly INewsClient _newsClient;
     private readonly IInstanceStore _instanceStore;
 
@@ -50,7 +52,8 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         ILauncherProfilesStore? profilesStore = null,
         IServersStore? serversStore = null,
         INewsClient? newsClient = null,
-        IInstanceStore? instanceStore = null)
+        IInstanceStore? instanceStore = null,
+        IServerPinger? serverPinger = null)
     {
         _underlying = underlying ?? throw new ArgumentNullException(nameof(underlying));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -59,6 +62,7 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         _installationLocator = installationLocator ?? new DefaultMinecraftInstallationLocator();
         _profilesStore = profilesStore ?? new FileLauncherProfilesStore();
         _serversStore = serversStore ?? new FileServersStore();
+        _serverPinger = serverPinger ?? new TcpServerPinger();
         _newsClient = newsClient ?? new MojangNewsClient();
         _instanceStore = instanceStore ?? new FileInstanceStore();
     }
@@ -111,6 +115,104 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         var servers = await _serversStore.LoadAsync(install.ServersDatPath, cancellationToken).ConfigureAwait(false);
         _logger.Info($"Loaded {servers.Count} servers.");
         return servers;
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyDictionary<string, ServerStatus?>> PingServersAsync(
+        IEnumerable<ServerListEntry> entries,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(entries);
+        var list = entries as IReadOnlyList<ServerListEntry> ?? new List<ServerListEntry>(entries);
+        if (list.Count == 0)
+            return new Dictionary<string, ServerStatus?>(0);
+
+        _logger.Info($"Pinging {list.Count} servers ...");
+        var timeout = TimeSpan.FromSeconds(3);
+
+        // We key by the entry's raw Ip string so the UI can look results up by reference identity
+        // of what the user actually sees. Duplicate IPs in servers.dat win their first slot.
+        var tasks = new Task<(string ip, ServerStatus? status)>[list.Count];
+        for (int i = 0; i < list.Count; i++)
+        {
+            var entry = list[i];
+            tasks[i] = PingOneAsync(entry, timeout, cancellationToken);
+        }
+        var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+
+        var dict = new Dictionary<string, ServerStatus?>(list.Count, StringComparer.OrdinalIgnoreCase);
+        foreach (var (ip, status) in results)
+        {
+            if (string.IsNullOrEmpty(ip)) continue;
+            dict[ip] = status;
+        }
+        var reachable = 0;
+        foreach (var s in dict.Values) if (s is not null) reachable++;
+        _logger.Info($"Pinged {dict.Count} servers ({reachable} reachable).");
+        return dict;
+    }
+
+    private async Task<(string ip, ServerStatus? status)> PingOneAsync(
+        ServerListEntry entry,
+        TimeSpan timeout,
+        CancellationToken ct)
+    {
+        var ip = entry.Ip ?? string.Empty;
+        var (host, port) = ParseHostPort(ip);
+        if (string.IsNullOrEmpty(host))
+            return (ip, null);
+        try
+        {
+            var status = await _serverPinger.PingAsync(host, port, timeout, ct).ConfigureAwait(false);
+            return (ip, status);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            // The pinger is meant to return null on failure, but anything that escapes shouldn't
+            // bring the whole batch down - log it and surface "unreachable" for that one entry.
+            _logger.Warn($"Ping failed for '{ip}': {ex.Message}");
+            return (ip, null);
+        }
+    }
+
+    /// <summary>
+    /// Parse <c>host</c> or <c>host:port</c>. Accepts IPv6-in-brackets (<c>[::1]:25565</c>) too.
+    /// Empty <paramref name="raw"/> returns an empty host. The default port matches vanilla.
+    /// </summary>
+    internal static (string host, int port) ParseHostPort(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return (string.Empty, TcpServerPinger.DefaultPort);
+
+        var trimmed = raw.Trim();
+        // IPv6 in brackets: "[::1]:25565" or "[::1]"
+        if (trimmed.StartsWith("["))
+        {
+            int closing = trimmed.IndexOf(']');
+            if (closing > 0)
+            {
+                var host6 = trimmed.Substring(1, closing - 1);
+                var rest = trimmed.Substring(closing + 1);
+                int port6 = TcpServerPinger.DefaultPort;
+                if (rest.StartsWith(":") && int.TryParse(rest.AsSpan(1), out var parsed6) && parsed6 > 0 && parsed6 <= 65535)
+                    port6 = parsed6;
+                return (host6, port6);
+            }
+        }
+        // Plain host[:port] (IPv4 / hostname).
+        int colon = trimmed.LastIndexOf(':');
+        if (colon < 0)
+            return (trimmed, TcpServerPinger.DefaultPort);
+
+        var host = trimmed.Substring(0, colon);
+        var portSlice = trimmed.AsSpan(colon + 1);
+        if (int.TryParse(portSlice, out var parsedPort) && parsedPort > 0 && parsedPort <= 65535)
+            return (host, parsedPort);
+        return (trimmed, TcpServerPinger.DefaultPort);
     }
 
     /// <inheritdoc />
