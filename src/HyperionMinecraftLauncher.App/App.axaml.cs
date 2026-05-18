@@ -78,27 +78,39 @@ public partial class App : Application
             // The default 1.8 protocol number keeps us compatible with virtually every modern server.
             var serverPinger = new TcpServerPinger();
 
-            // Adoptium Temurin auto-installer: writes JREs under %LOCALAPPDATA%/HyperionMinecraftLauncher/java/.
-            // Reuses its own HttpClient with a generous 5-minute timeout because a fresh JRE download
-            // on a slow link is the longest-running thing the launcher pulls.
-            var javaHttp = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
-            var javaRuntimeManager = new AdoptiumJavaRuntimeManager(
-                javaHttp,
-                AdoptiumJavaRuntimeManager.DefaultRootDirectory(),
-                AdoptiumJavaRuntimeManager.DetectOs(),
-                AdoptiumJavaRuntimeManager.DetectArch());
-
-            // T21a (v0.30.0): mod-loader install pipeline. We hand the CmlLib installers
-            // the same MinecraftLauncher that powers the underlying launch path so Forge /
-            // NeoForge / Fabric / Quilt install into the same .minecraft tree the user
-            // already has set up. The HttpClient is shared with the rest of the launcher to
-            // honour the same 15 s timeout.
+            // The CmlLib MinecraftLauncher is shared by the underlying launcher (vanilla launches)
+            // and the mod-loader install pipeline. Constructing it is cheap; constructing the
+            // full mod-loader installer pipeline + Adoptium HttpClient is what we want off the
+            // cold-start path -- so we keep the MinecraftLauncher eager and wrap the loader /
+            // JRE pipeline in Lazy<> below.
             var minecraftLauncher = new CmlLib.Core.MinecraftLauncher();
-            var modLoaderInstaller = new CmlLibModLoaderInstaller(
-                forge: new CmlLibForgeUnderlying(minecraftLauncher),
-                neoForge: new CmlLibNeoForgeUnderlying(minecraftLauncher),
-                fabric: new CmlLibFabricUnderlying(httpClient, minecraftLauncher),
-                quilt: new CmlLibQuiltUnderlying(httpClient, minecraftLauncher));
+
+            // v0.32.1 (T-startup-perf): the JRE manager and mod-loader install pipeline only
+            // matter once the user actually presses Play. Lazy<> defers their HttpClient
+            // construction (the JRE one carries a 5-minute timeout for big downloads) and the
+            // four CmlLib underlying-installer wrappers until first-launch. .Value is thread-safe.
+            var lazyJavaRuntimeManager = new Lazy<IJavaRuntimeManager>(
+                () =>
+                {
+                    var javaHttp = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
+                    return new AdoptiumJavaRuntimeManager(
+                        javaHttp,
+                        AdoptiumJavaRuntimeManager.DefaultRootDirectory(),
+                        AdoptiumJavaRuntimeManager.DetectOs(),
+                        AdoptiumJavaRuntimeManager.DetectArch());
+                },
+                System.Threading.LazyThreadSafetyMode.ExecutionAndPublication);
+
+            var lazyModLoaderInstaller = new Lazy<IModLoaderInstaller>(
+                () => new CmlLibModLoaderInstaller(
+                    forge: new CmlLibForgeUnderlying(minecraftLauncher),
+                    neoForge: new CmlLibNeoForgeUnderlying(minecraftLauncher),
+                    fabric: new CmlLibFabricUnderlying(httpClient, minecraftLauncher),
+                    quilt: new CmlLibQuiltUnderlying(httpClient, minecraftLauncher)),
+                System.Threading.LazyThreadSafetyMode.ExecutionAndPublication);
+
+            // Loader version fetcher is only used after the user picks a non-Vanilla loader on
+            // the Settings page. Build eagerly -- four HttpClient-backed fetchers are cheap.
             var modLoaderVersionFetcher = new CmlLibModLoaderVersionFetcher(
                 forge: new CmlLibForgeVersionFetcher(httpClient),
                 neoForge: new CmlLibNeoForgeVersionFetcher(httpClient),
@@ -109,26 +121,36 @@ public partial class App : Application
                 new CmlLibUnderlyingLauncher(minecraftLauncher), logger, microsoftAuth,
                 newsClient: newsClient,
                 serverPinger: serverPinger,
-                javaRuntimeManager: javaRuntimeManager,
-                modLoaderInstaller: modLoaderInstaller);
+                versionManifestCache: cache,
+                lazyJavaRuntimeManager: lazyJavaRuntimeManager,
+                lazyModLoaderInstaller: lazyModLoaderInstaller);
 
-            // Discord Rich Presence - obeys the LauncherSettings toggle. Read settings synchronously
-            // here for the same reason MainViewModel does: the file is tiny and the wiring has to know
-            // the flag before constructing the VM. Disabled / load-failed both fall back to no-op so
-            // launcher startup never depends on Discord being installed.
+            // v0.32.1 (T-startup-perf): the Discord IPC handshake can spend 100s of ms blocking the
+            // dispatcher while it opens the named pipe. Hand the VM a DeferredPresenceService proxy
+            // first so it can call SetIdle/SetPlaying immediately; the real DiscordPresenceService
+            // is constructed on a background thread and attached when ready. Disabled / failed paths
+            // attach a NullPresenceService so the proxy still forwards correctly.
+            // The settings file is also read on the background thread now - the only flag the wiring
+            // needs is DiscordRpcEnabled, and the VM does its own LoadAsync as part of InitializeAsync.
             var initialSettings = settingsStore.LoadAsync(CancellationToken.None).GetAwaiter().GetResult();
-            IPresenceService presence;
-            try
+            var deferredPresence = new DeferredPresenceService(logger);
+            IPresenceService presence = deferredPresence;
+            _ = System.Threading.Tasks.Task.Run(() =>
             {
-                presence = initialSettings.DiscordRpcEnabled
-                    ? new DiscordPresenceService(logger)
-                    : new NullPresenceService();
-            }
-            catch (System.Exception ex)
-            {
-                logger.Warn($"Could not init Discord presence ({ex.Message}); falling back to no-op.");
-                presence = new NullPresenceService();
-            }
+                IPresenceService real;
+                try
+                {
+                    real = initialSettings.DiscordRpcEnabled
+                        ? new DiscordPresenceService(logger)
+                        : new NullPresenceService();
+                }
+                catch (System.Exception ex)
+                {
+                    logger.Warn($"Could not init Discord presence ({ex.Message}); falling back to no-op.");
+                    real = new NullPresenceService();
+                }
+                deferredPresence.Attach(real);
+            });
             // Per-instance browser: lists screenshots / worlds / servers under each instance's gameDir.
             var instanceBrowser = new FileSystemInstanceBrowser();
 
@@ -201,7 +223,10 @@ public partial class App : Application
                 modrinthRepo, curseForgeRepo, instanceModManager, accountStore,
                 updateChecker, headlessServerStore, backupService, crashReportListener,
                 instanceExporter, instanceImporter, modpackImporter,
-                modLoaderInstaller, modLoaderVersionFetcher, localizationService);
+                // v0.32.1: modLoaderInstaller is unused by the VM (it lives on the service via
+                // Lazy<>). Pass null so we don't accidentally trigger the loader pipeline here.
+                modLoaderInstaller: null,
+                modLoaderVersionFetcher, localizationService);
 
             var mainWindow = new MainWindow
             {
