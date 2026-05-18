@@ -368,5 +368,3 @@
   <data name="Error.ImportPickerUnavailable" xml:space="preserve"><value>[error] Вибір файлу для імпорту недоступний.</value></data>
   <data name="Error.InstanceImportCancelled" xml:space="preserve"><value>Імпорт збірки скасовано.</value></data>
 </root>
-</content>
-</invoke>

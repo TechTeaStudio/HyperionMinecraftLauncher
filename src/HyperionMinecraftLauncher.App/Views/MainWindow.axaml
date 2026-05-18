@@ -1265,8 +1265,8 @@
         </Border>
       </Grid>
 
-      <!-- ==== HEADLESS SERVERS PAGE (v0.28 T11) ==== -->
-      <Grid IsVisible="{Binding IsHeadlessServersSelected}" Classes="Page" RowDefinitions="Auto,Auto,*,Auto">
+      <!-- ==== HEADLESS SERVERS PAGE (v0.28 T11, v0.32.1 console pane) ==== -->
+      <Grid IsVisible="{Binding IsHeadlessServersSelected}" Classes="Page" RowDefinitions="Auto,Auto,Auto,*,Auto,Auto">
         <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
           <TextBlock Text="{x:Static loc:Strings.HeadlessServers_Title}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
@@ -1286,18 +1286,26 @@
                   Padding="10,5" />
           <Button Content="{x:Static loc:Strings.HeadlessServers_Start}" FontSize="11"
                   Command="{Binding StartHeadlessServerCommand}"
-                  Padding="10,5"
-                  ToolTip.Tip="{x:Static loc:Strings.HeadlessServers_PlaceholderTooltip}" />
+                  Padding="10,5" />
           <Button Content="{x:Static loc:Strings.HeadlessServers_Stop}" FontSize="11"
                   Command="{Binding StopHeadlessServerCommand}"
-                  Padding="10,5"
-                  ToolTip.Tip="{x:Static loc:Strings.HeadlessServers_PlaceholderTooltip}" />
+                  Padding="10,5" />
           <Button Content="{x:Static loc:Strings.HeadlessServers_Delete}" FontSize="11"
                   Command="{Binding DeleteHeadlessServerCommand}"
                   Padding="10,5" />
         </StackPanel>
 
-        <Border Grid.Row="2" Padding="6" CornerRadius="15"
+        <!-- Per-server status label (v0.32.1). Shows "Stopped / Starting... / Running (pid X) / Stopping...". -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="6" Margin="0,0,0,6"
+                    IsVisible="{Binding IsHeadlessConsoleVisible}">
+          <TextBlock Text="{x:Static loc:Strings.HeadlessServers_StatusLabel}"
+                     FontSize="11" Opacity="0.7" VerticalAlignment="Center" />
+          <TextBlock Text="{Binding HeadlessSelectedStatus}"
+                     FontFamily="{StaticResource MinecraftFont}" FontSize="11"
+                     Foreground="White" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <Border Grid.Row="3" Padding="6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <ListBox ItemsSource="{Binding HeadlessServers}"
                    SelectedItem="{Binding SelectedHeadlessServer, Mode=TwoWay}"
@@ -1328,7 +1336,37 @@
           </ListBox>
         </Border>
 
-        <TextBlock Grid.Row="3" Margin="0,8,0,0"
+        <!-- Console pane (v0.32.1): live stdout + a Send command box. Shown only when a
+             server is selected; the buffer is per-server and capped at 10000 lines. -->
+        <Border Grid.Row="4" Padding="6" Margin="0,8,0,0" CornerRadius="15"
+                Background="{DynamicResource MaterialPaperBrush}"
+                IsVisible="{Binding IsHeadlessConsoleVisible}">
+          <Grid RowDefinitions="Auto,180,Auto" Margin="2,2">
+            <TextBlock Grid.Row="0" Text="{x:Static loc:Strings.HeadlessServers_ConsoleHeader}"
+                       FontWeight="SemiBold" FontSize="12" Margin="0,0,0,4" />
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                          Background="#1B1817" Padding="6">
+              <ItemsControl ItemsSource="{Binding HeadlessConsoleLines}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding}" FontFamily="Consolas, Cascadia Mono, monospace"
+                               FontSize="11" Foreground="#E6E5E3" TextWrapping="NoWrap" />
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
+            <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,6,0,0">
+              <TextBox Grid.Column="0" Text="{Binding HeadlessCommandInput, Mode=TwoWay}"
+                       FontFamily="Consolas, Cascadia Mono, monospace" FontSize="11"
+                       Watermark="{x:Static loc:Strings.HeadlessServers_CommandWatermark}" />
+              <Button Grid.Column="1" Content="{x:Static loc:Strings.HeadlessServers_SendButton}"
+                      Command="{Binding SendHeadlessCommand}"
+                      FontSize="11" Padding="14,5" Margin="6,0,0,0" />
+            </Grid>
+          </Grid>
+        </Border>
+
+        <TextBlock Grid.Row="5" Margin="0,8,0,0"
                    Text="{x:Static loc:Strings.HeadlessServers_FootnotePath}"
                    Opacity="0.55" FontSize="10" TextWrapping="Wrap" />
       </Grid>

@@ -82,7 +82,17 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private UpdateInfo? _availableUpdate;
     private bool _autoUpdateCheckEnabled;
     private readonly IHeadlessServerStore? _headlessServerStore;
+    private readonly IHeadlessServerOrchestrator? _headlessServerOrchestrator;
     private HeadlessServer? _selectedHeadlessServer;
+    // v0.32.1: real start/stop. Tracks per-server state + the cap-bounded console pane buffer
+    // for whichever server is currently selected on the Headless Servers page. We keep the
+    // line list per-server so flipping the selection doesn't lose the live stdout for the
+    // one running in the background.
+    private readonly Dictionary<string, ObservableCollection<string>> _headlessConsoleLines = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, IDisposable> _headlessConsoleSubscriptions = new(StringComparer.Ordinal);
+    private string _headlessCommandInput = string.Empty;
+    /// <summary>Soft cap on accumulated stdout lines per server (prevents unbounded memory growth on long runs).</summary>
+    private const int HeadlessConsoleLineCap = 10000;
     private readonly IBackupService? _backupService;
     private bool _autoBackupBeforeLaunch;
     private int _autoBackupKeepLatest;
@@ -210,7 +220,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IModLoaderVersionFetcher? modLoaderVersionFetcher = null,
         ILocalizationService? localizationService = null,
         Action<string?>? curseForgeKeySetter = null,
-        ISkinBrowser? skinBrowser = null)
+        ISkinBrowser? skinBrowser = null,
+        IHeadlessServerOrchestrator? headlessServerOrchestrator = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -238,6 +249,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _modLoaderVersionFetcher = modLoaderVersionFetcher;
         _localizationService = localizationService;
         _curseForgeKeySetter = curseForgeKeySetter;
+        _headlessServerOrchestrator = headlessServerOrchestrator;
+        if (_headlessServerOrchestrator is not null)
+            _headlessServerOrchestrator.StateChanged += OnHeadlessOrchestratorStateChanged;
         HeadlessServers = new ObservableCollection<HeadlessServer>();
         _modpackImporter = modpackImporter;
         _maxAllowedMemoryMb = SystemRam.RecommendedMaxHeapMb();
@@ -410,10 +424,25 @@ public sealed class MainViewModel : INotifyPropertyChanged
             () => !IsBusy && SelectedHeadlessServer is not null && _headlessServerStore is not null);
         StartHeadlessServerCommand = new AsyncRelayCommand(
             StartSelectedHeadlessServerAsync,
-            () => !IsBusy && SelectedHeadlessServer is not null);
+            () => !IsBusy
+                && SelectedHeadlessServer is not null
+                && _headlessServerOrchestrator is not null
+                && _headlessServerOrchestrator.GetState(SelectedHeadlessServer.Id) == HeadlessServerState.Stopped);
         StopHeadlessServerCommand = new AsyncRelayCommand(
             StopSelectedHeadlessServerAsync,
-            () => !IsBusy && SelectedHeadlessServer is not null);
+            () => !IsBusy
+                && SelectedHeadlessServer is not null
+                && _headlessServerOrchestrator is not null
+                && _headlessServerOrchestrator.GetState(SelectedHeadlessServer.Id) is HeadlessServerState.Running or HeadlessServerState.Starting);
+        // v0.32.1: send a typed command to the running server's stdin. Only valid while the
+        // selected server is in the Running state. The text box clears on success.
+        SendHeadlessCommand = new AsyncRelayCommand(
+            SendHeadlessCommandAsync,
+            () => !IsBusy
+                && SelectedHeadlessServer is not null
+                && _headlessServerOrchestrator is not null
+                && _headlessServerOrchestrator.GetState(SelectedHeadlessServer.Id) == HeadlessServerState.Running
+                && !string.IsNullOrWhiteSpace(_headlessCommandInput));
 
         // Per-world backup actions on the Worlds tab "..." menu. Parameter is the
         // WorldEntry's FolderName so the XAML can bind directly to {Binding FolderName}.
@@ -3793,9 +3822,43 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 DeleteHeadlessServerCommand.RaiseCanExecuteChanged();
                 StartHeadlessServerCommand.RaiseCanExecuteChanged();
                 StopHeadlessServerCommand.RaiseCanExecuteChanged();
+                SendHeadlessCommand?.RaiseCanExecuteChanged();
+                // Swap the bound console buffer so flipping selection shows the right server's
+                // stdout. New entries get a fresh empty collection so the XAML doesn't ride on null.
+                if (value is not null)
+                {
+                    if (!_headlessConsoleLines.TryGetValue(value.Id, out var buffer))
+                    {
+                        buffer = new ObservableCollection<string>();
+                        _headlessConsoleLines[value.Id] = buffer;
+                    }
+                    HeadlessConsoleLines = buffer;
+                    // If the orchestrator is already running this server (e.g. selection lost
+                    // and re-gained, or a list refresh), re-hook the subscription.
+                    if (_headlessServerOrchestrator?.GetState(value.Id) is
+                        HeadlessServerState.Running or HeadlessServerState.Starting)
+                    {
+                        SubscribeConsoleLines(value.Id);
+                    }
+                }
+                else
+                {
+                    HeadlessConsoleLines = new ObservableCollection<string>();
+                }
+                OnPropertyChanged(nameof(HeadlessConsoleLines));
+                OnPropertyChanged(nameof(HeadlessSelectedStatus));
+                OnPropertyChanged(nameof(IsHeadlessConsoleVisible));
             }
         }
     }
+
+    /// <summary>
+    /// Whether the console pane should be shown. True when a server is selected AND the
+    /// orchestrator is wired (i.e. not a test-mode build). The pane is shown even when
+    /// Stopped so the user can see the stdout history from the last run.
+    /// </summary>
+    public bool IsHeadlessConsoleVisible =>
+        _headlessServerOrchestrator is not null && SelectedHeadlessServer is not null;
 
     /// <summary>Convenience helper for the XAML banner's <c>IsVisible</c> binding.</summary>
     public bool HasUpdateAvailable => _availableUpdate is not null;
@@ -3979,22 +4042,189 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    private Task StartSelectedHeadlessServerAsync()
+    // v0.32.1: real Start. Downloads server.jar via the orchestrator (which goes through the
+    // Mojang manifest), ensures the matching Java runtime is on disk, and spawns the JVM.
+    // The stdout stream is subscribed at the same moment so the console pane gets every line.
+    private async Task StartSelectedHeadlessServerAsync()
     {
-        // The actual JVM spawn lands in v0.29 alongside the server-jar download pipeline.
-        // For v0.28 we record the intent in the launcher log and the UI status line.
-        const string msg = "Not yet implemented; server jar download is in roadmap.";
-        _logger.Info($"StartHeadlessServer: {msg}");
-        Append(msg);
-        return Task.CompletedTask;
+        var server = SelectedHeadlessServer;
+        if (server is null || _headlessServerOrchestrator is null) return;
+
+        try
+        {
+            IsBusy = true;
+            _logger.Info($"StartHeadlessServer: {server.Name} ({server.VersionId})");
+            Append($"Starting headless server '{server.Name}' ({server.VersionId})...");
+            await _headlessServerOrchestrator.StartAsync(server, CancellationToken.None).ConfigureAwait(true);
+            // Hook the line stream so the console pane updates live (caps at HeadlessConsoleLineCap).
+            SubscribeConsoleLines(server.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("Could not start headless server.", ex);
+            Append($"Could not start headless server: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
-    private Task StopSelectedHeadlessServerAsync()
+    private async Task StopSelectedHeadlessServerAsync()
     {
-        const string msg = "Not yet implemented; server jar download is in roadmap.";
-        _logger.Info($"StopHeadlessServer: {msg}");
-        Append(msg);
-        return Task.CompletedTask;
+        var server = SelectedHeadlessServer;
+        if (server is null || _headlessServerOrchestrator is null) return;
+
+        try
+        {
+            IsBusy = true;
+            _logger.Info($"StopHeadlessServer: {server.Name}");
+            Append($"Stopping headless server '{server.Name}'...");
+            await _headlessServerOrchestrator.StopAsync(server.Id, CancellationToken.None).ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("Could not stop headless server.", ex);
+            Append($"Could not stop headless server: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task SendHeadlessCommandAsync()
+    {
+        var server = SelectedHeadlessServer;
+        if (server is null || _headlessServerOrchestrator is null) return;
+        var command = _headlessCommandInput?.Trim();
+        if (string.IsNullOrEmpty(command)) return;
+
+        try
+        {
+            await _headlessServerOrchestrator.SendCommandAsync(server.Id, command, CancellationToken.None).ConfigureAwait(true);
+            HeadlessCommandInput = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn($"SendHeadlessCommand failed: {ex.Message}");
+            Append($"Could not send command: {ex.Message}");
+        }
+    }
+
+    /// <summary>The text in the headless console "command" entry box, two-way bound from XAML.</summary>
+    public string HeadlessCommandInput
+    {
+        get => _headlessCommandInput;
+        set
+        {
+            if (SetField(ref _headlessCommandInput, value ?? string.Empty))
+                SendHeadlessCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    /// <summary>Send the buffered command to the running server's stdin and clear the box.</summary>
+    public AsyncRelayCommand SendHeadlessCommand { get; private set; } = null!;
+
+    /// <summary>Stdout lines for the currently-selected headless server. Empty when no server
+    /// has been started yet. Capped at <see cref="HeadlessConsoleLineCap"/>.</summary>
+    public ObservableCollection<string> HeadlessConsoleLines { get; private set; } = new();
+
+    /// <summary>
+    /// Per-server status string used by the "Stopped / Starting... / Running (pid X) / Stopping..." label
+    /// next to the Start/Stop buttons. Resolves from the orchestrator's live state.
+    /// </summary>
+    public string HeadlessSelectedStatus
+    {
+        get
+        {
+            var s = SelectedHeadlessServer;
+            if (s is null || _headlessServerOrchestrator is null) return "Stopped";
+            return _headlessServerOrchestrator.GetState(s.Id) switch
+            {
+                HeadlessServerState.Starting => "Starting...",
+                HeadlessServerState.Running => $"Running (pid {_headlessServerOrchestrator.GetProcessId(s.Id)})",
+                HeadlessServerState.Stopping => "Stopping...",
+                _ => "Stopped",
+            };
+        }
+    }
+
+    /// <summary>
+    /// Wire the orchestrator's stdout subject for <paramref name="serverId"/> into the bound
+    /// <see cref="HeadlessConsoleLines"/> collection. Idempotent - re-subscribing on the same
+    /// server is a no-op, so flipping back to it after a list refresh doesn't duplicate lines.
+    /// </summary>
+    private void SubscribeConsoleLines(string serverId)
+    {
+        if (_headlessServerOrchestrator is null) return;
+        if (_headlessConsoleSubscriptions.ContainsKey(serverId)) return;
+        var stream = _headlessServerOrchestrator.GetStdoutLines(serverId);
+        if (stream is null) return;
+
+        if (!_headlessConsoleLines.TryGetValue(serverId, out var buffer))
+        {
+            buffer = new ObservableCollection<string>();
+            _headlessConsoleLines[serverId] = buffer;
+        }
+
+        var observer = new ConsoleLineObserver(this, serverId);
+        _headlessConsoleSubscriptions[serverId] = stream.Subscribe(observer);
+
+        if (SelectedHeadlessServer?.Id == serverId)
+        {
+            HeadlessConsoleLines = buffer;
+            OnPropertyChanged(nameof(HeadlessConsoleLines));
+        }
+    }
+
+    private void OnHeadlessOrchestratorStateChanged(object? sender, HeadlessServerStateChange e)
+    {
+        // Hop to the UI thread so collection mutations + INPC stay on the right context.
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            // When a process exits on its own (state -> Stopped via the exit observer) we drop
+            // the subscription so a subsequent restart re-hooks cleanly.
+            if (e.NewState == HeadlessServerState.Stopped &&
+                _headlessConsoleSubscriptions.TryGetValue(e.ServerId, out var sub))
+            {
+                try { sub.Dispose(); } catch { /* best-effort */ }
+                _headlessConsoleSubscriptions.Remove(e.ServerId);
+            }
+
+            if (SelectedHeadlessServer?.Id == e.ServerId)
+                OnPropertyChanged(nameof(HeadlessSelectedStatus));
+
+            StartHeadlessServerCommand.RaiseCanExecuteChanged();
+            StopHeadlessServerCommand.RaiseCanExecuteChanged();
+            SendHeadlessCommand.RaiseCanExecuteChanged();
+        });
+    }
+
+    private void AppendHeadlessConsoleLine(string serverId, string line)
+    {
+        if (!_headlessConsoleLines.TryGetValue(serverId, out var buffer)) return;
+        // Trim from the head when we reach the cap so the buffer stays bounded on long runs.
+        if (buffer.Count >= HeadlessConsoleLineCap)
+            buffer.RemoveAt(0);
+        buffer.Add(line);
+    }
+
+    private sealed class ConsoleLineObserver : IObserver<string>
+    {
+        private readonly MainViewModel _vm;
+        private readonly string _serverId;
+        public ConsoleLineObserver(MainViewModel vm, string serverId)
+        {
+            _vm = vm;
+            _serverId = serverId;
+        }
+        public void OnNext(string value)
+        {
+            Avalonia.Threading.Dispatcher.UIThread.Post(() => _vm.AppendHeadlessConsoleLine(_serverId, value));
+        }
+        public void OnError(Exception error) { }
+        public void OnCompleted() { }
     }
 
     private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)

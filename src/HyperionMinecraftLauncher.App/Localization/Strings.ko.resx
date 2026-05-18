@@ -368,5 +368,3 @@
   <data name="Error.ImportPickerUnavailable" xml:space="preserve"><value>[error] 가져오기 파일 선택기를 사용할 수 없습니다.</value></data>
   <data name="Error.InstanceImportCancelled" xml:space="preserve"><value>인스턴스 가져오기가 취소되었습니다.</value></data>
 </root>
-</content>
-</invoke>

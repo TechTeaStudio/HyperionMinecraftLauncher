@@ -368,5 +368,3 @@
   <data name="Error.ImportPickerUnavailable" xml:space="preserve"><value>[error] Selettore file di import non disponibile.</value></data>
   <data name="Error.InstanceImportCancelled" xml:space="preserve"><value>Import istanza annullato.</value></data>
 </root>
-</content>
-</invoke>

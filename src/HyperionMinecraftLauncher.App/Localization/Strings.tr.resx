@@ -368,5 +368,3 @@
   <data name="Error.ImportPickerUnavailable" xml:space="preserve"><value>[error] İçe aktarma dosya seçici kullanılamıyor.</value></data>
   <data name="Error.InstanceImportCancelled" xml:space="preserve"><value>Instance içe aktarma iptal edildi.</value></data>
 </root>
-</content>
-</invoke>

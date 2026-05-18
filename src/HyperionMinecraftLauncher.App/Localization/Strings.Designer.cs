@@ -168,6 +168,10 @@ public static class Strings
     public static string HeadlessServers_FootnotePath => L("HeadlessServers.FootnotePath");
     public static string HeadlessServers_DashSeparator => L("HeadlessServers.DashSeparator");
     public static string HeadlessServers_MibAndPort => L("HeadlessServers.MibAndPort");
+    public static string HeadlessServers_ConsoleHeader => L("HeadlessServers.ConsoleHeader");
+    public static string HeadlessServers_CommandWatermark => L("HeadlessServers.CommandWatermark");
+    public static string HeadlessServers_SendButton => L("HeadlessServers.SendButton");
+    public static string HeadlessServers_StatusLabel => L("HeadlessServers.StatusLabel");
 
     // Mods
     public static string Mods_Title => L("Mods.Title");

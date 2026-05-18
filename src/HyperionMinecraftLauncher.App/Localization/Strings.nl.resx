@@ -368,5 +368,3 @@
   <data name="Error.ImportPickerUnavailable" xml:space="preserve"><value>[error] Import-bestandskiezer is niet beschikbaar.</value></data>
   <data name="Error.InstanceImportCancelled" xml:space="preserve"><value>Instance-import geannuleerd.</value></data>
 </root>
-</content>
-</invoke>

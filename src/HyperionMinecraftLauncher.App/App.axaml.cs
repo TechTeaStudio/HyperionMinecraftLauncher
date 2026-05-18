@@ -207,6 +207,18 @@ public partial class App : Application
             // Headless dedicated-server registry (v0.28 T11). Folder-per-server under LOCALAPPDATA.
             var headlessServerStore = new FileHeadlessServerStore();
 
+            // v0.32.1: real Start/Stop pipeline. The orchestrator chains the jar fetcher
+            // (Mojang manifest -> server.jar download + sha1 verify), the Java auto-installer
+            // (Adoptium JRE matching the MC version, resolved lazily so cold start stays light),
+            // and a per-server ProcessHeadlessServer factory. The jar fetcher gets its own
+            // 5-minute HttpClient because vanilla server.jar is ~45 MB and CDNs can be slow.
+            var headlessJarHttp = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
+            var headlessJarFetcher = new MojangServerJarFetcher(headlessJarHttp);
+            IHeadlessServerOrchestrator headlessServerOrchestrator = new HeadlessServerOrchestrator(
+                headlessJarFetcher,
+                lazyJavaRuntimeManager.Value,
+                () => new ProcessHeadlessServer());
+
             // Per-instance world backup service (v0.30 T21f). Streams each saves/ subdir into
             // <gameDir>/backups/{worldName}-{ts}.zip before each launch, gated by
             // LauncherSettings.AutoBackupBeforeLaunch.
@@ -242,7 +254,8 @@ public partial class App : Application
                 modLoaderInstaller: null,
                 modLoaderVersionFetcher, localizationService,
                 curseForgeKeySetter: liveCurseForgeKey.Set,
-                skinBrowser: skinBrowser);
+                skinBrowser: skinBrowser,
+                headlessServerOrchestrator: headlessServerOrchestrator);
 
             var mainWindow = new MainWindow
             {

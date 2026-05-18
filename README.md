@@ -46,7 +46,7 @@ The launcher reads from and writes alongside the same `.minecraft` directory the
 
 ### Servers
 - **Multiplayer server list** parsed from `.minecraft/servers.dat` (per instance) with live Server List Ping: status colour, latency, online / max players, and decoded MOTD.
-- **Headless dedicated-server registry.** Folder-per-server under `LOCALAPPDATA/headless_servers/{id}/` with metadata, EULA, and a baseline `server.properties`. The server-jar download and JVM spawn are still on the roadmap; for now the launcher prepares the folder.
+- **Headless dedicated-server registry.** Folder-per-server under `LOCALAPPDATA/headless_servers/{id}/` with metadata, EULA, and a baseline `server.properties`. Hyperion downloads `server.jar` (Mojang manifest, sha1 verified), auto-installs the matching Adoptium Temurin JRE, starts the JVM, streams stdout into a console pane on the Headless Servers page, and sends commands (`say`, `op`, `stop`, ...) over stdin.
 
 ### UX and platform
 - **Skins.** 3D skin + cape viewer (pure-Skia, no GL context). Upload a new skin PNG, switch capes, browse a 10-entry skin history, re-apply a historic skin.
@@ -84,7 +84,7 @@ The launcher reads from and writes alongside the same `.minecraft` directory the
 | Instance export / import as `.zip` for sharing | yes | no | yes |
 | Crash report parser with mod-link suggestions | yes | no | yes |
 | Auto-backup `saves/` before launch + restore | yes | no | partial |
-| Headless dedicated-server registry | skeleton (no jar spawn yet) | no | no |
+| Headless dedicated-server registry (jar download + JVM + console) | yes | no | no |
 | Resource pack / shader pack / datapack manager | roadmap | partial | yes |
 | Process stdout / stderr piped into the launcher log | roadmap (toggle exists) | no | yes |
 | CLI mode (`--launch`, `--list-instances`, ...) | yes | no | no |
@@ -266,10 +266,6 @@ Picked up in priority order. Tracked under the `feat/post-v0.32` umbrella.
 ### Carry-over from `feat/prism-parity` (still not done)
 - **Process stream piping.** The `LauncherSettings.ShowGameLog` toggle exists; the actual hook from `Process.OutputDataReceived` / `ErrorDataReceived` into the in-launcher log textbox is not yet wired. Today the game's stdout / stderr only reach disk through Minecraft's own `latest.log`.
 - **OptiFine and Legacy-Forge (1.7.10 era) loader installers.** `CmlLibModLoaderInstaller` currently throws `NotSupportedException` for these two cases; the other four loaders (Fabric / Forge / Quilt / NeoForge) are fully wired.
-
-### Headless server completion
-- **Server-jar download.** The Mojang version manifest's `downloads.server.url` needs to be fetched, written to `headless_servers/{id}/server.jar`.
-- **JVM spawn + lifecycle.** Process management: start `java -Xmx{ram} -jar server.jar nogui`, capture stdout to a live console pane in the UI, send `stop` over stdin for clean shutdown, expose start / stop buttons that aren't placeholders.
 
 ### Per-instance content browsers
 - **Resource packs.** Per-instance `resourcepacks/` list with enable / disable / remove and drag-drop install. Prism has this; we expose only Screenshots / Worlds / Servers today.
