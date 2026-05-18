@@ -1342,8 +1342,16 @@ public sealed class MainViewModel : INotifyPropertyChanged
             _logger.Warn($"RefreshAccounts failed: {ex.Message}");
         }
 
+        // Bug 2 (v0.32.0): the flyout used to show the same account twice when the MSAL
+        // cache and the file account store both reported it (e.g. the store's row had a
+        // slightly different Id casing or a stale Uuid). Group by Id and keep the most
+        // recently used entry as the canonical row, so the multi-account switcher lists
+        // every distinct account exactly once.
         Accounts.Clear();
-        foreach (var a in list.OrderByDescending(a => a.LastUsedAt))
+        foreach (var a in list
+                     .GroupBy(a => a.Id, StringComparer.Ordinal)
+                     .Select(g => g.OrderByDescending(a => a.LastUsedAt).First())
+                     .OrderByDescending(a => a.LastUsedAt))
             Accounts.Add(a);
 
         Account? active = null;
