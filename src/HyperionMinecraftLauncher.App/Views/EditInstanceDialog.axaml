@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.EditInstanceDialog"
         Title="{x:Static loc:Strings.EditInstanceDialog_Title}"
-        Width="640" Height="640"
+        Width="640" Height="760"
         MinWidth="540" MinHeight="500"
         CanResize="True"
         SystemDecorations="None"
@@ -40,8 +40,13 @@
         </Grid>
       </Border>
 
-      <!-- Body -->
-      <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="22,16">
+      <!-- Body. ScrollViewer wraps every section so even when the user shrinks the
+           dialog to MinHeight (500) the Window resolution row remains reachable
+           without hiding behind the sticky Cancel/Save footer below. Horizontal
+           scrolling is disabled so wide content (icon grid, JVM args box) wraps
+           instead of unlocking a horizontal scrollbar. -->
+      <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Disabled" Padding="22,16">
         <StackPanel Spacing="14">
 
           <!-- General section header -->
@@ -54,13 +59,20 @@
             <TextBox x:Name="NameBox" FontSize="13" />
           </StackPanel>
 
-          <!-- Icon picker -->
+          <!-- Icon picker. The ItemsControl is centered against the body so the
+               whole grid hugs the dialog's middle; the inner WrapPanel takes a
+               fixed Width=540 so wrapping is predictable (8 tiles per row at
+               48+2*Margin each fit comfortably) and the rightmost tile no longer
+               clips at the dialog's right edge. Mirrors the EditInstanceIconDialog
+               picker centering technique. -->
           <StackPanel Spacing="4">
             <TextBlock Text="{x:Static loc:Strings.EditInstanceDialog_IconLabel}" FontSize="12" Opacity="0.85" />
-            <ItemsControl x:Name="IconPicker">
+            <ItemsControl x:Name="IconPicker" HorizontalAlignment="Center">
               <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                  <WrapPanel Orientation="Horizontal" />
+                  <WrapPanel Orientation="Horizontal"
+                             HorizontalAlignment="Center"
+                             Width="540" />
                 </ItemsPanelTemplate>
               </ItemsControl.ItemsPanel>
               <ItemsControl.ItemTemplate>
@@ -154,7 +166,7 @@
                 FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                 Padding="14,5"
                 CornerRadius="15"
-                Background="{DynamicResource LG.BubbleGradient}"
+                Background="{StaticResource LG.BubbleGradient}"
                 BorderBrush="{DynamicResource LG.GlassRimStrong}"
                 BorderThickness="1"
                 Foreground="White" />
