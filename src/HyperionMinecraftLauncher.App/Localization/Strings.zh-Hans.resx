@@ -130,13 +130,13 @@
 
   <!-- Headless servers page -->
   <data name="HeadlessServers.Title" xml:space="preserve"><value>无界面服务器</value></data>
-  <data name="HeadlessServers.Subtitle" xml:space="preserve"><value>Hyperion 在磁盘上跟踪的专用 Minecraft 服务器。服务端 jar 下载和 JVM 启动功能将在 v0.29 中实现。</value></data>
+  <data name="HeadlessServers.Subtitle" xml:space="preserve"><value>Hyperion 在磁盘上跟踪的专用 Minecraft 服务器。服务端 jar 下载和 JVM 启动功能在路线图中。</value></data>
   <data name="HeadlessServers.NewServer" xml:space="preserve"><value>+ 新建服务器</value></data>
   <data name="HeadlessServers.Refresh" xml:space="preserve"><value>刷新</value></data>
   <data name="HeadlessServers.Start" xml:space="preserve"><value>启动</value></data>
   <data name="HeadlessServers.Stop" xml:space="preserve"><value>停止</value></data>
   <data name="HeadlessServers.Delete" xml:space="preserve"><value>删除</value></data>
-  <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>占位功能；服务端 jar 下载已列入 v0.29 路线图。</value></data>
+  <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>占位功能；服务端 jar 下载在路线图中。</value></data>
   <data name="HeadlessServers.FootnotePath" xml:space="preserve"><value>每个服务器都有自己的文件夹，位于 %LOCALAPPDATA%/HyperionMinecraftLauncher/headless_servers/{id}/ 下。创建时启动器会写入 metadata.json、eula.txt 和 server.properties。</value></data>
   <data name="HeadlessServers.DashSeparator" xml:space="preserve"><value> - </value></data>
   <data name="HeadlessServers.MibAndPort" xml:space="preserve"><value> MiB - 端口 </value></data>
@@ -286,7 +286,7 @@
   <!-- NewHeadlessServer dialog -->
   <data name="NewHeadlessServerDialog.Title" xml:space="preserve"><value>新建无界面服务器</value></data>
   <data name="NewHeadlessServerDialog.HeaderTitle" xml:space="preserve"><value>创建新的无界面服务器</value></data>
-  <data name="NewHeadlessServerDialog.Hint" xml:space="preserve"><value>服务端 jar 下载功能将在 v0.29 中实现。目前启动器会写入元数据、eula.txt 和最简的 server.properties，确保管线接通后文件夹已就绪。</value></data>
+  <data name="NewHeadlessServerDialog.Hint" xml:space="preserve"><value>服务端 jar 下载功能在路线图中。目前启动器会写入元数据、eula.txt 和最简的 server.properties，确保管线接通后文件夹已就绪。</value></data>
   <data name="NewHeadlessServerDialog.ServerNameLabel" xml:space="preserve"><value>服务器名称</value></data>
   <data name="NewHeadlessServerDialog.DefaultServerName" xml:space="preserve"><value>我的专用服务器</value></data>
   <data name="NewHeadlessServerDialog.MinecraftVersionLabel" xml:space="preserve"><value>Minecraft 版本</value></data>

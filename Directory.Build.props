@@ -9,5 +9,14 @@
     <Authors>Tech Tea Studio</Authors>
     <Copyright>Copyright (c) Tech Tea Studio 2026</Copyright>
     <RepositoryUrl>https://github.com/TechTeaStudio/HyperionMinecraftLauncher</RepositoryUrl>
+
+    <!--
+      Single source of truth for the launcher version: the repo-root VERSION file.
+      Bump the number in VERSION, build, and every project picks it up automatically.
+      The Sidebar's "v0.X" label in the UI reads back the resulting Assembly version
+      at runtime, so the sidebar and the package metadata always agree.
+    -->
+    <HyperionVersion>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)VERSION').Trim())</HyperionVersion>
+    <Version>$(HyperionVersion)</Version>
   </PropertyGroup>
 </Project>

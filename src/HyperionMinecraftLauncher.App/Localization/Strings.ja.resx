@@ -127,13 +127,13 @@
 
   <!-- Headless servers page -->
   <data name="HeadlessServers.Title" xml:space="preserve"><value>ヘッドレスサーバー</value></data>
-  <data name="HeadlessServers.Subtitle" xml:space="preserve"><value>Hyperion がディスク上で管理する Minecraft 専用サーバーです。サーバー jar のダウンロードと JVM 起動は v0.29 で対応予定です。</value></data>
+  <data name="HeadlessServers.Subtitle" xml:space="preserve"><value>Hyperion がディスク上で管理する Minecraft 専用サーバーです。サーバー jar のダウンロードと JVM 起動はロードマップ上です。</value></data>
   <data name="HeadlessServers.NewServer" xml:space="preserve"><value>+ 新しいサーバー</value></data>
   <data name="HeadlessServers.Refresh" xml:space="preserve"><value>更新</value></data>
   <data name="HeadlessServers.Start" xml:space="preserve"><value>開始</value></data>
   <data name="HeadlessServers.Stop" xml:space="preserve"><value>停止</value></data>
   <data name="HeadlessServers.Delete" xml:space="preserve"><value>削除</value></data>
-  <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>仮実装です。サーバー jar のダウンロードは v0.29 のロードマップにあります。</value></data>
+  <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>仮実装です。サーバー jar のダウンロードはロードマップ上です。</value></data>
   <data name="HeadlessServers.FootnotePath" xml:space="preserve"><value>各サーバーは %LOCALAPPDATA%/HyperionMinecraftLauncher/headless_servers/{id}/ 配下に専用フォルダーを持ちます。作成時にランチャーが metadata.json、eula.txt、server.properties を書き込みます。</value></data>
   <data name="HeadlessServers.DashSeparator" xml:space="preserve"><value> - </value></data>
   <data name="HeadlessServers.MibAndPort" xml:space="preserve"><value> MiB - ポート </value></data>
@@ -283,7 +283,7 @@
   <!-- NewHeadlessServer dialog -->
   <data name="NewHeadlessServerDialog.Title" xml:space="preserve"><value>新しいヘッドレスサーバー</value></data>
   <data name="NewHeadlessServerDialog.HeaderTitle" xml:space="preserve"><value>新しいヘッドレスサーバーを作成</value></data>
-  <data name="NewHeadlessServerDialog.Hint" xml:space="preserve"><value>サーバー jar のダウンロードは v0.29 で対応予定です。現時点ではランチャーがメタデータ、eula.txt、最小限の server.properties を書き込み、パイプライン連携時にフォルダーが使えるよう準備します。</value></data>
+  <data name="NewHeadlessServerDialog.Hint" xml:space="preserve"><value>サーバー jar のダウンロードはロードマップ上です。現時点ではランチャーがメタデータ、eula.txt、最小限の server.properties を書き込み、パイプライン連携時にフォルダーが使えるよう準備します。</value></data>
   <data name="NewHeadlessServerDialog.ServerNameLabel" xml:space="preserve"><value>サーバー名</value></data>
   <data name="NewHeadlessServerDialog.DefaultServerName" xml:space="preserve"><value>専用サーバー</value></data>
   <data name="NewHeadlessServerDialog.MinecraftVersionLabel" xml:space="preserve"><value>Minecraft バージョン</value></data>

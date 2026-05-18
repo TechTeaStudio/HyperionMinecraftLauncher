@@ -376,7 +376,7 @@
 
         <Border Margin="4,12,4,6" Height="1" Background="{DynamicResource MaterialDividerBrush}" />
 
-        <TextBlock Text="{x:Static loc:Strings.Sidebar_ParityBuildLabel}"
+        <TextBlock Text="{Binding LauncherVersionLabel}"
                    FontFamily="{StaticResource MinecraftFont}" FontSize="10"
                    Opacity="0.55" Margin="10,2,0,0"
                    IsVisible="{Binding AreSidebarLabelsVisible}" />

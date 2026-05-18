@@ -1336,11 +1336,23 @@ public sealed class MainViewModel : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// The currently running launcher version, advertised to the update checker as the
-    /// "current" side of the comparison. Kept as a constant so a single source of truth
-    /// (the .csproj &lt;Version&gt;) bumps in lock-step with this string per release.
+    /// The currently running launcher version, read at first access from the executing
+    /// assembly's metadata. The assembly version is set by MSBuild from the repo-root
+    /// <c>/VERSION</c> file via <c>Directory.Build.props</c>, so the single source of
+    /// truth lives in one place: edit <c>/VERSION</c>, build, and every consumer
+    /// (this property, the update-checker probe, the sidebar's version label) picks
+    /// up the new number automatically.
     /// </summary>
-    public const string CurrentLauncherVersion = "0.32.0";
+    public static string CurrentLauncherVersion { get; } =
+        typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "0.0.0";
+
+    /// <summary>
+    /// Pre-formatted version label rendered in the sidebar footer
+    /// (e.g. <c>"v0.32.0"</c>). Bound from <c>MainWindow.axaml</c> instead of the
+    /// older static <c>Sidebar.ParityBuildLabel</c> resource so the displayed version
+    /// follows <see cref="CurrentLauncherVersion"/> automatically.
+    /// </summary>
+    public string LauncherVersionLabel => $"v{CurrentLauncherVersion}";
 
     /// <summary>
     /// Re-read the cached-accounts roster (MSAL + offline placeholders), reconcile our

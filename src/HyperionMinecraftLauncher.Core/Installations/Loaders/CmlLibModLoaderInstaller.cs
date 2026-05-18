@@ -69,10 +69,10 @@ public sealed class CmlLibModLoaderInstaller : IModLoaderInstaller
                 return _quilt.InstallAsync(minecraftVersion, loaderVersion, progress, cancellationToken);
 
             case ModLoader.OptiFine:
-                throw new NotSupportedException("OptiFine loader support arrives in v0.31.");
+                throw new NotSupportedException("OptiFine loader support is on the roadmap.");
 
             case ModLoader.LegacyForge:
-                throw new NotSupportedException("Legacy Forge (1.7.10 era) loader support arrives in v0.31.");
+                throw new NotSupportedException("Legacy Forge (1.7.10 era) loader support is on the roadmap.");
 
             case ModLoader.Other:
                 throw new NotSupportedException("Unknown / 'Other' loader cannot be installed automatically.");

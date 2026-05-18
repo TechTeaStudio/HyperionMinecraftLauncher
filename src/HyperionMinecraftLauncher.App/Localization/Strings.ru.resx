@@ -130,13 +130,13 @@
 
   <!-- Headless servers page -->
   <data name="HeadlessServers.Title" xml:space="preserve"><value>Headless-серверы</value></data>
-  <data name="HeadlessServers.Subtitle" xml:space="preserve"><value>Выделенные Minecraft-серверы, которые Hyperion отслеживает на диске. Скачивание server.jar и запуск JVM появятся в v0.29.</value></data>
+  <data name="HeadlessServers.Subtitle" xml:space="preserve"><value>Выделенные Minecraft-серверы, которые Hyperion отслеживает на диске. Скачивание server.jar и запуск JVM в роадмапе.</value></data>
   <data name="HeadlessServers.NewServer" xml:space="preserve"><value>+ Новый сервер</value></data>
   <data name="HeadlessServers.Refresh" xml:space="preserve"><value>Обновить</value></data>
   <data name="HeadlessServers.Start" xml:space="preserve"><value>Запустить</value></data>
   <data name="HeadlessServers.Stop" xml:space="preserve"><value>Остановить</value></data>
   <data name="HeadlessServers.Delete" xml:space="preserve"><value>Удалить</value></data>
-  <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>Заглушка; скачивание server.jar в роадмапе на v0.29.</value></data>
+  <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>Заглушка; скачивание server.jar в роадмапе.</value></data>
   <data name="HeadlessServers.FootnotePath" xml:space="preserve"><value>У каждого сервера своя папка в %LOCALAPPDATA%/HyperionMinecraftLauncher/headless_servers/{id}/. При создании лаунчер записывает туда metadata.json, eula.txt и server.properties.</value></data>
   <data name="HeadlessServers.DashSeparator" xml:space="preserve"><value> - </value></data>
   <data name="HeadlessServers.MibAndPort" xml:space="preserve"><value> MiB - порт </value></data>
@@ -286,7 +286,7 @@
   <!-- NewHeadlessServer dialog -->
   <data name="NewHeadlessServerDialog.Title" xml:space="preserve"><value>Новый headless-сервер</value></data>
   <data name="NewHeadlessServerDialog.HeaderTitle" xml:space="preserve"><value>Создание headless-сервера</value></data>
-  <data name="NewHeadlessServerDialog.Hint" xml:space="preserve"><value>Скачивание server.jar появится в v0.29. Пока лаунчер пишет метаданные, eula.txt и минимальный server.properties, чтобы папка была готова, когда подключим пайплайн.</value></data>
+  <data name="NewHeadlessServerDialog.Hint" xml:space="preserve"><value>Скачивание server.jar пока в роадмапе. Лаунчер уже пишет метаданные, eula.txt и минимальный server.properties, чтобы папка была готова, когда подключим пайплайн.</value></data>
   <data name="NewHeadlessServerDialog.ServerNameLabel" xml:space="preserve"><value>Название сервера</value></data>
   <data name="NewHeadlessServerDialog.DefaultServerName" xml:space="preserve"><value>Мой выделенный сервер</value></data>
   <data name="NewHeadlessServerDialog.MinecraftVersionLabel" xml:space="preserve"><value>Версия Minecraft</value></data>

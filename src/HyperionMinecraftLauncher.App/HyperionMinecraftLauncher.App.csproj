@@ -5,7 +5,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>TechTeaStudio.HyperionMinecraftLauncher.App</RootNamespace>
     <AssemblyName>HyperionMinecraftLauncher</AssemblyName>
-    <Version>0.32.0</Version>
+    <!-- &lt;Version&gt; is inherited from Directory.Build.props which reads /VERSION. -->
     <Description>Avalonia desktop front-end for the Minecraft launcher.</Description>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationManifest>app.manifest</ApplicationManifest>

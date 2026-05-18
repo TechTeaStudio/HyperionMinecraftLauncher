@@ -130,13 +130,13 @@
 
   <!-- Headless servers page -->
   <data name="HeadlessServers.Title" xml:space="preserve"><value>Headless servers</value></data>
-  <data name="HeadlessServers.Subtitle" xml:space="preserve"><value>Dedicated Minecraft servers Hyperion tracks on disk. Server jar download + JVM spawn lands in v0.29.</value></data>
+  <data name="HeadlessServers.Subtitle" xml:space="preserve"><value>Dedicated Minecraft servers Hyperion tracks on disk. Server jar download and JVM spawn are on the roadmap.</value></data>
   <data name="HeadlessServers.NewServer" xml:space="preserve"><value>+ New server</value></data>
   <data name="HeadlessServers.Refresh" xml:space="preserve"><value>Refresh</value></data>
   <data name="HeadlessServers.Start" xml:space="preserve"><value>Start</value></data>
   <data name="HeadlessServers.Stop" xml:space="preserve"><value>Stop</value></data>
   <data name="HeadlessServers.Delete" xml:space="preserve"><value>Delete</value></data>
-  <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>Placeholder; server jar download is on the v0.29 roadmap.</value></data>
+  <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>Placeholder; server jar download is on the roadmap.</value></data>
   <data name="HeadlessServers.FootnotePath" xml:space="preserve"><value>Each server gets its own folder under %LOCALAPPDATA%/HyperionMinecraftLauncher/headless_servers/{id}/. The launcher writes metadata.json, eula.txt and server.properties on Create.</value></data>
   <data name="HeadlessServers.DashSeparator" xml:space="preserve"><value> - </value></data>
   <data name="HeadlessServers.MibAndPort" xml:space="preserve"><value> MiB - port </value></data>
@@ -286,7 +286,7 @@
   <!-- NewHeadlessServer dialog -->
   <data name="NewHeadlessServerDialog.Title" xml:space="preserve"><value>New Headless Server</value></data>
   <data name="NewHeadlessServerDialog.HeaderTitle" xml:space="preserve"><value>Create a new headless server</value></data>
-  <data name="NewHeadlessServerDialog.Hint" xml:space="preserve"><value>The server-jar download lands in v0.29. For now the launcher writes the metadata, eula.txt and a minimal server.properties so the folder is ready when the pipeline is wired up.</value></data>
+  <data name="NewHeadlessServerDialog.Hint" xml:space="preserve"><value>The server-jar download is on the roadmap. For now the launcher writes the metadata, eula.txt and a minimal server.properties so the folder is ready when the pipeline is wired up.</value></data>
   <data name="NewHeadlessServerDialog.ServerNameLabel" xml:space="preserve"><value>Server name</value></data>
   <data name="NewHeadlessServerDialog.DefaultServerName" xml:space="preserve"><value>My dedicated server</value></data>
   <data name="NewHeadlessServerDialog.MinecraftVersionLabel" xml:space="preserve"><value>Minecraft version</value></data>
