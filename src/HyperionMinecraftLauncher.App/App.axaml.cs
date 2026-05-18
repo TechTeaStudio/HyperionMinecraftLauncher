@@ -23,6 +23,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Settings;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.History;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Updates;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App;
 
@@ -103,10 +104,16 @@ public partial class App : Application
             var curseForgeRepo = new CurseForgeRepository(curseForgeHttp, initialSettings.CurseForgeApiKey, logger);
             var instanceModManager = new FileSystemInstanceModManager();
 
+            // Update checker: shares the launcher's HttpClient + disk cache so the GitHub
+            // releases probe is at most a once-per-hour round-trip on startup, and never
+            // throws on failure (banner just stays hidden).
+            var updateChecker = new GitHubReleasesUpdateChecker(httpClient, cache);
+
             var viewModel = new MainViewModel(
                 service, logger, microsoftAuth, settingsStore,
                 presence, instanceBrowser, skinService, skinHistory,
-                modrinthRepo, curseForgeRepo, instanceModManager, accountStore);
+                modrinthRepo, curseForgeRepo, instanceModManager, accountStore,
+                updateChecker);
 
             var mainWindow = new MainWindow
             {

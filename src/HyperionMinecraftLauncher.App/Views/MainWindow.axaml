@@ -55,7 +55,7 @@
       </ExperimentalAcrylicBorder.Material>
     </ExperimentalAcrylicBorder>
 
-  <Grid ColumnDefinitions="Auto,*" RowDefinitions="48,*">
+  <Grid ColumnDefinitions="Auto,*" RowDefinitions="48,Auto,*">
 
     <!-- =================== HEADER (drag region + window controls) =================== -->
     <Border Grid.ColumnSpan="2" Background="{DynamicResource MaterialPrimaryDarkBrush}"
@@ -185,11 +185,50 @@
       </Grid>
     </Border>
 
+    <!-- =================== LAUNCHER UPDATE BANNER (T16) =================== -->
+    <!-- Visible only when MainViewModel.AvailableUpdate is set. Clicking the banner body
+         opens the release URL in the default browser; the X dismisses for this session. -->
+    <Border Grid.Row="1" Grid.ColumnSpan="2"
+            IsVisible="{Binding HasUpdateAvailable}"
+            Background="{DynamicResource MaterialPrimaryMidBrush}"
+            BorderBrush="{DynamicResource MaterialPrimaryDarkBrush}"
+            BorderThickness="0,0,0,1"
+            Padding="0">
+      <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+        <Button Grid.Column="0"
+                Command="{Binding OpenReleasePageCommand}"
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Left"
+                Background="Transparent"
+                BorderThickness="0"
+                Padding="14,6"
+                Cursor="Hand">
+          <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="Download" Width="16" Height="16" Foreground="White" />
+            <TextBlock Text="{Binding UpdateBannerText}"
+                       Foreground="White" FontSize="12"
+                       VerticalAlignment="Center"
+                       TextTrimming="CharacterEllipsis" />
+          </StackPanel>
+        </Button>
+        <Button Grid.Column="1"
+                Command="{Binding DismissUpdateCommand}"
+                ToolTip.Tip="Dismiss"
+                Background="Transparent"
+                BorderThickness="0"
+                Padding="10,6"
+                Margin="0,0,4,0">
+          <Path Data="M 0,0 L 10,10 M 10,0 L 0,10" Stroke="White" StrokeThickness="1.4"
+                Width="10" Height="10" />
+        </Button>
+      </Grid>
+    </Border>
+
     <!-- =================== SIDEBAR =================== -->
     <!-- Border.Width is bound to a VM property that flips between 180 (expanded) and 56 (collapsed).
          The DoubleTransition on Width animates the change so the content reflows smoothly.
          The Auto column on the parent Grid lets this Border drive its own width. -->
-    <Border Grid.Row="1" Grid.Column="0" Name="SidebarBorder"
+    <Border Grid.Row="2" Grid.Column="0" Name="SidebarBorder"
             Width="{Binding SidebarWidth}"
             Background="{DynamicResource MaterialPaperBrush}"
             BorderBrush="{DynamicResource MaterialPrimaryDarkBrush}" BorderThickness="0,0,2,0"
@@ -298,7 +337,7 @@
     </Border>
 
     <!-- =================== CONTENT =================== -->
-    <Grid Grid.Row="1" Grid.Column="1" Margin="14,12">
+    <Grid Grid.Row="2" Grid.Column="1" Margin="14,12">
 
       <!-- ==== HOME PAGE ==== -->
       <Grid IsVisible="{Binding IsHomeSelected}" Classes="Page" RowDefinitions="Auto,Auto,Auto,Auto,*">
