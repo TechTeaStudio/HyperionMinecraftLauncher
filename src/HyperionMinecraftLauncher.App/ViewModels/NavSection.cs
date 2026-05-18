@@ -10,6 +10,8 @@ public enum InstanceDetailTab
     Screenshots,
     Worlds,
     Servers,
+    /// <summary>Recent crash reports parsed from <c>&lt;gameDir&gt;/crash-reports/</c>.</summary>
+    Crashes,
 }
 
 /// <summary>Identifies the active sidebar item. The content area binds <c>IsVisible</c> to a converter that matches this enum.</summary>

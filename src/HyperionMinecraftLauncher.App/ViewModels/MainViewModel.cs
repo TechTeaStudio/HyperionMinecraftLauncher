@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.CrashReports;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
@@ -51,6 +52,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private readonly ILauncherSettingsStore? _settingsStore;
     private readonly IPresenceService _presence;
     private readonly IInstanceBrowser? _instanceBrowser;
+    private readonly ICrashReportListener? _crashReportListener;
     private readonly ISkinService? _skinService;
     private readonly ISkinHistoryStore? _skinHistory;
     private SkinPickRequest? _skinPickRequest;
@@ -99,6 +101,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private IReadOnlyList<ScreenshotEntry> _instanceScreenshots = Array.Empty<ScreenshotEntry>();
     private IReadOnlyList<WorldEntry> _instanceWorlds = Array.Empty<WorldEntry>();
     private IReadOnlyList<ServerListEntry> _instanceServers = Array.Empty<ServerListEntry>();
+    private IReadOnlyList<CrashReport> _instanceCrashReports = Array.Empty<CrashReport>();
+    private CrashReport? _selectedCrashReport;
     private InstanceDetailTab _selectedInstanceTab = InstanceDetailTab.Screenshots;
     private IReadOnlyList<OwnedSkin> _ownedSkins = Array.Empty<OwnedSkin>();
     private IReadOnlyList<OwnedCape> _ownedCapes = Array.Empty<OwnedCape>();
@@ -137,7 +141,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IInstanceModManager? instanceModManager = null,
         IAccountStore? accountStore = null,
         IUpdateChecker? updateChecker = null,
-        IHeadlessServerStore? headlessServerStore = null)
+        IHeadlessServerStore? headlessServerStore = null,
+        ICrashReportListener? crashReportListener = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -146,6 +151,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         // Default to no-op so the constructor stays test-friendly when callers don't care.
         _presence = presence ?? new NullPresenceService();
         _instanceBrowser = instanceBrowser;
+        _crashReportListener = crashReportListener;
         _skinService = skinService;
         _skinHistory = skinHistory;
         SkinHistory = new ObservableCollection<SkinHistoryEntry>();
@@ -204,6 +210,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
         RefreshInstanceServersCommand = new AsyncRelayCommand(
             RefreshInstanceServersAsync,
             () => !IsBusy && SelectedInstance is not null && _instanceBrowser is not null);
+        RefreshInstanceCrashReportsCommand = new AsyncRelayCommand(
+            RefreshInstanceCrashReportsAsync,
+            () => !IsBusy && SelectedInstance is not null && _crashReportListener is not null);
+        OpenCrashReportInBrowserCommand = new AsyncRelayCommand(
+            OpenSelectedCrashReportInBrowserAsync,
+            () => SelectedCrashReport is not null && SelectedCrashReport.SuspectedMods.Count > 0);
         UploadSkinCommand = new AsyncRelayCommand(UploadSkinAsync, () => !IsBusy && IsSignedInOnline && _skinService is not null);
         SetActiveCapeCommand = new AsyncRelayCommand(SetActiveCapeFromSelectionAsync, () => !IsBusy && IsSignedInOnline && _skinService is not null);
         ClearActiveCapeCommand = new AsyncRelayCommand(ClearActiveCapeAsync, () => !IsBusy && IsSignedInOnline && _skinService is not null);
@@ -460,6 +472,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 RefreshInstanceScreenshotsCommand.RaiseCanExecuteChanged();
                 RefreshInstanceWorldsCommand.RaiseCanExecuteChanged();
                 RefreshInstanceServersCommand.RaiseCanExecuteChanged();
+                RefreshInstanceCrashReportsCommand.RaiseCanExecuteChanged();
                 OnPropertyChanged(nameof(HasSelectedInstance));
                 // Auto-refresh per-instance detail tabs when the selected instance changes.
                 // Fire-and-forget: the View animates a fade-in while we populate the lists.
@@ -472,6 +485,16 @@ public sealed class MainViewModel : INotifyPropertyChanged
                     InstanceScreenshots = Array.Empty<ScreenshotEntry>();
                     InstanceWorlds = Array.Empty<WorldEntry>();
                     InstanceServers = Array.Empty<ServerListEntry>();
+                }
+                // Crash reports use a separate listener; refresh independently of the regular browser.
+                if (value is not null && _crashReportListener is not null)
+                {
+                    _ = RefreshInstanceCrashReportsAsync();
+                }
+                else
+                {
+                    InstanceCrashReports = Array.Empty<CrashReport>();
+                    SelectedCrashReport = null;
                 }
                 OnPropertyChanged(nameof(CanManageInstanceMods));
                 InstallModCommand?.RaiseCanExecuteChanged();
@@ -506,6 +529,49 @@ public sealed class MainViewModel : INotifyPropertyChanged
         private set => SetField(ref _instanceServers, value);
     }
 
+    /// <summary>Crash reports parsed from <c>&lt;gameDir&gt;/crash-reports/</c>, newest first.</summary>
+    public IReadOnlyList<CrashReport> InstanceCrashReports
+    {
+        get => _instanceCrashReports;
+        private set
+        {
+            if (SetField(ref _instanceCrashReports, value))
+            {
+                OnPropertyChanged(nameof(HasInstanceCrashReports));
+                // Clear selection if it no longer exists in the new list.
+                if (SelectedCrashReport is not null && !value.Contains(SelectedCrashReport))
+                    SelectedCrashReport = value.Count > 0 ? value[0] : null;
+                else if (SelectedCrashReport is null && value.Count > 0)
+                    SelectedCrashReport = value[0];
+            }
+        }
+    }
+
+    /// <summary>True when the selected instance has at least one crash report to show.</summary>
+    public bool HasInstanceCrashReports => _instanceCrashReports.Count > 0;
+
+    /// <summary>The crash report currently focused in the Crashes tab. Drives the viewer pane + mod-search button strip.</summary>
+    public CrashReport? SelectedCrashReport
+    {
+        get => _selectedCrashReport;
+        set
+        {
+            if (SetField(ref _selectedCrashReport, value))
+            {
+                OnPropertyChanged(nameof(HasSelectedCrashReport));
+                OnPropertyChanged(nameof(SelectedCrashReportSuspects));
+                OpenCrashReportInBrowserCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    /// <summary>True when a crash report is selected - drives the visibility of the viewer pane.</summary>
+    public bool HasSelectedCrashReport => _selectedCrashReport is not null;
+
+    /// <summary>The suspect frames of the selected crash report, or empty when nothing is selected. Drives the button strip.</summary>
+    public IReadOnlyList<CrashFrame> SelectedCrashReportSuspects =>
+        _selectedCrashReport?.SuspectedMods ?? Array.Empty<CrashFrame>();
+
     /// <summary>Active sub-tab in the per-instance detail panel.</summary>
     public InstanceDetailTab SelectedInstanceTab
     {
@@ -517,6 +583,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 OnPropertyChanged(nameof(IsScreenshotsTabSelected));
                 OnPropertyChanged(nameof(IsWorldsTabSelected));
                 OnPropertyChanged(nameof(IsInstanceServersTabSelected));
+                OnPropertyChanged(nameof(IsCrashesTabSelected));
             }
         }
     }
@@ -524,6 +591,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public bool IsScreenshotsTabSelected => SelectedInstanceTab == InstanceDetailTab.Screenshots;
     public bool IsWorldsTabSelected => SelectedInstanceTab == InstanceDetailTab.Worlds;
     public bool IsInstanceServersTabSelected => SelectedInstanceTab == InstanceDetailTab.Servers;
+    public bool IsCrashesTabSelected => SelectedInstanceTab == InstanceDetailTab.Crashes;
 
     // ---- Settings ----
 
@@ -751,6 +819,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 RefreshInstanceScreenshotsCommand.RaiseCanExecuteChanged();
                 RefreshInstanceWorldsCommand.RaiseCanExecuteChanged();
                 RefreshInstanceServersCommand.RaiseCanExecuteChanged();
+                RefreshInstanceCrashReportsCommand.RaiseCanExecuteChanged();
                 UploadSkinCommand.RaiseCanExecuteChanged();
                 SetActiveCapeCommand.RaiseCanExecuteChanged();
                 ClearActiveCapeCommand.RaiseCanExecuteChanged();
@@ -890,6 +959,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncRelayCommand RefreshInstanceScreenshotsCommand { get; }
     public AsyncRelayCommand RefreshInstanceWorldsCommand { get; }
     public AsyncRelayCommand RefreshInstanceServersCommand { get; }
+    public AsyncRelayCommand RefreshInstanceCrashReportsCommand { get; }
+    public AsyncRelayCommand OpenCrashReportInBrowserCommand { get; }
     public AsyncRelayCommand UploadSkinCommand { get; }
     public AsyncRelayCommand SetActiveCapeCommand { get; }
     public AsyncRelayCommand ClearActiveCapeCommand { get; }
@@ -2001,6 +2072,42 @@ public sealed class MainViewModel : INotifyPropertyChanged
             Append($"[error] Could not list instance servers: {ex.Message}");
             InstanceServers = Array.Empty<ServerListEntry>();
         }
+    }
+
+    private async Task RefreshInstanceCrashReportsAsync()
+    {
+        if (_crashReportListener is null || SelectedInstance is not { } inst) return;
+        try
+        {
+            InstanceCrashReports = await _crashReportListener.ListRecentAsync(inst, 20, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not list crash reports: {ex.Message}");
+            InstanceCrashReports = Array.Empty<CrashReport>();
+        }
+    }
+
+    /// <summary>
+    /// Open the first suspect mod's Modrinth search page in the OS default browser. Falls back to
+    /// the CurseForge link when Modrinth is empty. No-op when nothing is selected or no suspects.
+    /// </summary>
+    private Task OpenSelectedCrashReportInBrowserAsync()
+    {
+        if (SelectedCrashReport is null || SelectedCrashReport.SuspectedMods.Count == 0)
+            return Task.CompletedTask;
+        var url = SelectedCrashReport.SuspectedMods[0].ModrinthSearchUrl
+                  ?? SelectedCrashReport.SuspectedMods[0].CurseForgeSearchUrl;
+        if (string.IsNullOrEmpty(url)) return Task.CompletedTask;
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not open browser: {ex.Message}");
+        }
+        return Task.CompletedTask;
     }
 
     private async Task RefreshAllInstanceTabsAsync(Instance instance)

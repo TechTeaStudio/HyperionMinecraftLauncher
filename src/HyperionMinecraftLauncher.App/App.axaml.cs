@@ -11,6 +11,7 @@ using System.Net.Http;
 using System.Threading;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.CrashReports;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
@@ -101,6 +102,10 @@ public partial class App : Application
             // Per-instance browser: lists screenshots / worlds / servers under each instance's gameDir.
             var instanceBrowser = new FileSystemInstanceBrowser();
 
+            // Per-instance crash report listener (v0.30 T21c): parses crash-reports/*.txt and
+            // ranks suspect mods by stack-trace frame. Wraps the built-in MinecraftCrashReportParser.
+            var crashReportListener = new FileSystemCrashReportListener();
+
             // Skin upload + cape + history services. Reuse the launcher's shared HttpClient.
             var skinService = new MojangSkinService(httpClient);
             var skinHistoryDir = Path.Combine(
@@ -128,7 +133,7 @@ public partial class App : Application
                 service, logger, microsoftAuth, settingsStore,
                 presence, instanceBrowser, skinService, skinHistory,
                 modrinthRepo, curseForgeRepo, instanceModManager, accountStore,
-                updateChecker, headlessServerStore);
+                updateChecker, headlessServerStore, crashReportListener);
 
             var mainWindow = new MainWindow
             {
