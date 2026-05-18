@@ -579,6 +579,44 @@ public sealed class MainViewModel : INotifyPropertyChanged
         return instance;
     }
 
+    /// <summary>
+    /// Persist a new icon for an existing user-created instance and swap the in-memory
+    /// record in the <see cref="Instances"/> collection so the tile re-binds. Auto-imported
+    /// instances are refused (they live under the official launcher's <c>.minecraft/versions/</c>
+    /// folder and Hyperion doesn't persist them). Returns the updated record on success, null
+    /// when the call is rejected (auto-imported / no-op).
+    /// </summary>
+    public async Task<Instance?> ChangeInstanceIconAsync(Instance instance, string newIconKey)
+    {
+        ArgumentNullException.ThrowIfNull(instance);
+        ArgumentException.ThrowIfNullOrWhiteSpace(newIconKey);
+
+        if (instance.IsAutoImported)
+        {
+            // Caller (the View) gates the menu item, but the VM keeps the same guard so the
+            // contract is enforced regardless of which surface invokes it.
+            Append("Cannot change the icon of an auto-imported instance.");
+            return null;
+        }
+
+        if (string.Equals(instance.IconKey, newIconKey, StringComparison.Ordinal))
+            return instance; // no-op: don't churn the file, don't log noise.
+
+        var updated = instance with { IconKey = newIconKey };
+        await _service.SaveInstanceAsync(updated, CancellationToken.None);
+
+        var idx = Instances.IndexOf(instance);
+        if (idx >= 0)
+        {
+            Instances[idx] = updated;
+            if (ReferenceEquals(SelectedInstance, instance))
+                SelectedInstance = updated;
+        }
+
+        _logger.Info($"Instance {updated.Id} ({updated.Name}) icon changed to {newIconKey}.");
+        return updated;
+    }
+
     private async Task SaveSettingsAsync()
     {
         if (_settingsStore is null) return;

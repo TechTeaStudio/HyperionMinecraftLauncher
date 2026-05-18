@@ -224,6 +224,31 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// Opens the icon-picker for a single instance. Wired up by both the tile's
+    /// context-menu "Change icon..." entry and the small "..." overflow button.
+    /// Sender's <c>Tag</c> carries the bound <see cref="TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Instance"/>.
+    /// </summary>
+    private async void OnChangeIconMenuClicked(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        if (sender is not Control { Tag: TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Instance instance })
+            return;
+
+        // Defensive: the XAML already hides / disables the entry point for auto-imported
+        // entries. Keep the runtime guard so any future surface (e.g. keyboard shortcut)
+        // can't bypass it.
+        if (instance.IsAutoImported) return;
+
+        var dialog = EditInstanceIconDialog.ForInstance(instance);
+        await dialog.ShowDialog(this);
+
+        if (dialog.Confirmed)
+        {
+            await vm.ChangeInstanceIconAsync(instance, dialog.SelectedIconKey);
+        }
+    }
+
     private async void OnBrowseGameDir(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel vm) return;

@@ -3,6 +3,15 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.26.0] - 2026-05-18
+
+### Added
+- **Edit the icon of an existing instance.** Right-click any user-created tile on the Installations grid to get a "Change icon..." entry, or click the small "..." overflow button in the tile's top-right corner. Opens a modal that reuses the 15-tile Minecraft icon picker from the New Instance dialog, pre-selects the current icon, and on Save persists the change via `IMinecraftLauncherService.SaveInstanceAsync`. The tile updates in place via the existing `IconKey` binding.
+  - Auto-imported instances (those synthesised from `.minecraft/versions/`) do not surface the menu item or the overflow button. They belong to the official launcher and Hyperion doesn't persist edits for them.
+  - Logs a single `ILauncherLogger.Info` line per change: `Instance {Id} ({Name}) icon changed to {NewIconKey}.`
+- New `EditInstanceIconDialog.axaml(.cs)` view and `MainViewModel.ChangeInstanceIconAsync(Instance, string)` method.
+- xUnit coverage in `FileInstanceStoreTests` verifying `SaveInstanceAsync` round-trips a changed `IconKey` through the file store (overwrite + fresh-load assertion).
+
 ## [0.25.2] - 2026-05-16
 
 ### Changed
