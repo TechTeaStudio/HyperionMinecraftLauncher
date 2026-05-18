@@ -111,10 +111,16 @@ public sealed class SkinPreview : UserControl
     // Skin3DHeadTypeB.MakeHeadImage(skin, x, y) takes:
     //   x = rotation around X axis (pitch  - tilt forward / back)
     //   y = rotation around Y axis (yaw    - turn left / right)
-    // Default 3/4 view: camera looks slightly down at the head, head turned a bit toward
-    // the right shoulder so both eyes + the side of the head are visible.
+    // Default face-on view: the camera looks straight at the head front so the user
+    // immediately recognises their own face (eyes, mouth, hair). The previous default
+    // (yaw=65) showed a 3/4 angle which obscured the face on stylised skins where the
+    // side textures carry no detail - making the 3D head appear "broken" compared to
+    // the 2D body sprite that always shows the face front-on. yaw=90 puts the head
+    // texture's standard front-face UV ((8,8)-(16,16)) directly under the camera so
+    // the 2D and 3D heads visually agree on first load. Drag-to-rotate still works,
+    // so the user can still inspect the sides and back.
     private int _pitch = 15;
-    private int _yaw = 65;
+    private int _yaw = 90;
     private Point? _dragStart;
 
     static SkinPreview()
@@ -199,8 +205,16 @@ public sealed class SkinPreview : UserControl
         {
             _headImage.Source = null;
             _bodyImage.Source = null;
+            _hasBodyImage = false;
             return;
         }
+
+        // The body sprite caches the last-rendered face (front vs back) via _hasBodyImage
+        // + _lastBodyWasBack so dragging within the front-facing arc doesn't repaint the
+        // body. When the skin BYTES change, that cache becomes stale (it's a different
+        // texture even if the yaw arc hasn't moved); reset the flag so RebuildBody below
+        // forces a fresh paint instead of short-circuiting to the previous skin's body.
+        _hasBodyImage = false;
 
         RebuildHead();
         RebuildBody();
@@ -246,7 +260,6 @@ public sealed class SkinPreview : UserControl
             // x as the X-axis rotation (pitch) and y as the Y-axis rotation (yaw). Passing
             // them swapped is what caused v0.32.1's "drag right flips the head upside down"
             // bug - horizontal drag updates yaw, which must land in the second slot.
-            Log($"RebuildHead: passing to MakeHeadImage skin w={_skSkin.Width} h={_skSkin.Height} ct={_skSkin.ColorType} at={_skSkin.AlphaType}, pitch={_pitch}, yaw={_yaw}.");
             using var head = Skin3DHeadTypeB.MakeHeadImage(_skSkin, _pitch, _yaw);
             _headImage.Source = ToAvaloniaBitmap(head);
         }
