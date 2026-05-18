@@ -28,4 +28,10 @@ public sealed record LauncherSettings
 
     /// <summary>If true, the in-app log mirrors the game's stdout/stderr (planned hook - not wired yet).</summary>
     public bool ShowGameLog { get; init; }
+
+    /// <summary>
+    /// If true, the launcher publishes Discord Rich Presence ("In Hyperion launcher" / "Playing &lt;version&gt;").
+    /// Default <c>true</c>; falls back to a no-op when Discord isn't running.
+    /// </summary>
+    public bool DiscordRpcEnabled { get; init; } = true;
 }
