@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Platform;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts;
 
@@ -173,9 +174,8 @@ public sealed class FileAccountStore : IAccountStore
 
     private static string DefaultV2Path() => Path.Combine(DefaultDir(), "accounts.v2.json");
     private static string DefaultV1Path() => Path.Combine(DefaultDir(), "accounts.json");
-    private static string DefaultDir() => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "HyperionMinecraftLauncher");
+    // Accounts are configuration - XDG_CONFIG_HOME on Linux, %LOCALAPPDATA% on Windows.
+    private static string DefaultDir() => XdgPaths.AppFolder(DefaultEnvironment.Instance, XdgCategory.Config);
 
     private sealed record AccountDocument
     {

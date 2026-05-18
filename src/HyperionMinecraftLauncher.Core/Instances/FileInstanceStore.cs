@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Platform;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
 
@@ -96,8 +97,7 @@ public sealed class FileInstanceStore : IInstanceStore
 
     private static string DefaultDir()
     {
-        return Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "HyperionMinecraftLauncher", "instances");
+        // Instances are user-authored configuration: XDG_CONFIG_HOME on Linux, %LOCALAPPDATA% elsewhere.
+        return Path.Combine(XdgPaths.AppFolder(DefaultEnvironment.Instance, XdgCategory.Config), "instances");
     }
 }

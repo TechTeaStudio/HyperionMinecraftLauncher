@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Platform;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 
@@ -78,9 +79,8 @@ public sealed class FileCache
 
     private static string DefaultBaseDir()
     {
-        var dir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "HyperionMinecraftLauncher", "cache");
-        return dir;
+        // Cache lives under $XDG_CACHE_HOME (~/.cache) on Linux, %LOCALAPPDATA% on Windows,
+        // ~/Library/Application Support on macOS - whichever XdgPaths.CacheHome resolves to.
+        return Path.Combine(XdgPaths.AppFolder(DefaultEnvironment.Instance, XdgCategory.Cache), "cache");
     }
 }
