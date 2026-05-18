@@ -1383,6 +1383,34 @@
               </StackPanel>
             </Border>
 
+            <!-- T22a (v0.31.0): language picker. The dropdown is bound to AvailableLocales
+                 (a "(null) Use system default" sentinel followed by one row per culture the
+                 launcher ships translations for). Changing the selection fires
+                 SetCultureAsync on the localization service; on Save the choice persists into
+                 LauncherSettings.Locale. -->
+            <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
+              <StackPanel Spacing="6">
+                <TextBlock Text="{x:Static loc:Strings.Settings_LanguageHeader}" FontWeight="SemiBold" FontSize="12" />
+                <Grid ColumnDefinitions="*,*">
+                  <TextBlock Grid.Column="0" FontSize="11" VerticalAlignment="Center"
+                             Text="{x:Static loc:Strings.Settings_LanguageLabel}" />
+                  <ComboBox Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            ItemsSource="{Binding AvailableLocales}"
+                            SelectedValue="{Binding Locale, Mode=TwoWay}"
+                            SelectedValueBinding="{Binding Culture}">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding DisplayName}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                </Grid>
+                <TextBlock FontSize="10" Opacity="0.55" TextWrapping="Wrap"
+                           Text="{x:Static loc:Strings.Settings_LanguageHint}" />
+              </StackPanel>
+            </Border>
+
           </StackPanel>
         </ScrollViewer>
 

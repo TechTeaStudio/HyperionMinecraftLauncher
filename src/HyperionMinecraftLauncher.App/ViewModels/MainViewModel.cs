@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using TechTeaStudio.HyperionMinecraftLauncher.App.Localization;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Localization;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Diagnostics;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Backups;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.CrashReports;
@@ -83,6 +84,15 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private double _modpackImportProgress;
     private bool _isImportingModpack;
     private string _modpackImportStatus = string.Empty;
+
+    // T22a (v0.31.0): localization. Optional - tests + CLI contexts can leave it null. The
+    // settings page locale dropdown writes the user's choice through SetCultureAsync; the
+    // service fires LanguageChanged so XAML bindings of the form
+    // {Binding [Key], Source={x:Static loc:LocalizationService.Default}} pick up the new
+    // value live. Plain {x:Static loc:Strings.X} bindings keep their startup value and need
+    // a restart to pick up the new culture - documented in Localization/README.md.
+    private readonly ILocalizationService? _localizationService;
+    private string? _locale;
 
     // T21a, v0.30.0: mod-loader install pipeline. The installer downloads + writes the
     // matching version folder under .minecraft/versions/; the version fetcher queries the
@@ -173,7 +183,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IInstanceImporter? instanceImporter = null,
         IModpackImporter? modpackImporter = null,
         IModLoaderInstaller? modLoaderInstaller = null,
-        IModLoaderVersionFetcher? modLoaderVersionFetcher = null)
+        IModLoaderVersionFetcher? modLoaderVersionFetcher = null,
+        ILocalizationService? localizationService = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -197,6 +208,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _instanceImporter = instanceImporter;
         _modLoaderInstaller = modLoaderInstaller;
         _modLoaderVersionFetcher = modLoaderVersionFetcher;
+        _localizationService = localizationService;
         HeadlessServers = new ObservableCollection<HeadlessServer>();
         _modpackImporter = modpackImporter;
         _maxAllowedMemoryMb = SystemRam.RecommendedMaxHeapMb();
@@ -840,6 +852,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _autoUpdateCheckEnabled = s.AutoUpdateCheckEnabled;
         _autoBackupBeforeLaunch = s.AutoBackupBeforeLaunch;
         _autoBackupKeepLatest = s.AutoBackupKeepLatest;
+        _locale = s.Locale;
     }
 
     /// <summary>Snapshot the current VM state as a persistable <see cref="LauncherSettings"/>.</summary>
@@ -856,6 +869,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         AutoUpdateCheckEnabled = _autoUpdateCheckEnabled,
         AutoBackupBeforeLaunch = _autoBackupBeforeLaunch,
         AutoBackupKeepLatest = _autoBackupKeepLatest,
+        Locale = string.IsNullOrWhiteSpace(_locale) ? null : _locale,
     };
 
     /// <summary>If true, every launch zips the instance's worlds into <c>&lt;gameDir&gt;/backups/</c> first.</summary>
@@ -870,6 +884,55 @@ public sealed class MainViewModel : INotifyPropertyChanged
     {
         get => _autoBackupKeepLatest;
         set => SetField(ref _autoBackupKeepLatest, Math.Max(0, value));
+    }
+
+    /// <summary>
+    /// Currently-selected option in the Settings page "Display language" dropdown. <c>null</c>
+    /// means "use system default" (which falls back to <see cref="CultureInfo.CurrentUICulture"/>).
+    /// Setting this asynchronously notifies <see cref="ILocalizationService"/>; only persisted
+    /// when the user clicks <em>Save settings</em>.
+    /// </summary>
+    public string? Locale
+    {
+        get => _locale;
+        set
+        {
+            // Normalize empty string -> null (the dropdown's "use system default" option binds null).
+            var normalized = string.IsNullOrWhiteSpace(value) ? null : value;
+            if (SetField(ref _locale, normalized) && _localizationService is not null)
+            {
+                // Fire-and-forget the culture switch. The service is in-memory; the await is a
+                // synchronous shim. We swallow the awaiter because the property setter must stay
+                // synchronous for two-way bindings.
+                var target = normalized ?? CultureInfo.CurrentUICulture.Name;
+                _ = _localizationService.SetCultureAsync(target, CancellationToken.None);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Locale options shown in the Settings page dropdown. The first entry is always
+    /// <c>(null, "Use system default")</c>; the rest mirror
+    /// <see cref="ILocalizationService.AvailableCultures"/>.
+    /// </summary>
+    public IReadOnlyList<LocaleOption> AvailableLocales =>
+        BuildAvailableLocales(_localizationService);
+
+    private static IReadOnlyList<LocaleOption> BuildAvailableLocales(ILocalizationService? svc)
+    {
+        var options = new List<LocaleOption>
+        {
+            new LocaleOption(null, Strings.Settings_LanguageUseSystemDefault),
+        };
+        if (svc is null) return options;
+        foreach (var c in svc.AvailableCultures)
+        {
+            string display;
+            try { display = CultureInfo.GetCultureInfo(c).NativeName; }
+            catch { display = c; }
+            options.Add(new LocaleOption(c, display));
+        }
+        return options;
     }
 
     /// <summary>Currently-selected profile on the Installations page. Picking a profile pre-fills the launch context.</summary>
@@ -3163,4 +3226,15 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     private void OnPropertyChanged(string? propertyName) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+}
+
+/// <summary>
+/// Settings-page locale dropdown row. <see cref="Culture"/> is the BCP 47 tag the launcher
+/// persists into <c>LauncherSettings.Locale</c> (<c>null</c> = "Use system default");
+/// <see cref="DisplayName"/> is the user-visible label, typically the culture's native name.
+/// </summary>
+public sealed record LocaleOption(string? Culture, string DisplayName)
+{
+    /// <summary>Used by the ComboBox to render the row label.</summary>
+    public override string ToString() => DisplayName;
 }
