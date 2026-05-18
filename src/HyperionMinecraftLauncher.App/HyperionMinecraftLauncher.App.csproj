@@ -13,6 +13,13 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
+  <!-- T18: Opt-in Native AOT configuration. Avalonia 11.2 + MSAL + CmlLib have not been validated for full Native AOT; this config is for future experimentation only. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'ReleaseAot'">
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <StripSymbols>true</StripSymbols>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.3.0" />
     <PackageReference Include="Avalonia" Version="11.2.3" />
