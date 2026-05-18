@@ -2987,21 +2987,22 @@ public sealed class MainViewModel : INotifyPropertyChanged
     /// </summary>
     /// <remarks>
     /// <para>
-    /// The method completes when the observable fires <c>OnCompleted</c> (the underlying
-    /// launcher does so from <c>Process.Exited</c>), at which point the helper logs a
-    /// closing marker line and disposes the subscription. Exposed <c>internal</c> for
-    /// the <c>GameLogPipingTests</c> in the Core test project.
+    /// The returned <see cref="Task"/> completes when the observable fires <c>OnCompleted</c>
+    /// (the underlying launcher does so from <c>Process.Exited</c>), at which point the helper
+    /// logs a closing marker line and disposes the subscription. <c>public</c> rather than
+    /// <c>internal</c> so the Core test project can drive it without an
+    /// <c>InternalsVisibleTo</c>; the same exposure used by <see cref="Append"/>.
     /// </para>
     /// <para>
-    /// All <see cref="Append"/> calls hop to the UI thread via <see cref="SynchronousProgress{T}"/>
-    /// semantics elsewhere; here we rely on the fact that the underlying launcher raises
-    /// <c>OutputDataReceived</c>/<c>ErrorDataReceived</c> on background threads and the
-    /// <see cref="LogText"/> property setter notifies bindings safely from any thread under
-    /// Avalonia's binding pipeline. The unit tests exercise both the subscribe and the
+    /// The underlying launcher raises <c>OutputDataReceived</c>/<c>ErrorDataReceived</c> on
+    /// background threads. Our <see cref="LogText"/> setter notifies bindings via the
+    /// <see cref="System.ComponentModel.INotifyPropertyChanged"/> contract which Avalonia
+    /// dispatches to the UI thread internally, so the bridge stays correct without an
+    /// explicit thread hop on this side. The unit tests exercise both the subscribe and the
     /// complete-on-OnCompleted paths.
     /// </para>
     /// </remarks>
-    internal Task SubscribeToGameLogAsync(IObservable<GameLogLine> stream)
+    public Task SubscribeToGameLogAsync(IObservable<GameLogLine> stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
         var tcs = new TaskCompletionSource();

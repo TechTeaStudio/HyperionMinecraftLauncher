@@ -193,6 +193,7 @@ public static class Strings
     public static string Settings_LauncherPrefsHeader => L("Settings.LauncherPrefsHeader");
     public static string Settings_KeepLauncherOpen => L("Settings.KeepLauncherOpen");
     public static string Settings_ShowGameLog => L("Settings.ShowGameLog");
+    public static string Settings_ShowGameLogTooltip => L("Settings.ShowGameLogTooltip");
     public static string Settings_BackupsHeader => L("Settings.BackupsHeader");
     public static string Settings_AutoBackupCheckbox => L("Settings.AutoBackupCheckbox");
     public static string Settings_KeepLatestNLabel => L("Settings.KeepLatestNLabel");
