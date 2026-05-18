@@ -5,6 +5,9 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Tests;
 
+// FileLauncherLogger was marked [Obsolete] in v0.28.0 (keep-for-tests). These tests
+// intentionally exercise it, so suppress CS0618 for this file only.
+#pragma warning disable CS0618
 public class FileLauncherLoggerTests : IDisposable
 {
     private readonly string _root;
@@ -136,3 +139,4 @@ public class FileLauncherLoggerTests : IDisposable
         Assert.EndsWith(tail, path);
     }
 }
+#pragma warning restore CS0618
