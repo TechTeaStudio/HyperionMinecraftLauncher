@@ -38,10 +38,24 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
     private readonly IServerPinger _serverPinger;
     private readonly INewsClient _newsClient;
     private readonly IInstanceStore _instanceStore;
+    // v0.32.1: java + loader services are wrapped in Lazy<> so the App can defer their HttpClient
+    // construction and folder probes to first-launch instead of paying for them on cold start.
+    // The eager-instance fields stay populated by the convenience constructor + tests; lazy ones
+    // win when both are set so the App's wiring takes precedence.
     private readonly IJavaRuntimeManager _javaRuntimeManager;
     private readonly IModLoaderInstaller? _modLoaderInstaller;
+    private readonly Lazy<IJavaRuntimeManager>? _lazyJavaRuntimeManager;
+    private readonly Lazy<IModLoaderInstaller>? _lazyModLoaderInstaller;
     private readonly FileCache? _versionManifestCache;
     private readonly TimeSpan _versionManifestTtl;
+
+    /// <summary>Resolve the active java-runtime manager: lazy override (if any) takes precedence
+    /// over the eager instance. Both paths converge on a single <see cref="IJavaRuntimeManager"/>.</summary>
+    private IJavaRuntimeManager JavaRuntimeManager => _lazyJavaRuntimeManager?.Value ?? _javaRuntimeManager;
+
+    /// <summary>Resolve the active mod-loader installer: lazy override (if any) takes precedence
+    /// over the eager instance. <c>null</c> means "this build has no mod-loader support wired up".</summary>
+    private IModLoaderInstaller? ModLoaderInstaller => _lazyModLoaderInstaller?.Value ?? _modLoaderInstaller;
 
     /// <summary>Cache key for the serialised version-manifest list under <see cref="FileCache"/>.</summary>
     private const string VersionManifestCacheKey = "versions.json";
@@ -79,7 +93,9 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         IJavaRuntimeManager? javaRuntimeManager = null,
         IModLoaderInstaller? modLoaderInstaller = null,
         FileCache? versionManifestCache = null,
-        TimeSpan? versionManifestTtl = null)
+        TimeSpan? versionManifestTtl = null,
+        Lazy<IJavaRuntimeManager>? lazyJavaRuntimeManager = null,
+        Lazy<IModLoaderInstaller>? lazyModLoaderInstaller = null)
     {
         _underlying = underlying ?? throw new ArgumentNullException(nameof(underlying));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -93,6 +109,8 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         _instanceStore = instanceStore ?? new FileInstanceStore();
         _javaRuntimeManager = javaRuntimeManager ?? new NullJavaRuntimeManager();
         _modLoaderInstaller = modLoaderInstaller;
+        _lazyJavaRuntimeManager = lazyJavaRuntimeManager;
+        _lazyModLoaderInstaller = lazyModLoaderInstaller;
         _versionManifestCache = versionManifestCache;
         _versionManifestTtl = versionManifestTtl ?? DefaultVersionManifestTtl;
     }
@@ -497,8 +515,11 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
         // returns a modded version-id (e.g. "1.21.5-fabric-0.16.10") which we then feed to
         // the regular CmlLib install pipeline below - that path will download the loader's
         // library set defined in the new version's JSON manifest. The block is skipped for
-        // vanilla (Loader == None) and for builds with no _modLoaderInstaller configured.
-        if (request.Loader != ModLoader.None && _modLoaderInstaller is not null)
+        // vanilla (Loader == None) and for builds with no ModLoaderInstaller configured.
+        // v0.32.1: resolved through the lazy property so first .Value triggers Adoptium / loader-installer
+        // construction at launch time, never on cold startup.
+        var modLoaderInstaller = ModLoaderInstaller;
+        if (request.Loader != ModLoader.None && modLoaderInstaller is not null)
         {
             var loaderLabel = string.IsNullOrEmpty(request.LoaderVersion)
                 ? $"{request.Loader} (latest)"
@@ -510,7 +531,7 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
             {
                 var loaderProgress = progress is null ? null : new Progress<double>(f =>
                     progress.Report(new LaunchProgress { Stage = stage, Fraction = f }));
-                var moddedId = await _modLoaderInstaller
+                var moddedId = await modLoaderInstaller
                     .InstallAsync(request.Loader, request.VersionName, request.LoaderVersion, loaderProgress, cancellationToken)
                     .ConfigureAwait(false);
                 if (!string.IsNullOrEmpty(moddedId) && !string.Equals(moddedId, request.VersionName, StringComparison.Ordinal))
@@ -560,7 +581,7 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
             {
                 var javaProgress = progress is null ? null : new Progress<double>(f =>
                     progress.Report(new LaunchProgress { Stage = $"Downloading Java", Fraction = f }));
-                var javaPath = await _javaRuntimeManager
+                var javaPath = await JavaRuntimeManager
                     .EnsureRuntimeAsync(requirement, javaProgress, cancellationToken)
                     .ConfigureAwait(false);
                 if (!string.IsNullOrWhiteSpace(javaPath))

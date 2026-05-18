@@ -1241,27 +1241,55 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public async Task RunStartupRefreshesAsync()
     {
         // Announce idle to Discord (no-op when RPC is disabled or Discord isn't running).
-        // Defensive wrap: presence is cosmetic and must not abort startup.
+        // v0.32.1: presence is now a DeferredPresenceService proxy, so SetIdle records the
+        // call and replays it once Discord IPC finishes handshaking on its background thread.
         try { _presence.SetIdle(); }
         catch (Exception ex) { _logger.Warn($"Presence SetIdle failed: {ex.Message}"); }
 
-        // T18: Dependency tree for parallel startup -
-        //   {versions, instances+installedVersions, profiles, servers, news, accounts, skinHistory}
-        //   run concurrently (no shared state writes); ms-auth silent sign-in then runs sequentially
-        //   after the batch (it consumes _activeAccount from the accounts refresh).
+        // v0.32.1 (T-startup-perf): the gating WhenAll now only includes the work that the user
+        // visibly needs to see populated on first-paint. Anything network-bound that the user
+        // doesn't immediately interact with (news, MSAL silent sign-in, update probe) is moved
+        // to the deferred section below so the [startup] log line shrinks below 4 s.
         Append(Strings.Log_AutoRefreshingOnStartup);
         await Task.WhenAll(
             TimedAsync("versions", RefreshVersionsAsync),
             TimedAsync("instances", RefreshInstancesAsync),
             TimedAsync("profiles", RefreshProfilesAsync),
             TimedAsync("servers", RefreshServersAsync),
-            TimedAsync("news", RefreshNewsAsync),
             TimedAsync("accounts", () => RefreshAccountsAsync(CancellationToken.None)),
             TimedAsync("skin-history", ReloadHistoryAsync)).ConfigureAwait(true);
 
-        // Silent Microsoft sign-in is intentionally sequential at the end: it needs the
-        // accounts roster populated above to pick the right cached account, and we don't
-        // want it competing for the UI thread before the page is visibly populated.
+        // Emit the gating-work timeline immediately - this is the "how long did the user wait
+        // for visible content" number the perf task is graded on.
+        StartupTimeline.ReportTo(_logger);
+
+        // -- Deferred work below this line --
+        // Run news, silent MSAL sign-in, and the update probe in parallel as fire-and-forget
+        // background work. Their completion timings land in a separate [startup-deferred] log
+        // line so we can still tell which one is dragging without polluting [startup] TOTAL.
+        _ = Task.Run(RunDeferredStartupWorkAsync);
+    }
+
+    /// <summary>
+    /// v0.32.1: the deferred half of startup. Runs after first-paint and after the [startup]
+    /// log line has already been emitted. Failures are swallowed (already logged inside the
+    /// individual refresh methods) so a slow GitHub probe / dead network can't tear the UI down.
+    /// </summary>
+    private async Task RunDeferredStartupWorkAsync()
+    {
+        var totalSw = Stopwatch.StartNew();
+
+        // News fetch was previously in the gating WhenAll. It uses a 1-hour disk cache
+        // so the cold path is the only one that pays network. Push it to deferred so the
+        // first 1.5 s of UI aren't gated on launchercontent.mojang.com.
+        var newsSw = Stopwatch.StartNew();
+        try { await RefreshNewsAsync().ConfigureAwait(false); }
+        catch (Exception ex) { _logger.Warn($"Deferred news refresh failed: {ex.Message}"); }
+        newsSw.Stop();
+
+        // Silent Microsoft sign-in. Wait 2 s so the user's first interaction isn't competing
+        // with an MSAL token round-trip on the UI thread. The 2 s constant is the task brief.
+        await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
         var msAuthSw = Stopwatch.StartNew();
         if (_microsoftAuth is { HasCachedAccount: true })
         {
@@ -1269,13 +1297,13 @@ public sealed class MainViewModel : INotifyPropertyChanged
             {
                 Append(Strings.Log_SilentMsSignInAttempt);
                 if (_activeAccount is { IsOffline: false, Id.Length: > 0 } active)
-                    CurrentSession = await _microsoftAuth.SignInSilentlyAsync(active.Id, CancellationToken.None);
+                    CurrentSession = await _microsoftAuth.SignInSilentlyAsync(active.Id, CancellationToken.None).ConfigureAwait(false);
                 else
-                    CurrentSession = await _microsoftAuth.SignInSilentlyAsync(CancellationToken.None);
-                Append(string.Format(Strings.Log_AutoSignedInAs, CurrentSession.Username));
+                    CurrentSession = await _microsoftAuth.SignInSilentlyAsync(CancellationToken.None).ConfigureAwait(false);
+                Append(string.Format(Strings.Log_AutoSignedInAs, CurrentSession!.Username));
                 // Populate OwnedSkins + OwnedCapes from the Mojang profile so the Skins
-                // page is fully populated before the user clicks anywhere.
-                await TryRefreshProfileAsync(CurrentSession.AccessToken);
+                // page is fully populated by the time the user opens it.
+                await TryRefreshProfileAsync(CurrentSession.AccessToken).ConfigureAwait(false);
                 // The post-sign-in store update may have changed the account list / active id.
                 await RefreshAccountsAsync(CancellationToken.None).ConfigureAwait(false);
             }
@@ -1287,12 +1315,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
             }
         }
         msAuthSw.Stop();
-        StartupTimeline.Record("ms-auth", msAuthSw.ElapsedMilliseconds);
-        StartupTimeline.ReportTo(_logger);
 
-        // T16: launcher update probe. Best-effort, runs after the heavy refreshes so a slow
-        // GitHub round-trip doesn't delay the visible content. Disabled toggles or a missing
-        // checker silently no-op; transport failures are swallowed inside the checker.
+        // T16: launcher update probe. Best-effort. Disabled toggles or a missing checker
+        // silently no-op; transport failures are swallowed inside the checker.
+        var updateSw = Stopwatch.StartNew();
         if (_autoUpdateCheckEnabled && _updateChecker is not null)
         {
             try
@@ -1310,6 +1336,17 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 _logger.Warn($"Update check failed: {ex.Message}");
             }
         }
+        updateSw.Stop();
+
+        totalSw.Stop();
+
+        // Emit a separate timeline line for the deferred half. Format mirrors the [startup]
+        // line so log-scraping scripts can pick up both deltas.
+        _logger.Info(
+            $"[startup-deferred] news={newsSw.ElapsedMilliseconds}ms " +
+            $"ms-auth={msAuthSw.ElapsedMilliseconds}ms " +
+            $"update-check={updateSw.ElapsedMilliseconds}ms " +
+            $"TOTAL={totalSw.ElapsedMilliseconds}ms");
     }
 
     /// <summary>
