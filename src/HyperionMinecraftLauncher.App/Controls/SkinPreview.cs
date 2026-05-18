@@ -166,6 +166,7 @@ public sealed class SkinPreview : UserControl
             try
             {
                 _skSkin = SKBitmap.Decode(png);
+                Log($"SkinPngSource decoded: pngBytes={png.Length}, w={_skSkin?.Width}, h={_skSkin?.Height}, ct={_skSkin?.ColorType}, at={_skSkin?.AlphaType}.");
             }
             catch (Exception ex)
             {
@@ -184,6 +185,8 @@ public sealed class SkinPreview : UserControl
                 _skSkin = SKBitmap.Decode(ms);
                 if (_skSkin is null)
                     Log("SKBitmap.Decode(stream) returned null after Bitmap.Save round-trip; ignoring.");
+                else
+                    Log($"SkinSource decoded via Bitmap.Save: w={_skSkin.Width}, h={_skSkin.Height}, ct={_skSkin.ColorType}, at={_skSkin.AlphaType}.");
             }
             catch (Exception ex)
             {
@@ -243,6 +246,7 @@ public sealed class SkinPreview : UserControl
             // x as the X-axis rotation (pitch) and y as the Y-axis rotation (yaw). Passing
             // them swapped is what caused v0.32.1's "drag right flips the head upside down"
             // bug - horizontal drag updates yaw, which must land in the second slot.
+            Log($"RebuildHead: passing to MakeHeadImage skin w={_skSkin.Width} h={_skSkin.Height} ct={_skSkin.ColorType} at={_skSkin.AlphaType}, pitch={_pitch}, yaw={_yaw}.");
             using var head = Skin3DHeadTypeB.MakeHeadImage(_skSkin, _pitch, _yaw);
             _headImage.Source = ToAvaloniaBitmap(head);
         }
