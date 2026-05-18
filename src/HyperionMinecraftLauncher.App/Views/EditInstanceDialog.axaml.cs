@@ -106,6 +106,12 @@ public partial class EditInstanceDialog : Window
     private void OnMinRamChanged(object? sender, Avalonia.Controls.Primitives.RangeBaseValueChangedEventArgs e)
     {
         if (_syncingSliders) return;
+        // Avalonia raises ValueChanged once during XAML init when the slider coerces its
+        // default value into the Minimum..Maximum range (256..100 by default). At that
+        // point the named labels further down the tree haven't been generated yet, so
+        // a naive access NREs and crashes the dialog before it opens. Bail out until the
+        // controls are wired up; the ForInstance factory sets the labels explicitly anyway.
+        if (MinRamLabel is null || MinRamSlider is null || MaxRamSlider is null || MaxRamLabel is null) return;
         MinRamLabel.Text = $"{(int)MinRamSlider.Value} MB";
         // Keep the max >= min so the JVM doesn't reject Xmx < Xms.
         if (MaxRamSlider.Value < MinRamSlider.Value)
@@ -120,6 +126,8 @@ public partial class EditInstanceDialog : Window
     private void OnMaxRamChanged(object? sender, Avalonia.Controls.Primitives.RangeBaseValueChangedEventArgs e)
     {
         if (_syncingSliders) return;
+        // Same XAML-init race as OnMinRamChanged - see that handler's comment.
+        if (MaxRamLabel is null || MinRamSlider is null || MaxRamSlider is null || MinRamLabel is null) return;
         MaxRamLabel.Text = $"{(int)MaxRamSlider.Value} MB";
         if (MaxRamSlider.Value < MinRamSlider.Value)
         {
