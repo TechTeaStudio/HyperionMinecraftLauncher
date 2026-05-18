@@ -364,24 +364,33 @@
         <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
           <TextBlock Text="Servers"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
-          <TextBlock Text="Multiplayer server list (servers.dat NBT). Status ping + add/edit are planned."
+          <TextBlock Text="Multiplayer server list (servers.dat NBT). Pings via the Minecraft Server List Ping protocol."
                      Opacity="0.65" FontSize="11" />
         </StackPanel>
-        <Button Grid.Row="1" Content="Refresh servers" FontSize="11"
-                Command="{Binding RefreshServersCommand}"
-                Padding="10,4" HorizontalAlignment="Left" Margin="0,0,0,6" />
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="6" Margin="0,0,0,6">
+          <Button Content="Refresh servers" FontSize="11"
+                  Command="{Binding RefreshServersCommand}"
+                  Padding="10,4" />
+          <Button Content="Refresh pings" FontSize="11"
+                  Command="{Binding RefreshServerPingsCommand}"
+                  Padding="10,4" />
+        </StackPanel>
         <Border Grid.Row="2" Padding="6" CornerRadius="6"
                 Background="{DynamicResource MaterialPaperBrush}">
           <ListBox ItemsSource="{Binding Servers}"
                    Background="Transparent" BorderThickness="0">
             <ListBox.ItemTemplate>
-              <DataTemplate>
-                <Grid ColumnDefinitions="Auto,*" Margin="2,3">
+              <DataTemplate x:DataType="vm:ServerListItemViewModel">
+                <Grid ColumnDefinitions="Auto,*,Auto" Margin="2,3">
                   <Image Grid.Column="0" Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/ender_pearl.png"
                          Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center" />
                   <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12" />
                     <TextBlock Text="{Binding Ip}" Opacity="0.65" FontSize="10" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="6,0,2,0">
+                    <Ellipse Width="9" Height="9" Fill="{Binding StatusColor}" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding StatusLine}" FontSize="10" Opacity="0.85" VerticalAlignment="Center" />
                   </StackPanel>
                 </Grid>
               </DataTemplate>
