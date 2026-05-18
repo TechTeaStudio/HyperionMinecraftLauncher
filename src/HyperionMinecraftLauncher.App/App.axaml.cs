@@ -32,6 +32,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Headless;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Settings;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.Browser;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.History;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Updates;
 
@@ -143,6 +144,12 @@ public partial class App : Application
                 "HyperionMinecraftLauncher", "skins_history");
             var skinHistory = new FileSkinHistoryStore(skinHistoryDir);
 
+            // T-namemc (v0.32.1): community skin gallery. NameMC has no official API; the
+            // browser parses public namemc.com pages with HtmlAgilityPack. Uses its own
+            // HttpClient with a 20 s timeout so slow page loads don't stall other Mojang ops.
+            var skinBrowserHttp = new HttpClient { Timeout = TimeSpan.FromSeconds(20) };
+            var skinBrowser = new NameMcSkinBrowser(skinBrowserHttp);
+
             // Mod repositories: Modrinth always-on (no key needed); CurseForge inert until
             // the user pastes a key into Settings. Both share their own HttpClient with a
             // 20 s timeout so big project pages don't hang the UI.
@@ -201,7 +208,8 @@ public partial class App : Application
                 modrinthRepo, curseForgeRepo, instanceModManager, accountStore,
                 updateChecker, headlessServerStore, backupService, crashReportListener,
                 instanceExporter, instanceImporter, modpackImporter,
-                modLoaderInstaller, modLoaderVersionFetcher, localizationService);
+                modLoaderInstaller, modLoaderVersionFetcher, localizationService,
+                skinBrowser);
 
             var mainWindow = new MainWindow
             {

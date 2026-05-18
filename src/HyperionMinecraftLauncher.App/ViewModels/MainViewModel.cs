@@ -35,6 +35,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Headless;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Settings;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.Browser;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.History;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Updates;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Versions;
@@ -64,6 +65,14 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private readonly ISkinService? _skinService;
     private readonly ISkinHistoryStore? _skinHistory;
     private SkinPickRequest? _skinPickRequest;
+
+    // T-namemc (v0.32.1): community skin gallery. Optional - the Skins page falls
+    // back to "Browser not available" copy when the user runs the launcher without
+    // outbound HTTP or in a test context.
+    private readonly ISkinBrowser? _skinBrowser;
+    private string _skinSearchText = string.Empty;
+    private BrowsedSkin? _selectedBrowsedSkin;
+    private bool _skinBrowserBusy;
     private readonly IModRepository? _modrinthRepository;
     private readonly IModRepository? _curseForgeRepository;
     private readonly IInstanceModManager? _instanceModManager;
@@ -184,7 +193,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IModpackImporter? modpackImporter = null,
         IModLoaderInstaller? modLoaderInstaller = null,
         IModLoaderVersionFetcher? modLoaderVersionFetcher = null,
-        ILocalizationService? localizationService = null)
+        ILocalizationService? localizationService = null,
+        ISkinBrowser? skinBrowser = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -196,7 +206,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _crashReportListener = crashReportListener;
         _skinService = skinService;
         _skinHistory = skinHistory;
+        _skinBrowser = skinBrowser;
         SkinHistory = new ObservableCollection<SkinHistoryEntry>();
+        BrowsedSkins = new ObservableCollection<BrowsedSkin>();
         _modrinthRepository = modrinthRepository;
         _curseForgeRepository = curseForgeRepository;
         _instanceModManager = instanceModManager;
@@ -269,6 +281,19 @@ public sealed class MainViewModel : INotifyPropertyChanged
         SetActiveCapeCommand = new AsyncRelayCommand(SetActiveCapeFromSelectionAsync, () => !IsBusy && IsSignedInOnline && _skinService is not null);
         ClearActiveCapeCommand = new AsyncRelayCommand(ClearActiveCapeAsync, () => !IsBusy && IsSignedInOnline && _skinService is not null);
         ReapplyHistoricSkinCommand = new AsyncRelayCommand<SkinHistoryEntry>(ReapplyHistoricSkinAsync, e => !IsBusy && IsSignedInOnline && _skinService is not null && e is not null);
+
+        // T-namemc (v0.32.1): community skin browser commands.
+        // Refresh/Search fetch a gallery from the source (NameMC by default); Apply
+        // downloads the chosen skin PNG and pipes it through ISkinService.UploadSkinAsync.
+        RefreshTrendingSkinsCommand = new AsyncRelayCommand(
+            RefreshTrendingBrowsedSkinsAsync,
+            () => !_skinBrowserBusy && _skinBrowser is not null);
+        SearchSkinsCommand = new AsyncRelayCommand(
+            SearchBrowsedSkinsAsync,
+            () => !_skinBrowserBusy && _skinBrowser is not null);
+        ApplyBrowsedSkinCommand = new AsyncRelayCommand<BrowsedSkin>(
+            ApplyBrowsedSkinAsync,
+            s => !IsBusy && IsSignedInOnline && _skinService is not null && _skinBrowser is not null && s is not null);
 
         SearchModsCommand = new AsyncRelayCommand(SearchModsAsync, () => !IsBusy && GetActiveModRepository() is not null);
         InstallModCommand = new AsyncRelayCommand(InstallSelectedModAsync,
@@ -453,6 +478,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 SetActiveCapeCommand.RaiseCanExecuteChanged();
                 ClearActiveCapeCommand.RaiseCanExecuteChanged();
                 ReapplyHistoricSkinCommand.RaiseCanExecuteChanged();
+                ApplyBrowsedSkinCommand.RaiseCanExecuteChanged();
             }
         }
     }
@@ -1043,6 +1069,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 SetActiveCapeCommand.RaiseCanExecuteChanged();
                 ClearActiveCapeCommand.RaiseCanExecuteChanged();
                 ReapplyHistoricSkinCommand.RaiseCanExecuteChanged();
+                ApplyBrowsedSkinCommand.RaiseCanExecuteChanged();
                 SearchModsCommand.RaiseCanExecuteChanged();
                 InstallModCommand.RaiseCanExecuteChanged();
                 RefreshInstalledModsCommand.RaiseCanExecuteChanged();
@@ -1085,6 +1112,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 // Auto-populate the headless server list the first time the user opens that page.
                 if (value == NavSection.HeadlessServers && _headlessServerStore is not null)
                     _ = RefreshHeadlessServersAsync();
+
+                // T-namemc (v0.32.1): warm up the community gallery the first time the user
+                // opens the Skins page. Subsequent visits keep the existing list (or the user
+                // hits the explicit Refresh / search box).
+                if (value == NavSection.Skins && _skinBrowser is not null && BrowsedSkins.Count == 0)
+                    _ = RefreshTrendingBrowsedSkinsAsync();
             }
         }
     }
@@ -1185,6 +1218,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncRelayCommand SetActiveCapeCommand { get; }
     public AsyncRelayCommand ClearActiveCapeCommand { get; }
     public AsyncRelayCommand<SkinHistoryEntry> ReapplyHistoricSkinCommand { get; }
+    /// <summary>Fetch the trending gallery from the configured <see cref="ISkinBrowser"/> (NameMC).</summary>
+    public AsyncRelayCommand RefreshTrendingSkinsCommand { get; }
+    /// <summary>Search the configured <see cref="ISkinBrowser"/> using <see cref="SkinSearchText"/>.</summary>
+    public AsyncRelayCommand SearchSkinsCommand { get; }
+    /// <summary>Download the picked browsed skin and apply it to the signed-in Mojang account.</summary>
+    public AsyncRelayCommand<BrowsedSkin> ApplyBrowsedSkinCommand { get; }
     public AsyncRelayCommand SearchModsCommand { get; }
     public AsyncRelayCommand InstallModCommand { get; }
     public AsyncRelayCommand RefreshInstalledModsCommand { get; }
@@ -2258,6 +2297,55 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public ObservableCollection<SkinHistoryEntry> SkinHistory { get; }
 
     /// <summary>
+    /// Latest community gallery surfaced by the configured <see cref="ISkinBrowser"/>
+    /// (NameMC by default). Populated by <see cref="RefreshTrendingSkinsCommand"/> and
+    /// <see cref="SearchSkinsCommand"/>; empty when no browser is wired or the user
+    /// hasn't opened the Skins page yet.
+    /// </summary>
+    public ObservableCollection<BrowsedSkin> BrowsedSkins { get; }
+
+    /// <summary>User-typed query for the skin gallery search box. Empty = "trending only".</summary>
+    public string SkinSearchText
+    {
+        get => _skinSearchText;
+        set => SetField(ref _skinSearchText, value ?? string.Empty);
+    }
+
+    /// <summary>Currently-previewed gallery card. Drives the right-hand preview pane.</summary>
+    public BrowsedSkin? SelectedBrowsedSkin
+    {
+        get => _selectedBrowsedSkin;
+        set
+        {
+            if (SetField(ref _selectedBrowsedSkin, value))
+            {
+                OnPropertyChanged(nameof(HasSelectedBrowsedSkin));
+                ApplyBrowsedSkinCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    /// <summary>True when a card is selected and the apply panel should be visible.</summary>
+    public bool HasSelectedBrowsedSkin => _selectedBrowsedSkin is not null;
+
+    /// <summary>True when the gallery is currently being refreshed / searched.</summary>
+    public bool IsSkinBrowserBusy
+    {
+        get => _skinBrowserBusy;
+        private set
+        {
+            if (SetField(ref _skinBrowserBusy, value))
+            {
+                RefreshTrendingSkinsCommand.RaiseCanExecuteChanged();
+                SearchSkinsCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    /// <summary>True when an <see cref="ISkinBrowser"/> is wired (controls visibility of the gallery section).</summary>
+    public bool IsSkinBrowserAvailable => _skinBrowser is not null;
+
+    /// <summary>
     /// Inject the View's file-picker + variant-prompt delegate. The View calls this from
     /// its <c>Window.Opened</c> handler once the <c>TopLevel</c> is available; the
     /// view-model owns no Avalonia dependency itself.
@@ -2435,6 +2523,134 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             IsBusy = false;
         }
+    }
+
+    // ---- NameMC skin browser (T-namemc, v0.32.1) ----
+
+    /// <summary>Default cap on the number of browsed-skin cards loaded into the gallery.</summary>
+    /// <remarks>
+    /// NameMC's trending grid is paginated; we surface the first page only. 60 cards is the
+    /// rough fit for the WrapPanel on a 1080p main window without scroll fatigue.
+    /// </remarks>
+    public const int BrowsedSkinLimit = 60;
+
+    /// <summary>
+    /// Pull the trending gallery from the configured <see cref="ISkinBrowser"/> and replace
+    /// <see cref="BrowsedSkins"/>. Never throws: failures surface through the launcher log.
+    /// </summary>
+    public async Task RefreshTrendingBrowsedSkinsAsync()
+    {
+        if (_skinBrowser is null) return;
+        if (_skinBrowserBusy) return;
+
+        IsSkinBrowserBusy = true;
+        try
+        {
+            var skins = await _skinBrowser.ListTrendingAsync(BrowsedSkinLimit, CancellationToken.None).ConfigureAwait(false);
+            await ReplaceBrowsedSkinsAsync(skins).ConfigureAwait(false);
+            _logger.Info($"NameMC: loaded {skins.Count} trending skins.");
+        }
+        catch (Exception ex)
+        {
+            Append(string.Format(Strings.SkinsBrowser_FetchFailed, ex.Message));
+            _logger.Warn($"NameMC trending fetch failed: {ex.GetType().Name}: {ex.Message}");
+        }
+        finally
+        {
+            IsSkinBrowserBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// Run <see cref="SkinSearchText"/> against the configured <see cref="ISkinBrowser"/>.
+    /// Empty / whitespace queries fall back to trending. Never throws.
+    /// </summary>
+    public async Task SearchBrowsedSkinsAsync()
+    {
+        if (_skinBrowser is null) return;
+        if (_skinBrowserBusy) return;
+
+        var query = _skinSearchText?.Trim() ?? string.Empty;
+        if (string.IsNullOrEmpty(query))
+        {
+            await RefreshTrendingBrowsedSkinsAsync().ConfigureAwait(false);
+            return;
+        }
+
+        IsSkinBrowserBusy = true;
+        try
+        {
+            var skins = await _skinBrowser.SearchAsync(query, BrowsedSkinLimit, CancellationToken.None).ConfigureAwait(false);
+            await ReplaceBrowsedSkinsAsync(skins).ConfigureAwait(false);
+            _logger.Info($"NameMC: search '{query}' returned {skins.Count} skins.");
+        }
+        catch (Exception ex)
+        {
+            Append(string.Format(Strings.SkinsBrowser_FetchFailed, ex.Message));
+            _logger.Warn($"NameMC search '{query}' failed: {ex.GetType().Name}: {ex.Message}");
+        }
+        finally
+        {
+            IsSkinBrowserBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// Download <paramref name="skin"/>'s PNG and push it through the existing
+    /// upload + history append pipeline. Requires a signed-in Microsoft session.
+    /// </summary>
+    private async Task ApplyBrowsedSkinAsync(BrowsedSkin? skin)
+    {
+        if (skin is null) return;
+        if (_skinBrowser is null || _skinService is null) return;
+        if (_currentSession is not { IsOffline: false } online)
+        {
+            Append(Strings.Error_NoSession);
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            Append(string.Format(Strings.SkinsBrowser_Applying, skin.Id));
+            byte[] bytes;
+            try
+            {
+                bytes = await _skinBrowser.DownloadPngAsync(skin, CancellationToken.None).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Append(string.Format(Strings.SkinsBrowser_DownloadFailed, ex.Message));
+                _logger.Warn($"NameMC download failed for {skin.Id}: {ex.Message}");
+                return;
+            }
+
+            await UploadAndArchiveAsync(online.AccessToken, bytes, skin.Variant).ConfigureAwait(false);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task ReplaceBrowsedSkinsAsync(IReadOnlyList<BrowsedSkin> skins)
+    {
+        void Apply()
+        {
+            BrowsedSkins.Clear();
+            foreach (var s in skins) BrowsedSkins.Add(s);
+            // Clear any stale selection that no longer points at a visible card.
+            if (_selectedBrowsedSkin is not null && skins.All(s => s.Id != _selectedBrowsedSkin.Id))
+                SelectedBrowsedSkin = null;
+        }
+
+        // Mirror the marshaling pattern from ReloadHistoryAsync so tests (which run without
+        // an Avalonia dispatcher) execute the update inline rather than blocking on a Post.
+        var dispatcher = Avalonia.Threading.Dispatcher.UIThread;
+        if (dispatcher.CheckAccess())
+            Apply();
+        else
+            await dispatcher.InvokeAsync(Apply);
     }
 
     /// <summary>
