@@ -1185,7 +1185,10 @@
                       <!-- v0.32.4 (H1): explicit Background + BorderBrush replace the default
                            green-tinted Button styling. The user asked for "a near-invisible
                            neutral grey, just one or two shades off the page background" so
-                           the card carries a faint silhouette without an aggressive colour. -->
+                           the card carries a faint silhouette without an aggressive colour.
+                           I1 (v0.32.5): when the card is a Mojang-resolved live-player skin
+                           we drop a small "M" pip in the top-right corner so the user can
+                           tell live tiles apart from regular MineSkin uploads at a glance. -->
                       <Button Width="74" Height="106" Padding="4" Margin="3"
                               Click="OnBrowsedSkinCardClicked"
                               Tag="{Binding}"
@@ -1193,10 +1196,20 @@
                               BorderBrush="{DynamicResource LG.GlassRim}"
                               BorderThickness="1"
                               ToolTip.Tip="{Binding Source.SourceUrl}">
-                        <Image Source="{Binding MinifigureImage}"
-                               Width="64" Height="96"
-                               Stretch="Uniform"
-                               RenderOptions.BitmapInterpolationMode="None" />
+                        <Grid>
+                          <Image Source="{Binding MinifigureImage}"
+                                 Width="64" Height="96"
+                                 Stretch="Uniform"
+                                 RenderOptions.BitmapInterpolationMode="None" />
+                          <Border IsVisible="{Binding Source.IsLivePlayerSkin}"
+                                  HorizontalAlignment="Right" VerticalAlignment="Top"
+                                  Background="#3A5BFF" CornerRadius="4"
+                                  Padding="3,0" Margin="0,-2,-2,0"
+                                  ToolTip.Tip="{x:Static loc:Strings.SkinsBrowser_MojangAccountBadgeTooltip}">
+                            <TextBlock Text="M" Foreground="White" FontSize="8"
+                                       FontWeight="Bold" />
+                          </Border>
+                        </Grid>
                       </Button>
                     </DataTemplate>
                   </ItemsControl.ItemTemplate>
@@ -1217,6 +1230,13 @@
                   <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
                     <TextBlock Text="{Binding SelectedBrowsedSkin.UploaderName}"
                                FontWeight="SemiBold" FontSize="11" TextTrimming="CharacterEllipsis" />
+                    <!-- I1 (v0.32.5): live-player skin badge. Surfaces "Mojang account: {Name}"
+                         so the user knows the tile points at a real online player's current
+                         skin rather than an anonymous MineSkin gallery upload. -->
+                    <TextBlock IsVisible="{Binding SelectedBrowsedSkin.IsLivePlayerSkin}"
+                               FontSize="10" Opacity="0.85"
+                               Foreground="#3A5BFF"
+                               Text="{Binding SelectedBrowsedSkin.UploaderName, StringFormat={x:Static loc:Strings.SkinsBrowser_MojangAccountLabel}}" />
                     <ItemsControl ItemsSource="{Binding SelectedBrowsedSkin.Tags}">
                       <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>

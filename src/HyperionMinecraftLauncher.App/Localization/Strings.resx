@@ -143,6 +143,9 @@
   <data name="SkinsBrowser.PrevPage" xml:space="preserve"><value>Prev</value></data>
   <data name="SkinsBrowser.NextPage" xml:space="preserve"><value>Next</value></data>
   <data name="SkinsBrowser.PageLabel" xml:space="preserve"><value>Page {0}</value></data>
+  <!-- v0.32.5 (I1): hybrid nickname resolver labels. MojangAccountLabel takes the canonical username as {0}. -->
+  <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>Mojang account: {0}</value></data>
+  <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>Live player skin from Mojang's profile API</value></data>
 
   <!-- Servers page -->
   <data name="Servers.Title" xml:space="preserve"><value>Servers</value></data>

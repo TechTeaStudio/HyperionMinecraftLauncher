@@ -153,6 +153,9 @@ public static class Strings
     public static string SkinsBrowser_PrevPage => L("SkinsBrowser.PrevPage");
     public static string SkinsBrowser_NextPage => L("SkinsBrowser.NextPage");
     public static string SkinsBrowser_PageLabel => L("SkinsBrowser.PageLabel");
+    // I1 (v0.32.5): hybrid Mojang nickname resolver labels.
+    public static string SkinsBrowser_MojangAccountLabel => L("SkinsBrowser.MojangAccountLabel");
+    public static string SkinsBrowser_MojangAccountBadgeTooltip => L("SkinsBrowser.MojangAccountBadgeTooltip");
 
     // Servers
     public static string Servers_Title => L("Servers.Title");
