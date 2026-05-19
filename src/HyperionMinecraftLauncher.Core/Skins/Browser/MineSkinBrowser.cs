@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -55,7 +57,41 @@ public sealed class MineSkinBrowser : ISkinBrowser
     /// <summary>Hard upper bound on a single API page we request (server caps at 1000).</summary>
     public const int MaxApiPageSize = 200;
 
+    /// <summary>Mojang's username -> UUID resolver. Anonymous and unmetered up to ~600 req/10 min.</summary>
+    /// <remarks>
+    /// I1 (v0.32.5): nickname search hybrid. MineSkin's gallery is an upload feed, not a
+    /// directory of every player's current skin, so a username query like "Notch" rarely
+    /// matches an entry. To make search useful we resolve the username through Mojang's
+    /// public profile API and prepend the live skin to whatever MineSkin's filter returned.
+    /// </remarks>
+    public const string MojangUsernameLookupStem =
+        "https://api.mojang.com/users/profiles/minecraft/";
+
+    /// <summary>Mojang's session server: resolves a UUID to the base64-encoded textures blob.</summary>
+    public const string MojangSessionProfileStem =
+        "https://sessionserver.mojang.com/session/minecraft/profile/";
+
+    /// <summary>NameMC vanity profile page for a UUID. Surfaced as the <c>SourceUrl</c> on Mojang results.</summary>
+    public const string NameMcProfileStem = "https://namemc.com/profile/";
+
+    /// <summary>
+    /// Minecraft username regex: 3-16 alphanumeric + underscore. Matches Mojang's
+    /// own validation since 2010 and rejects anything that obviously isn't a username
+    /// (spaces, dashes, dots) so we don't burn a Mojang request on garbage input.
+    /// </summary>
+    private static readonly Regex UsernameShape =
+        new(@"^[A-Za-z0-9_]{3,16}$", RegexOptions.Compiled);
+
+    /// <summary>
+    /// 32-char hex UUID with or without dashes. Matches the canonical
+    /// <c>8-4-4-4-12</c> grouping and the bare 32-char form Mojang's APIs accept.
+    /// </summary>
+    private static readonly Regex UuidShape =
+        new(@"^[0-9a-fA-F]{8}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{12}$",
+            RegexOptions.Compiled);
+
     private readonly HttpClient _http;
+    private readonly IPlayerSkinFetcher? _mojangFallbackCapability;
 
     /// <summary>Construct against an arbitrary <see cref="HttpClient"/>.</summary>
     /// <remarks>
@@ -64,9 +100,35 @@ public sealed class MineSkinBrowser : ISkinBrowser
     /// The launcher reuses the same <c>HttpClient</c> instance that previously fed the
     /// NameMC browser. We don't reconfigure anything here.
     /// </remarks>
-    public MineSkinBrowser(HttpClient http)
+    public MineSkinBrowser(HttpClient http) : this(http, mojangFallback: null) { }
+
+    /// <summary>
+    /// Construct with the hybrid Mojang fallback enabled. When <paramref name="mojangFallback"/>
+    /// is non-null, <see cref="SearchAsync(string, int, int, CancellationToken)"/> first tries
+    /// Mojang's public username / UUID profile endpoints; on a hit, the result is prepended
+    /// to MineSkin's filtered page so "search by nickname" actually returns the player's
+    /// current skin instead of an empty gallery.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The <see cref="IPlayerSkinFetcher"/> parameter is used as a *capability flag* only:
+    /// its contract (UUID -> raw PNG bytes) is not the shape we need for a gallery card
+    /// (we need username -> texture URL without downloading the PNG twice). So the actual
+    /// HTTP work happens inline below, using <paramref name="http"/>. We accept the
+    /// fetcher rather than a plain bool so callers can't accidentally enable the fallback
+    /// without having wired the rest of the Mojang stack in DI.
+    /// </para>
+    /// <para>
+    /// Mojang's username lookup is rate-limited to roughly 600 req/10 min for anonymous
+    /// callers. Aggressive search-as-you-type would burn through that quota; the launcher
+    /// only hits Mojang on explicit search (Enter / search button), and a 429 / 5xx response
+    /// falls back to MineSkin's client-side filter without surfacing the failure to the user.
+    /// </para>
+    /// </remarks>
+    public MineSkinBrowser(HttpClient http, IPlayerSkinFetcher? mojangFallback)
     {
         _http = http ?? throw new ArgumentNullException(nameof(http));
+        _mojangFallbackCapability = mojangFallback;
     }
 
     /// <inheritdoc />
@@ -95,10 +157,20 @@ public sealed class MineSkinBrowser : ISkinBrowser
 
     /// <inheritdoc />
     /// <remarks>
+    /// <para>
     /// MineSkin's anonymous tier ignores the <c>?name=</c> filter, so we still oversample and
     /// filter client-side as in the unpaged path. The <c>?page=</c> parameter is passed through
     /// to the server unchanged: when the user pastes an API key in the future, server-side
     /// paging just works.
+    /// </para>
+    /// <para>
+    /// I1 (v0.32.5): when the ctor was wired with a Mojang fallback, the search first tries
+    /// Mojang's public profile API. The launcher Skins page surfaces a true username search
+    /// rather than a gallery substring match - matching the user's mental model of "find my
+    /// friend's skin". Mojang hits are prepended to whatever MineSkin's client-side filter
+    /// produced. Mojang failures (404 / 429 / 5xx / parse error) degrade silently to the
+    /// MineSkin-only path so search keeps working even when Mojang rate-limits us.
+    /// </para>
     /// </remarks>
     public async Task<IReadOnlyList<BrowsedSkin>> SearchAsync(string query, int page, int limit, CancellationToken cancellationToken)
     {
@@ -115,7 +187,143 @@ public sealed class MineSkinBrowser : ISkinBrowser
         var pageSize = Math.Clamp(limit > 0 ? limit * SearchPageMultiplier : MaxApiPageSize, 1, MaxApiPageSize);
         var url = $"{ListUrlStem}?page={safePage}&size={pageSize}&name={Uri.EscapeDataString(q)}";
         var json = await GetJsonAsync(url, cancellationToken).ConfigureAwait(false);
-        return ParseList(json, limit, query: q);
+        var fromMineSkin = ParseList(json, limit, query: q);
+
+        // I1 (v0.32.5): hybrid Mojang fallback. Only kicks in when the ctor was given a
+        // capability marker, only on page 0 (live player skin is a "top of search" affordance,
+        // not paginated content), and only when the query looks like a username or UUID.
+        if (_mojangFallbackCapability is null || safePage != 0)
+            return fromMineSkin;
+
+        var live = await TryResolveLivePlayerSkinAsync(q, cancellationToken).ConfigureAwait(false);
+        if (live is null) return fromMineSkin;
+
+        // Prepend, de-duplicating against any MineSkin entry that happens to share the
+        // UUID (rare: MineSkin sometimes archives a skin under the player's UUID).
+        var merged = new List<BrowsedSkin>(fromMineSkin.Count + 1) { live };
+        foreach (var s in fromMineSkin)
+        {
+            if (!string.Equals(s.Id, live.Id, StringComparison.OrdinalIgnoreCase))
+                merged.Add(s);
+        }
+        return merged;
+    }
+
+    /// <summary>
+    /// Try to resolve <paramref name="query"/> to a live player skin through Mojang's APIs.
+    /// Returns a single <see cref="BrowsedSkin"/> with <see cref="BrowsedSkin.IsLivePlayerSkin"/>
+    /// set to true, or null if the query doesn't look like a username / UUID, the lookup
+    /// returned 404 / 429 / 5xx, or the response shape was unexpected.
+    /// </summary>
+    /// <remarks>
+    /// Two-step lookup for a username:
+    /// <list type="number">
+    /// <item><description><c>GET {MojangUsernameLookupStem}/{username}</c> -> <c>{ id, name }</c></description></item>
+    /// <item><description><c>GET {MojangSessionProfileStem}/{uuid}</c> -> profile with base64 textures property</description></item>
+    /// </list>
+    /// A 32-char hex UUID skips step 1. Network failures bubble back as null; the caller
+    /// is responsible for keeping the MineSkin path alive.
+    /// </remarks>
+    private async Task<BrowsedSkin?> TryResolveLivePlayerSkinAsync(string query, CancellationToken cancellationToken)
+    {
+        string? uuid = null;
+        string? canonicalName = null;
+
+        if (UuidShape.IsMatch(query))
+        {
+            uuid = query.Replace("-", string.Empty).ToLowerInvariant();
+        }
+        else if (UsernameShape.IsMatch(query))
+        {
+            try
+            {
+                var lookupUrl = MojangUsernameLookupStem + Uri.EscapeDataString(query);
+                using var lookupResp = await _http.GetAsync(lookupUrl, cancellationToken).ConfigureAwait(false);
+                // 404 = no such player, 204 = legacy "no profile", 429 = rate-limited.
+                // All of these fall back to MineSkin without surfacing an error.
+                if (!lookupResp.IsSuccessStatusCode) return null;
+                await using var lookupStream = await lookupResp.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+                using var lookupDoc = await JsonDocument.ParseAsync(lookupStream, cancellationToken: cancellationToken).ConfigureAwait(false);
+                if (lookupDoc.RootElement.ValueKind != JsonValueKind.Object) return null;
+                if (lookupDoc.RootElement.TryGetProperty("id", out var idEl) && idEl.ValueKind == JsonValueKind.String)
+                    uuid = idEl.GetString();
+                if (lookupDoc.RootElement.TryGetProperty("name", out var nameEl) && nameEl.ValueKind == JsonValueKind.String)
+                    canonicalName = nameEl.GetString();
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (HttpRequestException) { return null; }
+            catch (JsonException) { return null; }
+        }
+        else
+        {
+            // Neither username shape nor UUID shape - nothing to look up.
+            return null;
+        }
+
+        if (string.IsNullOrEmpty(uuid) || uuid.Length != 32) return null;
+        canonicalName ??= query;
+
+        try
+        {
+            var profileUrl = MojangSessionProfileStem + uuid;
+            using var profileResp = await _http.GetAsync(profileUrl, cancellationToken).ConfigureAwait(false);
+            if (!profileResp.IsSuccessStatusCode) return null;
+            await using var profileStream = await profileResp.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+            using var profileDoc = await JsonDocument.ParseAsync(profileStream, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+            if (!profileDoc.RootElement.TryGetProperty("properties", out var props) || props.ValueKind != JsonValueKind.Array)
+                return null;
+            string? texturesB64 = null;
+            foreach (var p in props.EnumerateArray())
+            {
+                if (p.TryGetProperty("name", out var n) && n.ValueKind == JsonValueKind.String && n.GetString() == "textures"
+                    && p.TryGetProperty("value", out var v) && v.ValueKind == JsonValueKind.String)
+                {
+                    texturesB64 = v.GetString();
+                    break;
+                }
+            }
+            if (string.IsNullOrEmpty(texturesB64)) return null;
+
+            var inner = Encoding.UTF8.GetString(Convert.FromBase64String(texturesB64));
+            using var texturesDoc = JsonDocument.Parse(inner);
+            if (!texturesDoc.RootElement.TryGetProperty("textures", out var textures) || textures.ValueKind != JsonValueKind.Object)
+                return null;
+            if (!textures.TryGetProperty("SKIN", out var skinNode) || skinNode.ValueKind != JsonValueKind.Object)
+                return null;
+            if (!skinNode.TryGetProperty("url", out var urlEl) || urlEl.ValueKind != JsonValueKind.String)
+                return null;
+            var pngUrl = urlEl.GetString();
+            if (string.IsNullOrEmpty(pngUrl)) return null;
+
+            var variant = SkinVariant.Classic;
+            if (skinNode.TryGetProperty("metadata", out var meta)
+                && meta.ValueKind == JsonValueKind.Object
+                && meta.TryGetProperty("model", out var model)
+                && model.ValueKind == JsonValueKind.String
+                && string.Equals(model.GetString(), "slim", StringComparison.OrdinalIgnoreCase))
+            {
+                variant = SkinVariant.Slim;
+            }
+
+            // Canonical-name capitalisation from Mojang wins over the user's typed casing -
+            // a player called "Notch" who searches "notch" still sees "Notch" on the card.
+            return new BrowsedSkin(
+                Id: "mojang:" + uuid,
+                SourceUrl: NameMcProfileStem + uuid,
+                ThumbnailUrl: pngUrl,
+                PngDownloadUrl: pngUrl,
+                Variant: variant,
+                UploaderName: canonicalName,
+                Tags: Array.Empty<string>(),
+                Likes: 0,
+                IsLivePlayerSkin: true);
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (HttpRequestException) { return null; }
+        catch (JsonException) { return null; }
+        catch (FormatException) { return null; } // bad base64
+        catch (DecoderFallbackException) { return null; } // bad UTF-8 in the b64 payload
     }
 
     /// <inheritdoc />

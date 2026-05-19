@@ -198,7 +198,17 @@ public partial class App : Application
             {
                 Timeout = TimeSpan.FromSeconds(20),
             };
-            var skinBrowser = new MineSkinBrowser(skinBrowserHttp);
+            // I1 (v0.32.5): hybrid nickname search. MineSkin's gallery is an upload feed,
+            // not a directory of every player's current skin, so a search like "Notch" used
+            // to return nothing. The browser now accepts an optional IPlayerSkinFetcher as
+            // a capability flag - when non-null, SearchAsync first tries Mojang's public
+            // username -> UUID -> textures pipeline and prepends the live skin to whatever
+            // MineSkin's filter returned. We use the same MojangPlayerSkinFetcher the
+            // account-switcher flyout already builds; only the *presence* matters here
+            // because the actual HTTP calls happen inline through skinBrowserHttp.
+            var accountSkinFetcherHttp = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
+            var accountSkinFetcher = new MojangPlayerSkinFetcher(accountSkinFetcherHttp, cache);
+            var skinBrowser = new MineSkinBrowser(skinBrowserHttp, mojangFallback: accountSkinFetcher);
 
             // Mod repositories: Modrinth always-on (no key needed); CurseForge inert until
             // the user pastes a key into Settings. Both share their own HttpClient with a
@@ -276,12 +286,12 @@ public partial class App : Application
                 initialLocale,
                 new[] { "en", "ru", "uk", "pl", "es", "pt-BR", "de", "fr", "it", "nl", "tr", "zh-Hans", "ja", "ko" });
 
-            // v0.32.2 (T-flyout-avatar): the account-switcher flyout now shows each row's
-            // real head face. Reuse the same Mojang fetcher + on-disk cache the header chip
-            // already uses, plus a per-uuid cropped-head PNG store so re-opening the launcher
-            // is instant. Both ride the cache root from the shared FileCache.
-            var accountSkinFetcherHttp = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
-            var accountSkinFetcher = new MojangPlayerSkinFetcher(accountSkinFetcherHttp, cache);
+            // v0.32.2 (T-flyout-avatar): the account-switcher flyout reuses the same
+            // accountSkinFetcher + on-disk cache the header chip already uses, plus a
+            // per-uuid cropped-head PNG store so re-opening the launcher is instant. Both
+            // ride the cache root from the shared FileCache. The fetcher itself is built
+            // earlier (next to skinBrowser) so the hybrid nickname search can take it as
+            // a capability marker.
             var accountHeadCache = cache;
 
             var viewModel = new MainViewModel(
