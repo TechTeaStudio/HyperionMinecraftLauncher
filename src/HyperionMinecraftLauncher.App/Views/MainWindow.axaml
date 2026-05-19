@@ -1172,9 +1172,16 @@
                   </ItemsControl.ItemsPanel>
                   <ItemsControl.ItemTemplate>
                     <DataTemplate>
+                      <!-- v0.32.4 (H1): explicit Background + BorderBrush replace the default
+                           green-tinted Button styling. The user asked for "a near-invisible
+                           neutral grey, just one or two shades off the page background" so
+                           the card carries a faint silhouette without an aggressive colour. -->
                       <Button Width="74" Height="106" Padding="4" Margin="3"
                               Click="OnBrowsedSkinCardClicked"
                               Tag="{Binding}"
+                              Background="{DynamicResource LG.SkinCardBackground}"
+                              BorderBrush="{DynamicResource LG.GlassRim}"
+                              BorderThickness="1"
                               ToolTip.Tip="{Binding Source.SourceUrl}">
                         <Image Source="{Binding MinifigureImage}"
                                Width="64" Height="96"
