@@ -75,9 +75,19 @@ public sealed class MainViewModel : INotifyPropertyChanged
     // back to "Browser not available" copy when the user runs the launcher without
     // outbound HTTP or in a test context.
     private readonly ISkinBrowser? _skinBrowser;
+    // v0.32.4 (H1): assembled-minifigure body cache. Built lazily on first card render so
+    // tests that never touch the Skins page don't allocate the cache + Steve fallback.
+    private TechTeaStudio.HyperionMinecraftLauncher.App.Controls.BrowsedSkinMinifigureCache? _minifigureCache;
     private string _skinSearchText = string.Empty;
     private BrowsedSkin? _selectedBrowsedSkin;
     private bool _skinBrowserBusy;
+    // v0.32.4 (H1): pagination state. Zero-based; only meaningful when a browser is wired.
+    private int _currentSkinPage;
+    private bool _hasMoreSkins;
+    // Cached page-N result lists so Prev / Next within the same query don't re-hit MineSkin.
+    // Key: (search query, page). Empty search text means "trending".
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<(string Query, int Page), System.Collections.Generic.IReadOnlyList<BrowsedSkin>> _skinPageCache =
+        new();
     private readonly IModRepository? _modrinthRepository;
     private readonly IModRepository? _curseForgeRepository;
     private readonly IInstanceModManager? _instanceModManager;
@@ -249,7 +259,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _skinHistory = skinHistory;
         _skinBrowser = skinBrowser;
         SkinHistory = new ObservableCollection<SkinHistoryEntry>();
-        BrowsedSkins = new ObservableCollection<BrowsedSkin>();
+        BrowsedSkins = new ObservableCollection<BrowsedSkinCardViewModel>();
         _modrinthRepository = modrinthRepository;
         _curseForgeRepository = curseForgeRepository;
         _instanceModManager = instanceModManager;
@@ -2738,7 +2748,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     /// and <see cref="SearchSkinsCommand"/>; empty when no browser is wired or the user
     /// hasn't opened the Skins page yet.
     /// </summary>
-    public ObservableCollection<BrowsedSkin> BrowsedSkins { get; }
+    public ObservableCollection<BrowsedSkinCardViewModel> BrowsedSkins { get; }
 
     /// <summary>User-typed query for the skin gallery search box. Empty = "trending only".</summary>
     public string SkinSearchText
@@ -3137,10 +3147,20 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     private async Task ReplaceBrowsedSkinsAsync(IReadOnlyList<BrowsedSkin> skins)
     {
+        // Lazily allocate the cache on first card render. _skinBrowser is the ISkinBrowser
+        // contract; the cache delegates DownloadPngAsync to it, so we only spend the
+        // ~80 KB Steve fallback allocation when the user actually opens the Skins page.
+        var cache = _minifigureCache;
+        if (cache is null && _skinBrowser is not null)
+        {
+            cache = new TechTeaStudio.HyperionMinecraftLauncher.App.Controls.BrowsedSkinMinifigureCache(_skinBrowser);
+            _minifigureCache = cache;
+        }
+
         void Apply()
         {
             BrowsedSkins.Clear();
-            foreach (var s in skins) BrowsedSkins.Add(s);
+            foreach (var s in skins) BrowsedSkins.Add(new BrowsedSkinCardViewModel(s, cache));
             // Clear any stale selection that no longer points at a visible card.
             if (_selectedBrowsedSkin is not null && skins.All(s => s.Id != _selectedBrowsedSkin.Id))
                 SelectedBrowsedSkin = null;

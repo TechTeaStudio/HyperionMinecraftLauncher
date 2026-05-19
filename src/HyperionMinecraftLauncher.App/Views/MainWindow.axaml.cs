@@ -890,14 +890,28 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// NameMC browser (T-namemc, v0.32.1): clicking a thumbnail card sets the preview
-    /// selection. Tag carries the bound <see cref="BrowsedSkin"/> record.
+    /// Community browser (T-namemc, v0.32.1; H1, v0.32.4): clicking a card sets the preview
+    /// selection. Tag carries the bound <see cref="BrowsedSkinCardViewModel"/> wrapper as of
+    /// v0.32.4 (added so each card can show its assembled-minifigure body sprite instead of
+    /// the raw sprite-sheet); the legacy <c>BrowsedSkin</c> record is reached via
+    /// <c>wrapper.Source</c>.
     /// </summary>
     private void OnBrowsedSkinCardClicked(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel vm) return;
-        if (sender is not Button { Tag: TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.Browser.BrowsedSkin skin }) return;
-        vm.SelectedBrowsedSkin = skin;
+        if (sender is not Button { Tag: { } tag }) return;
+        switch (tag)
+        {
+            case TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels.BrowsedSkinCardViewModel card:
+                vm.SelectedBrowsedSkin = card.Source;
+                break;
+            case TechTeaStudio.HyperionMinecraftLauncher.Core.Skins.Browser.BrowsedSkin legacy:
+                // Defensive: support an older binding shape that still hands a raw BrowsedSkin
+                // through Tag. No live code path produces this since v0.32.4, but the explicit
+                // branch costs nothing and keeps third-party theme overrides working.
+                vm.SelectedBrowsedSkin = legacy;
+                break;
+        }
     }
 
     /// <summary>

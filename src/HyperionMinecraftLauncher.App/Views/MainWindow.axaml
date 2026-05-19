@@ -1159,7 +1159,9 @@
                            IsVisible="{Binding IsSkinBrowserBusy}" />
               </StackPanel>
 
-              <!-- WrapPanel of thumbnails (90x90 each) -->
+              <!-- WrapPanel of thumbnails. v0.32.4 (H1): each card shows the assembled
+                   minifigure body sprite (64x96 image well) over a near-invisible neutral
+                   tile instead of the old green-tinted card with the raw sprite-sheet. -->
               <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled"
                             VerticalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding BrowsedSkins}">
@@ -1170,12 +1172,13 @@
                   </ItemsControl.ItemsPanel>
                   <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                      <Button Width="90" Height="90" Padding="0" Margin="3"
+                      <Button Width="74" Height="106" Padding="4" Margin="3"
                               Click="OnBrowsedSkinCardClicked"
                               Tag="{Binding}"
-                              ToolTip.Tip="{Binding SourceUrl}">
-                        <Image asyncImageLoader:ImageLoader.Source="{Binding ThumbnailUrl}"
-                               Stretch="UniformToFill"
+                              ToolTip.Tip="{Binding Source.SourceUrl}">
+                        <Image Source="{Binding MinifigureImage}"
+                               Width="64" Height="96"
+                               Stretch="Uniform"
                                RenderOptions.BitmapInterpolationMode="None" />
                       </Button>
                     </DataTemplate>
