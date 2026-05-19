@@ -11,6 +11,16 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <!--
+      v0.32.7: embed the launcher's brand icon into the Win32 PE resources.
+      Windows uses this for Explorer thumbnails, Alt+Tab, Task Manager,
+      Start-menu shortcuts, pinned-taskbar items (before the window opens),
+      and the tray-area notification fallback. The runtime in-window
+      taskbar/title-bar icon is set separately on the Window itself via
+      Icon="avares://...icon.png". Multi-size .ico (16/24/32/48/64/128/256)
+      generated from /icon.png with PIL so Windows can pick the right DPI.
+    -->
+    <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <!-- T18: Opt-in Native AOT configuration. Avalonia 11.2 + MSAL + CmlLib have not been validated for full Native AOT; this config is for future experimentation only. -->
