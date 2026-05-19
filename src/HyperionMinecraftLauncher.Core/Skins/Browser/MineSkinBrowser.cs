@@ -49,13 +49,22 @@ public sealed class MineSkinBrowser : ISkinBrowser
     /// <summary>How many extra entries to pull when the caller asks for a client-side search.</summary>
     /// <remarks>
     /// MineSkin v2 ignores the <c>?name=</c> filter without an API key, so we pull a larger
-    /// page (up to <c>limit * 8</c>, capped at 200) and filter locally. 200 is the smallest
-    /// page that gives a search a fighting chance without slowing the UI.
+    /// page (up to <c>limit * 8</c>, capped at <see cref="MaxApiPageSize"/>) and filter
+    /// locally. The cap is the smallest page that gives a search a fighting chance without
+    /// slowing the UI.
     /// </remarks>
     public const int SearchPageMultiplier = 8;
 
-    /// <summary>Hard upper bound on a single API page we request (server caps at 1000).</summary>
-    public const int MaxApiPageSize = 200;
+    /// <summary>
+    /// Hard upper bound on a single API page we request. The MineSkin v2 documentation lists
+    /// the server-side cap as 1000 but the anonymous tier (no API key) actually rejects any
+    /// <c>?size=</c> over 128 with <c>400 validation_error / too_big "Number must be less
+    /// than or equal to 128 (size)"</c> - observed 2026-05-19, see the log "01:02:25 Не
+    /// удалось загрузить галерею скинов: 400 (Bad Request)". The previous value (200) made
+    /// every search call 400, since <c>SearchAsync</c> oversamples to <c>limit * 8</c> and
+    /// clamps to this cap. Keep at 128 until the launcher carries an API key.
+    /// </summary>
+    public const int MaxApiPageSize = 128;
 
     /// <summary>Mojang's username -> UUID resolver. Anonymous and unmetered up to ~600 req/10 min.</summary>
     /// <remarks>

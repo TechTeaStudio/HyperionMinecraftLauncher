@@ -96,6 +96,20 @@ public class MineSkinBrowserPaginationTests
         Assert.Contains($"size={MineSkinBrowser.MaxApiPageSize}", handler.Urls[0], StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// Regression guard for the 2026-05-19 400 "too_big" outage: MineSkin v2 rejects any
+    /// <c>?size=</c> larger than 128 with a 400 validation error. Anything we ship must
+    /// stay at or below this cap or every search call returns 400. If MineSkin raises
+    /// the cap server-side a future commit can bump the constant; the test prevents an
+    /// accidental regression past the empirical limit.
+    /// </summary>
+    [Fact]
+    public void MaxApiPageSize_StaysWithinMineSkinAnonymousLimit()
+    {
+        Assert.True(MineSkinBrowser.MaxApiPageSize <= 128,
+            $"MineSkin v2 caps anonymous ?size= at 128; MaxApiPageSize is {MineSkinBrowser.MaxApiPageSize}.");
+    }
+
     [Fact]
     public async Task ListTrendingAsync_LegacyOverload_DefaultsToPage0()
     {
