@@ -379,4 +379,8 @@
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] Import uit MultiMC is niet beschikbaar.</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] Bestands- of mapkiezer voor MultiMC-import is niet beschikbaar.</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>Import uit MultiMC geannuleerd.</value></data>
+
+  <!-- v0.32.5 (I1): hybrid Mojang nickname resolver labels. -->
+  <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>Mojang-account: {0}</value></data>
+  <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>Speler-skin via Mojangs profiel-API</value></data>
 </root>

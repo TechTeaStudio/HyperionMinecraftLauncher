@@ -134,6 +134,8 @@
   <data name="SkinsBrowser.PrevPage" xml:space="preserve"><value>上一页</value></data>
   <data name="SkinsBrowser.NextPage" xml:space="preserve"><value>下一页</value></data>
   <data name="SkinsBrowser.PageLabel" xml:space="preserve"><value>第 {0} 页</value></data>
+  <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>Mojang 账户：{0}</value></data>
+  <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>来自 Mojang 个人资料 API 的玩家皮肤</value></data>
 
   <!-- Servers page -->
   <data name="Servers.Title" xml:space="preserve"><value>服务器</value></data>

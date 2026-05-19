@@ -134,6 +134,8 @@
   <data name="SkinsBrowser.PrevPage" xml:space="preserve"><value>Zurück</value></data>
   <data name="SkinsBrowser.NextPage" xml:space="preserve"><value>Weiter</value></data>
   <data name="SkinsBrowser.PageLabel" xml:space="preserve"><value>Seite {0}</value></data>
+  <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>Mojang-Konto: {0}</value></data>
+  <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>Spieler-Skin aus Mojangs Profil-API</value></data>
 
   <!-- Servers page -->
   <data name="Servers.Title" xml:space="preserve"><value>Server</value></data>

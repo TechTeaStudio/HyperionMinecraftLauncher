@@ -379,4 +379,8 @@
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] MultiMC 가져오기를 사용할 수 없습니다.</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] MultiMC 가져오기용 파일 또는 폴더 선택기를 사용할 수 없습니다.</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>MultiMC 가져오기가 취소되었습니다.</value></data>
+
+  <!-- v0.32.5 (I1): hybrid Mojang nickname resolver labels. -->
+  <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>Mojang 계정: {0}</value></data>
+  <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>Mojang 프로필 API의 플레이어 스킨</value></data>
 </root>

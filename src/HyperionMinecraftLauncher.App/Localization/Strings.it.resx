@@ -379,4 +379,8 @@
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] Import da MultiMC non disponibile.</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] Selettore di file o cartella per MultiMC non disponibile.</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>Import da MultiMC annullato.</value></data>
+
+  <!-- v0.32.5 (I1): hybrid Mojang nickname resolver labels. -->
+  <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>Account Mojang: {0}</value></data>
+  <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>Skin del giocatore dall'API profilo Mojang</value></data>
 </root>

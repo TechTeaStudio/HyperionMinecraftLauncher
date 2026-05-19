@@ -379,4 +379,8 @@
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] MultiMC içe aktarma kullanılamıyor.</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] MultiMC için dosya veya klasör seçici kullanılamıyor.</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>MultiMC içe aktarma iptal edildi.</value></data>
+
+  <!-- v0.32.5 (I1): hybrid Mojang nickname resolver labels. -->
+  <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>Mojang hesabı: {0}</value></data>
+  <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>Mojang profil API'sinden oyuncu skini</value></data>
 </root>
