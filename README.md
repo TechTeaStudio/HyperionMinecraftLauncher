@@ -5,7 +5,7 @@
 <h1 align="center">HyperionMinecraftLauncher</h1>
 
 <p align="center">
-  A modern Avalonia desktop launcher for Minecraft, built on top of <a href="https://github.com/CmlLib/CmlLib.Core">CmlLib.Core</a>. Microsoft device-code sign-in with multi-account switching, a Prism-style instance manager unified with the official launcher's installed versions, mod-loader install (Forge / Fabric / Quilt / NeoForge), Modrinth and CurseForge mod browsers, modpack import, crash-report parser, auto-backup of worlds, headless dedicated-server registry, CLI mode, eight-language UI, and a Minecraft-styled palette that matches the official Mojang launcher.
+  A modern Avalonia desktop launcher for Minecraft, built on top of <a href="https://github.com/CmlLib/CmlLib.Core">CmlLib.Core</a>. Microsoft device-code sign-in with multi-account switching, a Prism-style instance manager unified with the official launcher's installed versions, mod-loader install (Forge / Fabric / Quilt / NeoForge), Modrinth and CurseForge mod browsers, modpack import, crash-report parser, auto-backup of worlds, headless dedicated-server registry, CLI mode, 14-language UI, and a Minecraft-styled palette that matches the official Mojang launcher.
 </p>
 
 <p align="center">
@@ -14,8 +14,8 @@
   <img alt="Platform" src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-blue" />
   <a href="https://github.com/TechTeaStudio/HyperionMinecraftLauncher/actions/workflows/dotnet.yml"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/TechTeaStudio/HyperionMinecraftLauncher/dotnet.yml?branch=product&amp;logo=github&amp;label=build" /></a>
   <a href="LICENSE.txt"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
-  <img alt="Tests" src="https://img.shields.io/badge/tests-589%20passing-brightgreen" />
-  <img alt="Version" src="https://img.shields.io/badge/version-0.32.5-3C8527" />
+  <img alt="Tests" src="https://img.shields.io/badge/tests-590%20passing-brightgreen" />
+  <img alt="Version" src="https://img.shields.io/badge/version-0.32.9-3C8527" />
 </p>
 
 ## Overview
@@ -50,13 +50,13 @@ The launcher reads from and writes alongside the same `.minecraft` directory the
 - **Headless dedicated-server registry.** Folder-per-server under `LOCALAPPDATA/headless_servers/{id}/` with metadata, EULA, and a baseline `server.properties`. Hyperion downloads `server.jar` (Mojang manifest, sha1 verified), auto-installs the matching Adoptium Temurin JRE, starts the JVM, streams stdout into a console pane on the Headless Servers page, and sends commands (`say`, `op`, `stop`, ...) over stdin.
 
 ### UX and platform
-- **Skins.** 3D skin + cape viewer (pure-Skia, no GL context). Upload a new skin PNG, switch capes, browse a 10-entry skin history, re-apply a historic skin. Community gallery powered by MineSkin v2 with paginated minifigure thumbnails; nickname search resolves through Mojang's public profile API so typing a username like `Notch` shows that account's actual current skin (tagged with a green "M" badge).
+- **Skins.** 3D skin + cape viewer (pure-Skia, no GL context). Upload a new skin PNG, switch capes, browse a 10-entry skin history, re-apply a historic skin. Community gallery powered by MineSkin v2 with paginated minifigure thumbnails; nickname search resolves through Mojang's public profile API so typing a username like `Notch` shows that account's actual current skin (tagged with a blue "M" badge). Pagination is anchored below the gallery and the panel resizes with the window.
 - **News feed** from `launchercontent.mojang.com/news.json` (same source the official launcher uses), with a one-hour disk cache and a stale-on-failure fallback.
 - **Logs page.** A dedicated sidebar entry shows today's `launcher-YYYY-MM-DD.log` with substring filter, copy-all, and "Open logs folder".
-- **Per-instance browser.** Screenshots / Worlds / Servers tabs under each instance. PNG thumbnails open in the OS default viewer; world rows show humanised "last played"; right-click on a world opens its folder.
+- **Per-instance browser.** Screenshots, Worlds, Servers, Crashes, Resource packs, Shader packs, and Data packs tabs under each instance. PNG thumbnails open in the OS default viewer; world rows show humanised "last played"; right-click on a world opens its folder; pack tabs support enable / disable / remove and drag-drop install.
 - **Discord Rich Presence.** "In Hyperion launcher" when idle, "Playing &lt;version&gt; - &lt;instance&gt;" when the game is running. Optional, falls back to a no-op when Discord isn't installed.
 - **Update banner + manual check.** GitHub Releases polled hourly; a green banner appears when a newer version is published. Settings has a "Check for updates" button that reports either the update or "you're on the latest version".
-- **8-language UI.** Source is English; bundled translations: Russian, Spanish, Brazilian Portuguese, German, French, Simplified Chinese, Japanese. Locale picker in Settings; falls back to OS culture by default.
+- **14-language UI.** Source is English; bundled translations: Russian, Ukrainian, Polish, Spanish, Brazilian Portuguese, German, French, Italian, Dutch, Turkish, Simplified Chinese, Japanese, Korean. Locale picker in Settings; falls back to OS culture by default.
 - **CLI mode.** `--list-instances`, `--list-versions`, `--launch <id>`, `--help`, `--version` work without opening the Avalonia window. Uses `AttachConsole` on Windows so stdout reaches the parent shell.
 - **Cross-platform.** Windows installer, Linux `.AppImage`, and macOS `.app` bundle (Intel + Apple Silicon, with optional `.pkg` / `.dmg`) all ship today. Linux paths follow the XDG Base Directory spec (`$XDG_STATE_HOME` for logs, `$XDG_CONFIG_HOME` for config, etc.); macOS uses `~/Library/Application Support` and `~/Library/Logs`.
 - **Minecraft palette.** Warm dark background `#171615`, surface tiles `#262423`, green CTAs with the `#6CC349 -> #3C8527` button shading from the official Mojang launcher. Pixel-style 1px black outlines, sharp 4dp corners, and a Minecraft-font sidebar.
@@ -86,19 +86,19 @@ The launcher reads from and writes alongside the same `.minecraft` directory the
 | Crash report parser with mod-link suggestions | yes | no | yes |
 | Auto-backup `saves/` before launch + restore | yes | no | partial |
 | Headless dedicated-server registry (jar download + JVM + console) | yes | no | no |
-| Resource pack / shader pack / datapack manager | roadmap | partial | yes |
-| Process stdout / stderr piped into the launcher log | roadmap (toggle exists) | no | yes |
+| Resource pack / shader pack / datapack manager | yes | partial | yes |
+| Process stdout / stderr piped into the launcher log | yes (Settings toggle) | no | yes |
 | CLI mode (`--launch`, `--list-instances`, ...) | yes | no | no |
 | Quick Play (jump into world or server) | yes | yes (1.20.5+) | varies |
 | Auto-download Adoptium JRE per MC version | yes | yes | yes (manual) |
 | Discord Rich Presence | yes | no | no |
 | Update banner via GitHub Releases | yes | n/a | no |
-| 8-language UI (en, ru, es, pt-BR, de, fr, zh-Hans, ja) | yes | yes (more) | yes |
+| 14-language UI (en, ru, uk, pl, es, pt-BR, de, fr, it, nl, tr, zh-Hans, ja, ko) | yes | yes (more) | yes |
 | Native AOT publish profile | opt-in (unvalidated) | n/a | no |
 | Cross-platform | Windows + Linux AppImage + macOS .app today | Windows / macOS / Linux | all three |
 | Open source | yes (MIT) | no | yes |
 
-As of v0.32.0, Hyperion ships the full Prism feature set (mod loaders, per-instance settings, mod browser, crash parser, modpack import, zip share, auto-backup) on top of the official launcher's news feed and Microsoft auth path, plus Hyperion-only extras (multi-account switcher, Discord RPC, headless-server registry, CLI mode, eight-language UI) under a palette tuned to match the Mojang launcher.
+As of v0.32.0, Hyperion ships the full Prism feature set (mod loaders, per-instance settings, mod browser, crash parser, modpack import, zip share, auto-backup) on top of the official launcher's news feed and Microsoft auth path, plus Hyperion-only extras (multi-account switcher, Discord RPC, headless-server registry, CLI mode, 14-language UI) under a palette tuned to match the Mojang launcher.
 
 ## Build and run
 
@@ -182,7 +182,7 @@ HyperionMinecraftLauncher/
 |  +- Cache/                                        <- FileCache (news + skin)
 |  +- CrashReports/                                 <- parser + listener with mod-link suggestions
 |  +- Diagnostics/                                  <- StartupTimeline
-|  +- InstanceBrowsing/                             <- per-instance screenshots / worlds / servers
+|  +- InstanceBrowsing/                             <- per-instance screenshots / worlds / servers / resource-packs / shader-packs / data-packs
 |  +- Installations/                                <- InstalledVersion scan + LoaderDetector
 |  +- Installations/Loaders/                        <- IModLoaderInstaller dispatch (Forge / Fabric / Quilt / NeoForge)
 |  +- Instances/, Instances/Export/                 <- Instance record + FileInstanceStore + Hyperion-zip import / export
@@ -206,13 +206,13 @@ HyperionMinecraftLauncher/
 |  +- Auth/MicrosoftAuthService.cs                  <- MSAL device-code wrapper (multi-account)
 |  +- Cli/                                          <- CliArgumentParser + CliEntryPoint (Hyperion CLI)
 |  +- Controls/SkinPreview.cs                       <- 3D skin + cape viewer
-|  +- Localization/                                 <- Strings.resx (en source) + 7 translations
+|  +- Localization/                                 <- Strings.resx (en source) + 13 translations
 |  +- Presence/DiscordPresenceService.cs            <- Discord Rich Presence wrapper
 |  +- Themes/                                       <- MinecraftPalette.axaml + LiquidGlass.axaml redirector
-|  +- Views/                                        <- MainWindow + 9 dialogs
+|  +- Views/                                        <- MainWindow + 11 dialogs
 |  +- ViewModels/MainViewModel.cs                   <- the one view-model behind everything
 |  +- App.axaml(.cs), Program.cs                    <- DI bootstrap + Avalonia entry + CLI dispatch
-+- tests/HyperionMinecraftLauncher.Core.Tests/      <- 422 xUnit tests
++- tests/HyperionMinecraftLauncher.Core.Tests/      <- 590 xUnit tests
 +- scripts/                                          <- build-appimage.sh + build-macos-app.sh + build-macos-dmg.sh + Python helpers
 +- .github/workflows/dotnet.yml                      <- build + test on ubuntu + windows + macos matrix
 +- CHANGELOG.md
@@ -226,7 +226,7 @@ HyperionMinecraftLauncher/
 The launcher version is stored in **one file**: `/VERSION` at the repo root. The build picks it up automatically:
 
 ```
-+- VERSION                          (currently: 0.32.1)
++- VERSION                          (currently: 0.32.9)
 +- Directory.Build.props            (reads VERSION into <Version>)
 +- src/*.csproj                     (inherit <Version>, no per-project override)
 ```
@@ -242,7 +242,7 @@ Format is 3-part SemVer (`X.Y.Z`); commit format is `vX.Y.Z <short description>`
 
 ### Continuous integration
 
-Pushing to the `product` branch triggers `.github/workflows/dotnet.yml` (restore + build + test on Ubuntu, Windows, and macOS matrix, .NET 10). Packaging scripts (`build-appimage.sh`, `build-macos-app.sh`) do not run in CI yet; they require platform-specific tooling (and macOS bundles need code-signing creds to be Gatekeeper-friendly). There is no NuGet publish step; this is an application.
+Pushing to the `product` branch triggers `.github/workflows/dotnet.yml` (restore + build + test on Ubuntu, Windows, and macOS matrix, .NET 10). Packaging scripts (`build-appimage.sh`, `build-macos-app.sh`) do not run in `dotnet.yml`; the dedicated `release.yml` workflow described below picks them up on a version tag instead.
 
 ### Tag-driven release flow
 
@@ -254,7 +254,7 @@ Cutting a new public release is a four-step ritual. The packaging job is intenti
 4. The workflow (`.github/workflows/release.yml`) builds Windows, Linux, and macOS artifacts in parallel and publishes a GitHub Release with the tag's body. The matrix runs:
    - `ubuntu-latest` -> Linux AppImage via `scripts/build-appimage.sh`
    - `windows-latest` -> self-contained `win-x64` single-file publish, zipped
-   - `macos-latest` -> self-contained `osx-arm64` publish, zipped (a proper `.app` packaging script is still on the roadmap)
+   - `macos-latest` -> Intel + Apple Silicon `.app` bundles via `scripts/build-macos-app.sh`, with optional `.dmg` wrappers from `scripts/build-macos-dmg.sh`
 
 The release job uses `softprops/action-gh-release` with `body_path: CHANGELOG.md`. Branch pushes never trigger this workflow; only tags matching `v*.*.*` do.
 
@@ -262,32 +262,25 @@ See [CHANGELOG.md](CHANGELOG.md) for the full release history.
 
 ## Roadmap
 
-Picked up in priority order. Tracked under the `feat/post-v0.32` umbrella.
+Items still open after the v0.32.x parity push. Anything not listed here is shipped on `product`; see [CHANGELOG.md](CHANGELOG.md) for the full history.
 
-### Carry-over from `feat/prism-parity` (still not done)
-- **Process stream piping.** The `LauncherSettings.ShowGameLog` toggle exists; the actual hook from `Process.OutputDataReceived` / `ErrorDataReceived` into the in-launcher log textbox is not yet wired. Today the game's stdout / stderr only reach disk through Minecraft's own `latest.log`.
-- **OptiFine and Legacy-Forge (1.7.10 era) loader installers.** `CmlLibModLoaderInstaller` currently throws `NotSupportedException` for these two cases; the other four loaders (Fabric / Forge / Quilt / NeoForge) are fully wired.
+### Loaders
+- **OptiFine and Legacy-Forge (1.7.10 era) installers.** `CmlLibModLoaderInstaller` throws `NotSupportedException` for these two cases today; the other four loaders (Forge / NeoForge / Fabric / Quilt) install transparently before launch.
 
-### Per-instance content browsers
-- **Resource packs.** Per-instance `resourcepacks/` list with enable / disable / remove and drag-drop install. Prism has this; we expose only Screenshots / Worlds / Servers today.
-- **Shader packs.** Same shape for `shaderpacks/`.
-- **Data packs.** Per-instance `datapacks/` (under each saved world) browser.
-- **Skin gallery / Mojang skin packs.** v0.32.3 pivots the community gallery from NameMC (Cloudflare killed pure-HTTP access via a JS challenge) to the public MineSkin v2 REST endpoint. The integration is best-effort: anonymous-tier filtering is server-side ignored, so search runs client-side over a larger page. v0.32.5 (I1) adds a hybrid nickname resolver: when the search query matches a Minecraft username shape (`^[A-Za-z0-9_]{3,16}$`) or a 32-char-hex UUID, the browser first hits Mojang's public profile API (`api.mojang.com/users/profiles/minecraft/{name}` -> `sessionserver.mojang.com/session/minecraft/profile/{uuid}`) and prepends the live player skin to whatever MineSkin's gallery filter returns. The live tile carries a small "M" badge and a "Mojang account: {Name}" label so it's distinguishable from anonymous gallery entries. Mojang's anonymous endpoint is rate-limited to roughly 600 req/10 min, so the resolver only runs on explicit search and degrades silently on 404 / 429 / 5xx. A future server-side proxy or a paid MineSkin key would unlock proper server-side search + tags + variant metadata across the whole gallery. NameMC support stays in-tree as `[Obsolete]` so it can be revived once a CF-solver or proxy lands.
-
-### CurseForge usability
-- **In-app API-key onboarding.** Today the CurseForge mod browser is inert until the user pastes a key from `console.curseforge.com` into Settings. Add an onboarding affordance that opens the registration page in the browser and surfaces the key field next to it. Document the keying limitation in the empty-state of the CurseForge tab.
+### Skin browser
+- **Server-side search across the full gallery.** MineSkin v2's anonymous tier ignores `?name=` and caps `?size=` at 128, so the browser oversamples and filters client-side. The hybrid Mojang nickname resolver (`api.mojang.com/users/profiles/minecraft/{name}` -> `sessionserver.mojang.com/session/minecraft/profile/{uuid}`, prepended on page 0) covers the common "find my friend's skin" path. A paid MineSkin key or a server-side proxy would unlock proper server-side search, tags, and variant metadata across the whole feed. NameMC support stays in-tree as `[Obsolete]` so it can be revived once a CF-solver or proxy lands.
 
 ### Performance and packaging
-- **Validated Native AOT publish.** The `ReleaseAot` configuration is wired but Avalonia 11.2 + MSAL + CmlLib have not been validated for full AOT yet. Run the trim-warnings audit; suppress / re-architect where needed; ship a working `dotnet publish -c ReleaseAot` story.
+- **Validated Native AOT publish.** The `ReleaseAot` configuration is wired but Avalonia 11.2 + MSAL + CmlLib have not been validated for full AOT yet. Run the trim-warnings audit, suppress / re-architect where needed, ship a working `dotnet publish -c ReleaseAot` story.
 - **Reduce startup dispatcher delta.** The `[startup] dispatcher=Xms` chunk is the biggest single contributor (~3 s in cold runs). Profile, hoist eager work out of the constructor path, defer where possible.
 
 ### Localization
-- **More languages.** uk (Ukrainian), pl (Polish), it (Italian), ko (Korean), tr (Turkish), nl (Dutch). The English source has 289 keys; each new locale is one `Strings.{culture}.resx` and one entry in `App.axaml.cs`'s `AvailableCultures` list.
 - **Plural-form helpers.** Some plural-fragile strings ("{0} resultado(s)") would benefit from ICU-style plural blocks. Not blocking, but improves polish on count-heavy lines.
+- **More languages.** Open to PRs beyond the current 14. Each new locale is one `Strings.{culture}.resx` and one entry in `App.axaml.cs`'s `AvailableCultures` list.
 
 ### Polish
 - **Code-signing + notarization for macOS bundles.** `build-macos-app.sh` produces unsigned `.app` / `.pkg`; users must right-click -> Open or clear `com.apple.quarantine` on first launch. Apple Developer credentials would let CI run `codesign` + `xcrun notarytool submit` and emit a Gatekeeper-friendly artifact.
-- **Material.Avalonia replacement audit.** A handful of controls still pull Material.Avalonia for the `Depth0` shadow override; verify these still look right against the new Minecraft palette or replace with native Avalonia styles.
+- **Material.Avalonia replacement audit.** A handful of controls still pull Material.Avalonia for the `Depth0` shadow override; verify these still look right against the Minecraft palette or replace with native Avalonia styles.
 
 ## Further reading
 
