@@ -149,6 +149,10 @@ public static class Strings
     public static string SkinsBrowser_Applying => L("SkinsBrowser.Applying");
     public static string SkinsBrowser_Loading => L("SkinsBrowser.Loading");
     public static string SkinsBrowser_NoResults => L("SkinsBrowser.NoResults");
+    // H1 (v0.32.4): paginated browser controls.
+    public static string SkinsBrowser_PrevPage => L("SkinsBrowser.PrevPage");
+    public static string SkinsBrowser_NextPage => L("SkinsBrowser.NextPage");
+    public static string SkinsBrowser_PageLabel => L("SkinsBrowser.PageLabel");
 
     // Servers
     public static string Servers_Title => L("Servers.Title");

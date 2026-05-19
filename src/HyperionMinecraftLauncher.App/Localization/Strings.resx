@@ -139,6 +139,10 @@
   <data name="SkinsBrowser.Applying" xml:space="preserve"><value>Downloading skin {0} from MineSkin...</value></data>
   <data name="SkinsBrowser.Loading" xml:space="preserve"><value>Loading gallery...</value></data>
   <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>No skins matched. Try a different search or hit "Show trending".</value></data>
+  <!-- v0.32.4 (H1): Prev / Next pagination controls. The "Page {0}" label uses a 1-based page number for the UI. -->
+  <data name="SkinsBrowser.PrevPage" xml:space="preserve"><value>Prev</value></data>
+  <data name="SkinsBrowser.NextPage" xml:space="preserve"><value>Next</value></data>
+  <data name="SkinsBrowser.PageLabel" xml:space="preserve"><value>Page {0}</value></data>
 
   <!-- Servers page -->
   <data name="Servers.Title" xml:space="preserve"><value>Servers</value></data>

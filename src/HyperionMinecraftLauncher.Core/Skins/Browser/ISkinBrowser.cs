@@ -25,14 +25,35 @@ public interface ISkinBrowser
 {
     /// <summary>
     /// Fetch the source's "trending" gallery. The implementation is responsible
-    /// for capping the returned list at <paramref name="limit"/>.
+    /// for capping the returned list at <paramref name="limit"/>. Implemented as
+    /// page 0 of <see cref="ListTrendingAsync(int, int, CancellationToken)"/>.
     /// </summary>
     Task<IReadOnlyList<BrowsedSkin>> ListTrendingAsync(int limit, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Free-text search over the source's gallery (skin name, tag, or uploader).
+    /// Paginated variant of the trending gallery. Page indices are zero-based; <paramref name="limit"/>
+    /// is the per-page size cap and equals the server-side <c>size</c> query parameter when the
+    /// implementation supports it. Implementations are free to clamp to a smaller server cap.
+    /// </summary>
+    /// <param name="page">Zero-based page index (page 0 is the first page).</param>
+    /// <param name="limit">Maximum number of cards per page.</param>
+    Task<IReadOnlyList<BrowsedSkin>> ListTrendingAsync(int page, int limit, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Free-text search over the source's gallery (skin name, tag, or uploader). Implemented as
+    /// page 0 of <see cref="SearchAsync(string, int, int, CancellationToken)"/>.
     /// </summary>
     Task<IReadOnlyList<BrowsedSkin>> SearchAsync(string query, int limit, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Paginated variant of the gallery search. Behaves like
+    /// <see cref="SearchAsync(string, int, CancellationToken)"/> on <paramref name="page"/> 0 and
+    /// pulls subsequent pages when supported by the back-end.
+    /// </summary>
+    /// <param name="query">Free-text query.</param>
+    /// <param name="page">Zero-based page index.</param>
+    /// <param name="limit">Maximum number of cards per page.</param>
+    Task<IReadOnlyList<BrowsedSkin>> SearchAsync(string query, int page, int limit, CancellationToken cancellationToken);
 
     /// <summary>
     /// Download the raw 64x64 skin PNG for a previously-returned record. The

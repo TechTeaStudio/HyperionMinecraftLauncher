@@ -131,6 +131,9 @@
   <data name="SkinsBrowser.Applying" xml:space="preserve"><value>正在从 MineSkin 下载皮肤 {0}...</value></data>
   <data name="SkinsBrowser.Loading" xml:space="preserve"><value>加载图库中...</value></data>
   <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>未找到匹配的皮肤。请尝试其他搜索或点击"显示热门"。</value></data>
+  <data name="SkinsBrowser.PrevPage" xml:space="preserve"><value>上一页</value></data>
+  <data name="SkinsBrowser.NextPage" xml:space="preserve"><value>下一页</value></data>
+  <data name="SkinsBrowser.PageLabel" xml:space="preserve"><value>第 {0} 页</value></data>
 
   <!-- Servers page -->
   <data name="Servers.Title" xml:space="preserve"><value>服务器</value></data>

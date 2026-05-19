@@ -75,9 +75,19 @@ public sealed class MainViewModel : INotifyPropertyChanged
     // back to "Browser not available" copy when the user runs the launcher without
     // outbound HTTP or in a test context.
     private readonly ISkinBrowser? _skinBrowser;
+    // v0.32.4 (H1): assembled-minifigure body cache. Built lazily on first card render so
+    // tests that never touch the Skins page don't allocate the cache + Steve fallback.
+    private TechTeaStudio.HyperionMinecraftLauncher.App.Controls.BrowsedSkinMinifigureCache? _minifigureCache;
     private string _skinSearchText = string.Empty;
     private BrowsedSkin? _selectedBrowsedSkin;
     private bool _skinBrowserBusy;
+    // v0.32.4 (H1): pagination state. Zero-based; only meaningful when a browser is wired.
+    private int _currentSkinPage;
+    private bool _hasMoreSkins;
+    // Cached page-N result lists so Prev / Next within the same query don't re-hit MineSkin.
+    // Key: (search query, page). Empty search text means "trending".
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<(string Query, int Page), System.Collections.Generic.IReadOnlyList<BrowsedSkin>> _skinPageCache =
+        new();
     private readonly IModRepository? _modrinthRepository;
     private readonly IModRepository? _curseForgeRepository;
     private readonly IInstanceModManager? _instanceModManager;
@@ -249,7 +259,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _skinHistory = skinHistory;
         _skinBrowser = skinBrowser;
         SkinHistory = new ObservableCollection<SkinHistoryEntry>();
-        BrowsedSkins = new ObservableCollection<BrowsedSkin>();
+        BrowsedSkins = new ObservableCollection<BrowsedSkinCardViewModel>();
         _modrinthRepository = modrinthRepository;
         _curseForgeRepository = curseForgeRepository;
         _instanceModManager = instanceModManager;
@@ -379,6 +389,14 @@ public sealed class MainViewModel : INotifyPropertyChanged
         ApplyBrowsedSkinCommand = new AsyncRelayCommand<BrowsedSkin>(
             ApplyBrowsedSkinAsync,
             s => !IsBusy && IsSignedInOnline && _skinService is not null && _skinBrowser is not null && s is not null);
+        // H1 (v0.32.4): paged gallery navigation. Prev is gated on CurrentSkinPage > 0;
+        // Next is gated on HasMoreSkins (set true when the last fetch returned a full page).
+        NextSkinPageCommand = new AsyncRelayCommand(
+            NextBrowsedSkinPageAsync,
+            () => !_skinBrowserBusy && _skinBrowser is not null && _hasMoreSkins);
+        PrevSkinPageCommand = new AsyncRelayCommand(
+            PrevBrowsedSkinPageAsync,
+            () => !_skinBrowserBusy && _skinBrowser is not null && _currentSkinPage > 0);
 
         SearchModsCommand = new AsyncRelayCommand(SearchModsAsync, () => !IsBusy && GetActiveModRepository() is not null);
         InstallModCommand = new AsyncRelayCommand(InstallSelectedModAsync,
@@ -1434,6 +1452,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncRelayCommand SearchSkinsCommand { get; }
     /// <summary>Download the picked browsed skin and apply it to the signed-in Mojang account.</summary>
     public AsyncRelayCommand<BrowsedSkin> ApplyBrowsedSkinCommand { get; }
+    /// <summary>H1 (v0.32.4): advance the skin gallery to the next paginated page.</summary>
+    public AsyncRelayCommand NextSkinPageCommand { get; }
+    /// <summary>H1 (v0.32.4): step the skin gallery back to the previous paginated page.</summary>
+    public AsyncRelayCommand PrevSkinPageCommand { get; }
     public AsyncRelayCommand SearchModsCommand { get; }
     public AsyncRelayCommand InstallModCommand { get; }
     public AsyncRelayCommand RefreshInstalledModsCommand { get; }
@@ -2738,7 +2760,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     /// and <see cref="SearchSkinsCommand"/>; empty when no browser is wired or the user
     /// hasn't opened the Skins page yet.
     /// </summary>
-    public ObservableCollection<BrowsedSkin> BrowsedSkins { get; }
+    public ObservableCollection<BrowsedSkinCardViewModel> BrowsedSkins { get; }
 
     /// <summary>User-typed query for the skin gallery search box. Empty = "trending only".</summary>
     public string SkinSearchText
@@ -2774,12 +2796,55 @@ public sealed class MainViewModel : INotifyPropertyChanged
             {
                 RefreshTrendingSkinsCommand.RaiseCanExecuteChanged();
                 SearchSkinsCommand.RaiseCanExecuteChanged();
+                NextSkinPageCommand.RaiseCanExecuteChanged();
+                PrevSkinPageCommand.RaiseCanExecuteChanged();
             }
         }
     }
 
     /// <summary>True when an <see cref="ISkinBrowser"/> is wired (controls visibility of the gallery section).</summary>
     public bool IsSkinBrowserAvailable => _skinBrowser is not null;
+
+    /// <summary>
+    /// H1 (v0.32.4): zero-based index of the currently-displayed gallery page. Updated by
+    /// <see cref="NextBrowsedSkinPageAsync"/> / <see cref="PrevBrowsedSkinPageAsync"/> and
+    /// reset to 0 on every new search or trending refresh.
+    /// </summary>
+    public int CurrentSkinPage
+    {
+        get => _currentSkinPage;
+        private set
+        {
+            if (SetField(ref _currentSkinPage, value))
+            {
+                OnPropertyChanged(nameof(CurrentSkinPageDisplay));
+                NextSkinPageCommand.RaiseCanExecuteChanged();
+                PrevSkinPageCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 1-based display number for the page label ("Page {N}"). UIs prefer 1-based even when the
+    /// internal index is zero-based; we surface a convenience getter rather than push the
+    /// arithmetic into the XAML.
+    /// </summary>
+    public int CurrentSkinPageDisplay => _currentSkinPage + 1;
+
+    /// <summary>
+    /// H1 (v0.32.4): true when the last fetched page filled <see cref="BrowsedSkinLimit"/> cards.
+    /// MineSkin's anonymous tier does not return a total-count header, so a "full page" is the
+    /// only signal we have that there is more to load.
+    /// </summary>
+    public bool HasMoreSkins
+    {
+        get => _hasMoreSkins;
+        private set
+        {
+            if (SetField(ref _hasMoreSkins, value))
+                NextSkinPageCommand.RaiseCanExecuteChanged();
+        }
+    }
 
     /// <summary>
     /// Inject the View's file-picker + variant-prompt delegate. The View calls this from
@@ -3038,34 +3103,21 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     /// <summary>
     /// Pull the trending gallery from the configured <see cref="ISkinBrowser"/> and replace
-    /// <see cref="BrowsedSkins"/>. Never throws: failures surface through the launcher log.
+    /// <see cref="BrowsedSkins"/>. Resets pagination to page 0 and clears the per-query
+    /// page cache. Never throws: failures surface through the launcher log.
     /// </summary>
     public async Task RefreshTrendingBrowsedSkinsAsync()
     {
         if (_skinBrowser is null) return;
         if (_skinBrowserBusy) return;
-
-        IsSkinBrowserBusy = true;
-        try
-        {
-            var skins = await _skinBrowser.ListTrendingAsync(BrowsedSkinLimit, CancellationToken.None).ConfigureAwait(false);
-            await ReplaceBrowsedSkinsAsync(skins).ConfigureAwait(false);
-            _logger.Info($"SkinBrowser: loaded {skins.Count} trending skins.");
-        }
-        catch (Exception ex)
-        {
-            Append(string.Format(Strings.SkinsBrowser_FetchFailed, ex.Message));
-            _logger.Warn($"SkinBrowser trending fetch failed: {ex.GetType().Name}: {ex.Message}");
-        }
-        finally
-        {
-            IsSkinBrowserBusy = false;
-        }
+        ResetPagination();
+        await LoadGalleryPageAsync(query: string.Empty, page: 0).ConfigureAwait(false);
     }
 
     /// <summary>
     /// Run <see cref="SkinSearchText"/> against the configured <see cref="ISkinBrowser"/>.
-    /// Empty / whitespace queries fall back to trending. Never throws.
+    /// Empty / whitespace queries fall back to trending. Resets pagination on every call.
+    /// Never throws.
     /// </summary>
     public async Task SearchBrowsedSkinsAsync()
     {
@@ -3073,23 +3125,79 @@ public sealed class MainViewModel : INotifyPropertyChanged
         if (_skinBrowserBusy) return;
 
         var query = _skinSearchText?.Trim() ?? string.Empty;
-        if (string.IsNullOrEmpty(query))
-        {
-            await RefreshTrendingBrowsedSkinsAsync().ConfigureAwait(false);
-            return;
-        }
+        ResetPagination();
+        await LoadGalleryPageAsync(query, page: 0).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// H1 (v0.32.4): advance to the next zero-based page. Uses the cached page when available
+    /// (no network round-trip on a Prev / Next within the same search context); falls back to
+    /// the live API otherwise.
+    /// </summary>
+    public async Task NextBrowsedSkinPageAsync()
+    {
+        if (_skinBrowser is null) return;
+        if (_skinBrowserBusy) return;
+        if (!_hasMoreSkins) return;
+        var nextPage = _currentSkinPage + 1;
+        await LoadGalleryPageAsync(CurrentSearchQuery(), nextPage).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// H1 (v0.32.4): step back to the previous zero-based page. Always uses the cache when
+    /// possible because the user already saw those cards.
+    /// </summary>
+    public async Task PrevBrowsedSkinPageAsync()
+    {
+        if (_skinBrowser is null) return;
+        if (_skinBrowserBusy) return;
+        if (_currentSkinPage <= 0) return;
+        await LoadGalleryPageAsync(CurrentSearchQuery(), _currentSkinPage - 1).ConfigureAwait(false);
+    }
+
+    private string CurrentSearchQuery() => _skinSearchText?.Trim() ?? string.Empty;
+
+    private void ResetPagination()
+    {
+        _skinPageCache.Clear();
+        CurrentSkinPage = 0;
+        HasMoreSkins = false;
+    }
+
+    /// <summary>
+    /// Single load path used by trending refresh, search, and Prev / Next. Checks the page
+    /// cache first; only hits the network on a miss. Updates pagination state once the
+    /// result lands so Prev / Next CanExecute flips at the right moment.
+    /// </summary>
+    private async Task LoadGalleryPageAsync(string query, int page)
+    {
+        if (_skinBrowser is null) return;
 
         IsSkinBrowserBusy = true;
         try
         {
-            var skins = await _skinBrowser.SearchAsync(query, BrowsedSkinLimit, CancellationToken.None).ConfigureAwait(false);
+            var key = (query, page);
+            if (!_skinPageCache.TryGetValue(key, out var skins))
+            {
+                skins = string.IsNullOrEmpty(query)
+                    ? await _skinBrowser.ListTrendingAsync(page, BrowsedSkinLimit, CancellationToken.None).ConfigureAwait(false)
+                    : await _skinBrowser.SearchAsync(query, page, BrowsedSkinLimit, CancellationToken.None).ConfigureAwait(false);
+                _skinPageCache[key] = skins;
+            }
+
             await ReplaceBrowsedSkinsAsync(skins).ConfigureAwait(false);
-            _logger.Info($"SkinBrowser: search '{query}' returned {skins.Count} skins.");
+
+            // A full page is the only signal MineSkin's anonymous tier gives us that there
+            // are more cards to load; an under-full page means we just hit the end of the feed.
+            HasMoreSkins = skins.Count >= BrowsedSkinLimit;
+            CurrentSkinPage = page;
+            var label = string.IsNullOrEmpty(query) ? "trending" : $"search '{query}'";
+            _logger.Info($"SkinBrowser: {label} page {page} -> {skins.Count} cards (hasMore={_hasMoreSkins}).");
         }
         catch (Exception ex)
         {
             Append(string.Format(Strings.SkinsBrowser_FetchFailed, ex.Message));
-            _logger.Warn($"SkinBrowser search '{query}' failed: {ex.GetType().Name}: {ex.Message}");
+            _logger.Warn($"SkinBrowser page {page} fetch failed: {ex.GetType().Name}: {ex.Message}");
         }
         finally
         {
@@ -3137,10 +3245,20 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     private async Task ReplaceBrowsedSkinsAsync(IReadOnlyList<BrowsedSkin> skins)
     {
+        // Lazily allocate the cache on first card render. _skinBrowser is the ISkinBrowser
+        // contract; the cache delegates DownloadPngAsync to it, so we only spend the
+        // ~80 KB Steve fallback allocation when the user actually opens the Skins page.
+        var cache = _minifigureCache;
+        if (cache is null && _skinBrowser is not null)
+        {
+            cache = new TechTeaStudio.HyperionMinecraftLauncher.App.Controls.BrowsedSkinMinifigureCache(_skinBrowser);
+            _minifigureCache = cache;
+        }
+
         void Apply()
         {
             BrowsedSkins.Clear();
-            foreach (var s in skins) BrowsedSkins.Add(s);
+            foreach (var s in skins) BrowsedSkins.Add(new BrowsedSkinCardViewModel(s, cache));
             // Clear any stale selection that no longer points at a visible card.
             if (_selectedBrowsedSkin is not null && skins.All(s => s.Id != _selectedBrowsedSkin.Id))
                 SelectedBrowsedSkin = null;

@@ -1145,7 +1145,7 @@
                          Text="{x:Static loc:Strings.SkinsBrowser_SectionTitle}"
                          FontWeight="SemiBold" FontSize="12" Margin="0,0,0,6" />
 
-              <!-- Search + "Show trending" controls -->
+              <!-- Search + "Show trending" controls + H1 (v0.32.4) Prev/Next pagination -->
               <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="6" Margin="0,0,0,6">
                 <TextBox Width="200"
                          Text="{Binding SkinSearchText, Mode=TwoWay}"
@@ -1154,12 +1154,24 @@
                 <Button Content="{x:Static loc:Strings.SkinsBrowser_ShowTrending}"
                         Command="{Binding RefreshTrendingSkinsCommand}"
                         FontSize="11" Padding="10,4" />
+                <Button Content="{x:Static loc:Strings.SkinsBrowser_PrevPage}"
+                        Command="{Binding PrevSkinPageCommand}"
+                        ToolTip.Tip="{Binding CurrentSkinPageDisplay, StringFormat={x:Static loc:Strings.SkinsBrowser_PageLabel}}"
+                        FontSize="11" Padding="10,4" />
+                <Button Content="{x:Static loc:Strings.SkinsBrowser_NextPage}"
+                        Command="{Binding NextSkinPageCommand}"
+                        ToolTip.Tip="{Binding CurrentSkinPageDisplay, StringFormat={x:Static loc:Strings.SkinsBrowser_PageLabel}}"
+                        FontSize="11" Padding="10,4" />
+                <TextBlock Text="{Binding CurrentSkinPageDisplay, StringFormat={x:Static loc:Strings.SkinsBrowser_PageLabel}}"
+                           FontSize="10" Opacity="0.75" VerticalAlignment="Center" />
                 <TextBlock Text="{x:Static loc:Strings.SkinsBrowser_Loading}"
                            FontSize="10" Opacity="0.65" VerticalAlignment="Center"
                            IsVisible="{Binding IsSkinBrowserBusy}" />
               </StackPanel>
 
-              <!-- WrapPanel of thumbnails (90x90 each) -->
+              <!-- WrapPanel of thumbnails. v0.32.4 (H1): each card shows the assembled
+                   minifigure body sprite (64x96 image well) over a near-invisible neutral
+                   tile instead of the old green-tinted card with the raw sprite-sheet. -->
               <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled"
                             VerticalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding BrowsedSkins}">
@@ -1170,12 +1182,20 @@
                   </ItemsControl.ItemsPanel>
                   <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                      <Button Width="90" Height="90" Padding="0" Margin="3"
+                      <!-- v0.32.4 (H1): explicit Background + BorderBrush replace the default
+                           green-tinted Button styling. The user asked for "a near-invisible
+                           neutral grey, just one or two shades off the page background" so
+                           the card carries a faint silhouette without an aggressive colour. -->
+                      <Button Width="74" Height="106" Padding="4" Margin="3"
                               Click="OnBrowsedSkinCardClicked"
                               Tag="{Binding}"
-                              ToolTip.Tip="{Binding SourceUrl}">
-                        <Image asyncImageLoader:ImageLoader.Source="{Binding ThumbnailUrl}"
-                               Stretch="UniformToFill"
+                              Background="{DynamicResource LG.SkinCardBackground}"
+                              BorderBrush="{DynamicResource LG.GlassRim}"
+                              BorderThickness="1"
+                              ToolTip.Tip="{Binding Source.SourceUrl}">
+                        <Image Source="{Binding MinifigureImage}"
+                               Width="64" Height="96"
+                               Stretch="Uniform"
                                RenderOptions.BitmapInterpolationMode="None" />
                       </Button>
                     </DataTemplate>

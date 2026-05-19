@@ -136,6 +136,13 @@
   <SolidColorBrush x:Key="LG.RowHover"           Color="#3D3938" />
   <SolidColorBrush x:Key="LG.RowSelected"        Color="#3C8527" Opacity="0.25" />
 
+  <!-- v0.32.4 (H1): Skins-page community-browser card tile. Sits one shade off the page
+       background (#171615) so the silhouette is faint - the user explicitly asked for
+       a "near-invisible neutral grey, just one or two shades off the page background,
+       so the card has a faint silhouette but no aggressive colour" instead of the
+       previous green-tinted Button default that popped awkwardly against the page bed. -->
+  <SolidColorBrush x:Key="LG.SkinCardBackground" Color="#1C1A19" />
+
   <!-- ====== Bubble shadow set ======
        Minecraft buttons aren't drop-shadowed; their depth comes from a pixel
        outline plus an inset top-light and bottom-dark edge. The BoxShadows
