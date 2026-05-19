@@ -352,6 +352,25 @@ public partial class MainWindow : Window
     private void OnWindowMaximizeRestore(object? sender, RoutedEventArgs e) => ToggleMaximize();
     private void OnWindowClose(object? sender, RoutedEventArgs e) => Close();
 
+    // v0.32.8: chromeless-window resize. With SystemDecorations=None +
+    // ExtendClientAreaChromeHints=NoChrome Avalonia 11.2 does not install
+    // native edge hit-tests, so the perimeter overlay in the XAML routes its
+    // PointerPressed events here. The Border.Tag carries the WindowEdge
+    // enum name; we parse it and forward to BeginResizeDrag. Maximised state
+    // is preserved (Windows convention: dragging an edge restores first).
+    private void OnEdgeResize(object? sender, PointerPressedEventArgs e)
+    {
+        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+            return;
+        if (sender is not Control { Tag: string edgeName })
+            return;
+        if (!Enum.TryParse<WindowEdge>(edgeName, ignoreCase: false, out var edge))
+            return;
+        if (WindowState == WindowState.Maximized)
+            WindowState = WindowState.Normal;
+        BeginResizeDrag(edge, e);
+    }
+
     private void ToggleMaximize() =>
         WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
 

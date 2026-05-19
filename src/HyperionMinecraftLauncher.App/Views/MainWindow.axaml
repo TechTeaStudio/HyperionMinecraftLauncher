@@ -1141,7 +1141,16 @@
           <Border Grid.Column="2" CornerRadius="15" Padding="8"
                   Background="{DynamicResource MaterialPaperBrush}"
                   IsVisible="{Binding IsSkinBrowserAvailable}">
-            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+            <!--
+              v0.32.8: gallery row now takes the *-share so pagination and the
+              selected-card preview stay anchored at the bottom regardless of
+              window height. Before this the gallery was Auto and grew with
+              its WrapPanel contents, pushing the pagination row offscreen on
+              the default 580-tall window. Cards that don't fit are clipped by
+              the parent Border; users navigate with Prev / Next instead of
+              an inner ScrollViewer.
+            -->
+            <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
               <TextBlock Grid.Row="0"
                          Text="{x:Static loc:Strings.SkinsBrowser_SectionTitle}"
                          FontWeight="SemiBold" FontSize="12" Margin="0,0,0,6" />
@@ -1917,6 +1926,44 @@
     </Grid>
 
   </Grid>
+
+    <!--
+      v0.32.8: chromeless-window resize handles. With SystemDecorations=None +
+      ExtendClientAreaChromeHints=NoChrome Avalonia 11.2 does not install the
+      native edge-resize hit-tests on Windows, so the user could not drag the
+      window borders. This overlay sits on top of all page content (last child
+      of the root Panel = highest z-order) and exposes 4 thin edge strips and
+      4 corner squares. Each calls BeginResizeDrag(WindowEdge, e) via
+      OnEdgeResize. The strips are Transparent so they do not change the look,
+      but Background="Transparent" is required for hit-testing to fire.
+
+      Tag carries the WindowEdge name so a single code-behind handler can
+      dispatch every corner / edge.
+    -->
+    <Grid IsHitTestVisible="True">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="6" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="6" />
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="6" />
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="6" />
+      </Grid.ColumnDefinitions>
+
+      <!-- Corners (drawn first so edges paint over them where they overlap; only the corner cursor matters at the actual corner pixels). -->
+      <Border Grid.Row="0" Grid.Column="0" Background="Transparent" Cursor="TopLeftCorner"     Tag="NorthWest" PointerPressed="OnEdgeResize" />
+      <Border Grid.Row="0" Grid.Column="2" Background="Transparent" Cursor="TopRightCorner"    Tag="NorthEast" PointerPressed="OnEdgeResize" />
+      <Border Grid.Row="2" Grid.Column="0" Background="Transparent" Cursor="BottomLeftCorner"  Tag="SouthWest" PointerPressed="OnEdgeResize" />
+      <Border Grid.Row="2" Grid.Column="2" Background="Transparent" Cursor="BottomRightCorner" Tag="SouthEast" PointerPressed="OnEdgeResize" />
+
+      <!-- Edges -->
+      <Border Grid.Row="0" Grid.Column="1" Background="Transparent" Cursor="TopSide"    Tag="North" PointerPressed="OnEdgeResize" />
+      <Border Grid.Row="2" Grid.Column="1" Background="Transparent" Cursor="BottomSide" Tag="South" PointerPressed="OnEdgeResize" />
+      <Border Grid.Row="1" Grid.Column="0" Background="Transparent" Cursor="LeftSide"   Tag="West"  PointerPressed="OnEdgeResize" />
+      <Border Grid.Row="1" Grid.Column="2" Background="Transparent" Cursor="RightSide"  Tag="East"  PointerPressed="OnEdgeResize" />
+    </Grid>
   </Panel>
 
   <Window.Styles>
