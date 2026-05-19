@@ -1140,46 +1140,47 @@
           <Border Grid.Column="2" CornerRadius="15" Padding="8"
                   Background="{DynamicResource MaterialPaperBrush}"
                   IsVisible="{Binding IsSkinBrowserAvailable}">
-            <Grid RowDefinitions="Auto,Auto,*,Auto">
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto">
               <TextBlock Grid.Row="0"
                          Text="{x:Static loc:Strings.SkinsBrowser_SectionTitle}"
                          FontWeight="SemiBold" FontSize="12" Margin="0,0,0,6" />
 
-              <!-- Search + "Show trending" controls + H1 (v0.32.4) Prev/Next pagination -->
+              <!--
+                Search + "Show trending" row.
+
+                v0.32.6: TextBox binds with UpdateSourceTrigger=PropertyChanged so the
+                SkinSearchText property reflects every keystroke. Before this, Avalonia's
+                default LostFocus trigger meant SearchSkinsCommand fired with a stale
+                empty SkinSearchText on Enter and the Mojang nickname fallback never ran.
+
+                Pagination buttons live in Grid.Row=3 now (below the gallery) per user
+                request - they used to crowd this top row.
+              -->
               <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="6" Margin="0,0,0,6">
                 <TextBox Width="200"
-                         Text="{Binding SkinSearchText, Mode=TwoWay}"
+                         Text="{Binding SkinSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Watermark="{x:Static loc:Strings.SkinsBrowser_SearchWatermark}"
                          KeyDown="OnBrowsedSkinSearchKeyDown" />
                 <Button Content="{x:Static loc:Strings.SkinsBrowser_ShowTrending}"
                         Command="{Binding RefreshTrendingSkinsCommand}"
                         FontSize="11" Padding="10,4" />
-                <Button Content="{x:Static loc:Strings.SkinsBrowser_PrevPage}"
-                        Command="{Binding PrevSkinPageCommand}"
-                        ToolTip.Tip="{Binding CurrentSkinPageDisplay, StringFormat={x:Static loc:Strings.SkinsBrowser_PageLabel}}"
-                        FontSize="11" Padding="10,4" />
-                <Button Content="{x:Static loc:Strings.SkinsBrowser_NextPage}"
-                        Command="{Binding NextSkinPageCommand}"
-                        ToolTip.Tip="{Binding CurrentSkinPageDisplay, StringFormat={x:Static loc:Strings.SkinsBrowser_PageLabel}}"
-                        FontSize="11" Padding="10,4" />
-                <TextBlock Text="{Binding CurrentSkinPageDisplay, StringFormat={x:Static loc:Strings.SkinsBrowser_PageLabel}}"
-                           FontSize="10" Opacity="0.75" VerticalAlignment="Center" />
                 <TextBlock Text="{x:Static loc:Strings.SkinsBrowser_Loading}"
                            FontSize="10" Opacity="0.65" VerticalAlignment="Center"
                            IsVisible="{Binding IsSkinBrowserBusy}" />
               </StackPanel>
 
-              <!-- WrapPanel of thumbnails. v0.32.4 (H1): each card shows the assembled
-                   minifigure body sprite (64x96 image well) over a near-invisible neutral
-                   tile instead of the old green-tinted card with the raw sprite-sheet. -->
-              <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled"
-                            VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding BrowsedSkins}">
-                  <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                      <WrapPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                  </ItemsControl.ItemsPanel>
+              <!--
+                Gallery: dynamically-sized WrapPanel (no inner ScrollViewer per user request).
+                Row height is Auto so the panel grows with the page; the outer Skins-page
+                ScrollViewer handles overflow at the page level. Each card shows the assembled
+                minifigure body sprite (H1, v0.32.4) over the subtle LG.SkinCardBackground tile.
+              -->
+              <ItemsControl Grid.Row="2" ItemsSource="{Binding BrowsedSkins}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
                   <ItemsControl.ItemTemplate>
                     <DataTemplate>
                       <!-- v0.32.4 (H1): explicit Background + BorderBrush replace the default
@@ -1214,10 +1215,27 @@
                     </DataTemplate>
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>
-              </ScrollViewer>
+
+              <!--
+                v0.32.6: pagination row moved below the gallery (was previously crammed
+                into the search row). Prev is gated on CurrentSkinPage > 0; Next on
+                HasMoreSkins. The page label shows a 1-based number via
+                CurrentSkinPageDisplay so users don't see "Page 0".
+              -->
+              <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="6"
+                          Margin="0,6,0,0" HorizontalAlignment="Center">
+                <Button Content="{x:Static loc:Strings.SkinsBrowser_PrevPage}"
+                        Command="{Binding PrevSkinPageCommand}"
+                        FontSize="11" Padding="10,4" />
+                <TextBlock Text="{Binding CurrentSkinPageDisplay, StringFormat={x:Static loc:Strings.SkinsBrowser_PageLabel}}"
+                           FontSize="11" VerticalAlignment="Center" Opacity="0.85" />
+                <Button Content="{x:Static loc:Strings.SkinsBrowser_NextPage}"
+                        Command="{Binding NextSkinPageCommand}"
+                        FontSize="11" Padding="10,4" />
+              </StackPanel>
 
               <!-- Selected-card preview + apply -->
-              <Border Grid.Row="3" Margin="0,6,0,0" Padding="6"
+              <Border Grid.Row="4" Margin="0,6,0,0" Padding="6"
                       CornerRadius="10"
                       Background="{DynamicResource MaterialPaperBrush}"
                       IsVisible="{Binding HasSelectedBrowsedSkin}">
