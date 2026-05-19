@@ -131,6 +131,9 @@
   <data name="SkinsBrowser.Applying" xml:space="preserve"><value>Baixando skin {0} do MineSkin...</value></data>
   <data name="SkinsBrowser.Loading" xml:space="preserve"><value>Carregando galeria...</value></data>
   <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>Nenhuma skin encontrada. Tente outra busca ou clique em "Mostrar em alta".</value></data>
+  <data name="SkinsBrowser.PrevPage" xml:space="preserve"><value>Anterior</value></data>
+  <data name="SkinsBrowser.NextPage" xml:space="preserve"><value>Próxima</value></data>
+  <data name="SkinsBrowser.PageLabel" xml:space="preserve"><value>Página {0}</value></data>
 
   <!-- Servers page -->
   <data name="Servers.Title" xml:space="preserve"><value>Servidores</value></data>

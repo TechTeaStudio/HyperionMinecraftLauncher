@@ -1145,7 +1145,7 @@
                          Text="{x:Static loc:Strings.SkinsBrowser_SectionTitle}"
                          FontWeight="SemiBold" FontSize="12" Margin="0,0,0,6" />
 
-              <!-- Search + "Show trending" controls -->
+              <!-- Search + "Show trending" controls + H1 (v0.32.4) Prev/Next pagination -->
               <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="6" Margin="0,0,0,6">
                 <TextBox Width="200"
                          Text="{Binding SkinSearchText, Mode=TwoWay}"
@@ -1154,6 +1154,16 @@
                 <Button Content="{x:Static loc:Strings.SkinsBrowser_ShowTrending}"
                         Command="{Binding RefreshTrendingSkinsCommand}"
                         FontSize="11" Padding="10,4" />
+                <Button Content="{x:Static loc:Strings.SkinsBrowser_PrevPage}"
+                        Command="{Binding PrevSkinPageCommand}"
+                        ToolTip.Tip="{Binding CurrentSkinPageDisplay, StringFormat={x:Static loc:Strings.SkinsBrowser_PageLabel}}"
+                        FontSize="11" Padding="10,4" />
+                <Button Content="{x:Static loc:Strings.SkinsBrowser_NextPage}"
+                        Command="{Binding NextSkinPageCommand}"
+                        ToolTip.Tip="{Binding CurrentSkinPageDisplay, StringFormat={x:Static loc:Strings.SkinsBrowser_PageLabel}}"
+                        FontSize="11" Padding="10,4" />
+                <TextBlock Text="{Binding CurrentSkinPageDisplay, StringFormat={x:Static loc:Strings.SkinsBrowser_PageLabel}}"
+                           FontSize="10" Opacity="0.75" VerticalAlignment="Center" />
                 <TextBlock Text="{x:Static loc:Strings.SkinsBrowser_Loading}"
                            FontSize="10" Opacity="0.65" VerticalAlignment="Center"
                            IsVisible="{Binding IsSkinBrowserBusy}" />
