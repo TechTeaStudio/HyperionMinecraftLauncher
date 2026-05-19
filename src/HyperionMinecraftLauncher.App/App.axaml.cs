@@ -104,11 +104,17 @@ public partial class App : Application
                 () =>
                 {
                     var javaHttp = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
+                    // v0.32.11: pass a SystemJavaProbe so an existing JDK / JRE under
+                    // JAVA_HOME, PATH, or a well-known vendor directory wins over a fresh
+                    // ~180 MB Adoptium download. The probe only fires when the managed
+                    // cache is empty and memoises its per-requirement result for the
+                    // session, so it doesn't add cost to subsequent launches.
                     return new AdoptiumJavaRuntimeManager(
                         javaHttp,
                         AdoptiumJavaRuntimeManager.DefaultRootDirectory(),
                         AdoptiumJavaRuntimeManager.DetectOs(),
-                        AdoptiumJavaRuntimeManager.DetectArch());
+                        AdoptiumJavaRuntimeManager.DetectArch(),
+                        new SystemJavaProbe());
                 },
                 System.Threading.LazyThreadSafetyMode.ExecutionAndPublication);
 

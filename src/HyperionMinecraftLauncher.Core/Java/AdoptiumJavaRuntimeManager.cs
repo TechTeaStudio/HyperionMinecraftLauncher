@@ -27,15 +27,32 @@ public sealed class AdoptiumJavaRuntimeManager : IJavaRuntimeManager
     private readonly string _rootDirectory;
     private readonly string _os;
     private readonly string _arch;
+    private readonly ISystemJavaProbe? _systemProbe;
 
     /// <summary>Default constructor: uses the OS-default cache root and a fresh HttpClient.</summary>
     public AdoptiumJavaRuntimeManager()
-        : this(new HttpClient { Timeout = TimeSpan.FromMinutes(5) }, DefaultRootDirectory(), DetectOs(), DetectArch())
+        : this(new HttpClient { Timeout = TimeSpan.FromMinutes(5) }, DefaultRootDirectory(), DetectOs(), DetectArch(), new SystemJavaProbe())
     {
     }
 
     /// <summary>Constructor for tests: caller supplies the HttpClient, cache root, and OS/arch.</summary>
+    /// <remarks>
+    /// Kept as a 4-arg overload so existing test sites compile unchanged. Tests that pre-date the
+    /// v0.32.11 system-probe path pass a null probe implicitly here; that disables the probe and
+    /// keeps the old "cache or download" two-step contract intact for those tests.
+    /// </remarks>
     public AdoptiumJavaRuntimeManager(HttpClient http, string rootDirectory, string os, string arch)
+        : this(http, rootDirectory, os, arch, systemProbe: null)
+    {
+    }
+
+    /// <summary>
+    /// Full constructor with the v0.32.11 system-probe extension. When <paramref name="systemProbe"/>
+    /// is non-null, <see cref="EnsureRuntimeAsync"/> queries it BETWEEN the managed-cache check
+    /// and the Adoptium download, so a host with an existing matching JDK / JRE under JAVA_HOME,
+    /// PATH, or a well-known install dir is preferred over a fresh download.
+    /// </summary>
+    public AdoptiumJavaRuntimeManager(HttpClient http, string rootDirectory, string os, string arch, ISystemJavaProbe? systemProbe)
     {
         _http = http ?? throw new ArgumentNullException(nameof(http));
         _rootDirectory = !string.IsNullOrWhiteSpace(rootDirectory)
@@ -43,6 +60,7 @@ public sealed class AdoptiumJavaRuntimeManager : IJavaRuntimeManager
             : throw new ArgumentException("rootDirectory is required", nameof(rootDirectory));
         _os = !string.IsNullOrWhiteSpace(os) ? os : throw new ArgumentException("os is required", nameof(os));
         _arch = !string.IsNullOrWhiteSpace(arch) ? arch : throw new ArgumentException("arch is required", nameof(arch));
+        _systemProbe = systemProbe;
     }
 
     /// <summary>Resolve the platform default cache root: <c>%LOCALAPPDATA%/HyperionMinecraftLauncher/java</c>.</summary>
@@ -80,7 +98,8 @@ public sealed class AdoptiumJavaRuntimeManager : IJavaRuntimeManager
 
         var targetDir = RuntimeDirectory(requirement);
 
-        // If we already have an extracted runtime, just hand back its java executable.
+        // 1. Managed cache. Cheapest check (one File.Exists), and a runtime we put there
+        //    ourselves is known-good for this Minecraft major. Always wins.
         var existingExe = FindJavaExecutable(targetDir);
         if (existingExe is not null)
         {
@@ -88,6 +107,31 @@ public sealed class AdoptiumJavaRuntimeManager : IJavaRuntimeManager
             return existingExe;
         }
 
+        // 2. System probe (v0.32.11). Look for a matching JDK / JRE already installed via
+        //    JAVA_HOME, PATH, or a well-known vendor directory. Skips the multi-hundred-MB
+        //    Adoptium download whenever the host already has a usable Java of the right
+        //    major. Probe failures degrade silently to step 3.
+        if (_systemProbe is not null)
+        {
+            try
+            {
+                var systemExe = await _systemProbe.FindAsync(requirement, cancellationToken).ConfigureAwait(false);
+                if (!string.IsNullOrEmpty(systemExe))
+                {
+                    progress?.Report(1.0);
+                    return systemExe;
+                }
+            }
+            catch (OperationCanceledException) { throw; }
+            catch
+            {
+                // The probe contract says it shouldn't throw on individual candidate failures;
+                // a real exception here means the probe itself is broken. Don't let that block
+                // the launch - fall through to the download path.
+            }
+        }
+
+        // 3. Download from Adoptium and extract into the managed cache.
         Directory.CreateDirectory(targetDir);
 
         var url = AdoptiumUrlBuilder.BuildBinaryUrl(requirement, _os, _arch);
