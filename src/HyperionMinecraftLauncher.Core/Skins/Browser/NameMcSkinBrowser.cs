@@ -157,6 +157,18 @@ public sealed class NameMcSkinBrowser : ISkinBrowser
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    /// NameMC's trending page is not paginated through a query parameter the way MineSkin v2 is,
+    /// so this implementation returns an empty list for any <paramref name="page"/> &gt; 0 and
+    /// delegates to <see cref="ListTrendingAsync(int, CancellationToken)"/> for page 0.
+    /// </remarks>
+    public async Task<IReadOnlyList<BrowsedSkin>> ListTrendingAsync(int page, int limit, CancellationToken cancellationToken)
+    {
+        if (page > 0) return Array.Empty<BrowsedSkin>();
+        return await ListTrendingAsync(limit, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
     public async Task<IReadOnlyList<BrowsedSkin>> SearchAsync(string query, int limit, CancellationToken cancellationToken)
     {
         var q = query ?? string.Empty;
@@ -165,6 +177,14 @@ public sealed class NameMcSkinBrowser : ISkinBrowser
             : SearchUrlStem + "?q=" + Uri.EscapeDataString(q);
         var html = await GetHtmlAsync(url, cancellationToken).ConfigureAwait(false);
         return ParseGallery(html, limit);
+    }
+
+    /// <inheritdoc />
+    /// <remarks>NameMC's search URL is not paginated; page &gt; 0 returns empty.</remarks>
+    public async Task<IReadOnlyList<BrowsedSkin>> SearchAsync(string query, int page, int limit, CancellationToken cancellationToken)
+    {
+        if (page > 0) return Array.Empty<BrowsedSkin>();
+        return await SearchAsync(query, limit, cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc />

@@ -70,27 +70,50 @@ public sealed class MineSkinBrowser : ISkinBrowser
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<BrowsedSkin>> ListTrendingAsync(int limit, CancellationToken cancellationToken)
+    public Task<IReadOnlyList<BrowsedSkin>> ListTrendingAsync(int limit, CancellationToken cancellationToken)
+        => ListTrendingAsync(page: 0, limit, cancellationToken);
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// MineSkin v2 exposes <c>?page=N&amp;size=M</c> on <c>/v2/skins</c>; page indices are zero-based.
+    /// The server caps <c>size</c> at 1000 but we clamp client-side at <see cref="MaxApiPageSize"/>
+    /// (200) so a single page render stays responsive. Negative <paramref name="page"/> is treated
+    /// as 0; non-positive <paramref name="limit"/> falls back to the default 60-card page.
+    /// </remarks>
+    public async Task<IReadOnlyList<BrowsedSkin>> ListTrendingAsync(int page, int limit, CancellationToken cancellationToken)
     {
+        var safePage = Math.Max(0, page);
         var pageSize = Math.Clamp(limit > 0 ? limit : 60, 1, MaxApiPageSize);
-        var url = $"{ListUrlStem}?size={pageSize}";
+        var url = $"{ListUrlStem}?page={safePage}&size={pageSize}";
         var json = await GetJsonAsync(url, cancellationToken).ConfigureAwait(false);
         return ParseList(json, limit, query: null);
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<BrowsedSkin>> SearchAsync(string query, int limit, CancellationToken cancellationToken)
+    public Task<IReadOnlyList<BrowsedSkin>> SearchAsync(string query, int limit, CancellationToken cancellationToken)
+        => SearchAsync(query, page: 0, limit, cancellationToken);
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// MineSkin's anonymous tier ignores the <c>?name=</c> filter, so we still oversample and
+    /// filter client-side as in the unpaged path. The <c>?page=</c> parameter is passed through
+    /// to the server unchanged: when the user pastes an API key in the future, server-side
+    /// paging just works.
+    /// </remarks>
+    public async Task<IReadOnlyList<BrowsedSkin>> SearchAsync(string query, int page, int limit, CancellationToken cancellationToken)
     {
         var q = query?.Trim() ?? string.Empty;
         if (string.IsNullOrEmpty(q))
-            return await ListTrendingAsync(limit, cancellationToken).ConfigureAwait(false);
+            return await ListTrendingAsync(page, limit, cancellationToken).ConfigureAwait(false);
+
+        var safePage = Math.Max(0, page);
 
         // Pull a larger page so the client-side filter has more to chew on. We still hand
         // MineSkin the name filter even though the anonymous tier ignores it - the moment
         // the user pastes an API key (a future onboarding affordance) the server-side
         // filter takes effect.
         var pageSize = Math.Clamp(limit > 0 ? limit * SearchPageMultiplier : MaxApiPageSize, 1, MaxApiPageSize);
-        var url = $"{ListUrlStem}?size={pageSize}&name={Uri.EscapeDataString(q)}";
+        var url = $"{ListUrlStem}?page={safePage}&size={pageSize}&name={Uri.EscapeDataString(q)}";
         var json = await GetJsonAsync(url, cancellationToken).ConfigureAwait(false);
         return ParseList(json, limit, query: q);
     }
