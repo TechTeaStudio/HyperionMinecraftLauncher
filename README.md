@@ -14,8 +14,8 @@
   <img alt="Platform" src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-blue" />
   <a href="https://github.com/TechTeaStudio/HyperionMinecraftLauncher/actions/workflows/dotnet.yml"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/TechTeaStudio/HyperionMinecraftLauncher/dotnet.yml?branch=product&amp;logo=github&amp;label=build" /></a>
   <a href="LICENSE.txt"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
-  <img alt="Tests" src="https://img.shields.io/badge/tests-422%20passing-brightgreen" />
-  <img alt="Version" src="https://img.shields.io/badge/version-0.32.1-3C8527" />
+  <img alt="Tests" src="https://img.shields.io/badge/tests-589%20passing-brightgreen" />
+  <img alt="Version" src="https://img.shields.io/badge/version-0.32.5-3C8527" />
 </p>
 
 ## Overview
@@ -50,7 +50,7 @@ The launcher reads from and writes alongside the same `.minecraft` directory the
 - **Headless dedicated-server registry.** Folder-per-server under `LOCALAPPDATA/headless_servers/{id}/` with metadata, EULA, and a baseline `server.properties`. Hyperion downloads `server.jar` (Mojang manifest, sha1 verified), auto-installs the matching Adoptium Temurin JRE, starts the JVM, streams stdout into a console pane on the Headless Servers page, and sends commands (`say`, `op`, `stop`, ...) over stdin.
 
 ### UX and platform
-- **Skins.** 3D skin + cape viewer (pure-Skia, no GL context). Upload a new skin PNG, switch capes, browse a 10-entry skin history, re-apply a historic skin.
+- **Skins.** 3D skin + cape viewer (pure-Skia, no GL context). Upload a new skin PNG, switch capes, browse a 10-entry skin history, re-apply a historic skin. Community gallery powered by MineSkin v2 with paginated minifigure thumbnails; nickname search resolves through Mojang's public profile API so typing a username like `Notch` shows that account's actual current skin (tagged with a green "M" badge).
 - **News feed** from `launchercontent.mojang.com/news.json` (same source the official launcher uses), with a one-hour disk cache and a stale-on-failure fallback.
 - **Logs page.** A dedicated sidebar entry shows today's `launcher-YYYY-MM-DD.log` with substring filter, copy-all, and "Open logs folder".
 - **Per-instance browser.** Screenshots / Worlds / Servers tabs under each instance. PNG thumbnails open in the OS default viewer; world rows show humanised "last played"; right-click on a world opens its folder.
