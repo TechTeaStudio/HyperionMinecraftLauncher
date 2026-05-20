@@ -29,7 +29,7 @@ jobs:
           - os: windows-latest
             rid: win-x64
           - os: macos-latest
-            rid: osx-arm64
+            rid: osx-universal
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -90,27 +90,48 @@ jobs:
           $zip = "artifacts/hyperion-win-x64-$env:GITHUB_REF_NAME.zip"
           Compress-Archive -Path publish/win-x64/* -DestinationPath $zip -Force
 
-      # macOS: no .app packaging script yet (see README roadmap "macOS .pkg / .dmg
-      # packaging" gap). Publish the binary, zip the output, and tag the artifact
-      # name with "pending" so the gap is visible in the GitHub Release UI.
-      - name: Package (macOS publish placeholder)
+      # macOS: build Intel + Apple Silicon .app bundles via the shipped
+      # scripts/build-macos-app.sh in one pass (the script publishes both RIDs and
+      # produces proper Info.plist + AppIcon.icns + Resources/Localization), then
+      # wrap each .app in a Gatekeeper-friendly ZIP and run build-macos-dmg.sh
+      # for the drag-to-install .dmg artifacts.
+      #
+      # Earlier this step zipped `publish/osx-arm64/` (the raw self-contained
+      # publish tree) which has no Info.plist - Finder refused to treat the ZIP
+      # as a real .app. The fix is to zip the assembled bundle directories that
+      # build-macos-app.sh creates next to the publish output:
+      #   publish/HyperionMinecraftLauncher-x86_64.app/
+      #   publish/HyperionMinecraftLauncher-arm64.app/
+      - name: Package (macOS .app + .dmg, Intel + Apple Silicon)
         if: matrix.os == 'macos-latest'
         shell: bash
         run: |
           set -euo pipefail
-          echo "[macos packaging script pending] producing raw publish output"
-          if [ -f scripts/build-macos-app.sh ]; then
-            bash scripts/build-macos-app.sh
-          else
-            dotnet publish src/HyperionMinecraftLauncher.App \
-              -r osx-arm64 \
-              -c Release \
-              --self-contained \
-              -p:PublishSingleFile=true \
-              -o publish/osx-arm64
-          fi
+          bash scripts/build-macos-app.sh
+          bash scripts/build-macos-dmg.sh
           mkdir -p artifacts
-          (cd publish && zip -r "../artifacts/hyperion-osx-arm64-${GITHUB_REF_NAME}.app.zip" osx-arm64)
+
+          # ZIP each .app bundle. `zip -y` preserves symlinks; .app bundles
+          # don't currently contain any but this keeps us future-proof if a
+          # later signing pass introduces Frameworks/ with symlinked versions.
+          for arch in x86_64 arm64; do
+            app_dir="publish/HyperionMinecraftLauncher-${arch}.app"
+            if [ -d "${app_dir}" ]; then
+              (cd publish && zip -ry \
+                "../artifacts/hyperion-macos-${arch}-${GITHUB_REF_NAME}.app.zip" \
+                "HyperionMinecraftLauncher-${arch}.app")
+            else
+              echo "::warning::Expected ${app_dir} from build-macos-app.sh, but it was not produced."
+            fi
+          done
+
+          # .dmg files are already UDZO-compressed - copy as-is. The DMG
+          # filenames include the version (build-macos-dmg.sh:38) so the
+          # GITHUB_REF_NAME tag is implicit in the name.
+          shopt -s nullglob
+          for dmg in publish/HyperionMinecraftLauncher-*-x86_64.dmg publish/HyperionMinecraftLauncher-*-arm64.dmg; do
+            cp "${dmg}" artifacts/
+          done
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
