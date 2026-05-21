@@ -73,6 +73,8 @@
   <data name="Home.RefreshManifestButton" xml:space="preserve"><value>Atualizar manifesto</value></data>
   <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>Nome de usuário offline:</value></data>
   <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
+  <data name="Home.TestModeBadge" xml:space="preserve"><value>MODO TESTE</value></data>
+  <data name="Home.TestModeBadge.Tooltip" xml:space="preserve"><value>Modo force-offline ativado (Configurações → Preferências do launcher). O próximo Play vai iniciar com sessão offline, mesmo se houver uma conta Microsoft em cache.</value></data>
   <data name="Home.ResumeWorldButton" xml:space="preserve"><value>Retomar mundo...</value></data>
   <data name="Home.ResumeWorldTooltip" xml:space="preserve"><value>Quick Play: escolha um mundo em .minecraft/saves/ e abra direto.</value></data>
   <data name="Home.LaunchButton" xml:space="preserve"><value>Iniciar</value></data>
@@ -203,6 +205,8 @@
   <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>Manter o launcher aberto depois que o jogo iniciar</value></data>
   <data name="Settings.ShowGameLog" xml:space="preserve"><value>Mostrar stdout / stderr do jogo no log do launcher</value></data>
   <data name="Settings.ShowGameLogTooltip" xml:space="preserve"><value>Transmitir stdout / stderr do Minecraft para o log do launcher.</value></data>
+  <data name="Settings.ForceOfflineMode" xml:space="preserve"><value>Forçar modo offline (testes)</value></data>
+  <data name="Settings.ForceOfflineMode.Tooltip" xml:space="preserve"><value>Ignora a sessão Microsoft em cache e roteia cada Play por AuthMode.Offline. Útil para testar o pipeline de download, instalação e launch. O cache Microsoft não é limpo; desligue para voltar aos launches online normais.</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>Backups</value></data>
   <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>Fazer backup automático dos mundos antes de cada início</value></data>
   <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>Manter os N mais recentes por mundo (0 = manter todos):</value></data>

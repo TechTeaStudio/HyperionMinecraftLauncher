@@ -73,6 +73,8 @@
   <data name="Home.RefreshManifestButton" xml:space="preserve"><value>刷新清单</value></data>
   <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>离线用户名：</value></data>
   <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
+  <data name="Home.TestModeBadge" xml:space="preserve"><value>测试模式</value></data>
+  <data name="Home.TestModeBadge.Tooltip" xml:space="preserve"><value>已开启强制离线模式（设置 → 启动器偏好设置）。无论缓存中是否存在 Microsoft 账户，下一次 Play 都将以离线会话启动。</value></data>
   <data name="Home.ResumeWorldButton" xml:space="preserve"><value>继续游戏世界...</value></data>
   <data name="Home.ResumeWorldTooltip" xml:space="preserve"><value>快速启动：从 .minecraft/saves/ 中选择一个世界并直接打开。</value></data>
   <data name="Home.LaunchButton" xml:space="preserve"><value>启动</value></data>
@@ -203,6 +205,8 @@
   <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>游戏启动后保持启动器打开</value></data>
   <data name="Settings.ShowGameLog" xml:space="preserve"><value>在启动器日志中显示游戏的 stdout / stderr</value></data>
   <data name="Settings.ShowGameLogTooltip" xml:space="preserve"><value>将 Minecraft 的 stdout / stderr 流式输出到启动器内日志。</value></data>
+  <data name="Settings.ForceOfflineMode" xml:space="preserve"><value>强制离线模式（测试用）</value></data>
+  <data name="Settings.ForceOfflineMode.Tooltip" xml:space="preserve"><value>跳过缓存中的 Microsoft 会话，将每次 Play 都通过 AuthMode.Offline 启动。便于测试下载、安装、启动整条流水线。不会清除 Microsoft 缓存；关闭即可恢复正常的在线启动。</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>备份</value></data>
   <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>每次启动前自动备份世界</value></data>
   <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>每个世界保留最新 N 份（0 = 全部保留）：</value></data>

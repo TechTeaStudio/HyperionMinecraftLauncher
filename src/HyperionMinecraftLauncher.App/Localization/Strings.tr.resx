@@ -73,6 +73,8 @@
   <data name="Home.RefreshManifestButton" xml:space="preserve"><value>Manifesti yenile</value></data>
   <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>Çevrimdışı kullanıcı adı:</value></data>
   <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
+  <data name="Home.TestModeBadge" xml:space="preserve"><value>TEST MODU</value></data>
+  <data name="Home.TestModeBadge.Tooltip" xml:space="preserve"><value>Force-offline modu açık (Ayarlar → Launcher tercihleri). Bir sonraki Play, önbellekteki Microsoft hesabı ne olursa olsun offline oturumla başlar.</value></data>
   <data name="Home.ResumeWorldButton" xml:space="preserve"><value>Dünyaya devam et...</value></data>
   <data name="Home.ResumeWorldTooltip" xml:space="preserve"><value>Quick Play: .minecraft/saves/ altındaki bir dünyayı seç ve doğrudan aç.</value></data>
   <data name="Home.LaunchButton" xml:space="preserve"><value>Başlat</value></data>
@@ -185,6 +187,8 @@
   <data name="Settings.LauncherPrefsHeader" xml:space="preserve"><value>Launcher tercihleri</value></data>
   <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>Oyun başladıktan sonra launcher'ı açık tut</value></data>
   <data name="Settings.ShowGameLog" xml:space="preserve"><value>Oyunun stdout / stderr çıktısını launcher kayıtlarında göster (planlandı)</value></data>
+  <data name="Settings.ForceOfflineMode" xml:space="preserve"><value>Offline modu zorla (test)</value></data>
+  <data name="Settings.ForceOfflineMode.Tooltip" xml:space="preserve"><value>Önbellekteki Microsoft oturumunu atlar ve her Play çağrısını AuthMode.Offline üzerinden yönlendirir. İndirme, kurulum ve başlatma boru hattını test etmek için kullanışlıdır. Microsoft önbelleği temizlenmez; normal çevrimiçi başlatmalara dönmek için kapat.</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>Yedekler</value></data>
   <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>Her başlatmadan önce dünyaları otomatik yedekle</value></data>
   <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>Dünya başına en son N tanesini sakla (0 = hepsini sakla):</value></data>

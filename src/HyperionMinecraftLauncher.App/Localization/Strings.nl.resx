@@ -73,6 +73,8 @@
   <data name="Home.RefreshManifestButton" xml:space="preserve"><value>Manifest vernieuwen</value></data>
   <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>Offline-gebruikersnaam:</value></data>
   <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
+  <data name="Home.TestModeBadge" xml:space="preserve"><value>TESTMODUS</value></data>
+  <data name="Home.TestModeBadge.Tooltip" xml:space="preserve"><value>Force-offline-modus staat aan (Instellingen → Launcher-voorkeuren). De volgende Play start met een offline-sessie, ongeacht een gecachet Microsoft-account.</value></data>
   <data name="Home.ResumeWorldButton" xml:space="preserve"><value>Wereld hervatten...</value></data>
   <data name="Home.ResumeWorldTooltip" xml:space="preserve"><value>Quick Play: kies een wereld in .minecraft/saves/ en open hem direct.</value></data>
   <data name="Home.LaunchButton" xml:space="preserve"><value>Starten</value></data>
@@ -185,6 +187,8 @@
   <data name="Settings.LauncherPrefsHeader" xml:space="preserve"><value>Launcher-voorkeuren</value></data>
   <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>Launcher open houden nadat het spel start</value></data>
   <data name="Settings.ShowGameLog" xml:space="preserve"><value>Spelstdout / stderr tonen in launcher-log (gepland)</value></data>
+  <data name="Settings.ForceOfflineMode" xml:space="preserve"><value>Offline-modus forceren (tests)</value></data>
+  <data name="Settings.ForceOfflineMode.Tooltip" xml:space="preserve"><value>Negeert de gecachete Microsoft-sessie en stuurt elke Play via AuthMode.Offline. Handig om de download-, installatie- en startpipeline te testen. De Microsoft-cache wordt niet gewist; zet uit voor normale online-starts.</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>Back-ups</value></data>
   <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>Werelden automatisch back-uppen vóór elke start</value></data>
   <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>Laatste N per wereld bewaren (0 = alles bewaren):</value></data>

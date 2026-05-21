@@ -73,6 +73,8 @@
   <data name="Home.RefreshManifestButton" xml:space="preserve"><value>매니페스트 새로 고침</value></data>
   <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>오프라인 사용자 이름:</value></data>
   <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
+  <data name="Home.TestModeBadge" xml:space="preserve"><value>테스트 모드</value></data>
+  <data name="Home.TestModeBadge.Tooltip" xml:space="preserve"><value>강제 오프라인 모드가 켜져 있습니다 (설정 → 런처 환경설정). 캐시된 Microsoft 계정이 있어도 다음 Play는 오프라인 세션으로 시작됩니다.</value></data>
   <data name="Home.ResumeWorldButton" xml:space="preserve"><value>월드 이어하기...</value></data>
   <data name="Home.ResumeWorldTooltip" xml:space="preserve"><value>Quick Play: .minecraft/saves/ 안의 월드를 선택하면 바로 엽니다.</value></data>
   <data name="Home.LaunchButton" xml:space="preserve"><value>실행</value></data>
@@ -185,6 +187,8 @@
   <data name="Settings.LauncherPrefsHeader" xml:space="preserve"><value>런처 환경설정</value></data>
   <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>게임 시작 후에도 런처 유지</value></data>
   <data name="Settings.ShowGameLog" xml:space="preserve"><value>게임 stdout / stderr를 런처 로그에 표시 (예정)</value></data>
+  <data name="Settings.ForceOfflineMode" xml:space="preserve"><value>오프라인 모드 강제 (테스트용)</value></data>
+  <data name="Settings.ForceOfflineMode.Tooltip" xml:space="preserve"><value>캐시된 Microsoft 세션을 건너뛰고 모든 Play를 AuthMode.Offline으로 라우팅합니다. 다운로드 / 설치 / 실행 파이프라인을 테스트할 때 유용합니다. Microsoft 캐시는 지워지지 않으며, 끄면 일반 온라인 실행으로 돌아갑니다.</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>백업</value></data>
   <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>매번 실행 전에 월드 자동 백업</value></data>
   <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>월드당 최신 N개 유지 (0 = 모두 유지):</value></data>

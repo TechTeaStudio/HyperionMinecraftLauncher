@@ -73,6 +73,8 @@
   <data name="Home.RefreshManifestButton" xml:space="preserve"><value>Manifest aktualisieren</value></data>
   <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>Offline-Benutzername:</value></data>
   <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
+  <data name="Home.TestModeBadge" xml:space="preserve"><value>TESTMODUS</value></data>
+  <data name="Home.TestModeBadge.Tooltip" xml:space="preserve"><value>Force-Offline-Modus ist aktiv (Einstellungen → Launcher-Einstellungen). Der nächste Play startet mit einer Offline-Sitzung, unabhängig von gecachten Microsoft-Konten.</value></data>
   <data name="Home.ResumeWorldButton" xml:space="preserve"><value>Welt fortsetzen...</value></data>
   <data name="Home.ResumeWorldTooltip" xml:space="preserve"><value>Quick Play: wähle eine Welt unter .minecraft/saves/ und öffne sie direkt.</value></data>
   <data name="Home.LaunchButton" xml:space="preserve"><value>Starten</value></data>
@@ -203,6 +205,8 @@
   <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>Launcher nach Spielstart geöffnet lassen</value></data>
   <data name="Settings.ShowGameLog" xml:space="preserve"><value>Spiel-stdout / stderr im Launcher-Protokoll anzeigen</value></data>
   <data name="Settings.ShowGameLogTooltip" xml:space="preserve"><value>stdout / stderr von Minecraft in das Launcher-Protokoll streamen.</value></data>
+  <data name="Settings.ForceOfflineMode" xml:space="preserve"><value>Offline-Modus erzwingen (Tests)</value></data>
+  <data name="Settings.ForceOfflineMode.Tooltip" xml:space="preserve"><value>Umgeht die gecachte Microsoft-Sitzung und leitet jeden Play über AuthMode.Offline. Praktisch zum Testen der Download-, Installations- und Startpipeline. Der Microsoft-Cache wird nicht geleert; abschalten, um zu normalen Online-Starts zurückzukehren.</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>Sicherungen</value></data>
   <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>Welten vor jedem Start automatisch sichern</value></data>
   <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>Neueste N pro Welt behalten (0 = alle behalten):</value></data>

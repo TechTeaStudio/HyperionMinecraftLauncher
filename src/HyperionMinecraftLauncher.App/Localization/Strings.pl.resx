@@ -73,6 +73,8 @@
   <data name="Home.RefreshManifestButton" xml:space="preserve"><value>Odśwież manifest</value></data>
   <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>Nick offline:</value></data>
   <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
+  <data name="Home.TestModeBadge" xml:space="preserve"><value>TRYB TESTOWY</value></data>
+  <data name="Home.TestModeBadge.Tooltip" xml:space="preserve"><value>Tryb force-offline jest włączony (Ustawienia → Preferencje launchera). Następny Play wystartuje z sesją offline niezależnie od zapisanego konta Microsoft.</value></data>
   <data name="Home.ResumeWorldButton" xml:space="preserve"><value>Wznów świat...</value></data>
   <data name="Home.ResumeWorldTooltip" xml:space="preserve"><value>Quick Play: wybierz świat z .minecraft/saves/ i otwórz go od razu.</value></data>
   <data name="Home.LaunchButton" xml:space="preserve"><value>Uruchom</value></data>
@@ -185,6 +187,8 @@
   <data name="Settings.LauncherPrefsHeader" xml:space="preserve"><value>Preferencje launchera</value></data>
   <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>Trzymaj launcher otwarty po uruchomieniu gry</value></data>
   <data name="Settings.ShowGameLog" xml:space="preserve"><value>Pokazuj stdout / stderr gry w logu launchera (planowane)</value></data>
+  <data name="Settings.ForceOfflineMode" xml:space="preserve"><value>Wymuś tryb offline (testy)</value></data>
+  <data name="Settings.ForceOfflineMode.Tooltip" xml:space="preserve"><value>Pomija zapisaną sesję Microsoft i kieruje każdy Play przez AuthMode.Offline. Przydatne do testowania pipeline'u pobierania, instalacji i uruchamiania. Cache Microsoft nie jest czyszczony; wyłącz opcję, żeby wrócić do normalnych uruchomień online.</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>Backupy</value></data>
   <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>Automatycznie backupuj światy przed każdym uruchomieniem</value></data>
   <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>Zachowaj ostatnich N na świat (0 = zachowaj wszystkie):</value></data>

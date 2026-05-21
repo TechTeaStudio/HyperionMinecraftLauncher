@@ -73,6 +73,8 @@
   <data name="Home.RefreshManifestButton" xml:space="preserve"><value>Оновити маніфест</value></data>
   <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>Офлайн-нік:</value></data>
   <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
+  <data name="Home.TestModeBadge" xml:space="preserve"><value>ТЕСТ-РЕЖИМ</value></data>
+  <data name="Home.TestModeBadge.Tooltip" xml:space="preserve"><value>Увімкнено force-offline режим (Налаштування → Налаштування лаунчера). Наступний Play стартує з offline-сесією, навіть якщо є кешований акаунт Microsoft.</value></data>
   <data name="Home.ResumeWorldButton" xml:space="preserve"><value>Продовжити світ...</value></data>
   <data name="Home.ResumeWorldTooltip" xml:space="preserve"><value>Quick Play: вибери світ із .minecraft/saves/ і одразу відкрий його.</value></data>
   <data name="Home.LaunchButton" xml:space="preserve"><value>Запустити</value></data>
@@ -185,6 +187,8 @@
   <data name="Settings.LauncherPrefsHeader" xml:space="preserve"><value>Налаштування лаунчера</value></data>
   <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>Тримати лаунчер відкритим після запуску гри</value></data>
   <data name="Settings.ShowGameLog" xml:space="preserve"><value>Показувати stdout / stderr гри в журналі лаунчера (заплановано)</value></data>
+  <data name="Settings.ForceOfflineMode" xml:space="preserve"><value>Форсувати offline-режим (для тестів)</value></data>
+  <data name="Settings.ForceOfflineMode.Tooltip" xml:space="preserve"><value>Ігнорувати кешовану сесію Microsoft і запускати кожен Play через AuthMode.Offline. Зручно для тестування завантаження та встановлення версій. Кеш Microsoft не очищається, зніми галку, і звичайний онлайн-запуск повернеться.</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>Бекапи</value></data>
   <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>Автоматично бекапити світи перед кожним запуском</value></data>
   <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>Зберігати останніх N на світ (0 = зберігати всі):</value></data>

@@ -71,6 +71,8 @@
   <data name="Home.RefreshManifestButton" xml:space="preserve"><value>Actualiser le manifeste</value></data>
   <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>Pseudo hors ligne :</value></data>
   <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
+  <data name="Home.TestModeBadge" xml:space="preserve"><value>MODE TEST</value></data>
+  <data name="Home.TestModeBadge.Tooltip" xml:space="preserve"><value>Le mode force-offline est activé (Paramètres → Préférences du lanceur). Le prochain Play démarrera avec une session offline, peu importe le compte Microsoft mis en cache.</value></data>
   <data name="Home.ResumeWorldButton" xml:space="preserve"><value>Reprendre un monde...</value></data>
   <data name="Home.ResumeWorldTooltip" xml:space="preserve"><value>Quick Play : choisis un monde sous .minecraft/saves/ et ouvre-le directement.</value></data>
   <data name="Home.LaunchButton" xml:space="preserve"><value>Lancer</value></data>
@@ -201,6 +203,8 @@
   <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>Garder le lanceur ouvert après le démarrage du jeu</value></data>
   <data name="Settings.ShowGameLog" xml:space="preserve"><value>Afficher stdout / stderr du jeu dans le journal du lanceur</value></data>
   <data name="Settings.ShowGameLogTooltip" xml:space="preserve"><value>Diffuser stdout / stderr de Minecraft dans le journal du lanceur.</value></data>
+  <data name="Settings.ForceOfflineMode" xml:space="preserve"><value>Forcer le mode hors ligne (tests)</value></data>
+  <data name="Settings.ForceOfflineMode.Tooltip" xml:space="preserve"><value>Ignore la session Microsoft mise en cache et fait passer chaque Play par AuthMode.Offline. Pratique pour tester le pipeline de téléchargement, d'installation et de lancement. Le cache Microsoft n'est pas vidé ; décoche pour revenir aux lancements en ligne classiques.</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>Sauvegardes</value></data>
   <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>Sauvegarder automatiquement les mondes avant chaque lancement</value></data>
   <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>Garder les N dernières par monde (0 = tout garder) :</value></data>

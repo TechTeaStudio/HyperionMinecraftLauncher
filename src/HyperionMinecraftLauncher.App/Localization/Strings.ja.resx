@@ -70,6 +70,8 @@
   <data name="Home.RefreshManifestButton" xml:space="preserve"><value>マニフェストを更新</value></data>
   <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>オフラインユーザー名:</value></data>
   <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
+  <data name="Home.TestModeBadge" xml:space="preserve"><value>テストモード</value></data>
+  <data name="Home.TestModeBadge.Tooltip" xml:space="preserve"><value>強制オフラインモードが有効です (設定 → ランチャーの環境設定)。Microsoft アカウントがキャッシュされていても、次の Play はオフラインセッションで開始されます。</value></data>
   <data name="Home.ResumeWorldButton" xml:space="preserve"><value>ワールドを再開...</value></data>
   <data name="Home.ResumeWorldTooltip" xml:space="preserve"><value>Quick Play: .minecraft/saves/ 配下のワールドを選んで直接開きます。</value></data>
   <data name="Home.LaunchButton" xml:space="preserve"><value>起動</value></data>
@@ -200,6 +202,8 @@
   <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>ゲーム開始後もランチャーを開いたままにする</value></data>
   <data name="Settings.ShowGameLog" xml:space="preserve"><value>ゲームの stdout / stderr をランチャーのログに表示する</value></data>
   <data name="Settings.ShowGameLogTooltip" xml:space="preserve"><value>Minecraft の stdout / stderr をランチャー内のログに流します。</value></data>
+  <data name="Settings.ForceOfflineMode" xml:space="preserve"><value>オフラインモードを強制 (テスト用)</value></data>
+  <data name="Settings.ForceOfflineMode.Tooltip" xml:space="preserve"><value>キャッシュされた Microsoft セッションを無視して、すべての Play を AuthMode.Offline 経由で起動します。ダウンロード／インストール／起動のパイプラインをテストするのに便利です。Microsoft キャッシュは消去されません。オフにすれば通常のオンライン起動に戻ります。</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>バックアップ</value></data>
   <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>起動前に各ワールドを自動バックアップする</value></data>
   <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>ワールドごとに保持する最新 N 件 (0 = すべて保持):</value></data>
