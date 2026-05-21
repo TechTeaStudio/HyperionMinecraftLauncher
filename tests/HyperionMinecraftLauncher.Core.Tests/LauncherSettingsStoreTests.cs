@@ -39,6 +39,9 @@ public class LauncherSettingsStoreTests : IDisposable
         Assert.Equal(string.Empty, s.JvmArguments);
         Assert.True(s.AutoBackupBeforeLaunch);
         Assert.Equal(5, s.AutoBackupKeepLatest);
+        // ForceOfflineMode is a dev/QA flag - it must default OFF so a stock launcher
+        // never accidentally bypasses Microsoft auth.
+        Assert.False(s.ForceOfflineMode);
     }
 
     [Fact]
@@ -57,12 +60,30 @@ public class LauncherSettingsStoreTests : IDisposable
             SidebarCollapsed = true,
             AutoBackupBeforeLaunch = false,
             AutoBackupKeepLatest = 12,
+            ForceOfflineMode = true,
         };
         await store.SaveAsync(original, CancellationToken.None);
 
         var loaded = await store.LoadAsync(CancellationToken.None);
         Assert.Equal(original, loaded);
         Assert.True(File.Exists(_path));
+    }
+
+    [Fact]
+    public async Task SaveAsync_ThenLoadAsync_RoundTripsForceOfflineModeBothStates()
+    {
+        // Dedicated round-trip for the dev-flag because it has no UI surface in older builds:
+        // catching a regression where the JSON property is renamed / dropped is easier with
+        // a focused assert than picking it out of the omnibus test above.
+        var store = new FileLauncherSettingsStore(_path);
+
+        await store.SaveAsync(new LauncherSettings { ForceOfflineMode = true }, CancellationToken.None);
+        var loadedOn = await store.LoadAsync(CancellationToken.None);
+        Assert.True(loadedOn.ForceOfflineMode);
+
+        await store.SaveAsync(new LauncherSettings { ForceOfflineMode = false }, CancellationToken.None);
+        var loadedOff = await store.LoadAsync(CancellationToken.None);
+        Assert.False(loadedOff.ForceOfflineMode);
     }
 
     [Fact]

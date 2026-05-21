@@ -81,6 +81,8 @@ public static class Strings
     public static string Home_RefreshManifestButton => L("Home.RefreshManifestButton");
     public static string Home_OfflineUsernameLabel => L("Home.OfflineUsernameLabel");
     public static string Home_OfflineUsernameWatermark => L("Home.OfflineUsernameWatermark");
+    public static string Home_TestModeBadge => L("Home.TestModeBadge");
+    public static string Home_TestModeBadge_Tooltip => L("Home.TestModeBadge.Tooltip");
     public static string Home_ResumeWorldButton => L("Home.ResumeWorldButton");
     public static string Home_ResumeWorldTooltip => L("Home.ResumeWorldTooltip");
     public static string Home_LaunchButton => L("Home.LaunchButton");
@@ -227,6 +229,8 @@ public static class Strings
     public static string Settings_KeepLauncherOpen => L("Settings.KeepLauncherOpen");
     public static string Settings_ShowGameLog => L("Settings.ShowGameLog");
     public static string Settings_ShowGameLogTooltip => L("Settings.ShowGameLogTooltip");
+    public static string Settings_ForceOfflineMode => L("Settings.ForceOfflineMode");
+    public static string Settings_ForceOfflineMode_Tooltip => L("Settings.ForceOfflineMode.Tooltip");
     public static string Settings_BackupsHeader => L("Settings.BackupsHeader");
     public static string Settings_AutoBackupCheckbox => L("Settings.AutoBackupCheckbox");
     public static string Settings_KeepLatestNLabel => L("Settings.KeepLatestNLabel");

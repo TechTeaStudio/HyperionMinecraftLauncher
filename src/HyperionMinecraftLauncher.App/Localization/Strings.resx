@@ -73,6 +73,8 @@
   <data name="Home.RefreshManifestButton" xml:space="preserve"><value>Refresh manifest</value></data>
   <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>Offline username:</value></data>
   <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
+  <data name="Home.TestModeBadge" xml:space="preserve"><value>TEST MODE</value></data>
+  <data name="Home.TestModeBadge.Tooltip" xml:space="preserve"><value>Force-offline mode is on (Settings -> Launcher preferences). The next Play will start with an offline session regardless of any cached Microsoft account.</value></data>
   <data name="Home.ResumeWorldButton" xml:space="preserve"><value>Resume world...</value></data>
   <data name="Home.ResumeWorldTooltip" xml:space="preserve"><value>Quick Play: pick a world under .minecraft/saves/ and open it directly.</value></data>
   <data name="Home.LaunchButton" xml:space="preserve"><value>Launch</value></data>
@@ -217,6 +219,8 @@
   <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>Keep launcher open after the game starts</value></data>
   <data name="Settings.ShowGameLog" xml:space="preserve"><value>Show game stdout / stderr in the launcher log</value></data>
   <data name="Settings.ShowGameLogTooltip" xml:space="preserve"><value>Stream Minecraft's stdout / stderr into the in-launcher log.</value></data>
+  <data name="Settings.ForceOfflineMode" xml:space="preserve"><value>Force offline mode (testing)</value></data>
+  <data name="Settings.ForceOfflineMode.Tooltip" xml:space="preserve"><value>Bypass the cached Microsoft session and route every Play through AuthMode.Offline. Useful for testing the download / install / launch pipeline. The Microsoft cache is not cleared - flip off to restore normal online launches.</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>Backups</value></data>
   <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>Auto-backup worlds before each launch</value></data>
   <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>Keep latest N per world (0 = keep all):</value></data>

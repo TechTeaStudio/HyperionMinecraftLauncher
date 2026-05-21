@@ -76,4 +76,19 @@ public sealed record LauncherSettings
     /// (the OS-configured display language). Defaults to <c>null</c> = "use system default".
     /// </summary>
     public string? Locale { get; init; }
+
+    /// <summary>
+    /// Developer / QA toggle: force the launcher into offline-session mode for every launch,
+    /// regardless of whether a Microsoft session is cached. When <c>true</c>:
+    /// <list type="bullet">
+    ///   <item><description>The Home page's Username textbox stays editable even when a Microsoft account is signed in.</description></item>
+    ///   <item><description><c>LaunchCoreAsync</c> bypasses the cached Microsoft session and runs <c>AuthMode.Offline</c>
+    ///     with the Username from the textbox, producing a CmlLib offline-session (accessToken=0, UUID derived from the name).</description></item>
+    ///   <item><description>A small "TEST MODE" badge appears next to the Username row so it's obvious the next Play
+    ///     will not produce a real-account session.</description></item>
+    /// </list>
+    /// Intended use: smoke-testing the download / install / launch pipeline without burning a Microsoft sign-in,
+    /// or repro'ing offline-only bugs. Default <c>false</c>; the Microsoft cache is never touched by this flag.
+    /// </summary>
+    public bool ForceOfflineMode { get; init; }
 }

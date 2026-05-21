@@ -480,19 +480,32 @@
         <!-- Username + Launch row -->
         <Border Grid.Row="3" Padding="10" Margin="0,0,0,8" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
-          <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto">
+          <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto">
             <Image Grid.Column="0" Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/steve_face.png"
                    Width="22" Height="22" Margin="0,0,10,0" VerticalAlignment="Center" />
             <TextBlock Grid.Column="1" Text="{x:Static loc:Strings.Home_OfflineUsernameLabel}" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0" />
             <TextBox Grid.Column="2" Text="{Binding Username, Mode=TwoWay}" Watermark="{x:Static loc:Strings.Home_OfflineUsernameWatermark}" FontSize="12"
                      IsEnabled="{Binding !IsSignedInOnline}" />
-            <Button Grid.Column="3"
+            <!-- TEST MODE badge: visible only while the ForceOfflineMode dev toggle is on, so the
+                 user is never surprised that the next Play used an offline session. Compact pill
+                 in the launcher's amber/yellow warning hue. -->
+            <Border Grid.Column="3"
+                    IsVisible="{Binding ForceOfflineMode}"
+                    Background="#33D4A53A" BorderBrush="#D4A53A" BorderThickness="1"
+                    CornerRadius="6" Padding="6,2" Margin="8,0,0,0"
+                    VerticalAlignment="Center"
+                    ToolTip.Tip="{x:Static loc:Strings.Home_TestModeBadge_Tooltip}">
+              <TextBlock Text="{x:Static loc:Strings.Home_TestModeBadge}"
+                         FontSize="10" FontWeight="SemiBold"
+                         Foreground="#7A5F12" />
+            </Border>
+            <Button Grid.Column="4"
                     Content="{x:Static loc:Strings.Home_ResumeWorldButton}"
                     Click="OnResumeWorldClicked"
                     FontSize="11"
                     Padding="10,5" Margin="8,0,0,0"
                     ToolTip.Tip="{x:Static loc:Strings.Home_ResumeWorldTooltip}" />
-            <Button Grid.Column="4"
+            <Button Grid.Column="5"
                     Content="{x:Static loc:Strings.Home_LaunchButton}"
                     Command="{Binding LaunchCommand}"
                     Classes="accent LaunchBtn"
@@ -1766,6 +1779,13 @@
                 <CheckBox IsChecked="{Binding ShowGameLog, Mode=TwoWay}" FontSize="11"
                           Content="{x:Static loc:Strings.Settings_ShowGameLog}"
                           ToolTip.Tip="{x:Static loc:Strings.Settings_ShowGameLogTooltip}" />
+                <!-- Dev / QA: force every Play to go through AuthMode.Offline regardless of
+                     whether a Microsoft session is cached. Useful for testing the install /
+                     download / launch pipeline without burning a sign-in. The Microsoft cache
+                     stays intact - flipping off restores normal online launches. -->
+                <CheckBox IsChecked="{Binding ForceOfflineMode, Mode=TwoWay}" FontSize="11"
+                          Content="{x:Static loc:Strings.Settings_ForceOfflineMode}"
+                          ToolTip.Tip="{x:Static loc:Strings.Settings_ForceOfflineMode_Tooltip}" />
               </StackPanel>
             </Border>
 

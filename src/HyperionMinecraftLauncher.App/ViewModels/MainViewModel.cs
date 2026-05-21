@@ -150,6 +150,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private string _javaExecutableOverride = string.Empty;
     private bool _keepLauncherOpen;
     private bool _showGameLog;
+    // Dev / QA flag persisted in LauncherSettings.ForceOfflineMode. When true,
+    // IsSignedInOnline reports false and LaunchCoreAsync routes through AuthMode.Offline
+    // even if a Microsoft session is cached. See ForceOfflineMode property + LaunchCoreAsync.
+    private bool _forceOfflineMode;
     private bool _sidebarCollapsed;
     private string _curseForgeApiKey = string.Empty;
     private readonly int _maxAllowedMemoryMb;
@@ -570,8 +574,13 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     // ---- Account ----
 
-    /// <summary>True when the user is signed in via Microsoft (not offline).</summary>
-    public bool IsSignedInOnline => _currentSession is { IsOffline: false };
+    /// <summary>
+    /// True when the user is signed in via Microsoft (not offline) AND the dev <see cref="ForceOfflineMode"/>
+    /// toggle is OFF. The Force-offline flag makes the launcher behave as if no online session existed - the
+    /// Username textbox stays editable and Play routes through <c>AuthMode.Offline</c> - without actually
+    /// signing the user out of Microsoft.
+    /// </summary>
+    public bool IsSignedInOnline => _currentSession is { IsOffline: false } && !_forceOfflineMode;
 
     /// <summary>True when there is any session (offline or Microsoft). Drives the account-chip label visibility.</summary>
     public bool HasSession => _currentSession is not null;
@@ -1003,6 +1012,40 @@ public sealed class MainViewModel : INotifyPropertyChanged
     }
 
     /// <summary>
+    /// Dev / QA toggle (persists into <c>LauncherSettings.ForceOfflineMode</c>). When ON, the
+    /// launcher behaves as if no Microsoft session existed:
+    /// <list type="bullet">
+    ///   <item><description>The Home page Username textbox stays editable.</description></item>
+    ///   <item><description><see cref="LaunchCoreAsync"/> routes through <c>AuthMode.Offline</c>
+    ///     using the typed Username, producing an offline CmlLib session (accessToken=0, deterministic UUID).</description></item>
+    ///   <item><description>A small "TEST MODE" badge appears next to the Username row.</description></item>
+    /// </list>
+    /// The Microsoft cache is NOT cleared - flipping the toggle off restores the normal online launch path.
+    /// Default <c>false</c>; flips <see cref="IsSignedInOnline"/> + raises all command CanExecute hooks the
+    /// online-vs-offline state feeds, so the UI rebinds consistently.
+    /// </summary>
+    public bool ForceOfflineMode
+    {
+        get => _forceOfflineMode;
+        set
+        {
+            if (SetField(ref _forceOfflineMode, value))
+            {
+                // IsSignedInOnline is computed from this flag, so anything that listens to it
+                // (Username textbox IsEnabled, skin commands, sign-in/out buttons) re-evaluates.
+                OnPropertyChanged(nameof(IsSignedInOnline));
+                SignInMicrosoftCommand.RaiseCanExecuteChanged();
+                SignOutCommand.RaiseCanExecuteChanged();
+                UploadSkinCommand.RaiseCanExecuteChanged();
+                SetActiveCapeCommand.RaiseCanExecuteChanged();
+                ClearActiveCapeCommand.RaiseCanExecuteChanged();
+                ReapplyHistoricSkinCommand.RaiseCanExecuteChanged();
+                ApplyBrowsedSkinCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    /// <summary>
     /// True when the left sidebar is collapsed to icons-only. Persists immediately through the
     /// settings store (fire-and-forget) so the next launch starts in the user's preferred mode.
     /// Setter also raises <see cref="SidebarWidth"/> so the bound Border width transitions.
@@ -1080,6 +1123,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _javaExecutableOverride = s.JavaExecutable ?? string.Empty;
         _keepLauncherOpen = s.KeepLauncherOpen;
         _showGameLog = s.ShowGameLog;
+        // Set the backing field directly (no setter) on initial load so we don't raise a property-changed
+        // storm during settings hydration. The Settings page CheckBox binds TwoWay and will flip the flag
+        // through the public setter when the user actually toggles it; that path raises everything.
+        _forceOfflineMode = s.ForceOfflineMode;
         _sidebarCollapsed = s.SidebarCollapsed;
         _autoUpdateCheckEnabled = s.AutoUpdateCheckEnabled;
         _autoBackupBeforeLaunch = s.AutoBackupBeforeLaunch;
@@ -1098,6 +1145,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         JavaExecutable = string.IsNullOrWhiteSpace(_javaExecutableOverride) ? null : _javaExecutableOverride,
         KeepLauncherOpen = _keepLauncherOpen,
         ShowGameLog = _showGameLog,
+        ForceOfflineMode = _forceOfflineMode,
         SidebarCollapsed = _sidebarCollapsed,
         AutoUpdateCheckEnabled = _autoUpdateCheckEnabled,
         AutoBackupBeforeLaunch = _autoBackupBeforeLaunch,
@@ -3377,14 +3425,19 @@ public sealed class MainViewModel : INotifyPropertyChanged
         try
         {
             AuthResult auth;
-            if (CurrentSession is { IsOffline: false } online)
+            // ForceOfflineMode (dev/QA flag in Settings) wins over the cached Microsoft session:
+            // when ON, every launch goes through AuthMode.Offline even if we have a valid online
+            // session sitting in CurrentSession. The Microsoft cache is left intact so flipping
+            // the toggle back off restores online launches without re-signing.
+            if (CurrentSession is { IsOffline: false } online && !_forceOfflineMode)
             {
                 auth = online;
                 Append($"Launching as '{auth.Username}' (Microsoft session).");
             }
             else
             {
-                Append($"Authenticating '{Username}' (offline mode) ...");
+                var label = _forceOfflineMode ? "offline mode (TEST MODE forced)" : "offline mode";
+                Append($"Authenticating '{Username}' ({label}) ...");
                 auth = await _service.AuthenticateAsync(
                     new AuthRequest { Mode = AuthMode.Offline, Username = Username },
                     CancellationToken.None);
