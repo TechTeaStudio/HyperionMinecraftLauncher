@@ -70,3 +70,7 @@ CLAUDE.md
 # Raw asset drops at repo root - we copy only what's needed into src/.../Assets/.
 /assets/
 /.icon/
+
+# Local release builds (scripts/build-release.ps1 destination). Same role as
+# `publish/` for the CI scripts but at repo root for convenience.
+/outputs/
