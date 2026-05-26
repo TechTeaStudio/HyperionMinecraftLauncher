@@ -3,6 +3,50 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.20] - 2026-05-26
+
+Cumulative release covering twenty iterations on top of v0.31.0's localization wave. Highlights: the skin browser is now pluggable (MineSkin v2 replaces the retired NameMC scraper), Force-offline developer mode lands with full localization, the macOS release pipeline ships real `.app` + `.dmg` bundles for both architectures, a one-click Windows build drops a single self-extracting `.exe` at the repo root, dependabot is muzzled into grouped monthly PRs with auto-merge, and Linux CI is green again after a SkiaSharp native-package pin. First GitHub Release.
+
+### Added
+
+- One-click Windows build: `build.cmd` at the repo root + `scripts/build-release.ps1`. Produces `HyperionMinecraftLauncher.exe` (~110 MB self-extracting single-file with `IncludeNativeLibrariesForSelfExtract=true`) plus `outputs/HyperionMinecraftLauncher-<ver>-win-x64.zip` byte-for-byte equivalent to the CI artefact.
+- Force-offline developer toggle in Settings (Launcher preferences). When ON, every Play routes through `AuthMode.Offline` regardless of any cached Microsoft session. Adds a TEST-MODE badge next to the Username row. Backed by `LauncherSettings.ForceOfflineMode` with JSON round-trip tests, localized into all 14 shipped locales.
+- MultiMC instance import: parses `instance.cfg` + `mmc-pack.json` from a MultiMC pack `.zip` or instance folder, materialises a Hyperion instance with the right loader pinned.
+- Skin browser pivoted from NameMC (Cloudflare-blocked scraper, now retired) to MineSkin v2 API. Pagination (Prev/Next), Enter-to-search, minifigure-card previews, subtle card backgrounds, dynamic panel.
+- Hybrid nickname-to-Mojang skin search: an exact-match query against a live player resolves via the Mojang profile API and is labelled as a live-player hit, not a community skin.
+- System-JDK probe preferred over Adoptium download: probes `JAVA_HOME` and `PATH` for a major-version match before falling back to the managed Temurin cache, saving the ~180 MB cold download when the user already has the right JRE.
+- macOS release pipeline ships real `.app` + `.dmg` for both osx-x64 and osx-arm64 via `scripts/build-macos-app.sh` + `scripts/build-macos-dmg.sh`. Bundles carry proper `Info.plist`, `AppIcon.icns` generated from the repo icon via `sips` + `iconutil`, and resx satellite assemblies under `Contents/Resources/Localization/`.
+- Dependabot auto-merge workflow (`.github/workflows/dependabot-auto-merge.yml`). Non-major dependabot PRs squash-merge via `gh pr merge --auto` once branch-protection status checks turn green. Major bumps still require manual review.
+
+### Changed
+
+- Account flyout binds to the real per-account skin head face (fetched + cached on first paint), replacing the universal Steve placeholder.
+- Skin viewer rotates the full body on drag (was head-only), with proper pitch/yaw accumulation. Back-view supported.
+- CurseForge errors are now friendly: 401, 403, 429 surface "Your CF API key is missing/wrong/rate-limited" instead of the raw `HttpRequestException`.
+- Edit instance dialog: height 760, scrollable, icon panel centered with WrapPanel. Previously clipped on smaller screens.
+- `MainViewModel.IsSignedInOnline` now also honors the Force-offline toggle, so the Username textbox unlocks and skin-write commands disable even when a Microsoft session is cached.
+- Dependabot tamed: six NuGet groups (Avalonia / Microsoft.Extensions / auth-stack / SkiaSharp / test-stack / other), `open-pull-requests-limit: 3` for NuGet and `1` for GitHub Actions, monthly schedule, ignore-list for cosmetic semver-minor/major bumps on the canonical `actions/*` stack. Security CVE bumps still flow unthrottled.
+- GitHub Actions bumped to `@v5` across both workflows (checkout, setup-dotnet, upload-artifact, download-artifact). Silences the Node.js 20 deprecation warning.
+- CLI mode logger switched from the legacy `FileLauncherLogger` to `SerilogLauncherLogger` (same CLEF-format JSON, same log directory). Removes the obsolete-API warning at `Program.cs:28`.
+- Release CI flatten step now includes `*.dmg` alongside `*.zip`, `*.AppImage`, `*.tar.gz`, so macOS installers actually reach the GitHub Releases page (previously they uploaded as workflow artefacts but were dropped at the release attach step).
+
+### Fixed
+
+- macOS release zip used to bundle a raw self-contained publish tree instead of a real `.app` bundle, so Finder refused to treat the artefact as an application. Now wraps each `.app` produced by `build-macos-app.sh` in a Gatekeeper-friendly ZIP, plus a `.dmg` with the standard drag-to-`/Applications` symlink.
+- Ubuntu CI was red because of a SkiaSharp version conflict: `SkiaSharp 3.119.2` (managed) vs `SkiaSharp.NativeAssets.Linux 2.88.9` (transitive via `MinecraftSkinRender` -> `Avalonia.Skia`). The 2.88.9 native was winning the deploy race for `runtimes/linux-x64/native/libSkiaSharp.so`. Pinned `SkiaSharp.NativeAssets.Linux 3.119.2` as a direct reference so it overrides the transitive 2.88.9. Added `LD_LIBRARY_PATH` to the Ubuntu test step as defence-in-depth against `dlopen` falling through to the system `/usr/lib/libSkiaSharp.so.88`.
+- `FileLauncherLoggerTests.DefaultLogDirectory_Resolve_EndsWithHyperionLogs` was hardcoded to the Windows tail `<App>\logs` and failed on Linux + macOS where the canonical layout is `~/Library/Logs/<App>` (macOS) and `~/.local/state/<App>` (Linux, XDG). Test now branches per-OS.
+- MineSkin v2 returned 400 on page sizes above the anonymous API ceiling. Now capped at 128.
+- Chromeless-window edge resize regressed when the brand icon was first wired in. Restored.
+- Skin-browser pagination panel collapsed on narrow viewports. Now stays visible and adapts.
+- 3D head defaulted to a 45-degree-rotated face rather than the canonical face-on view. Body cache also resets between skin loads so old textures stop bleeding through.
+- CurseForge API key validation test had an off-by-one key length.
+
+### Notes
+
+- 603 unit tests passing (was 602 at v0.31.0). CI green on Windows + macOS + Ubuntu.
+- `Tmds.DBus.Protocol 0.20.0` has a known high-severity advisory (`NU1903`); the vulnerable transitive comes from `Avalonia 11.2.3` and a fix is expected once Avalonia bumps. Not exploitable in the launcher's usage (no DBus IPC).
+- The `Strings.ShowGameLogTooltip` resx key is still missing from seven locales (`ja`, `ko`, `nl`, `pl`, `tr`, `uk`, `it`); they cascade to English. Tracked for a future localization pass.
+
 ## [0.31.0] - 2026-05-18
 
 Sixth wave of the v0.26 -> v0.31 parallel-agent sprint: full UI localization. The English source `Strings.resx` lives at `src/HyperionMinecraftLauncher.App/Localization/`; 7 translations ship alongside it for a total of 8 locales.
