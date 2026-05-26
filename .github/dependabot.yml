@@ -1,12 +1,121 @@
 version: 2
+
+# Tamed dependabot config. Background: the previous default-shape config opened one PR per
+# package per bump, which on a multi-package launcher (Avalonia + Material + CmlLib + SkiaSharp
+# + xunit + ...) saturated the PR list with cosmetic noise (each `actions/checkout vN -> vN+1`
+# being its own branch + its own CI burn). The config below cuts that to at most three
+# NuGet PRs and one GitHub-Actions PR open at any time, and groups related packages so a
+# single PR carries the whole family (one Avalonia bump = Avalonia + Avalonia.Diagnostics +
+# Avalonia.Themes.* + Avalonia.Native + ... all together).
+#
+# Security updates (CVE-bound) ALWAYS run regardless of these knobs - dependabot's security
+# pipeline ignores open-pull-requests-limit, schedule, and most ignore rules. So we keep CVE
+# coverage on Tmds.DBus.Protocol et al. without paying the "cosmetic update" tax.
+#
+# Branch-protection + the companion .github/workflows/dependabot-auto-merge.yml workflow
+# auto-merge dependabot PRs once CI is green - the standing PR list trends to zero on its own
+# without manual click-through.
 updates:
+  # NuGet: keep current with security; group families; cap to 3 open at a time.
   - package-ecosystem: nuget
     directory: "/"
-    schedule:
-      interval: weekly
     target-branch: product
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "deps(nuget)"
+    labels:
+      - "dependencies"
+      - "nuget"
+    groups:
+      # All Avalonia-family packages in one PR. Avalonia ships its core + Diagnostics +
+      # Themes + Native together; bumping them separately just leads to mismatched versions.
+      avalonia:
+        patterns:
+          - "Avalonia*"
+          - "Material.Avalonia*"
+          - "Material.Icons.Avalonia*"
+      # Microsoft.Extensions.* family: Configuration, DependencyInjection, Hosting, Http,
+      # Logging - same release cadence, treat as one unit.
+      microsoft-extensions:
+        patterns:
+          - "Microsoft.Extensions.*"
+      # Auth stack: CmlLib + XboxAuthNet move together (XboxAuthNet is CmlLib's dependency
+      # for Microsoft sign-in), bumping them in lock-step avoids dependency conflicts.
+      auth-stack:
+        patterns:
+          - "CmlLib*"
+          - "XboxAuthNet*"
+      # SkiaSharp managed wrapper + the per-RID native packages must stay in lock-step
+      # (a 3.119.x wrapper refuses to bind to a 3.118.x native and vice-versa). Without
+      # this group a SkiaSharp bump and the matching .NativeAssets.* bump would land in
+      # separate PRs and one would be merged while the other lags.
+      skiasharp:
+        patterns:
+          - "SkiaSharp*"
+      # Test framework: xunit + its runner + Microsoft.NET.Test.Sdk + coverlet. Moving
+      # together avoids xunit-discovery breakage from a stale runner.
+      test-stack:
+        patterns:
+          - "xunit*"
+          - "Microsoft.NET.Test.Sdk"
+          - "coverlet.*"
+      # Catch-all for everything else (Serilog, DiscordRichPresence, MinecraftSkinRender,
+      # etc.) - one rolling PR. Lower priority and explicitly excludes the families above
+      # so we don't double-group anything.
+      other-nuget:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "Avalonia*"
+          - "Material.Avalonia*"
+          - "Material.Icons.Avalonia*"
+          - "Microsoft.Extensions.*"
+          - "CmlLib*"
+          - "XboxAuthNet*"
+          - "SkiaSharp*"
+          - "xunit*"
+          - "Microsoft.NET.Test.Sdk"
+          - "coverlet.*"
+
+  # GitHub Actions: a single grouped PR a month, security-driven only. Major / minor bumps
+  # for the canonical actions are explicitly ignored because they're cosmetic (the underlying
+  # behaviour doesn't change between actions/checkout@v4 and @v5 for our use - the only thing
+  # that changed was the bundled Node.js runtime). Security-update PRs still flow normally.
   - package-ecosystem: github-actions
     directory: "/"
-    schedule:
-      interval: weekly
     target-branch: product
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 1
+    commit-message:
+      prefix: "deps(actions)"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    groups:
+      all-actions:
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: "actions/checkout"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+      - dependency-name: "actions/setup-dotnet"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+      - dependency-name: "actions/upload-artifact"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+      - dependency-name: "actions/download-artifact"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+      - dependency-name: "softprops/action-gh-release"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"

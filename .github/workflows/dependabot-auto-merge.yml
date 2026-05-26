@@ -1,0 +1,56 @@
+name: Dependabot auto-merge
+
+# Auto-merge dependabot PRs once required status checks pass. This is the companion to the
+# tamed .github/dependabot.yml: dependabot opens at most ~4 PRs total (3 NuGet groups + 1
+# grouped GH-Actions PR per month), CI runs against each, and if every required check turns
+# green this workflow squash-merges the PR so the standing PR list returns to zero without
+# any human click-through.
+#
+# Safety rails:
+#   * Only runs for PRs authored by the dependabot[bot] account (skips human PRs).
+#   * Uses `gh pr merge --auto` which DEFERS the merge until the configured branch-protection
+#     status checks are all green. If CI is red the PR sits open with the auto-merge flag set,
+#     never silently force-merging a failure.
+#   * Branch protection on `product` MUST require: "build (ubuntu-latest)",
+#     "build (windows-latest)", "build (macos-latest)" before merging. That's the gate.
+#     Configure once at: GitHub repo Settings -> Branches -> Branch protection rules ->
+#     `product` -> "Require status checks to pass before merging".
+#   * We don't auto-merge major-version bumps (filtered via the metadata action below). Major
+#     bumps still open a PR and CI runs, but the auto-merge step skips them - someone reviews
+#     manually.
+#
+# Permissions: dependabot itself runs on a restricted GITHUB_TOKEN; this workflow is what
+# actually carries write permission. `pull-requests: write` lets us approve + merge; `contents:
+# write` is the underlying merge-commit privilege.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    name: auto-merge dependabot PR
+    runs-on: ubuntu-latest
+    # Don't run on forks - dependabot can only run in the upstream repo, so a fork-side PR
+    # is a human, not the bot, and we must not silently merge it.
+    if: github.actor == 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      # Fetch dependabot's metadata (update-type, semver bracket, package name) so we can
+      # gate on it. `dependabot/fetch-metadata` exposes outputs we then condition on.
+      - name: Read dependabot metadata
+        id: meta
+        uses: dependabot/fetch-metadata@v2
+
+      # Squash-merge with --auto. The merge fires only after the branch-protection status
+      # checks turn green; until then the PR is "pending auto-merge" and waits.
+      # Skip on major-version bumps - those deserve a human read-through.
+      - name: Enable auto-merge for non-major bumps
+        if: steps.meta.outputs.update-type != 'version-update:semver-major'
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

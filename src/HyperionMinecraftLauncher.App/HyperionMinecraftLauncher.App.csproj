@@ -45,18 +45,34 @@
     <PackageReference Include="MinecraftSkinRender.Image" Version="1.2.0" />
     <PackageReference Include="SkiaSharp" Version="3.119.2" />
     <!--
-      SkiaSharp 3.x split native binaries off into per-RID packages: the main `SkiaSharp` package
-      now only carries the managed wrapper. On Windows the bundled `libSkiaSharp.dll` rides in via
-      `MinecraftSkinRender`, on macOS the Apple-built `libSkiaSharp.dylib` is in the .app bundle,
-      but Linux is on its own and would otherwise try to load a (typically older) system
-      `libSkiaSharp.so`. GitHub Actions ubuntu-latest images ship `libSkiaSharp 88.1` while we
-      require 119.x, so we explicitly pull the matching native via `SkiaSharp.NativeAssets.Linux`
-      to land a sibling `runtimes/linux-x64/native/libSkiaSharp.so` in the publish output and the
-      test-bin folder. `NoDependencies` keeps the binary fontconfig-free; we use SkiaSharp only
-      for offscreen PNG composition (skin-head extraction, minifigure body), not for text layout,
-      so the slimmer variant is enough.
+      SkiaSharp 3.x split native binaries off into per-RID packages. Our managed wrapper is
+      `SkiaSharp 3.119.2`, which refuses to bind to any libSkiaSharp.so outside the [119.0, 120.0)
+      range.
+
+      Two complications converge on Linux:
+      1. `MinecraftSkinRender 1.2.0 -> Avalonia.Skia 11.2.3 -> SkiaSharp 2.88.9` pulls a
+         TRANSITIVE `SkiaSharp.NativeAssets.Linux 2.88.9`, which deploys a 2.88.x
+         libSkiaSharp.so into `runtimes/linux-x64/native/`. That .so happens to outlast our
+         3.119.x bundle during build because NuGet treats `SkiaSharp.NativeAssets.Linux` and
+         `SkiaSharp.NativeAssets.Linux.NoDependencies` as DIFFERENT packageIds; they don't
+         unify, and the 2.88.9 file wins the deploy race.
+      2. GitHub Actions ubuntu-latest images also ship libSkiaSharp 88.x at the OS level under
+         /usr/lib, so even if the bundle is missing, dlopen finds the bad system one.
+
+      Fix: pin `SkiaSharp.NativeAssets.Linux` at 3.119.2 as a DIRECT reference. A direct
+      PackageReference always overrides a transitive one of the same ID, so the bundled
+      libSkiaSharp.so in `runtimes/linux-x64/native/` becomes the 119.x version we need.
+
+      We use the regular (non-`NoDependencies`) variant because Avalonia transitively wants
+      this exact packageId; staying on the same ID is what makes the override unambiguous.
+      The package's only "dependency" is libfontconfig at runtime, which the ubuntu-latest
+      image already provides.
+
+      Companion: .github/workflows/dotnet.yml sets LD_LIBRARY_PATH to our runtimes/linux-x64/
+      native folder on the Ubuntu test step so dlopen prefers our 119.x .so over /usr/lib's
+      88.x even when the .NET DllImport resolver short-circuits to system search.
     -->
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.2" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.119.2" />
     <PackageReference Include="XboxAuthNet.Game.Msal" Version="0.1.3" />
   </ItemGroup>
 
