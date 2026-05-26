@@ -22,7 +22,10 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 APP_NAME="HyperionMinecraftLauncher"
 APP_BINARY_NAME="HyperionMinecraftLauncher"
-APP_VERSION="0.28.0"
+# Single source of truth for the version: the repo-root VERSION file. Matches the same
+# pattern used by scripts/build-macos-app.sh and scripts/build-macos-dmg.sh - bump VERSION
+# once and every script + the .csproj <Version> pick it up.
+APP_VERSION="$(tr -d '[:space:]' < "${REPO_ROOT}/VERSION")"
 RUNTIME="linux-x64"
 
 PUBLISH_DIR="${REPO_ROOT}/publish/${RUNTIME}"
@@ -105,7 +108,13 @@ mkdir -p "${OUT_DIR}"
 
 if command -v appimagetool >/dev/null 2>&1; then
     echo ">> Packing AppDir with appimagetool..."
-    ARCH=x86_64 appimagetool "${APPDIR}" "${OUT_FILE}"
+    # `appimagetool` is itself shipped as an AppImage, which normally requires libfuse.so.2
+    # at runtime. Modern Ubuntu (24.04+) and GitHub Actions ubuntu-latest images no longer
+    # ship FUSE 2 by default - only FUSE 3 - so a naive `appimagetool ...` call dies with
+    # `dlopen(): error loading libfuse.so.2`. APPIMAGE_EXTRACT_AND_RUN=1 tells the AppImage
+    # runtime to self-extract into a tmp dir and exec from there, bypassing FUSE entirely.
+    # Slightly slower (one-time extract per invocation) but robust across every Linux host.
+    ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 appimagetool "${APPDIR}" "${OUT_FILE}"
     echo ">> Built ${OUT_FILE}"
 else
     cat <<EOF
