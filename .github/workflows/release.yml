@@ -173,11 +173,39 @@ jobs:
           find dist -type f \( -name '*.zip' -o -name '*.AppImage' -o -name '*.tar.gz' -o -name '*.dmg' \) -print -exec cp {} release-assets/ \;
           ls -la release-assets
 
+      # Pull only the current version's section out of CHANGELOG.md so the GitHub Release
+      # page shows the relevant block instead of the entire historical file. The awk pass
+      # captures from "## [<version>]" through (but not including) the next "## [" header.
+      # Falls back to a one-liner if the CHANGELOG has no matching section, so the workflow
+      # never produces an empty release body even if someone tags before writing changelog.
+      - name: Extract release notes for this tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#v}"
+          # awk's regex `\[` triggers warnings on some implementations because `[` is only
+          # special inside character classes. Use index() for a literal substring match at
+          # column 1 instead - no escaping, no warnings, identical semantics for our case.
+          awk -v ver="$VERSION" '
+            index($0, "## [" ver "]") == 1 { print; capture=1; next }
+            capture && index($0, "## [") == 1 { exit }
+            capture { print }
+          ' CHANGELOG.md > release_body.md
+          if [ ! -s release_body.md ]; then
+            printf "Release **%s**. See the project CHANGELOG for full history.\n" "$VERSION" > release_body.md
+          fi
+          echo "--- release_body.md preview ---"
+          head -40 release_body.md
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
-          body_path: CHANGELOG.md
+          # Curated section from CHANGELOG.md (hand-written Added / Changed / Fixed),
+          # plus GitHub's auto-generated "What's Changed" block (PR list since the
+          # previous tag + new contributors + diff link) appended below.
+          body_path: release_body.md
+          generate_release_notes: true
           files: release-assets/*
           fail_on_unmatched_files: false

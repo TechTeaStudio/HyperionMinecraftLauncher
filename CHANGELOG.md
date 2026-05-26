@@ -3,6 +3,21 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.22] - 2026-05-26
+
+### Changed
+
+- Release page body now contains only the current version's CHANGELOG section plus GitHub's auto-generated "What's Changed" block (PR list since the previous tag + new contributors + diff link), instead of the entire CHANGELOG.md verbatim. The `release.yml` workflow extracts the matching `## [version]` block via an awk pass and writes it to `release_body.md`, then passes `body_path: release_body.md` + `generate_release_notes: true` to `softprops/action-gh-release`. Past releases (v0.32.21 and earlier) still carry the dump; future tags pull only their own section.
+
+## [0.32.21] - 2026-05-26
+
+Hotfix on the Linux release pipeline.
+
+### Fixed
+
+- AppImage packaging step failed on Ubuntu 24.04 GitHub Actions runners with `dlopen(): error loading libfuse.so.2`. `appimagetool` is itself shipped as an AppImage, and modern Ubuntu runner images no longer carry FUSE 2 by default. Now invoked with `APPIMAGE_EXTRACT_AND_RUN=1`, which makes the AppImage runtime self-extract to a tmp dir and exec from there, bypassing FUSE entirely. Slightly slower per invocation, robust across every Linux host.
+- `scripts/build-appimage.sh` hardcoded `APP_VERSION="0.28.0"` (stale since v0.29). Now reads from the repo-root `VERSION` file, matching the pattern already used by `build-macos-app.sh` and `build-macos-dmg.sh`.
+
 ## [0.32.20] - 2026-05-26
 
 Cumulative release covering twenty iterations on top of v0.31.0's localization wave. Highlights: the skin browser is now pluggable (MineSkin v2 replaces the retired NameMC scraper), Force-offline developer mode lands with full localization, the macOS release pipeline ships real `.app` + `.dmg` bundles for both architectures, a one-click Windows build drops a single self-extracting `.exe` at the repo root, dependabot is muzzled into grouped monthly PRs with auto-merge, and Linux CI is green again after a SkiaSharp native-package pin. First GitHub Release.
