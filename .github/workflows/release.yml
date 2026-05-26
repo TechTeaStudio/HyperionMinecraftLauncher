@@ -75,7 +75,13 @@ jobs:
             tar -C publish -czf "artifacts/hyperion-linux-x64-${GITHUB_REF_NAME}.AppDir.tar.gz" HyperionMinecraftLauncher.AppDir
           fi
 
-      # Windows: self-contained single-file publish then zip.
+      # Windows: self-contained single-file publish then zip. The
+      # IncludeNativeLibrariesForSelfExtract flag bundles Avalonia's native sidecars
+      # (libSkiaSharp, libHarfBuzzSharp, av_libglesv2, ...) INSIDE the single .exe
+      # so the resulting zip is one file: HyperionMinecraftLauncher.exe. First launch
+      # self-extracts the natives to %TEMP%\.net\<app>\<hash>\ and caches them there.
+      # Matches the local scripts/build-release.ps1 flags so the CI artefact and the
+      # `build.cmd` developer output are the same shape.
       - name: Package (Windows zip)
         if: matrix.os == 'windows-latest'
         shell: pwsh
@@ -85,6 +91,7 @@ jobs:
             -c Release `
             --self-contained `
             -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
             -o publish/win-x64
           New-Item -ItemType Directory -Force artifacts | Out-Null
           $zip = "artifacts/hyperion-win-x64-$env:GITHUB_REF_NAME.zip"
@@ -158,7 +165,12 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p release-assets
-          find dist -type f \( -name '*.zip' -o -name '*.AppImage' -o -name '*.tar.gz' \) -print -exec cp {} release-assets/ \;
+          # Pick up every shippable archive format: Windows .zip, Linux .AppImage,
+          # macOS .app.zip + .dmg (added in v0.32.12), and the rare AppDir tarball
+          # fallback. The find glob omitting *.dmg would silently drop macOS
+          # installers from the GitHub Release page even though they're uploaded
+          # as workflow artefacts.
+          find dist -type f \( -name '*.zip' -o -name '*.AppImage' -o -name '*.tar.gz' -o -name '*.dmg' \) -print -exec cp {} release-assets/ \;
           ls -la release-assets
 
       - name: Create GitHub Release

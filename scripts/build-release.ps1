@@ -81,28 +81,54 @@ foreach ($rid in $Rids) {
     Write-Host ">> Publishing $rid -> $outDir"
     Write-Host "================================================================"
 
-    # --self-contained -p:PublishSingleFile=true matches the CI Windows step in
-    # release.yml line 78-91. Other RIDs are cross-compiled with the same flags
-    # so what falls out is the same shape the matching CI runner would produce
-    # before its OS-specific packaging step.
+    # --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+    # matches the CI Windows step in release.yml. The IncludeNativeLibrariesForSelfExtract
+    # flag bundles Avalonia's native sidecars (av_libglesv2.dll, libSkiaSharp.dll,
+    # libHarfBuzzSharp.dll, etc.) INSIDE the single .exe so the produced artifact is one
+    # file. First launch extracts those natives once to %TEMP%\.net\<app>\<hash>\, then
+    # caches them for subsequent runs - normal for self-extracting single-file publish.
+    # Other RIDs are cross-compiled with the same flags so what falls out is the same
+    # shape the matching CI runner would produce before its OS-specific packaging step.
     dotnet publish $project `
         -r $rid `
         -c Release `
         --self-contained `
         -p:PublishSingleFile=true `
+        -p:IncludeNativeLibrariesForSelfExtract=true `
         -o $outDir
     if ($LASTEXITCODE -ne 0) {
         throw "dotnet publish failed for $rid (exit $LASTEXITCODE)."
     }
 
-    # Windows: zip the publish folder. This is the .zip CI uploads as the release
-    # asset, byte-for-byte equivalent of the Compress-Archive in release.yml:91.
+    # Windows: zip the publish folder AND copy the single-file .exe to the repo root.
+    # The zip is the release asset CI uploads, byte-for-byte equivalent of the
+    # Compress-Archive in release.yml. The root-level .exe copy is the developer
+    # convenience hook: build.cmd / build.ps1 finish with a runnable executable
+    # sitting next to the README, no folder spelunking required.
     if ($rid -eq 'win-x64') {
         $zipPath = Join-Path $outputs "HyperionMinecraftLauncher-$version-win-x64.zip"
         if (Test-Path $zipPath) { Remove-Item -Path $zipPath -Force }
         Write-Host ""
         Write-Host ">> Packaging $zipPath ..."
         Compress-Archive -Path (Join-Path $outDir '*') -DestinationPath $zipPath -Force
+
+        $rootExe = Join-Path $repoRoot 'HyperionMinecraftLauncher.exe'
+        $builtExe = Join-Path $outDir 'HyperionMinecraftLauncher.exe'
+        if (Test-Path $builtExe) {
+            Write-Host ""
+            Write-Host ">> Copying single-file launcher to $rootExe ..."
+            try {
+                Copy-Item -Path $builtExe -Destination $rootExe -Force
+            } catch {
+                Write-Host ""
+                Write-Host "!! Could not overwrite $rootExe."
+                Write-Host "   Most likely the launcher is currently running - close it and re-run the build."
+                Write-Host "   Underlying error: $($_.Exception.Message)"
+                throw
+            }
+        } else {
+            Write-Host "!! Expected $builtExe was not produced by dotnet publish."
+        }
     }
     elseif ($rid -eq 'linux-x64' -and $IsLinux) {
         # If we're actually on Linux and appimagetool is on PATH, finish the job.
@@ -150,6 +176,16 @@ Get-ChildItem -Path $outputs | Sort-Object Name | Format-Table @{
         else { "$sz B" }
     }
 }, LastWriteTime
+
+$rootExe = Join-Path $repoRoot 'HyperionMinecraftLauncher.exe'
+if (Test-Path $rootExe) {
+    $rootExeSize = (Get-Item $rootExe).Length
+    Write-Host ""
+    Write-Host ">> Single-file launcher at repo root:"
+    Write-Host ("     {0}   ({1:N1} MB)" -f $rootExe, ($rootExeSize / 1MB))
+    Write-Host ""
+    Write-Host ">> To run:  .\HyperionMinecraftLauncher.exe"
+}
 
 Write-Host ""
 Write-Host ">> Done."

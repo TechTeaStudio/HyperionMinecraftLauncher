@@ -110,6 +110,25 @@ dotnet run   --project src/HyperionMinecraftLauncher.App
 
 Requires .NET SDK 10. The Core library multi-targets `net8.0;net9.0;net10.0`; the App is `net10.0` (Avalonia 11.2.x, WinExe).
 
+### One-click Windows build
+
+```cmd
+build.cmd
+```
+
+Double-click `build.cmd` at the repo root (or invoke it from any shell). It calls `scripts/build-release.ps1 -Rids win-x64` under the hood and produces:
+
+- `HyperionMinecraftLauncher.exe` at the repo root - a single self-extracting executable (~150 MB) with Avalonia's native libraries bundled inside via `IncludeNativeLibrariesForSelfExtract=true`. Double-click to launch.
+- `outputs/HyperionMinecraftLauncher-<ver>-win-x64/` - the full publish folder.
+- `outputs/HyperionMinecraftLauncher-<ver>-win-x64.zip` - the archive that the GitHub Releases CI pipeline uploads on a `v*.*.*` tag push, byte-for-byte equivalent to the CI artefact.
+
+Pass-through arguments:
+
+- `build.cmd -Rids All` - full CI matrix (win-x64 + linux-x64 + osx-x64 + osx-arm64). Non-Windows RIDs are cross-compiled to raw publish folders; the Linux `.AppImage` and macOS `.app` + `.dmg` wrapping only runs on the matching host (where the underlying `appimagetool` / `sips` / `iconutil` / `hdiutil` tools live).
+- `build.cmd -Clean` - wipe `outputs/` before publishing.
+
+The root-level `HyperionMinecraftLauncher.exe` is `.gitignore`d. On subsequent runs the build overwrites it; if the launcher is currently running the copy step fails with a clear "close it and re-run" message.
+
 ### Linux AppImage
 
 ```bash

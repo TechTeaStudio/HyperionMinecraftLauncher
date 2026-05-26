@@ -47,6 +47,10 @@ project.lock.json
 project.fragment.lock.json
 artifacts/
 
+# Local single-file build product. build.cmd / scripts/build-release.ps1 copy the
+# self-extracting launcher .exe to the repo root for convenience; never commit it.
+/HyperionMinecraftLauncher.exe
+
 # Rider / ReSharper
 _ReSharper*/
 *.[Rr]e[Ss]harper
