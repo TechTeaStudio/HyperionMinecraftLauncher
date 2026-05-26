@@ -28,5 +28,17 @@ jobs:
       - name: Build
         run: dotnet build HyperionMinecraftLauncher.slnx --no-restore --configuration Release
 
+      # On Ubuntu the GitHub-supplied image ships an older system libSkiaSharp (88.1 at the
+      # time of writing), and our pinned SkiaSharp 3.119.2 wrapper refuses to bind to it.
+      # We DO ship the matching native via `SkiaSharp.NativeAssets.Linux.NoDependencies`
+      # which lands at `bin/.../runtimes/linux-x64/native/libSkiaSharp.so`, but the .NET
+      # DllImport resolver on Linux probes that subfolder relative to the calling assembly's
+      # location - which under `dotnet test` is `testhost.dll` from the SDK, NOT our test
+      # DLL. Standard dlopen then falls through to the system loader and hits the wrong .so.
+      # Setting LD_LIBRARY_PATH to our bundled native folder forces dlopen to look there
+      # first. Windows + macOS ignore LD_LIBRARY_PATH (Windows uses PATH, macOS uses
+      # DYLD_*), so the variable is harmless there - we still scope it to Ubuntu for clarity.
       - name: Test
+        env:
+          LD_LIBRARY_PATH: ${{ matrix.os == 'ubuntu-latest' && format('{0}/tests/HyperionMinecraftLauncher.Core.Tests/bin/Release/net10.0/runtimes/linux-x64/native', github.workspace) || '' }}
         run: dotnet test HyperionMinecraftLauncher.slnx --no-build --configuration Release --verbosity normal
