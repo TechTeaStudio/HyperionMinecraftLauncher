@@ -25,7 +25,10 @@ internal static class Program
 
             // Minimal DI for headless runs: just the file logger + the CmlLib service. No view-model,
             // no Avalonia, no Microsoft auth (CLI launches are offline-only on purpose).
-            var logger = new FileLauncherLogger(DefaultLogDirectory.Resolve());
+            // SerilogLauncherLogger gives us CLEF-format JSON logs with size-rolling + 14-day retention,
+            // same shape the GUI mode uses (see App.axaml.cs). The legacy FileLauncherLogger is now
+            // kept only for deterministic unit tests with an injected clock.
+            using var logger = new SerilogLauncherLogger(DefaultLogDirectory.Resolve());
             var service = new CmlLibMinecraftLauncherService(new CmlLibUnderlyingLauncher(), logger);
             var rc = CliEntryPoint.RunAsync(args, service, logger).GetAwaiter().GetResult();
             Environment.Exit(rc);

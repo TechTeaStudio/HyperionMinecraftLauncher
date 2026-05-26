@@ -134,9 +134,20 @@ public class FileLauncherLoggerTests : IDisposable
         var path = DefaultLogDirectory.Resolve();
 
         Assert.False(string.IsNullOrEmpty(path));
-        // Use Path.Combine to make the assertion separator-agnostic.
-        var tail = Path.Combine(DefaultLogDirectory.ApplicationName, DefaultLogDirectory.LogsSubdirectory);
-        Assert.EndsWith(tail, path);
+
+        // Each OS has its own canonical app-data layout, so the resolved tail differs:
+        //   Windows: %LOCALAPPDATA%\HyperionMinecraftLauncher\logs
+        //   macOS:   ~/Library/Logs/HyperionMinecraftLauncher
+        //   Linux:   $XDG_STATE_HOME/HyperionMinecraftLauncher   (defaults to ~/.local/state)
+        // Per-OS shapes are pinned in detail by Platform/DefaultLogDirectoryTests through a
+        // FakeEnvironment; this integration-level test just sanity-checks the host-OS tail.
+        // Path.Combine keeps the comparison separator-agnostic on each platform.
+        var expectedTail = OperatingSystem.IsWindows()
+            ? Path.Combine(DefaultLogDirectory.ApplicationName, DefaultLogDirectory.LogsSubdirectory)
+            : OperatingSystem.IsMacOS()
+                ? Path.Combine("Logs", DefaultLogDirectory.ApplicationName)
+                : DefaultLogDirectory.ApplicationName; // Linux (XDG state-home): app name at the tail
+        Assert.EndsWith(expectedTail, path);
     }
 }
 #pragma warning restore CS0618
