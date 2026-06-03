@@ -43,7 +43,7 @@ jobs:
       # gate on it. `dependabot/fetch-metadata` exposes outputs we then condition on.
       - name: Read dependabot metadata
         id: meta
-        uses: dependabot/fetch-metadata@v2
+        uses: dependabot/fetch-metadata@v3
 
       # Squash-merge with --auto. The merge fires only after the branch-protection status
       # checks turn green; until then the PR is "pending auto-merge" and waits.
