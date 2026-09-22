@@ -3,6 +3,13 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.31] - 2026-09-22
+
+### Fixed
+
+- Every locale now has every UI string; nothing falls back to English any more. Added the dedicated-server console strings (header, command placeholder, Send, Status) to all 13 locales, and the skin browser, CurseForge onboarding dialog, CurseForge settings / Mods-page connect prompt and game-log tooltip (31 strings) to it, ko, nl, pl, tr and uk. Brand names, `{0}` placeholders, Minecraft console commands and the API-key mask are kept verbatim.
+- Removed an em-dash from the Russian Force-offline tooltip.
+
 ## [0.32.30] - 2026-09-22
 
 ### Added

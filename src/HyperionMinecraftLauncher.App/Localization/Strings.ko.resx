@@ -137,6 +137,23 @@
   <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>이 스킨 다시 적용</value></data>
   <data name="Skins.DragHint" xml:space="preserve"><value>머리 미리보기 안을 드래그하여 회전하세요.</value></data>
 
+  <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
+  <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>스킨 둘러보기</value></data>
+  <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>이름 또는 태그로 스킨 검색...</value></data>
+  <data name="SkinsBrowser.ShowTrending" xml:space="preserve"><value>인기 표시</value></data>
+  <data name="SkinsBrowser.ApplyButton" xml:space="preserve"><value>내 계정에 적용</value></data>
+  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>제공: api.mineskin.org. Hyperion은 MineSkin과 무관합니다.</value></data>
+  <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[error] 스킨 갤러리를 불러올 수 없습니다: {0}</value></data>
+  <data name="SkinsBrowser.DownloadFailed" xml:space="preserve"><value>[error] 스킨을 다운로드할 수 없습니다: {0}</value></data>
+  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>MineSkin에서 스킨 {0} 다운로드 중...</value></data>
+  <data name="SkinsBrowser.Loading" xml:space="preserve"><value>갤러리 불러오는 중...</value></data>
+  <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>일치하는 스킨이 없습니다. 다른 검색어를 시도하거나 "인기 표시"를 누르세요.</value></data>
+
+  <!-- v0.32.4 (H1): Prev / Next pagination controls. The "Page {0}" label uses a 1-based page number for the UI. -->
+  <data name="SkinsBrowser.PrevPage" xml:space="preserve"><value>이전</value></data>
+  <data name="SkinsBrowser.NextPage" xml:space="preserve"><value>다음</value></data>
+  <data name="SkinsBrowser.PageLabel" xml:space="preserve"><value>{0} 페이지</value></data>
+
   <!-- Servers page -->
   <data name="Servers.Title" xml:space="preserve"><value>서버</value></data>
   <data name="Servers.Subtitle" xml:space="preserve"><value>멀티플레이 서버 목록 (servers.dat NBT). Minecraft Server List Ping 프로토콜로 핑.</value></data>
@@ -154,6 +171,10 @@
   <data name="HeadlessServers.Stop" xml:space="preserve"><value>중지</value></data>
   <data name="HeadlessServers.Delete" xml:space="preserve"><value>삭제</value></data>
   <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>자리표시자; server.jar 다운로드는 로드맵에 있습니다.</value></data>
+  <data name="HeadlessServers.ConsoleHeader" xml:space="preserve"><value>서버 콘솔</value></data>
+  <data name="HeadlessServers.CommandWatermark" xml:space="preserve"><value>서버 명령어 입력 (예: say hi, op &lt;name&gt;, stop)</value></data>
+  <data name="HeadlessServers.SendButton" xml:space="preserve"><value>전송</value></data>
+  <data name="HeadlessServers.StatusLabel" xml:space="preserve"><value>상태:</value></data>
   <data name="HeadlessServers.FootnotePath" xml:space="preserve"><value>각 서버는 %LOCALAPPDATA%/HyperionMinecraftLauncher/headless_servers/{id}/ 아래 고유 폴더를 가집니다. 생성 시 런처가 metadata.json, eula.txt, server.properties를 기록합니다.</value></data>
   <data name="HeadlessServers.DashSeparator" xml:space="preserve"><value> - </value></data>
   <data name="HeadlessServers.MibAndPort" xml:space="preserve"><value> MiB - 포트 </value></data>
@@ -202,6 +223,7 @@
   <data name="Settings.LauncherPrefsHeader" xml:space="preserve"><value>런처 환경설정</value></data>
   <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>게임 시작 후에도 런처 유지</value></data>
   <data name="Settings.ShowGameLog" xml:space="preserve"><value>게임 stdout / stderr를 런처 로그에 표시 (예정)</value></data>
+  <data name="Settings.ShowGameLogTooltip" xml:space="preserve"><value>Minecraft의 stdout / stderr을 런처 내 로그로 스트리밍합니다.</value></data>
   <data name="Settings.ForceOfflineMode" xml:space="preserve"><value>오프라인 모드 강제 (테스트용)</value></data>
   <data name="Settings.ForceOfflineMode.Tooltip" xml:space="preserve"><value>캐시된 Microsoft 세션을 건너뛰고 모든 Play를 AuthMode.Offline으로 라우팅합니다. 다운로드 / 설치 / 실행 파이프라인을 테스트할 때 유용합니다. Microsoft 캐시는 지워지지 않으며, 끄면 일반 온라인 실행으로 돌아갑니다.</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>백업</value></data>
@@ -320,6 +342,29 @@
   <data name="SkinVariantDialog.Hint" xml:space="preserve"><value>Classic = 4픽셀 팔 (Steve). Slim = 3픽셀 팔 (Alex).</value></data>
   <data name="SkinVariantDialog.Classic" xml:space="preserve"><value>Classic</value></data>
   <data name="SkinVariantDialog.Slim" xml:space="preserve"><value>Slim</value></data>
+
+  <!-- CurseForge onboarding dialog -->
+  <data name="CurseForgeOnboardingDialog.Title" xml:space="preserve"><value>CurseForge에 연결</value></data>
+  <data name="CurseForgeOnboardingDialog.HeaderTitle" xml:space="preserve"><value>CurseForge에 연결</value></data>
+  <data name="CurseForgeOnboardingDialog.Heading" xml:space="preserve"><value>CurseForge에 연결</value></data>
+  <data name="CurseForgeOnboardingDialog.Step1Body" xml:space="preserve"><value>CurseForge는 개발자별 API 키를 요구하며, 런처에는 포함되어 있지 않습니다. 아래 버튼을 눌러 브라우저에서 CurseForge 콘솔을 여세요.</value></data>
+  <data name="CurseForgeOnboardingDialog.Step2Button" xml:space="preserve"><value>console.curseforge.com 열기</value></data>
+  <data name="CurseForgeOnboardingDialog.Step3Label" xml:space="preserve"><value>API 키 붙여넣기:</value></data>
+  <data name="CurseForgeOnboardingDialog.KeyWatermark" xml:space="preserve"><value>$2a$10$...</value></data>
+  <data name="CurseForgeOnboardingDialog.SaveButton" xml:space="preserve"><value>저장 후 닫기</value></data>
+  <data name="CurseForgeOnboardingDialog.CancelButton" xml:space="preserve"><value>취소</value></data>
+
+  <!-- Mods page CurseForge empty state -->
+  <data name="Mods.ConnectHeadline" xml:space="preserve"><value>모드를 둘러보려면 CurseForge에 연결하세요.</value></data>
+  <data name="Mods.ConnectSubhead" xml:space="preserve"><value>CurseForge에는 개발자별 무료 API 키가 필요합니다. Hyperion에는 포함되어 있지 않습니다. console.curseforge.com에서 2분이면 가입할 수 있습니다.</value></data>
+  <data name="Mods.GetStartedButton" xml:space="preserve"><value>시작하기</value></data>
+
+  <!-- Settings page Mods card -->
+  <data name="Settings.ModsHeader" xml:space="preserve"><value>모드</value></data>
+  <data name="Settings.CurseForgeStatusNotConfigured" xml:space="preserve"><value>CurseForge: 설정되지 않음.</value></data>
+  <data name="Settings.CurseForgeStatusConfigured" xml:space="preserve"><value>CurseForge: 설정됨.</value></data>
+  <data name="Settings.SetUpCurseForgeButton" xml:space="preserve"><value>CurseForge 설정</value></data>
+  <data name="Settings.ChangeKeyButton" xml:space="preserve"><value>키 변경</value></data>
 
   <!-- ImportModpack dialog -->
   <data name="ImportModpackDialog.Title" xml:space="preserve"><value>모드팩 가져오기</value></data>

@@ -137,6 +137,23 @@
   <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>Riapplica questa skin</value></data>
   <data name="Skins.DragHint" xml:space="preserve"><value>Trascina nell'anteprima della testa per ruotare.</value></data>
 
+  <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
+  <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Sfoglia le skin</value></data>
+  <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>Cerca skin per nome o tag...</value></data>
+  <data name="SkinsBrowser.ShowTrending" xml:space="preserve"><value>Mostra popolari</value></data>
+  <data name="SkinsBrowser.ApplyButton" xml:space="preserve"><value>Applica al mio account</value></data>
+  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>Powered by api.mineskin.org. Hyperion non è affiliata a MineSkin.</value></data>
+  <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[error] Impossibile caricare la galleria skin: {0}</value></data>
+  <data name="SkinsBrowser.DownloadFailed" xml:space="preserve"><value>[error] Impossibile scaricare la skin: {0}</value></data>
+  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>Download skin {0} da MineSkin...</value></data>
+  <data name="SkinsBrowser.Loading" xml:space="preserve"><value>Caricamento galleria...</value></data>
+  <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>Nessuna skin trovata. Prova un'altra ricerca o premi "Mostra popolari".</value></data>
+
+  <!-- v0.32.4 (H1): Prev / Next pagination controls. The "Page {0}" label uses a 1-based page number for the UI. -->
+  <data name="SkinsBrowser.PrevPage" xml:space="preserve"><value>Prec.</value></data>
+  <data name="SkinsBrowser.NextPage" xml:space="preserve"><value>Succ.</value></data>
+  <data name="SkinsBrowser.PageLabel" xml:space="preserve"><value>Pagina {0}</value></data>
+
   <!-- Servers page -->
   <data name="Servers.Title" xml:space="preserve"><value>Server</value></data>
   <data name="Servers.Subtitle" xml:space="preserve"><value>Elenco server multiplayer (servers.dat NBT). Ping tramite il protocollo Minecraft Server List Ping.</value></data>
@@ -154,6 +171,10 @@
   <data name="HeadlessServers.Stop" xml:space="preserve"><value>Ferma</value></data>
   <data name="HeadlessServers.Delete" xml:space="preserve"><value>Elimina</value></data>
   <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>Placeholder; il download di server.jar è in roadmap.</value></data>
+  <data name="HeadlessServers.ConsoleHeader" xml:space="preserve"><value>Console del server</value></data>
+  <data name="HeadlessServers.CommandWatermark" xml:space="preserve"><value>Scrivi un comando del server (es. say hi, op &lt;name&gt;, stop)</value></data>
+  <data name="HeadlessServers.SendButton" xml:space="preserve"><value>Invia</value></data>
+  <data name="HeadlessServers.StatusLabel" xml:space="preserve"><value>Stato:</value></data>
   <data name="HeadlessServers.FootnotePath" xml:space="preserve"><value>Ogni server ha la sua cartella in %LOCALAPPDATA%/HyperionMinecraftLauncher/headless_servers/{id}/. Al momento della creazione il launcher ci scrive metadata.json, eula.txt e server.properties.</value></data>
   <data name="HeadlessServers.DashSeparator" xml:space="preserve"><value> - </value></data>
   <data name="HeadlessServers.MibAndPort" xml:space="preserve"><value> MiB - porta </value></data>
@@ -202,6 +223,7 @@
   <data name="Settings.LauncherPrefsHeader" xml:space="preserve"><value>Preferenze launcher</value></data>
   <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>Tieni il launcher aperto dopo l'avvio del gioco</value></data>
   <data name="Settings.ShowGameLog" xml:space="preserve"><value>Mostra stdout / stderr del gioco nel log del launcher (pianificato)</value></data>
+  <data name="Settings.ShowGameLogTooltip" xml:space="preserve"><value>Ritrasmette stdout / stderr di Minecraft nel log del launcher.</value></data>
   <data name="Settings.ForceOfflineMode" xml:space="preserve"><value>Forza modalità offline (test)</value></data>
   <data name="Settings.ForceOfflineMode.Tooltip" xml:space="preserve"><value>Ignora la sessione Microsoft in cache e instrada ogni Play tramite AuthMode.Offline. Utile per testare il pipeline di download, installazione e avvio. La cache Microsoft non viene svuotata; togli la spunta per tornare ai normali avvii online.</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>Backup</value></data>
@@ -320,6 +342,29 @@
   <data name="SkinVariantDialog.Hint" xml:space="preserve"><value>Classic = braccia da 4 pixel (Steve). Slim = braccia da 3 pixel (Alex).</value></data>
   <data name="SkinVariantDialog.Classic" xml:space="preserve"><value>Classic</value></data>
   <data name="SkinVariantDialog.Slim" xml:space="preserve"><value>Slim</value></data>
+
+  <!-- CurseForge onboarding dialog -->
+  <data name="CurseForgeOnboardingDialog.Title" xml:space="preserve"><value>Collegati a CurseForge</value></data>
+  <data name="CurseForgeOnboardingDialog.HeaderTitle" xml:space="preserve"><value>Collegati a CurseForge</value></data>
+  <data name="CurseForgeOnboardingDialog.Heading" xml:space="preserve"><value>Collegati a CurseForge</value></data>
+  <data name="CurseForgeOnboardingDialog.Step1Body" xml:space="preserve"><value>CurseForge richiede una chiave API per sviluppatore. Noi non ne includiamo una. Premi il pulsante qui sotto per aprire la console CurseForge nel browser.</value></data>
+  <data name="CurseForgeOnboardingDialog.Step2Button" xml:space="preserve"><value>Apri console.curseforge.com</value></data>
+  <data name="CurseForgeOnboardingDialog.Step3Label" xml:space="preserve"><value>Incolla la tua chiave API:</value></data>
+  <data name="CurseForgeOnboardingDialog.KeyWatermark" xml:space="preserve"><value>$2a$10$...</value></data>
+  <data name="CurseForgeOnboardingDialog.SaveButton" xml:space="preserve"><value>Salva e chiudi</value></data>
+  <data name="CurseForgeOnboardingDialog.CancelButton" xml:space="preserve"><value>Annulla</value></data>
+
+  <!-- Mods page CurseForge empty state -->
+  <data name="Mods.ConnectHeadline" xml:space="preserve"><value>Collegati a CurseForge per sfogliare le mod.</value></data>
+  <data name="Mods.ConnectSubhead" xml:space="preserve"><value>CurseForge richiede una chiave API gratuita per sviluppatore. Hyperion non ne include una. La registrazione su console.curseforge.com richiede 2 minuti.</value></data>
+  <data name="Mods.GetStartedButton" xml:space="preserve"><value>Inizia</value></data>
+
+  <!-- Settings page Mods card -->
+  <data name="Settings.ModsHeader" xml:space="preserve"><value>Mod</value></data>
+  <data name="Settings.CurseForgeStatusNotConfigured" xml:space="preserve"><value>CurseForge: non configurato.</value></data>
+  <data name="Settings.CurseForgeStatusConfigured" xml:space="preserve"><value>CurseForge: configurato.</value></data>
+  <data name="Settings.SetUpCurseForgeButton" xml:space="preserve"><value>Configura CurseForge</value></data>
+  <data name="Settings.ChangeKeyButton" xml:space="preserve"><value>Cambia chiave</value></data>
 
   <!-- ImportModpack dialog -->
   <data name="ImportModpackDialog.Title" xml:space="preserve"><value>Importa modpack</value></data>

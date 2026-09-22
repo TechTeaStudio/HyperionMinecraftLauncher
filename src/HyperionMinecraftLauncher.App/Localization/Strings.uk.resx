@@ -137,6 +137,23 @@
   <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>Застосувати цей скін повторно</value></data>
   <data name="Skins.DragHint" xml:space="preserve"><value>Перетягни в превʼю голови, щоб обернути.</value></data>
 
+  <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
+  <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Каталог скінів</value></data>
+  <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>Пошук скінів за іменем або тегом...</value></data>
+  <data name="SkinsBrowser.ShowTrending" xml:space="preserve"><value>Показати популярні</value></data>
+  <data name="SkinsBrowser.ApplyButton" xml:space="preserve"><value>Застосувати до мого акаунта</value></data>
+  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>Джерело: api.mineskin.org. Hyperion не пов'язаний з MineSkin.</value></data>
+  <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[error] Не вдалося завантажити галерею скінів: {0}</value></data>
+  <data name="SkinsBrowser.DownloadFailed" xml:space="preserve"><value>[error] Не вдалося завантажити скін: {0}</value></data>
+  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>Завантажуємо скін {0} з MineSkin...</value></data>
+  <data name="SkinsBrowser.Loading" xml:space="preserve"><value>Завантажуємо галерею...</value></data>
+  <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>Нічого не знайшлося. Змініть запит або натисніть "Показати популярні".</value></data>
+
+  <!-- v0.32.4 (H1): Prev / Next pagination controls. The "Page {0}" label uses a 1-based page number for the UI. -->
+  <data name="SkinsBrowser.PrevPage" xml:space="preserve"><value>Назад</value></data>
+  <data name="SkinsBrowser.NextPage" xml:space="preserve"><value>Вперед</value></data>
+  <data name="SkinsBrowser.PageLabel" xml:space="preserve"><value>Сторінка {0}</value></data>
+
   <!-- Servers page -->
   <data name="Servers.Title" xml:space="preserve"><value>Сервери</value></data>
   <data name="Servers.Subtitle" xml:space="preserve"><value>Список мультиплеєр-серверів (servers.dat NBT). Пінг через протокол Minecraft Server List Ping.</value></data>
@@ -154,6 +171,10 @@
   <data name="HeadlessServers.Stop" xml:space="preserve"><value>Зупинити</value></data>
   <data name="HeadlessServers.Delete" xml:space="preserve"><value>Видалити</value></data>
   <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>Заглушка; завантаження server.jar у роадмапі.</value></data>
+  <data name="HeadlessServers.ConsoleHeader" xml:space="preserve"><value>Консоль сервера</value></data>
+  <data name="HeadlessServers.CommandWatermark" xml:space="preserve"><value>Введіть команду сервера (напр. say hi, op &lt;name&gt;, stop)</value></data>
+  <data name="HeadlessServers.SendButton" xml:space="preserve"><value>Надіслати</value></data>
+  <data name="HeadlessServers.StatusLabel" xml:space="preserve"><value>Стан:</value></data>
   <data name="HeadlessServers.FootnotePath" xml:space="preserve"><value>У кожного сервера своя папка в %LOCALAPPDATA%/HyperionMinecraftLauncher/headless_servers/{id}/. При створенні лаунчер пише туди metadata.json, eula.txt і server.properties.</value></data>
   <data name="HeadlessServers.DashSeparator" xml:space="preserve"><value> - </value></data>
   <data name="HeadlessServers.MibAndPort" xml:space="preserve"><value> MiB - порт </value></data>
@@ -202,6 +223,7 @@
   <data name="Settings.LauncherPrefsHeader" xml:space="preserve"><value>Налаштування лаунчера</value></data>
   <data name="Settings.KeepLauncherOpen" xml:space="preserve"><value>Тримати лаунчер відкритим після запуску гри</value></data>
   <data name="Settings.ShowGameLog" xml:space="preserve"><value>Показувати stdout / stderr гри в журналі лаунчера (заплановано)</value></data>
+  <data name="Settings.ShowGameLogTooltip" xml:space="preserve"><value>Транслювати stdout / stderr Minecraft у журнал лаунчера.</value></data>
   <data name="Settings.ForceOfflineMode" xml:space="preserve"><value>Форсувати offline-режим (для тестів)</value></data>
   <data name="Settings.ForceOfflineMode.Tooltip" xml:space="preserve"><value>Ігнорувати кешовану сесію Microsoft і запускати кожен Play через AuthMode.Offline. Зручно для тестування завантаження та встановлення версій. Кеш Microsoft не очищається, зніми галку, і звичайний онлайн-запуск повернеться.</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>Бекапи</value></data>
@@ -320,6 +342,29 @@
   <data name="SkinVariantDialog.Hint" xml:space="preserve"><value>Classic = руки 4 пікселі (Steve). Slim = руки 3 пікселі (Alex).</value></data>
   <data name="SkinVariantDialog.Classic" xml:space="preserve"><value>Classic</value></data>
   <data name="SkinVariantDialog.Slim" xml:space="preserve"><value>Slim</value></data>
+
+  <!-- CurseForge onboarding dialog -->
+  <data name="CurseForgeOnboardingDialog.Title" xml:space="preserve"><value>Підключення до CurseForge</value></data>
+  <data name="CurseForgeOnboardingDialog.HeaderTitle" xml:space="preserve"><value>Підключення до CurseForge</value></data>
+  <data name="CurseForgeOnboardingDialog.Heading" xml:space="preserve"><value>Підключення до CurseForge</value></data>
+  <data name="CurseForgeOnboardingDialog.Step1Body" xml:space="preserve"><value>CurseForge видає API-ключі кожному розробнику окремо. Ми їх не постачаємо. Натисніть кнопку нижче, щоб відкрити консоль CurseForge у браузері.</value></data>
+  <data name="CurseForgeOnboardingDialog.Step2Button" xml:space="preserve"><value>Відкрити console.curseforge.com</value></data>
+  <data name="CurseForgeOnboardingDialog.Step3Label" xml:space="preserve"><value>Вставте свій API-ключ:</value></data>
+  <data name="CurseForgeOnboardingDialog.KeyWatermark" xml:space="preserve"><value>$2a$10$...</value></data>
+  <data name="CurseForgeOnboardingDialog.SaveButton" xml:space="preserve"><value>Зберегти і закрити</value></data>
+  <data name="CurseForgeOnboardingDialog.CancelButton" xml:space="preserve"><value>Скасувати</value></data>
+
+  <!-- Mods page CurseForge empty state -->
+  <data name="Mods.ConnectHeadline" xml:space="preserve"><value>Підключіть CurseForge, щоб шукати моди.</value></data>
+  <data name="Mods.ConnectSubhead" xml:space="preserve"><value>CurseForge потребує безкоштовний API-ключ для кожного розробника. Hyperion його не постачає. Реєстрація на console.curseforge.com триває 2 хвилини.</value></data>
+  <data name="Mods.GetStartedButton" xml:space="preserve"><value>Почати</value></data>
+
+  <!-- Settings page Mods card -->
+  <data name="Settings.ModsHeader" xml:space="preserve"><value>Моди</value></data>
+  <data name="Settings.CurseForgeStatusNotConfigured" xml:space="preserve"><value>CurseForge: не налаштовано.</value></data>
+  <data name="Settings.CurseForgeStatusConfigured" xml:space="preserve"><value>CurseForge: налаштовано.</value></data>
+  <data name="Settings.SetUpCurseForgeButton" xml:space="preserve"><value>Налаштувати CurseForge</value></data>
+  <data name="Settings.ChangeKeyButton" xml:space="preserve"><value>Змінити ключ</value></data>
 
   <!-- ImportModpack dialog -->
   <data name="ImportModpackDialog.Title" xml:space="preserve"><value>Імпорт модпака</value></data>

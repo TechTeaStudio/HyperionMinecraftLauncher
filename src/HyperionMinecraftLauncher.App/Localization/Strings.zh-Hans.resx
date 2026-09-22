@@ -171,6 +171,10 @@
   <data name="HeadlessServers.Stop" xml:space="preserve"><value>停止</value></data>
   <data name="HeadlessServers.Delete" xml:space="preserve"><value>删除</value></data>
   <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>占位功能；服务端 jar 下载在路线图中。</value></data>
+  <data name="HeadlessServers.ConsoleHeader" xml:space="preserve"><value>服务器控制台</value></data>
+  <data name="HeadlessServers.CommandWatermark" xml:space="preserve"><value>输入服务器指令（例如 say hi, op &lt;name&gt;, stop）</value></data>
+  <data name="HeadlessServers.SendButton" xml:space="preserve"><value>发送</value></data>
+  <data name="HeadlessServers.StatusLabel" xml:space="preserve"><value>状态：</value></data>
   <data name="HeadlessServers.FootnotePath" xml:space="preserve"><value>每个服务器都有自己的文件夹，位于 %LOCALAPPDATA%/HyperionMinecraftLauncher/headless_servers/{id}/ 下。创建时启动器会写入 metadata.json、eula.txt 和 server.properties。</value></data>
   <data name="HeadlessServers.DashSeparator" xml:space="preserve"><value> - </value></data>
   <data name="HeadlessServers.MibAndPort" xml:space="preserve"><value> MiB - 端口 </value></data>

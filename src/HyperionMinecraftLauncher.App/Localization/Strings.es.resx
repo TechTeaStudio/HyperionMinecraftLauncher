@@ -171,6 +171,10 @@
   <data name="HeadlessServers.Stop" xml:space="preserve"><value>Detener</value></data>
   <data name="HeadlessServers.Delete" xml:space="preserve"><value>Eliminar</value></data>
   <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>Placeholder; la descarga del server jar está en la hoja de ruta.</value></data>
+  <data name="HeadlessServers.ConsoleHeader" xml:space="preserve"><value>Consola del servidor</value></data>
+  <data name="HeadlessServers.CommandWatermark" xml:space="preserve"><value>Escribe un comando del servidor (p. ej. say hi, op &lt;name&gt;, stop)</value></data>
+  <data name="HeadlessServers.SendButton" xml:space="preserve"><value>Enviar</value></data>
+  <data name="HeadlessServers.StatusLabel" xml:space="preserve"><value>Estado:</value></data>
   <data name="HeadlessServers.FootnotePath" xml:space="preserve"><value>Cada servidor recibe su propia carpeta en %LOCALAPPDATA%/HyperionMinecraftLauncher/headless_servers/{id}/. El launcher escribe metadata.json, eula.txt y server.properties al crearlo.</value></data>
   <data name="HeadlessServers.DashSeparator" xml:space="preserve"><value> - </value></data>
   <data name="HeadlessServers.MibAndPort" xml:space="preserve"><value> MiB - puerto </value></data>

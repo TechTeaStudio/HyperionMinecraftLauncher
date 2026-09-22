@@ -171,6 +171,10 @@
   <data name="HeadlessServers.Stop" xml:space="preserve"><value>Остановить</value></data>
   <data name="HeadlessServers.Delete" xml:space="preserve"><value>Удалить</value></data>
   <data name="HeadlessServers.PlaceholderTooltip" xml:space="preserve"><value>Заглушка; скачивание server.jar в роадмапе.</value></data>
+  <data name="HeadlessServers.ConsoleHeader" xml:space="preserve"><value>Консоль сервера</value></data>
+  <data name="HeadlessServers.CommandWatermark" xml:space="preserve"><value>Введите команду сервера (например say hi, op &lt;name&gt;, stop)</value></data>
+  <data name="HeadlessServers.SendButton" xml:space="preserve"><value>Отправить</value></data>
+  <data name="HeadlessServers.StatusLabel" xml:space="preserve"><value>Состояние:</value></data>
   <data name="HeadlessServers.FootnotePath" xml:space="preserve"><value>У каждого сервера своя папка в %LOCALAPPDATA%/HyperionMinecraftLauncher/headless_servers/{id}/. При создании лаунчер записывает туда metadata.json, eula.txt и server.properties.</value></data>
   <data name="HeadlessServers.DashSeparator" xml:space="preserve"><value> - </value></data>
   <data name="HeadlessServers.MibAndPort" xml:space="preserve"><value> MiB - порт </value></data>
@@ -221,7 +225,7 @@
   <data name="Settings.ShowGameLog" xml:space="preserve"><value>Показывать stdout / stderr игры в логе лаунчера</value></data>
   <data name="Settings.ShowGameLogTooltip" xml:space="preserve"><value>Транслировать stdout / stderr Minecraft в лог лаунчера.</value></data>
   <data name="Settings.ForceOfflineMode" xml:space="preserve"><value>Форсировать offline-режим (для тестов)</value></data>
-  <data name="Settings.ForceOfflineMode.Tooltip" xml:space="preserve"><value>Игнорировать кешированную сессию Microsoft и запускать каждый Play через AuthMode.Offline. Удобно для тестирования установки и загрузки версий. Кеш Microsoft не очищается — снимите галку, и обычный онлайн-запуск вернётся.</value></data>
+  <data name="Settings.ForceOfflineMode.Tooltip" xml:space="preserve"><value>Игнорировать кешированную сессию Microsoft и запускать каждый Play через AuthMode.Offline. Удобно для тестирования установки и загрузки версий. Кеш Microsoft не очищается. Снимите галку, и обычный онлайн-запуск вернётся.</value></data>
   <data name="Settings.BackupsHeader" xml:space="preserve"><value>Бэкапы</value></data>
   <data name="Settings.AutoBackupCheckbox" xml:space="preserve"><value>Автоматически бэкапить миры перед каждым запуском</value></data>
   <data name="Settings.KeepLatestNLabel" xml:space="preserve"><value>Хранить последних N на мир (0 = хранить все):</value></data>
