@@ -170,7 +170,7 @@
 
   <!-- News page -->
   <data name="News.Title" xml:space="preserve"><value>Haberler</value></data>
-  <data name="News.Subtitle" xml:space="preserve"><value>launchercontent.mojang.com/news.json'dan canlı akış, Mojang'ın resmi launcher'ının kullandığı kaynak.</value></data>
+  <data name="News.Subtitle" xml:space="preserve"><value>minecraft.net/article adresindeki son makaleler, en yeniler önce.</value></data>
   <data name="News.RefreshButton" xml:space="preserve"><value>Haberleri yenile</value></data>
   <data name="News.ReadMore" xml:space="preserve"><value>minecraft.net'te devamını oku</value></data>
 

@@ -62,6 +62,9 @@ public sealed class ModrinthRepository : IModRepository
         sb.Append("query=").Append(Uri.EscapeDataString(query.Query ?? string.Empty));
         sb.Append("&limit=").Append(query.Limit);
         sb.Append("&offset=").Append(query.Offset);
+        // No text to rank by: list the most downloaded projects, like modrinth.com/mods does.
+        if (string.IsNullOrWhiteSpace(query.Query))
+            sb.Append("&index=downloads");
 
         var facets = BuildFacets(query);
         if (facets is not null)

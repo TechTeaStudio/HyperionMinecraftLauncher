@@ -406,10 +406,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
             PrevBrowsedSkinPageAsync,
             () => !_skinBrowserBusy && _skinBrowser is not null && _currentSkinPage > 0);
 
-        SearchModsCommand = new AsyncRelayCommand(SearchModsAsync, () => !IsBusy && GetActiveModRepository() is not null);
+        SearchModsCommand = new AsyncRelayCommand(() => SearchModsAsync(announce: true), () => !IsBusy && GetActiveModRepository() is not null);
         InstallModCommand = new AsyncRelayCommand(InstallSelectedModAsync,
             () => !IsBusy && SelectedModSearchResult is not null && SelectedInstance is not null && _instanceModManager is not null);
-        RefreshInstalledModsCommand = new AsyncRelayCommand(RefreshInstalledModsAsync,
+        RefreshInstalledModsCommand = new AsyncRelayCommand(() => RefreshInstalledModsAsync(announce: true),
             () => !IsBusy && SelectedInstance is not null && _instanceModManager is not null);
         ToggleInstalledModCommand = new AsyncRelayCommand(ToggleSelectedInstalledModAsync,
             () => !IsBusy && SelectedInstalledMod is not null && SelectedInstance is not null && _instanceModManager is not null);
@@ -839,6 +839,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
                     SelectedCrashReport = null;
                 }
                 OnPropertyChanged(nameof(CanManageInstanceMods));
+                if (IsModsSelected)
+                {
+                    _ = RefreshInstalledModsAsync(announce: false);
+                    AutoSearchMods();
+                }
                 InstallModCommand?.RaiseCanExecuteChanged();
                 RefreshInstalledModsCommand?.RaiseCanExecuteChanged();
                 ToggleInstalledModCommand?.RaiseCanExecuteChanged();
@@ -1386,6 +1391,18 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 // hits the explicit Refresh / search box).
                 if (value == NavSection.Skins && _skinBrowser is not null && BrowsedSkins.Count == 0)
                     _ = RefreshTrendingBrowsedSkinsAsync();
+
+                // The Mods page always shows the live mods folder. With nothing selected yet it
+                // follows the most recently played instance (the list is sorted that way); the
+                // SelectedInstance setter then reloads, so only reload here when it didn't change.
+                if (value == NavSection.Mods)
+                {
+                    if (SelectedInstance is null && Instances.Count > 0)
+                        SelectedInstance = Instances[0];
+                    else
+                        _ = RefreshInstalledModsAsync(announce: false);
+                    AutoSearchMods();
+                }
             }
         }
     }
@@ -1427,6 +1444,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 OnPropertyChanged(nameof(IsCurseForgeSelected));
                 OnPropertyChanged(nameof(ShouldShowCurseForgeEmptyState));
                 SearchModsCommand.RaiseCanExecuteChanged();
+                if (IsModsSelected)
+                    AutoSearchMods();
             }
         }
     }
@@ -4092,7 +4111,24 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _ => null,
     };
 
-    private async Task SearchModsAsync()
+    /// <summary>Source | term | version | loader of the last search, so automatic reloads skip identical queries.</summary>
+    private string? _lastModSearchKey;
+    private int _modSearchGeneration;
+
+    private string CurrentModSearchKey()
+        => $"{SelectedModSource}|{ModSearchTerm}|{SelectedInstance?.VersionId}|{SelectedInstance?.Loader}";
+
+    /// <summary>
+    /// Fill the Mods page results without a click (page open, instance or source switch).
+    /// An empty term browses the most popular mods that fit the selected instance.
+    /// </summary>
+    private void AutoSearchMods()
+    {
+        if (GetActiveModRepository() is null || CurrentModSearchKey() == _lastModSearchKey) return;
+        _ = SearchModsAsync(announce: false);
+    }
+
+    private async Task SearchModsAsync(bool announce = true)
     {
         var repo = GetActiveModRepository();
         if (repo is null)
@@ -4100,10 +4136,15 @@ public sealed class MainViewModel : INotifyPropertyChanged
             Append(Strings.Log_ModsNoRepository);
             return;
         }
+        // Claim the key up front: a second identical auto-search fired meanwhile is skipped.
+        var key = CurrentModSearchKey();
+        _lastModSearchKey = key;
+        var generation = ++_modSearchGeneration;
         IsBusy = true;
         try
         {
-            Append(string.Format(Strings.Log_ModsSearching, SelectedModSource, ModSearchTerm));
+            if (announce)
+                Append(string.Format(Strings.Log_ModsSearching, SelectedModSource, ModSearchTerm));
             var query = new ModSearchQuery
             {
                 Query = ModSearchTerm,
@@ -4112,13 +4153,17 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 Loader = SelectedInstance?.Loader,
             };
             var hits = await repo.SearchAsync(query, CancellationToken.None);
+            // A newer search (other instance / source / term) owns the list now.
+            if (generation != _modSearchGeneration) return;
             ModSearchResults.Clear();
             foreach (var m in hits)
                 ModSearchResults.Add(m);
-            Append(string.Format(Strings.Log_ModsResultsCount, hits.Count));
+            if (announce)
+                Append(string.Format(Strings.Log_ModsResultsCount, hits.Count));
         }
         catch (Exception ex)
         {
+            if (_lastModSearchKey == key) _lastModSearchKey = null; // let the next visit retry
             Append($"[error] Mod search failed: {ex.Message}");
         }
         finally
@@ -4168,25 +4213,34 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    private async Task RefreshInstalledModsAsync()
+    /// <summary>
+    /// Re-read the selected instance's mods folder into <see cref="InstalledMods"/>. A plain
+    /// directory listing, so it does not take the global busy flag (that used to block the
+    /// automatic reload whenever anything else was running). <paramref name="announce"/> logs
+    /// the count; automatic reloads stay quiet.
+    /// </summary>
+    private async Task RefreshInstalledModsAsync(bool announce = true)
     {
-        if (SelectedInstance is not { } inst || _instanceModManager is null) return;
-        IsBusy = true;
+        if (_instanceModManager is null) return;
+        if (SelectedInstance is not { } inst)
+        {
+            InstalledMods.Clear();
+            return;
+        }
         try
         {
             var list = await _instanceModManager.ListInstalledAsync(inst, CancellationToken.None);
+            // A newer selection may have started its own reload while we were reading.
+            if (!ReferenceEquals(SelectedInstance, inst)) return;
             InstalledMods.Clear();
             foreach (var m in list)
                 InstalledMods.Add(m);
-            Append(string.Format(Strings.Log_ModsInstalledInInstance, list.Count, inst.Name));
+            if (announce)
+                Append(string.Format(Strings.Log_ModsInstalledInInstance, list.Count, inst.Name));
         }
         catch (Exception ex)
         {
             Append($"[error] Could not list installed mods: {ex.Message}");
-        }
-        finally
-        {
-            IsBusy = false;
         }
     }
 

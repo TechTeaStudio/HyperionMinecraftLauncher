@@ -83,7 +83,11 @@ public partial class App : Application
             // on network failure so the launcher stays usable offline.
             var cache = new FileCache();
             var httpClient = new System.Net.Http.HttpClient { Timeout = System.TimeSpan.FromSeconds(15) };
-            var newsClient = new MojangNewsClient(httpClient, cache);
+            // News: the minecraft.net article grid first (what the site shows), the official
+            // launcher's v2 feed as the backup when that undocumented API is down or changes.
+            var newsClient = new FallbackNewsClient(
+                new MinecraftNetNewsClient(httpClient, cache),
+                new MojangNewsClient(httpClient, cache));
 
             // Live server-status pings over TCP - one round-trip per row on the Servers page.
             // The default 1.8 protocol number keeps us compatible with virtually every modern server.

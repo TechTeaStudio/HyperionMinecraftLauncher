@@ -90,6 +90,24 @@ public class ModrinthRepositoryTests
         Assert.Null(hits[1].IconUri);
     }
 
+    [Theory]
+    [InlineData("", true)]        // browsing: most downloaded first, like modrinth.com/mods
+    [InlineData("sodium", false)] // a typed query keeps Modrinth's relevance ranking
+    public async Task SearchAsync_EmptyQuery_SortsByDownloads(string text, bool expectDownloadsIndex)
+    {
+        string? capturedUrl = null;
+        var handler = new CapturingHandler((req, _) =>
+        {
+            capturedUrl = req.RequestUri!.ToString();
+            return Reply(SearchJson);
+        });
+        var http = new HttpClient(handler) { BaseAddress = new Uri("https://api.modrinth.com/v2/") };
+
+        await new ModrinthRepository(http).SearchAsync(new ModSearchQuery { Query = text }, CancellationToken.None);
+
+        Assert.Equal(expectDownloadsIndex, capturedUrl!.Contains("index=downloads"));
+    }
+
     [Fact]
     public async Task SearchAsync_BuildsFacetsFromGameVersionAndLoader()
     {

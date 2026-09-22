@@ -10,15 +10,16 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.News;
 
 /// <summary>
-/// Fetches the Mojang launcher's own news feed (<c>https://launchercontent.mojang.com/news.json</c>).
-/// This is the same endpoint the official Minecraft launcher polls to populate its Play / News pages,
-/// so what our users see matches what they'd see in Mojang's launcher.
+/// Fetches the Mojang launcher's own news feed (<c>https://launchercontent.mojang.com/v2/news.json</c>).
+/// This is the same endpoint the official Minecraft launcher polls to populate its Play / News pages.
+/// The v1 <c>news.json</c> still answers but stopped updating in January 2024; v2 is the live one
+/// (images live under <c>/v2/images/</c>, resolved against the same host).
 /// </summary>
 public sealed class MojangNewsClient : INewsClient
 {
-    private const string FeedUrl = "https://launchercontent.mojang.com/news.json";
+    private const string FeedUrl = "https://launchercontent.mojang.com/v2/news.json";
     private const string ImageBaseUrl = "https://launchercontent.mojang.com";
-    private const string CacheKey = "news.json";
+    private const string CacheKey = "news.v2.json"; // new key: never serve the frozen v1 copy
     private static readonly TimeSpan CacheTtl = TimeSpan.FromHours(1);
 
     private readonly HttpClient _http;

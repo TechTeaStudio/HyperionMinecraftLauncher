@@ -170,7 +170,7 @@
 
   <!-- News page -->
   <data name="News.Title" xml:space="preserve"><value>Новини</value></data>
-  <data name="News.Subtitle" xml:space="preserve"><value>Стрічка з launchercontent.mojang.com/news.json, те саме джерело, що й офіційний лаунчер Mojang.</value></data>
+  <data name="News.Subtitle" xml:space="preserve"><value>Свіжі статті з minecraft.net/article, нові зверху.</value></data>
   <data name="News.RefreshButton" xml:space="preserve"><value>Оновити новини</value></data>
   <data name="News.ReadMore" xml:space="preserve"><value>Читати далі на minecraft.net</value></data>
 

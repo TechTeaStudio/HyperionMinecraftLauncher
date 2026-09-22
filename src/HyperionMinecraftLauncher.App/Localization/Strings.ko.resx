@@ -170,7 +170,7 @@
 
   <!-- News page -->
   <data name="News.Title" xml:space="preserve"><value>소식</value></data>
-  <data name="News.Subtitle" xml:space="preserve"><value>launchercontent.mojang.com/news.json의 실시간 피드, Mojang 공식 런처와 동일한 소스입니다.</value></data>
+  <data name="News.Subtitle" xml:space="preserve"><value>minecraft.net/article의 최신 기사, 최신순.</value></data>
   <data name="News.RefreshButton" xml:space="preserve"><value>소식 새로 고침</value></data>
   <data name="News.ReadMore" xml:space="preserve"><value>minecraft.net에서 더 읽기</value></data>
 

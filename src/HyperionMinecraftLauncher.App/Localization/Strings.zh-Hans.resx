@@ -187,7 +187,7 @@
 
   <!-- News page -->
   <data name="News.Title" xml:space="preserve"><value>新闻</value></data>
-  <data name="News.Subtitle" xml:space="preserve"><value>实时获取自 launchercontent.mojang.com/news.json，与 Mojang 官方启动器使用相同的数据源。</value></data>
+  <data name="News.Subtitle" xml:space="preserve"><value>来自 minecraft.net/article 的最新文章，按时间从新到旧排列。</value></data>
   <data name="News.RefreshButton" xml:space="preserve"><value>刷新新闻</value></data>
   <data name="News.ReadMore" xml:space="preserve"><value>在 minecraft.net 上阅读更多</value></data>
 

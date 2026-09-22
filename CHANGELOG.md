@@ -3,6 +3,18 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.28] - 2026-09-22
+
+### Changed
+
+- News now come from minecraft.net: the same article list the site's own grid at `minecraft.net/en-us/article` loads (newest first, category derived from the article's game tag). The official launcher's live `v2/news.json` feed is the fallback when that API is unavailable (`FallbackNewsClient`). Page subtitle updated in all 14 locales.
+- Mods page loads by itself: opening it lists the selected instance's installed mods and fills the search results with the most downloaded mods that fit the instance's version and loader (Modrinth `index=downloads` for an empty query). Switching instance or Modrinth / CurseForge re-queries; identical queries are skipped and a stale response never overwrites a newer one. With no instance selected, the most recently played one is picked.
+
+### Fixed
+
+- News were stuck in January 2024: the launcher read `launchercontent.mojang.com/news.json`, which Mojang stopped updating in favour of `v2/news.json`.
+- The installed-mods list only auto-refreshed when the launcher wasn't busy (the refresh command's `!IsBusy` gate, almost always true during startup) and never after switching instance. It no longer touches the global busy flag, and automatic reloads don't log a line every time.
+
 ## [0.32.27] - 2026-09-22
 
 ### Added

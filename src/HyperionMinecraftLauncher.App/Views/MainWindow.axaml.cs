@@ -406,14 +406,7 @@ public partial class MainWindow : Window
     private void OnNavSkins(object? sender, RoutedEventArgs e) => SetSection(NavSection.Skins);
     private void OnNavServers(object? sender, RoutedEventArgs e) => SetSection(NavSection.Servers);
     private void OnNavHeadlessServers(object? sender, RoutedEventArgs e) => SetSection(NavSection.HeadlessServers);
-    private void OnNavMods(object? sender, RoutedEventArgs e)
-    {
-        SetSection(NavSection.Mods);
-        // Auto-refresh the installed list when an instance is selected; cheap on startup
-        // when the mods folder doesn't exist yet (returns empty).
-        if (DataContext is MainViewModel vm && vm.RefreshInstalledModsCommand.CanExecute(null))
-            _ = vm.RefreshInstalledModsCommand.ExecuteAsync();
-    }
+    private void OnNavMods(object? sender, RoutedEventArgs e) => SetSection(NavSection.Mods); // VM reloads the installed list
     private void OnNavNews(object? sender, RoutedEventArgs e) => SetSection(NavSection.News);
     private void OnNavSettings(object? sender, RoutedEventArgs e) => SetSection(NavSection.Settings);
     private void OnNavLogs(object? sender, RoutedEventArgs e) => SetSection(NavSection.Logs);

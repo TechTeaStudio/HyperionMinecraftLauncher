@@ -170,7 +170,7 @@
 
   <!-- News page -->
   <data name="News.Title" xml:space="preserve"><value>Novità</value></data>
-  <data name="News.Subtitle" xml:space="preserve"><value>Feed da launchercontent.mojang.com/news.json, la stessa fonte del launcher ufficiale Mojang.</value></data>
+  <data name="News.Subtitle" xml:space="preserve"><value>Ultimi articoli da minecraft.net/article, dal più recente.</value></data>
   <data name="News.RefreshButton" xml:space="preserve"><value>Aggiorna novità</value></data>
   <data name="News.ReadMore" xml:space="preserve"><value>Leggi di più su minecraft.net</value></data>
 

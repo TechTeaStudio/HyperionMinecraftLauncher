@@ -184,7 +184,7 @@
 
   <!-- News page -->
   <data name="News.Title" xml:space="preserve"><value>ニュース</value></data>
-  <data name="News.Subtitle" xml:space="preserve"><value>launchercontent.mojang.com/news.json からのライブフィードで、Mojang 公式ランチャーと同じソースを使用しています。</value></data>
+  <data name="News.Subtitle" xml:space="preserve"><value>minecraft.net/article の最新記事（新しい順）。</value></data>
   <data name="News.RefreshButton" xml:space="preserve"><value>ニュースを更新</value></data>
   <data name="News.ReadMore" xml:space="preserve"><value>minecraft.net で続きを読む</value></data>
 
