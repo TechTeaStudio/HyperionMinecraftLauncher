@@ -3,6 +3,12 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.29] - 2026-09-22
+
+### Changed
+
+- News page shows large article cards instead of small rows: key art across the top of the card (kept at the 1170x500 proportions of minecraft.net art via the new `AspectRatioDecorator`), category and date, a 19 px title and a three-line teaser, with Read more pinned to the bottom so buttons line up across a row. Two columns from 900 px wide, one below (`NewsColumnsConverter`), so a maximized Full HD window shows three to four articles at a time. Cards reuse the launcher's `Card` hover lift.
+
 ## [0.32.28] - 2026-09-22
 
 ### Changed

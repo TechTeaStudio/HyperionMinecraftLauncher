@@ -1714,34 +1714,45 @@
                 Padding="10,4" HorizontalAlignment="Left" Margin="0,0,0,6" />
         <Border Grid.Row="2" Padding="6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
-          <ScrollViewer VerticalScrollBarVisibility="Auto">
+          <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <!-- Big article cards in the minecraft.net style: key art on top (1170x500 ratio),
+                 then category / date, title and teaser. Two columns from 900 px, one below,
+                 so a maximized Full HD window shows about four articles. -->
             <ItemsControl ItemsSource="{Binding News}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <UniformGrid Columns="{Binding $parent[ScrollViewer].Bounds.Width, Converter={x:Static local:NewsColumnsConverter.Instance}}" />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                  <Border Margin="0,0,0,8" Padding="10" CornerRadius="15"
+                  <Border Classes="Card" Margin="6" CornerRadius="15" ClipToBounds="True"
                           Background="{DynamicResource MaterialBackgroundBrush}">
-                    <Grid ColumnDefinitions="80,*" RowDefinitions="Auto,Auto,Auto,Auto">
-                      <Image Grid.RowSpan="4" Grid.Column="0"
-                             asyncImageLoader:ImageLoader.Source="{Binding ImageUrl}"
-                             Width="72" Height="72"
-                             Stretch="UniformToFill"
-                             Margin="0,0,10,0" VerticalAlignment="Top" />
-                      <TextBlock Grid.Row="0" Grid.Column="1"
-                                 Text="{Binding Title}" FontWeight="SemiBold" FontSize="13"
-                                 TextWrapping="Wrap" />
-                      <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="0,2,0,0">
-                        <TextBlock Text="{Binding Category}" FontSize="10" Opacity="0.7"
-                                   Foreground="{DynamicResource MaterialSecondaryMidBrush}" />
-                        <TextBlock Text="{Binding Date}" FontSize="10" Opacity="0.55" />
-                      </StackPanel>
-                      <TextBlock Grid.Row="2" Grid.Column="1"
-                                 Text="{Binding Text}" FontSize="11" Opacity="0.85"
-                                 TextWrapping="Wrap" Margin="0,4,0,0" />
-                      <Button Grid.Row="3" Grid.Column="1"
-                              Content="{x:Static loc:Strings.News_ReadMore}" FontSize="10"
-                              Tag="{Binding ReadMoreLink}" Click="OnOpenExternalLink"
-                              HorizontalAlignment="Left" Margin="0,6,0,0" Padding="8,3" />
-                    </Grid>
+                    <DockPanel>
+                      <controls:AspectRatioDecorator DockPanel.Dock="Top" Ratio="2.34">
+                        <Border Background="#22000000">
+                          <Image asyncImageLoader:ImageLoader.Source="{Binding ImageUrl}"
+                                 Stretch="UniformToFill" />
+                        </Border>
+                      </controls:AspectRatioDecorator>
+                      <DockPanel Margin="18,14,18,16">
+                        <Button DockPanel.Dock="Bottom"
+                                Content="{x:Static loc:Strings.News_ReadMore}" FontSize="12"
+                                Tag="{Binding ReadMoreLink}" Click="OnOpenExternalLink"
+                                HorizontalAlignment="Left" Margin="0,10,0,0" Padding="12,5" />
+                        <StackPanel Spacing="6">
+                          <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="{Binding Category}" FontSize="12" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MaterialSecondaryMidBrush}" />
+                            <TextBlock Text="{Binding Date}" FontSize="12" Opacity="0.6" />
+                          </StackPanel>
+                          <TextBlock Text="{Binding Title}" FontSize="19" FontWeight="Bold" Foreground="White"
+                                     TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" />
+                          <TextBlock Text="{Binding Text}" FontSize="13" Opacity="0.8"
+                                     TextWrapping="Wrap" MaxLines="3" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                      </DockPanel>
+                    </DockPanel>
                   </Border>
                 </DataTemplate>
               </ItemsControl.ItemTemplate>
