@@ -18,6 +18,11 @@
            (same author, SIL OFL, monospaced) because the pixel face was unreadable in chrome
            at 11-14 px. The pixel face is still available under "MinecraftPixelFont" for big
            decorative headings if anyone wants it. -->
+      <!-- Body UI face: the Inter build shipped inside Avalonia.Fonts.Inter (Thin..Bold statics),
+           so every machine renders the same glyphs instead of falling back to Segoe UI Regular.
+           Windows set FontWeight="Medium" next to it - Regular at 10-12 px read too thin. -->
+      <FontFamily x:Key="UiFont">fonts:Inter#Inter, $Default</FontFamily>
+
       <FontFamily x:Key="MinecraftFont">avares://HyperionMinecraftLauncher/Assets/Fonts#Monocraft</FontFamily>
       <FontFamily x:Key="MinecraftFontBold">avares://HyperionMinecraftLauncher/Assets/Fonts#Monocraft</FontFamily>
       <FontFamily x:Key="MinecraftPixelFont">avares://HyperionMinecraftLauncher/Assets/Fonts#Minecraft</FontFamily>
@@ -30,6 +35,61 @@
          the Material brushes to a Minecraft palette without forking the library. -->
     <themes:MaterialTheme BaseTheme="Dark" PrimaryColor="Green" SecondaryColor="Amber" />
     <materialIcons:MaterialIconStyles />
+
+    <!-- Instance-icon picker tile (New / Edit instance, Edit icon dialogs). Replaces the
+         Material radio template: no radio dot, icon centred in a glass tile, hover lift,
+         and an unmistakable selected state (green rim + tint + corner check badge). -->
+    <Style Selector="RadioButton.IconTile">
+      <Setter Property="Width" Value="52" />
+      <Setter Property="Height" Value="52" />
+      <Setter Property="Margin" Value="3" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Background" Value="#1FFFFFFF" />
+      <Setter Property="BorderBrush" Value="#26FFFFFF" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Name="PART_Tile"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  CornerRadius="{TemplateBinding CornerRadius}">
+            <Panel>
+              <ContentPresenter Content="{TemplateBinding Content}"
+                                HorizontalAlignment="Center" VerticalAlignment="Center" />
+              <Border Name="PART_Check" IsVisible="False"
+                      Width="15" Height="15" CornerRadius="8"
+                      HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,2,0"
+                      Background="#5BA834">
+                <Path Data="M 3.5,7.5 L 6.3,10.2 L 11.5,4.8"
+                      Stroke="White" StrokeThickness="1.8"
+                      StrokeLineCap="Round" StrokeJoin="Round" />
+              </Border>
+            </Panel>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.12" />
+          <BrushTransition Property="BorderBrush" Duration="0:0:0.12" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="RadioButton.IconTile:pointerover">
+      <Setter Property="Background" Value="#33FFFFFF" />
+      <Setter Property="BorderBrush" Value="#59FFFFFF" />
+    </Style>
+    <Style Selector="RadioButton.IconTile:checked">
+      <Setter Property="Background" Value="#475BA834" />
+      <Setter Property="BorderBrush" Value="#7BD64A" />
+      <Setter Property="BorderThickness" Value="2" />
+    </Style>
+    <Style Selector="RadioButton.IconTile:checked /template/ Border#PART_Check">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
 
     <Style>
       <Style.Resources>

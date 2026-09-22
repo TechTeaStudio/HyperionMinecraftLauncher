@@ -16,7 +16,8 @@
         ExtendClientAreaTitleBarHeightHint="-1"
         WindowStartupLocation="CenterOwner"
         Background="{DynamicResource LG.WindowBackground}"
-        FontFamily="Inter, Segoe UI, system-ui"
+        FontFamily="{StaticResource UiFont}"
+        FontWeight="Medium"
         RenderOptions.BitmapInterpolationMode="None">
 
   <Border Background="{DynamicResource LG.GlassSurface}"
@@ -45,8 +46,17 @@
            even when the dialog is shrunk; the WrapPanel inside is horizontally
            centered so tiles never lean against the left edge. -->
       <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
-                    HorizontalScrollBarVisibility="Disabled" Padding="22,16">
-        <StackPanel Spacing="12" HorizontalAlignment="Stretch">
+                    HorizontalScrollBarVisibility="Disabled">
+        <ScrollViewer.OpacityMask>
+          <!-- Soft fade at the scroll edges instead of a hard clip under the title bar / buttons. -->
+          <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+            <GradientStop Color="#00000000" Offset="0" />
+            <GradientStop Color="#FF000000" Offset="0.04" />
+            <GradientStop Color="#FF000000" Offset="0.91" />
+            <GradientStop Color="#00000000" Offset="1" />
+          </LinearGradientBrush>
+        </ScrollViewer.OpacityMask>
+        <StackPanel Spacing="12" HorizontalAlignment="Stretch" Margin="22,16,22,34">
           <TextBlock x:Name="SubtitleText" FontSize="12" Opacity="0.85" TextWrapping="Wrap"
                      HorizontalAlignment="Center" TextAlignment="Center"
                      Text="{x:Static loc:Strings.EditInstanceIconDialog_Subtitle}" />
@@ -72,13 +82,9 @@
             <ItemsControl.ItemTemplate>
               <DataTemplate DataType="sys:String">
                 <RadioButton GroupName="IconChoice"
-                            Margin="3"
+                            Classes="IconTile"
                             Tag="{Binding}"
-                            Click="OnIconClicked"
-                            Width="48" Height="48"
-                            Background="{DynamicResource MaterialBackgroundBrush}"
-                            BorderBrush="{DynamicResource MaterialPrimaryMidBrush}"
-                            BorderThickness="1">
+                            Click="OnIconClicked">
                   <Image Source="{ReflectionBinding Converter={x:Static local:IconKeyToUri.Instance}}"
                          Width="28" Height="28" />
                 </RadioButton>

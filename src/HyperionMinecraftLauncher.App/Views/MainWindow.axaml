@@ -24,7 +24,8 @@
         MinWidth="800" MinHeight="500"
         Background="Transparent"
         TransparencyLevelHint="AcrylicBlur, Mica, Blur, None"
-        FontFamily="Inter, Segoe UI, DejaVu Sans, Liberation Sans, Noto Sans, system-ui"
+        FontFamily="{StaticResource UiFont}"
+        FontWeight="Medium"
         SystemDecorations="None"
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaChromeHints="NoChrome"
@@ -404,7 +405,7 @@
                      FontFamily="{StaticResource MinecraftFont}"
                      FontSize="18" Foreground="White" />
           <TextBlock Text="{x:Static loc:Strings.Home_Subtitle}"
-                     Opacity="0.65" FontSize="11" />
+                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
         </StackPanel>
 
         <!-- Instances (saved + auto-imported from .minecraft/versions/) -->
@@ -537,9 +538,9 @@
           <TextBlock Text="{x:Static loc:Strings.Installations_Title}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
           <TextBlock Text="{x:Static loc:Strings.Installations_Subtitle}"
-                     Opacity="0.65" FontSize="11" />
+                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
         </StackPanel>
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+        <WrapPanel Grid.Row="1" Classes="Toolbar" Margin="0,0,0,2">
           <Button Content="{x:Static loc:Strings.Installations_NewInstance}"
                   Click="OnNewInstanceClicked"
                   Classes="LaunchBtn"
@@ -568,7 +569,7 @@
           <Button Content="{x:Static loc:Strings.Installations_DeleteSelected}" FontSize="11"
                   Command="{Binding DeleteInstanceCommand}"
                   Padding="10,5" />
-        </StackPanel>
+        </WrapPanel>
         <!-- Modpack import strip: only visible while an import is running. -->
         <Border Grid.Row="2" Margin="0,0,0,8" Padding="10,6"
                 CornerRadius="10"
@@ -1323,16 +1324,16 @@
           <TextBlock Text="{x:Static loc:Strings.Servers_Title}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
           <TextBlock Text="{x:Static loc:Strings.Servers_Subtitle}"
-                     Opacity="0.65" FontSize="11" />
+                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
         </StackPanel>
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="6" Margin="0,0,0,6">
+        <WrapPanel Grid.Row="1" Classes="Toolbar" Margin="0,0,0,2">
           <Button Content="{x:Static loc:Strings.Servers_RefreshServers}" FontSize="11"
                   Command="{Binding RefreshServersCommand}"
                   Padding="10,4" />
           <Button Content="{x:Static loc:Strings.Servers_RefreshPings}" FontSize="11"
                   Command="{Binding RefreshServerPingsCommand}"
                   Padding="10,4" />
-        </StackPanel>
+        </WrapPanel>
         <Border Grid.Row="2" Padding="6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <ListBox ItemsSource="{Binding Servers}"
@@ -1368,10 +1369,10 @@
           <TextBlock Text="{x:Static loc:Strings.HeadlessServers_Title}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
           <TextBlock Text="{x:Static loc:Strings.HeadlessServers_Subtitle}"
-                     Opacity="0.65" FontSize="11" />
+                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
         </StackPanel>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+        <WrapPanel Grid.Row="1" Classes="Toolbar" Margin="0,0,0,2">
           <Button Content="{x:Static loc:Strings.HeadlessServers_NewServer}"
                   Click="OnNewHeadlessServerClicked"
                   Classes="LaunchBtn"
@@ -1390,7 +1391,7 @@
           <Button Content="{x:Static loc:Strings.HeadlessServers_Delete}" FontSize="11"
                   Command="{Binding DeleteHeadlessServerCommand}"
                   Padding="10,5" />
-        </StackPanel>
+        </WrapPanel>
 
         <!-- Per-server status label (v0.32.1). Shows "Stopped / Starting... / Running (pid X) / Stopping...". -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="6" Margin="0,0,0,6"
@@ -1474,7 +1475,7 @@
           <TextBlock Text="{x:Static loc:Strings.Mods_Title}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
           <TextBlock Text="{x:Static loc:Strings.Mods_Subtitle}"
-                     Opacity="0.65" FontSize="11" />
+                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
         </StackPanel>
 
         <!-- Top search bar -->
@@ -1987,6 +1988,12 @@
   </Panel>
 
   <Window.Styles>
+    <!-- Page toolbars wrap instead of running off the right edge: localized labels
+         (ru/de/pl) plus the Medium UI weight made the Installations row wider than the
+         960 px window. WrapPanel has no Spacing in 11.2, so the gap lives on the buttons. -->
+    <Style Selector="WrapPanel.Toolbar > Button">
+      <Setter Property="Margin" Value="0,0,8,6" />
+    </Style>
     <!-- Custom window-control buttons (min / max / close) in the title bar, with a 150 ms hover fade
          and no Material elevation shadow. ShadowDepth0 + zero BoxShadow on the templated Border
          covers both Material.Avalonia's own elevation system and any leftover BoxShadow setters. -->

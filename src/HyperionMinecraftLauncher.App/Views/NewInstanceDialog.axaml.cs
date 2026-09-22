@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.VisualTree;
 using Avalonia.Data.Converters;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -52,6 +53,18 @@ public partial class NewInstanceDialog : Window
     {
         InitializeComponent();
         IconPicker.ItemsSource = InstanceIcons.All;
+        // Light up the default tile so the selected-state badge is visible from the start.
+        Opened += (_, _) =>
+        {
+            foreach (var rb in IconPicker.GetVisualDescendants().OfType<RadioButton>())
+            {
+                if (rb.Tag is string key && string.Equals(key, SelectedIconKey, StringComparison.Ordinal))
+                {
+                    rb.IsChecked = true;
+                    break;
+                }
+            }
+        };
     }
 
     /// <summary>

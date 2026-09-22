@@ -15,7 +15,8 @@
         ExtendClientAreaTitleBarHeightHint="-1"
         WindowStartupLocation="CenterOwner"
         Background="{DynamicResource LG.WindowBackground}"
-        FontFamily="Inter, Segoe UI, system-ui">
+        FontFamily="{StaticResource UiFont}"
+        FontWeight="Medium">
 
   <Border Background="{DynamicResource LG.GlassSurface}"
           BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="1"

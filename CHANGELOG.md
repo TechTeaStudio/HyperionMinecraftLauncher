@@ -3,6 +3,19 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.25] - 2026-09-22
+
+### Changed
+
+- Body UI font is now the Inter build bundled in `Avalonia.Fonts.Inter` at Medium weight (new `UiFont` resource in `App.axaml`), in the main window and every dialog. The old `"Inter, Segoe UI, ..."` string never resolved the embedded Inter and fell back to Segoe UI Regular, which read too thin at 10-12 px.
+- Instance-icon picker (New instance, Edit instance, Edit icon dialogs) uses a shared `RadioButton.IconTile` style: no radio dot, icon centred in a glass tile, hover highlight, and an explicit selected state (green rim, tint, corner check badge). The New instance dialog highlights the default icon on open.
+- Scrollable dialog bodies fade out at the top and bottom edges instead of being hard-clipped under the title bar and the button row.
+
+### Fixed
+
+- Page toolbars (Installations, Servers, Headless) ran off the right edge of the window; they are now `WrapPanel`s and move overflowing buttons to a second line. Page subtitles wrap too.
+- Instance dialogs could not be scrolled and the icon grid overflowed to the right and under the buttons. `Padding` on the body `ScrollViewer` shrank the content but was not counted in its extent (desired 467 px vs extent 417 px in a 435 px viewport), so the viewer believed everything fit. The padding moved to a `Margin` on the inner panel, and horizontal scrolling is disabled so the icon `WrapPanel` wraps to the real width.
+
 ## [0.32.24] - 2026-09-22
 
 ### Fixed
