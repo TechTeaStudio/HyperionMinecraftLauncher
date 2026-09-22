@@ -88,6 +88,13 @@
   <data name="Installations.ImportModpack" xml:space="preserve"><value>Импорт сборки модов...</value></data>
   <data name="Installations.Refresh" xml:space="preserve"><value>Обновить</value></data>
   <data name="Installations.DeleteSelected" xml:space="preserve"><value>Удалить выбранные</value></data>
+  <data name="InstanceCard.Mods" xml:space="preserve"><value>Моды</value></data>
+  <data name="InstanceCard.Playtime" xml:space="preserve"><value>Время в игре</value></data>
+  <data name="InstanceCard.LastPlayed" xml:space="preserve"><value>Последний запуск</value></data>
+  <data name="InstanceCard.Never" xml:space="preserve"><value>Ещё не запускалась</value></data>
+  <data name="InstanceCard.Vanilla" xml:space="preserve"><value>Ванилла</value></data>
+  <data name="InstanceCard.PlaytimeHoursMinutes" xml:space="preserve"><value>{0} ч {1} мин</value></data>
+  <data name="InstanceCard.PlaytimeMinutes" xml:space="preserve"><value>{0} мин</value></data>
   <data name="Installations.AutoBadge" xml:space="preserve"><value>авто</value></data>
   <data name="Installations.MoreTooltip" xml:space="preserve"><value>Ещё...</value></data>
   <data name="Installations.MenuEditInstance" xml:space="preserve"><value>Редактировать сборку...</value></data>

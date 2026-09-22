@@ -20,7 +20,7 @@
         x:DataType="vm:MainViewModel"
         Title="{x:Static loc:Strings.MainWindow_Title}"
         Icon="avares://HyperionMinecraftLauncher/Assets/icon.png"
-        Width="960" Height="580"
+        Width="1180" Height="700"
         MinWidth="800" MinHeight="500"
         Background="Transparent"
         TransparencyLevelHint="AcrylicBlur, Mica, Blur, None"
@@ -533,14 +533,14 @@
       </Grid>
 
       <!-- ==== INSTALLATIONS PAGE ==== -->
-      <Grid IsVisible="{Binding IsInstallationsSelected}" Classes="Page" RowDefinitions="Auto,Auto,Auto,*,Auto">
-        <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
+      <Grid IsVisible="{Binding IsInstallationsSelected}" Classes="Page" RowDefinitions="Auto,Auto,Auto,*,Auto" ColumnDefinitions="*,Auto">
+        <StackPanel Grid.ColumnSpan="2" Grid.Row="0" Spacing="1" Margin="0,0,0,8">
           <TextBlock Text="{x:Static loc:Strings.Installations_Title}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
           <TextBlock Text="{x:Static loc:Strings.Installations_Subtitle}"
                      Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
         </StackPanel>
-        <WrapPanel Grid.Row="1" Classes="Toolbar" Margin="0,0,0,2">
+        <WrapPanel Grid.ColumnSpan="2" Grid.Row="1" Classes="Toolbar" Margin="0,0,0,2">
           <Button Content="{x:Static loc:Strings.Installations_NewInstance}"
                   Click="OnNewInstanceClicked"
                   Classes="LaunchBtn"
@@ -571,7 +571,7 @@
                   Padding="10,5" />
         </WrapPanel>
         <!-- Modpack import strip: only visible while an import is running. -->
-        <Border Grid.Row="2" Margin="0,0,0,8" Padding="10,6"
+        <Border Grid.ColumnSpan="2" Grid.Row="2" Margin="0,0,0,8" Padding="10,6"
                 CornerRadius="10"
                 Background="#33FFFFFF"
                 BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="1"
@@ -582,7 +582,7 @@
                          Height="6" />
           </StackPanel>
         </Border>
-        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="3" Grid.Column="0" VerticalScrollBarVisibility="Auto">
           <ListBox ItemsSource="{Binding Instances}"
                    SelectedItem="{Binding SelectedInstance, Mode=TwoWay}"
                    Background="Transparent" BorderThickness="0"
@@ -693,16 +693,80 @@
             </ListBox.ItemTemplate>
           </ListBox>
         </ScrollViewer>
+        <!-- Selected-instance card: name, version / loader chips (loader shown by its block,
+             same mapping as the tiles), then stats with the caption above the value so long
+             values ("Never played yet", localized durations) wrap instead of clipping. -->
+        <Border Grid.Row="3" Grid.RowSpan="2" Grid.Column="1" Classes="InstanceCard"
+                IsVisible="{Binding HasSelectedInstance}">
+          <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <StackPanel Spacing="12" Margin="14">
+            <Grid ColumnDefinitions="Auto,*">
+              <Border Width="52" Height="52" CornerRadius="10" Background="#1FFFFFFF"
+                      BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="1">
+                <Image Source="{Binding SelectedInstance.IconKey, Converter={x:Static local:IconKeyToUri.Instance}}"
+                       Width="34" Height="34" Stretch="Uniform"
+                       RenderOptions.BitmapInterpolationMode="None" />
+              </Border>
+              <TextBlock Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"
+                         Text="{Binding SelectedInstance.Name}"
+                         FontFamily="{StaticResource MinecraftFont}" FontSize="13" Foreground="White"
+                         TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" />
+            </Grid>
+
+            <WrapPanel>
+              <Border Classes="InstanceChip">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/grass_block_side.png" />
+                  <TextBlock Text="{Binding SelectedInstanceVersionText}" />
+                </StackPanel>
+              </Border>
+              <Border Classes="InstanceChip">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <Image Source="{Binding SelectedInstanceLoaderIconKey, Converter={x:Static local:IconKeyToUri.Instance}}" RenderOptions.BitmapInterpolationMode="None" />
+                  <TextBlock Text="{Binding SelectedInstanceLoaderText}" />
+                </StackPanel>
+              </Border>
+            </WrapPanel>
+
+            <Border Height="1" Background="{DynamicResource MaterialDividerBrush}" />
+
+            <StackPanel Spacing="10">
+              <Grid Classes="InstanceStat" ColumnDefinitions="Auto,*" IsVisible="{Binding IsSelectedInstanceModded}">
+                <materialIcons:MaterialIcon Kind="Puzzle" Foreground="White" />
+                <StackPanel Grid.Column="1">
+                  <TextBlock Classes="Caption" Text="{x:Static loc:Strings.InstanceCard_Mods}" />
+                  <TextBlock Classes="Value" Text="{Binding SelectedInstanceModsText}" />
+                </StackPanel>
+              </Grid>
+              <Grid Classes="InstanceStat" ColumnDefinitions="Auto,*">
+                <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/clock.png" RenderOptions.BitmapInterpolationMode="None" />
+                <StackPanel Grid.Column="1">
+                  <TextBlock Classes="Caption" Text="{x:Static loc:Strings.InstanceCard_Playtime}" />
+                  <TextBlock Classes="Value" Text="{Binding SelectedInstancePlaytimeText}" />
+                </StackPanel>
+              </Grid>
+              <Grid Classes="InstanceStat" ColumnDefinitions="Auto,*">
+                <Image Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/compass.png" RenderOptions.BitmapInterpolationMode="None" />
+                <StackPanel Grid.Column="1">
+                  <TextBlock Classes="Caption" Text="{x:Static loc:Strings.InstanceCard_LastPlayed}" />
+                  <TextBlock Classes="Value" Text="{Binding SelectedInstanceLastPlayedText}" />
+                </StackPanel>
+              </Grid>
+            </StackPanel>
+          </StackPanel>
+          </ScrollViewer>
+        </Border>
 
         <!-- Per-instance detail panel: screenshots / worlds / servers, scoped to the selected instance's gameDir. -->
-        <Border Grid.Row="4" Margin="0,8,0,0" Padding="8" CornerRadius="15"
+        <Border Grid.Row="4" Grid.Column="0" Margin="0,8,0,0" Padding="8" CornerRadius="15"
+                ClipToBounds="True"
                 Background="{DynamicResource MaterialPaperBrush}"
                 BorderBrush="{DynamicResource MaterialDividerBrush}" BorderThickness="1"
                 MinHeight="220"
                 IsVisible="{Binding HasSelectedInstance}">
           <Grid RowDefinitions="Auto,*">
             <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,6">
-              <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4">
+              <WrapPanel Grid.Column="0" Classes="DetailTabs">
                 <RadioButton Content="{x:Static loc:Strings.InstanceTabs_Screenshots}" GroupName="InstanceTabs"
                              Classes="DetailTab"
                              IsChecked="{Binding IsScreenshotsTabSelected, Mode=OneWay}"
@@ -731,35 +795,37 @@
                              Classes="DetailTab"
                              IsChecked="{Binding IsDataPacksTabSelected, Mode=OneWay}"
                              Click="OnInstanceTabDataPacks" />
-                <Button Content="{x:Static loc:Strings.InstanceTabs_RefreshButton}" FontSize="10" Padding="8,2" Margin="14,0,0,0"
+              </WrapPanel>
+              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Top" Margin="8,0,0,0">
+                <Button Content="{x:Static loc:Strings.InstanceTabs_RefreshButton}" FontSize="10" Padding="8,2"
                         Click="OnRefreshInstanceTab" />
-                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2" Margin="4,0,0,0"
+                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2"
                         Click="OnOpenCrashReportsFolder"
                         IsVisible="{Binding IsCrashesTabSelected}" />
-                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2" Margin="4,0,0,0"
+                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2"
                         Click="OnOpenResourcePacksFolder"
                         IsVisible="{Binding IsResourcePacksTabSelected}" />
-                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2" Margin="4,0,0,0"
+                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2"
                         Click="OnOpenShaderPacksFolder"
                         IsVisible="{Binding IsShaderPacksTabSelected}" />
-                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2" Margin="4,0,0,0"
+                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2"
                         Click="OnOpenSavesFolder"
                         IsVisible="{Binding IsDataPacksTabSelected}" />
+                <!-- Bug 3 (v0.32.0): the detail panel had no way to be dismissed. This X
+                     button nulls SelectedInstance, which collapses the whole Border via
+                     the IsVisible="HasSelectedInstance" binding above. Uses the same
+                     WinCtrl style as the header window controls so the click target is
+                     consistent with the rest of the chrome. -->
+                <Button
+                        Classes="WinCtrl"
+                        Width="28" Height="22"
+                        Padding="0"
+                        Command="{Binding CloseInstanceDetailCommand}"
+                        ToolTip.Tip="{x:Static loc:Strings.WindowChrome_Close}">
+                  <Path Data="M 0,0 L 9,9 M 9,0 L 0,9" Stroke="White" StrokeThickness="1.4"
+                        Width="9" Height="9" />
+                </Button>
               </StackPanel>
-              <!-- Bug 3 (v0.32.0): the detail panel had no way to be dismissed. This X
-                   button nulls SelectedInstance, which collapses the whole Border via
-                   the IsVisible="HasSelectedInstance" binding above. Uses the same
-                   WinCtrl style as the header window controls so the click target is
-                   consistent with the rest of the chrome. -->
-              <Button Grid.Column="1"
-                      Classes="WinCtrl"
-                      Width="28" Height="22"
-                      Padding="0"
-                      Command="{Binding CloseInstanceDetailCommand}"
-                      ToolTip.Tip="{x:Static loc:Strings.WindowChrome_Close}">
-                <Path Data="M 0,0 L 9,9 M 9,0 L 0,9" Stroke="White" StrokeThickness="1.4"
-                      Width="9" Height="9" />
-              </Button>
             </Grid>
 
             <!-- Screenshots tab: WrapPanel of 160x100 thumbnail tiles. Click opens with OS default viewer. -->
@@ -1991,6 +2057,53 @@
     <!-- Page toolbars wrap instead of running off the right edge: localized labels
          (ru/de/pl) plus the Medium UI weight made the Installations row wider than the
          960 px window. WrapPanel has no Spacing in 11.2, so the gap lives on the buttons. -->
+    <!-- Installations page: selected-instance card. Same surface as the tiles and the
+         detail-tab panel (paper brush, glass rim, radius 15); chips match the filter chips. -->
+    <Style Selector="Border.InstanceCard">
+      <Setter Property="Width" Value="250" />
+      <Setter Property="Margin" Value="10,6,0,0" />
+      <Setter Property="VerticalAlignment" Value="Stretch" />
+      <Setter Property="CornerRadius" Value="15" />
+      <Setter Property="Background" Value="{DynamicResource MaterialPaperBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LG.GlassRim}" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="Border.InstanceChip">
+      <Setter Property="Margin" Value="0,0,6,6" />
+      <Setter Property="Padding" Value="8,4" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="Background" Value="#33FFFFFF" />
+    </Style>
+    <Style Selector="Border.InstanceChip Image">
+      <Setter Property="Width" Value="14" />
+      <Setter Property="Height" Value="14" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.InstanceChip TextBlock">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Grid.InstanceStat > Image, Grid.InstanceStat > materialIcons|MaterialIcon">
+      <Setter Property="Width" Value="20" />
+      <Setter Property="Height" Value="20" />
+      <Setter Property="Margin" Value="0,2,10,0" />
+      <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+    <Style Selector="Grid.InstanceStat TextBlock.Caption">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="Opacity" Value="0.65" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style Selector="Grid.InstanceStat TextBlock.Value">
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style Selector="WrapPanel.DetailTabs > RadioButton">
+      <Setter Property="Margin" Value="0,0,4,4" />
+    </Style>
     <Style Selector="WrapPanel.Toolbar > Button">
       <Setter Property="Margin" Value="0,0,8,6" />
     </Style>

@@ -85,6 +85,13 @@
   <data name="Installations.ImportModpack" xml:space="preserve"><value>MODパックをインポート...</value></data>
   <data name="Installations.Refresh" xml:space="preserve"><value>更新</value></data>
   <data name="Installations.DeleteSelected" xml:space="preserve"><value>選択項目を削除</value></data>
+  <data name="InstanceCard.Mods" xml:space="preserve"><value>MOD</value></data>
+  <data name="InstanceCard.Playtime" xml:space="preserve"><value>プレイ時間</value></data>
+  <data name="InstanceCard.LastPlayed" xml:space="preserve"><value>最終プレイ</value></data>
+  <data name="InstanceCard.Never" xml:space="preserve"><value>未プレイ</value></data>
+  <data name="InstanceCard.Vanilla" xml:space="preserve"><value>Vanilla</value></data>
+  <data name="InstanceCard.PlaytimeHoursMinutes" xml:space="preserve"><value>{0}時間{1}分</value></data>
+  <data name="InstanceCard.PlaytimeMinutes" xml:space="preserve"><value>{0}分</value></data>
   <data name="Installations.AutoBadge" xml:space="preserve"><value>自動</value></data>
   <data name="Installations.MoreTooltip" xml:space="preserve"><value>その他...</value></data>
   <data name="Installations.MenuEditInstance" xml:space="preserve"><value>インスタンスを編集...</value></data>

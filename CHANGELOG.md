@@ -3,6 +3,19 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.27] - 2026-09-22
+
+### Added
+
+- Installations page: selecting an instance shows a details card on the right, spanning the tile grid and the detail tabs: icon and name, a version chip, a loader chip (the loader's block: planks for Fabric / Quilt, cobblestone for Forge / NeoForge, grass for vanilla), then the enabled-mod count, time played and last launch. Captions sit above values so long or localized values wrap instead of clipping. Strings localized into all 14 locales.
+- Play-time tracking. Each launch journals a session (`<config>/playtime.json`, keyed by instance id so auto-imported instances count too) and credits it when the game process exits. Sessions orphaned by closing the launcher mid-game are settled on the next start: a still-running game is watched again (pid plus start-time check against pid reuse), an exited one is credited up to the last write of its `logs/latest.log`. Single sessions are capped at 48 h.
+
+### Changed
+
+- Default window size is 1180x700 (was 960x580); the minimum stays 800x500.
+- The detail-tab header wraps instead of running under the card or off the window, with Refresh / Open folder moved next to the close button; the tab panel clips to its bounds.
+- The loader-to-block icon mapping lives in `InstanceIcons.ForLoader` and is shared by auto-imported tiles and the card.
+
 ## [0.32.26] - 2026-09-22
 
 ### Added

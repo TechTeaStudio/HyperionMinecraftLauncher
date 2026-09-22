@@ -315,7 +315,9 @@ public partial class App : Application
                 skinBrowser: skinBrowser,
                 headlessServerOrchestrator: headlessServerOrchestrator,
                 skinFetcher: accountSkinFetcher,
-                accountHeadCache: accountHeadCache);
+                accountHeadCache: accountHeadCache,
+                // Per-instance play time + journal of running games (<config>/playtime.json).
+                playtimeStore: new TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Playtime.FilePlaytimeStore());
 
             var mainWindow = new MainWindow
             {

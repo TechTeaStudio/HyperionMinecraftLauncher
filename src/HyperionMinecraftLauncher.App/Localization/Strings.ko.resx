@@ -88,6 +88,13 @@
   <data name="Installations.ImportModpack" xml:space="preserve"><value>모드팩 가져오기...</value></data>
   <data name="Installations.Refresh" xml:space="preserve"><value>새로 고침</value></data>
   <data name="Installations.DeleteSelected" xml:space="preserve"><value>선택 항목 삭제</value></data>
+  <data name="InstanceCard.Mods" xml:space="preserve"><value>모드</value></data>
+  <data name="InstanceCard.Playtime" xml:space="preserve"><value>플레이 시간</value></data>
+  <data name="InstanceCard.LastPlayed" xml:space="preserve"><value>마지막 플레이</value></data>
+  <data name="InstanceCard.Never" xml:space="preserve"><value>없음</value></data>
+  <data name="InstanceCard.Vanilla" xml:space="preserve"><value>Vanilla</value></data>
+  <data name="InstanceCard.PlaytimeHoursMinutes" xml:space="preserve"><value>{0}시간 {1}분</value></data>
+  <data name="InstanceCard.PlaytimeMinutes" xml:space="preserve"><value>{0}분</value></data>
   <data name="Installations.AutoBadge" xml:space="preserve"><value>자동</value></data>
   <data name="Installations.MoreTooltip" xml:space="preserve"><value>더보기...</value></data>
   <data name="Installations.MenuEditInstance" xml:space="preserve"><value>인스턴스 편집...</value></data>

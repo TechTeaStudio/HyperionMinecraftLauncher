@@ -88,6 +88,13 @@
   <data name="Installations.ImportModpack" xml:space="preserve"><value>Modpack içe aktar...</value></data>
   <data name="Installations.Refresh" xml:space="preserve"><value>Yenile</value></data>
   <data name="Installations.DeleteSelected" xml:space="preserve"><value>Seçilenleri sil</value></data>
+  <data name="InstanceCard.Mods" xml:space="preserve"><value>Modlar</value></data>
+  <data name="InstanceCard.Playtime" xml:space="preserve"><value>Oyun süresi</value></data>
+  <data name="InstanceCard.LastPlayed" xml:space="preserve"><value>Son oynanma</value></data>
+  <data name="InstanceCard.Never" xml:space="preserve"><value>Hiç</value></data>
+  <data name="InstanceCard.Vanilla" xml:space="preserve"><value>Vanilla</value></data>
+  <data name="InstanceCard.PlaytimeHoursMinutes" xml:space="preserve"><value>{0} sa {1} dk</value></data>
+  <data name="InstanceCard.PlaytimeMinutes" xml:space="preserve"><value>{0} dk</value></data>
   <data name="Installations.AutoBadge" xml:space="preserve"><value>oto</value></data>
   <data name="Installations.MoreTooltip" xml:space="preserve"><value>Daha fazla...</value></data>
   <data name="Installations.MenuEditInstance" xml:space="preserve"><value>Instance'ı düzenle...</value></data>

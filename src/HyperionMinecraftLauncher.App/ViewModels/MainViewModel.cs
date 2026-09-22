@@ -24,6 +24,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.Cache;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.Loaders;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Playtime;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Export;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Import.MultiMc;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
@@ -91,6 +92,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private readonly IModRepository? _modrinthRepository;
     private readonly IModRepository? _curseForgeRepository;
     private readonly IInstanceModManager? _instanceModManager;
+    private readonly IPlaytimeStore? _playtimeStore;
     private readonly IAccountStore? _accountStore;
     // v0.32.2 (T-flyout-avatar): optional Mojang skin fetcher used to populate each
     // account-switcher row's mini head-face. Without it the rows fall back to the bundled
@@ -249,7 +251,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         ISkinBrowser? skinBrowser = null,
         IHeadlessServerOrchestrator? headlessServerOrchestrator = null,
         IPlayerSkinFetcher? skinFetcher = null,
-        FileCache? accountHeadCache = null)
+        FileCache? accountHeadCache = null,
+        IPlaytimeStore? playtimeStore = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -267,6 +270,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _modrinthRepository = modrinthRepository;
         _curseForgeRepository = curseForgeRepository;
         _instanceModManager = instanceModManager;
+        _playtimeStore = playtimeStore;
         _accountStore = accountStore;
         _updateChecker = updateChecker;
         _headlessServerStore = headlessServerStore;
@@ -808,6 +812,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 ExportInstanceCommand?.RaiseCanExecuteChanged();
                 CloseInstanceDetailCommand?.RaiseCanExecuteChanged();
                 OnPropertyChanged(nameof(HasSelectedInstance));
+                _ = RefreshSelectedInstanceSummaryAsync();
                 // Auto-refresh per-instance detail tabs when the selected instance changes.
                 // Fire-and-forget: the View animates a fade-in while we populate the lists.
                 if (value is not null && _instanceBrowser is not null)
@@ -1644,6 +1649,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         msAuthSw.Stop();
         StartupTimeline.RecordDeferred("ms-auth", msAuthSw.ElapsedMilliseconds);
 
+        await RecoverPlaySessionsAsync().ConfigureAwait(false);
+
         // T16: launcher update probe. Best-effort. Disabled toggles or a missing checker
         // silently no-op; transport failures are swallowed inside the checker.
         var updateSw = Stopwatch.StartNew();
@@ -2005,14 +2012,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                     VersionId = v.Id,
                     Loader = v.Loader,
                     IsAutoImported = true,
-                    IconKey = v.Loader switch
-                    {
-                        TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.ModLoader.Forge => InstanceIcons.Cobblestone,
-                        TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.ModLoader.NeoForge => InstanceIcons.Cobblestone,
-                        TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.ModLoader.Fabric => InstanceIcons.Planks,
-                        TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.ModLoader.Quilt => InstanceIcons.Planks,
-                        _ => InstanceIcons.GrassBlock,
-                    },
+                    IconKey = InstanceIcons.ForLoader(v.Loader),
                 });
             }
 
@@ -3558,6 +3558,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 {
                     _logger.Warn($"Could not stamp LastPlayedAt on instance: {ex.Message}");
                 }
+
+                await BeginPlaySessionAsync(bumped, result.ProcessId, resolved.GameDirectory);
+                if (ReferenceEquals(SelectedInstance, bumped))
+                    await RefreshSelectedInstanceSummaryAsync();
             }
         }
         catch (LauncherException ex)
@@ -3569,6 +3573,198 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             IsBusy = false;
         }
+    }
+
+    // ---- Selected-instance card (Installations page, right column) ----
+
+    private string _selectedInstanceLoaderIconKey = InstanceIcons.GrassBlock;
+    private string _selectedInstanceLoaderText = string.Empty;
+    private string _selectedInstanceVersionText = string.Empty;
+    private string _selectedInstanceModsText = string.Empty;
+    private string _selectedInstancePlaytimeText = string.Empty;
+    private string _selectedInstanceLastPlayedText = string.Empty;
+    private bool _isSelectedInstanceModded;
+
+    /// <summary>Block icon of the selected instance's loader (see <see cref="InstanceIcons.ForLoader"/>).</summary>
+    public string SelectedInstanceLoaderIconKey
+    {
+        get => _selectedInstanceLoaderIconKey;
+        private set => SetField(ref _selectedInstanceLoaderIconKey, value);
+    }
+
+    /// <summary>"Fabric 0.19.3", or the localized "Vanilla" when there is no loader.</summary>
+    public string SelectedInstanceLoaderText
+    {
+        get => _selectedInstanceLoaderText;
+        private set => SetField(ref _selectedInstanceLoaderText, value);
+    }
+
+    /// <summary>Minecraft version of the selected instance.</summary>
+    public string SelectedInstanceVersionText
+    {
+        get => _selectedInstanceVersionText;
+        private set => SetField(ref _selectedInstanceVersionText, value);
+    }
+
+    /// <summary>Number of enabled mod jars in the selected instance's mods folder.</summary>
+    public string SelectedInstanceModsText
+    {
+        get => _selectedInstanceModsText;
+        private set => SetField(ref _selectedInstanceModsText, value);
+    }
+
+    /// <summary>Total tracked play time, e.g. "12 h 30 min".</summary>
+    public string SelectedInstancePlaytimeText
+    {
+        get => _selectedInstancePlaytimeText;
+        private set => SetField(ref _selectedInstancePlaytimeText, value);
+    }
+
+    /// <summary>Short local date of the last launch, or the localized "Never".</summary>
+    public string SelectedInstanceLastPlayedText
+    {
+        get => _selectedInstanceLastPlayedText;
+        private set => SetField(ref _selectedInstanceLastPlayedText, value);
+    }
+
+    /// <summary>True when the selected instance runs a mod loader (the card shows the Mods row).</summary>
+    public bool IsSelectedInstanceModded
+    {
+        get => _isSelectedInstanceModded;
+        private set => SetField(ref _isSelectedInstanceModded, value);
+    }
+
+    /// <summary>
+    /// Recompute the selected-instance card: loader / version chips, enabled-mod count, play
+    /// time and last launch. Called on every selection change and after a play session ends.
+    /// </summary>
+    public async Task RefreshSelectedInstanceSummaryAsync()
+    {
+        if (SelectedInstance is not { } inst) return;
+
+        SelectedInstanceLoaderIconKey = InstanceIcons.ForLoader(inst.Loader);
+        SelectedInstanceLoaderText = inst.Loader == ModLoader.None
+            ? Strings.InstanceCard_Vanilla
+            : $"{inst.Loader} {inst.LoaderVersion}".TrimEnd();
+        SelectedInstanceVersionText = inst.VersionId;
+        IsSelectedInstanceModded = inst.Loader != ModLoader.None;
+        SelectedInstanceLastPlayedText = inst.LastPlayedAt is { } last
+            ? last.ToLocalTime().ToString("d", CultureInfo.CurrentCulture)
+            : Strings.InstanceCard_Never;
+
+        var mods = "\u2014";
+        if (IsSelectedInstanceModded && _instanceModManager is not null)
+        {
+            try
+            {
+                var installed = await _instanceModManager.ListInstalledAsync(inst, CancellationToken.None);
+                mods = installed.Count(m => m.IsEnabled).ToString(CultureInfo.CurrentCulture);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warn($"Could not count mods for '{inst.Name}': {ex.Message}");
+            }
+        }
+
+        var played = TimeSpan.Zero;
+        if (_playtimeStore is not null)
+        {
+            try { played = await _playtimeStore.GetTotalAsync(inst.Id, CancellationToken.None); }
+            catch (Exception ex) { _logger.Warn($"Could not read play time for '{inst.Name}': {ex.Message}"); }
+        }
+
+        // The selection may have moved on while we awaited; don't paint a stale card.
+        if (!ReferenceEquals(SelectedInstance, inst)) return;
+        SelectedInstanceModsText = mods;
+        SelectedInstancePlaytimeText = PlaytimeFormat.Format(
+            played, Strings.InstanceCard_PlaytimeHoursMinutes, Strings.InstanceCard_PlaytimeMinutes);
+    }
+
+    // ---- Play-time sessions ----
+
+    /// <summary>A journaled game this old whose pid no longer matches is treated as a reused pid.</summary>
+    private static readonly TimeSpan PlaySessionStartTolerance = TimeSpan.FromMinutes(2);
+
+    /// <summary>Journal the just-launched game and credit its time once the process exits.</summary>
+    private async Task BeginPlaySessionAsync(Instance instance, int processId, string? gameDirectory)
+    {
+        if (_playtimeStore is null) return;
+        var session = new PlaySession
+        {
+            InstanceId = instance.Id,
+            ProcessId = processId,
+            StartedAt = DateTimeOffset.UtcNow,
+            GameDirectory = gameDirectory ?? DefaultMinecraftInstallationLocator.ResolveRoot(),
+        };
+        try
+        {
+            await _playtimeStore.BeginSessionAsync(session, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn($"Could not journal play session: {ex.Message}");
+            return;
+        }
+        _ = WatchPlaySessionAsync(session);
+    }
+
+    private async Task WatchPlaySessionAsync(PlaySession session)
+    {
+        if (_playtimeStore is null) return;
+        try
+        {
+            await GameProcessWatcher.WaitForExitAsync(session.ProcessId, CancellationToken.None).ConfigureAwait(false);
+            var credited = await _playtimeStore
+                .EndSessionAsync(session.ProcessId, DateTimeOffset.UtcNow, CancellationToken.None)
+                .ConfigureAwait(false);
+            _logger.Info($"Play session ended for instance '{session.InstanceId}' (pid {session.ProcessId}): +{credited}.");
+            await RefreshCardOnUiThreadAsync(session.InstanceId).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn($"Play-time tracking failed for pid {session.ProcessId}: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Settle sessions journaled by a previous launcher run: games still running get watched
+    /// again, games that exited meanwhile are credited up to their last <c>latest.log</c> write.
+    /// </summary>
+    private async Task RecoverPlaySessionsAsync()
+    {
+        if (_playtimeStore is null) return;
+        try
+        {
+            var active = await _playtimeStore.ListActiveAsync(CancellationToken.None).ConfigureAwait(false);
+            foreach (var session in active)
+            {
+                if (GameProcessWatcher.IsRunning(session.ProcessId, session.StartedAt, PlaySessionStartTolerance))
+                {
+                    _ = WatchPlaySessionAsync(session);
+                    continue;
+                }
+                var end = PlaySessionRecovery.EstimateEnd(
+                    session, PlaySessionRecovery.LatestLogWrite(session.GameDirectory), DateTimeOffset.UtcNow);
+                var credited = await _playtimeStore
+                    .EndSessionAsync(session.ProcessId, end ?? session.StartedAt, CancellationToken.None)
+                    .ConfigureAwait(false);
+                _logger.Info($"Recovered play session for '{session.InstanceId}' (pid {session.ProcessId}): +{credited}.");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn($"Play-session recovery failed: {ex.Message}");
+        }
+    }
+
+    private async Task RefreshCardOnUiThreadAsync(string instanceId)
+    {
+        if (SelectedInstance?.Id != instanceId) return;
+        var dispatcher = Avalonia.Threading.Dispatcher.UIThread;
+        if (dispatcher.CheckAccess())
+            await RefreshSelectedInstanceSummaryAsync();
+        else
+            await dispatcher.InvokeAsync(RefreshSelectedInstanceSummaryAsync);
     }
 
     // ---- Per-instance browser (screenshots / worlds / servers) ----

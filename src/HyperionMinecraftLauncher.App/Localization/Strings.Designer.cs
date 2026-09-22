@@ -98,6 +98,13 @@ public static class Strings
     public static string Installations_ImportModpack => L("Installations.ImportModpack");
     public static string Installations_Refresh => L("Installations.Refresh");
     public static string Installations_DeleteSelected => L("Installations.DeleteSelected");
+    public static string InstanceCard_Mods => L("InstanceCard.Mods");
+    public static string InstanceCard_Playtime => L("InstanceCard.Playtime");
+    public static string InstanceCard_LastPlayed => L("InstanceCard.LastPlayed");
+    public static string InstanceCard_Never => L("InstanceCard.Never");
+    public static string InstanceCard_Vanilla => L("InstanceCard.Vanilla");
+    public static string InstanceCard_PlaytimeHoursMinutes => L("InstanceCard.PlaytimeHoursMinutes");
+    public static string InstanceCard_PlaytimeMinutes => L("InstanceCard.PlaytimeMinutes");
     public static string Installations_AutoBadge => L("Installations.AutoBadge");
     public static string Installations_MoreTooltip => L("Installations.MoreTooltip");
     public static string Installations_MenuEditInstance => L("Installations.MenuEditInstance");

@@ -88,6 +88,13 @@
   <data name="Installations.ImportModpack" xml:space="preserve"><value>Importa modpack...</value></data>
   <data name="Installations.Refresh" xml:space="preserve"><value>Aggiorna</value></data>
   <data name="Installations.DeleteSelected" xml:space="preserve"><value>Elimina selezionate</value></data>
+  <data name="InstanceCard.Mods" xml:space="preserve"><value>Mod</value></data>
+  <data name="InstanceCard.Playtime" xml:space="preserve"><value>Tempo di gioco</value></data>
+  <data name="InstanceCard.LastPlayed" xml:space="preserve"><value>Ultima sessione</value></data>
+  <data name="InstanceCard.Never" xml:space="preserve"><value>Mai</value></data>
+  <data name="InstanceCard.Vanilla" xml:space="preserve"><value>Vanilla</value></data>
+  <data name="InstanceCard.PlaytimeHoursMinutes" xml:space="preserve"><value>{0} h {1} min</value></data>
+  <data name="InstanceCard.PlaytimeMinutes" xml:space="preserve"><value>{0} min</value></data>
   <data name="Installations.AutoBadge" xml:space="preserve"><value>auto</value></data>
   <data name="Installations.MoreTooltip" xml:space="preserve"><value>Altro...</value></data>
   <data name="Installations.MenuEditInstance" xml:space="preserve"><value>Modifica istanza...</value></data>

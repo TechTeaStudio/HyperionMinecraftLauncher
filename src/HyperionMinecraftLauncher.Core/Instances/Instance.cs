@@ -75,6 +75,17 @@ public sealed record Instance
 public static class InstanceIcons
 {
     public const string GrassBlock = "grass_block_side";
+
+    /// <summary>
+    /// Block that stands for a mod loader across the launcher: planks for Fabric / Quilt,
+    /// cobblestone for Forge / NeoForge, grass for vanilla.
+    /// </summary>
+    public static string ForLoader(ModLoader loader) => loader switch
+    {
+        ModLoader.Forge or ModLoader.NeoForge => Cobblestone,
+        ModLoader.Fabric or ModLoader.Quilt => Planks,
+        _ => GrassBlock,
+    };
     public const string Dirt = "dirt";
     public const string Stone = "stone";
     public const string Cobblestone = "cobblestone";
