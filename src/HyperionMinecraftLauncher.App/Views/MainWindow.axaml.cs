@@ -221,25 +221,43 @@ public partial class MainWindow : Window
         _ = _deviceCodeDialog.ShowDialog(this);
     }
 
-    private async void OnVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName != nameof(MainViewModel.HasSession)
             || sender is not MainViewModel vm
             || !vm.HasSession)
             return;
 
-        // Retire the device-code modal (auth completed).
-        if (_deviceCodeDialog is { } d)
-        {
-            d.Close();
-            _deviceCodeDialog = null;
-        }
+        // The VM sets CurrentSession after ConfigureAwait(false) awaits, so this can arrive on a
+        // thread-pool thread. Window.Close() off the UI thread throws, and inside an async void
+        // handler that tears the whole process down right after a successful sign-in.
+        if (Dispatcher.UIThread.CheckAccess())
+            _ = OnSessionEstablishedAsync(vm);
+        else
+            Dispatcher.UIThread.Post(() => _ = OnSessionEstablishedAsync(vm));
+    }
 
-        // If the session is online (Microsoft), fetch the user's real skin and push it
-        // into the 3D viewer so the Skins page shows their face instead of default Steve.
-        if (vm.IsSignedInOnline && vm.CurrentSession is { Uuid: { Length: > 0 } uuid })
+    private async Task OnSessionEstablishedAsync(MainViewModel vm)
+    {
+        try
         {
-            await TryReplaceSkinFromMojangAsync(uuid).ConfigureAwait(false);
+            // Retire the device-code modal (auth completed).
+            if (_deviceCodeDialog is { } d)
+            {
+                _deviceCodeDialog = null;
+                d.Close();
+            }
+
+            // If the session is online (Microsoft), fetch the user's real skin and push it
+            // into the 3D viewer so the Skins page shows their face instead of default Steve.
+            if (vm.IsSignedInOnline && vm.CurrentSession is { Uuid: { Length: > 0 } uuid })
+            {
+                await TryReplaceSkinFromMojangAsync(uuid);
+            }
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"Post-sign-in UI update failed: {ex}");
         }
     }
 

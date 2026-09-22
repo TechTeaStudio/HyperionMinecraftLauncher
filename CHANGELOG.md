@@ -3,6 +3,12 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.23] - 2026-09-22
+
+### Fixed
+
+- Launcher crashed right after a successful Microsoft sign-in, leaving the device-code window on screen. `AddAccountAsync` sets `CurrentSession` after a `ConfigureAwait(false)` await, so `MainWindow`'s `HasSession` handler ran on a thread-pool thread and called `DeviceCodeDialog.Close()` there. Avalonia throws on off-thread window access, and inside an `async void` handler that killed the process. The handler now marshals to the UI thread, and `RefreshAccountsAsync` mutates the bound `Accounts` collection through the dispatcher too.
+
 ## [0.32.22] - 2026-05-26
 
 ### Changed

@@ -1771,8 +1771,20 @@ public sealed class MainViewModel : INotifyPropertyChanged
             projections.Add(new AccountWithBitmap { Account = account, HeadBitmap = head });
         }
 
-        Accounts.Clear();
-        foreach (var p in projections) Accounts.Add(p);
+        void Apply()
+        {
+            Accounts.Clear();
+            foreach (var p in projections) Accounts.Add(p);
+        }
+
+        // Callers (post-sign-in paths) arrive here after ConfigureAwait(false), so we may be on
+        // the threadpool. Mutating a bound ObservableCollection off the UI thread throws in
+        // Avalonia. Same marshaling pattern as ReloadHistoryAsync (inline in xunit).
+        var dispatcher = Avalonia.Threading.Dispatcher.UIThread;
+        if (dispatcher.CheckAccess())
+            Apply();
+        else
+            await dispatcher.InvokeAsync(Apply);
 
         Account? active = null;
         try
