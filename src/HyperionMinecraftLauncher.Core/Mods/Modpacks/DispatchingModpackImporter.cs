@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
@@ -21,6 +23,28 @@ public sealed class DispatchingModpackImporter : IModpackImporter
     {
         _modrinth = modrinth ?? throw new ArgumentNullException(nameof(modrinth));
         _curseForge = curseForge ?? throw new ArgumentNullException(nameof(curseForge));
+    }
+
+    /// <summary>
+    /// Read only the manifest of a modpack archive (no downloads) so the UI can show what is
+    /// about to be imported. Throws <see cref="NotSupportedException"/> for archives that are
+    /// neither a <c>.mrpack</c> nor a CurseForge pack, and <see cref="InvalidDataException"/>
+    /// for a malformed or unsafe manifest.
+    /// </summary>
+    public static ModpackManifest ReadManifest(string archivePath)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(archivePath);
+        using var fs = File.OpenRead(archivePath);
+        var format = ModpackFormatDetector.Detect(fs);
+        fs.Position = 0;
+        using var zip = new ZipArchive(fs, ZipArchiveMode.Read);
+        return format switch
+        {
+            ModpackFormat.Modrinth => ModrinthModpackImporter.ParseManifest(zip),
+            ModpackFormat.CurseForge => CurseForgeModpackImporter.ParseManifest(zip).Manifest,
+            _ => throw new NotSupportedException(
+                $"Archive '{Path.GetFileName(archivePath)}' is not a recognised modpack."),
+        };
     }
 
     /// <inheritdoc />

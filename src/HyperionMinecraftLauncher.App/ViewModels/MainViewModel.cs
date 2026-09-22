@@ -4154,18 +4154,19 @@ public sealed class MainViewModel : INotifyPropertyChanged
         try
         {
             var dir = DefaultLogDirectory.Resolve();
-            var path = Path.Combine(dir, $"launcher-{DateTime.Now:yyyy-MM-dd}.log");
+            var path = LauncherLogFiles.FindForDate(dir, DateTime.Now);
 
-            if (!File.Exists(path))
+            if (path is null)
             {
-                LogFileText = $"(no log file yet at {path})";
+                LogFileText = $"(no log file yet at {LauncherLogFiles.ExpectedPath(dir, DateTime.Now)})";
             }
             else
             {
-                // FileShare.ReadWrite so we don't fight the live FileLauncherLogger that may be appending.
+                // FileShare.ReadWrite so we don't fight the live Serilog sink that may be appending.
                 using var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 using var reader = new StreamReader(fs);
-                LogFileText = await reader.ReadToEndAsync().ConfigureAwait(false);
+                // The sink writes compact JSON (CLEF); render it as "HH:mm:ss LVL message" lines.
+                LogFileText = ClefLogFormatter.FormatText(await reader.ReadToEndAsync().ConfigureAwait(false), TimeZoneInfo.Local);
             }
 
             _logLastRefreshed = DateTime.Now;

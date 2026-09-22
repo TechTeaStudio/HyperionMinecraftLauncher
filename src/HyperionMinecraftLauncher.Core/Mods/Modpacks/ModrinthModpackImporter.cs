@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,6 +33,9 @@ public sealed class ModrinthModpackImporter : IModpackImporter
     private const string ManifestEntry = ModpackFormatDetector.ModrinthManifestEntry;
     private const string OverridesPrefix = "overrides/";
     private const string ClientOverridesPrefix = "client-overrides/";
+
+    /// <summary>Concurrent CDN downloads. Modrinth's CDN is fine with a handful; 6 matches browser per-host limits.</summary>
+    private const int MaxParallelDownloads = 6;
 
     private readonly string _instancesRoot;
     private readonly HttpClient _http;
@@ -70,30 +75,40 @@ public sealed class ModrinthModpackImporter : IModpackImporter
 
         var name = string.IsNullOrWhiteSpace(targetInstanceName) ? manifest.Name : targetInstanceName;
 
-        // 1) Download manifest-declared files. Reopen the zip per-file would be wasteful; we
-        //    only stream the network here, so the zip stays closed for the duration.
-        var total = Math.Max(1, manifest.Files.Count);
-        var completed = 0;
-        foreach (var file in manifest.Files)
+        try
         {
-            if (!file.Required) { completed++; continue; }
-            cancellationToken.ThrowIfCancellationRequested();
+            // 1) Download manifest-declared files in parallel, each verified against its sha1.
+            //    Optional files are skipped but still count towards progress.
+            var required = manifest.Files.Where(f => f.Required).ToList();
+            var total = Math.Max(1, manifest.Files.Count);
+            var completed = manifest.Files.Count - required.Count;
+            var options = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = MaxParallelDownloads,
+                CancellationToken = cancellationToken,
+            };
+            await Parallel.ForEachAsync(required, options, async (file, token) =>
+            {
+                var dest = ResolveInside(instanceDir, file.TargetPath);
+                Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
+                await DownloadVerifiedAsync(file, dest, token).ConfigureAwait(false);
+                progress?.Report((double)Interlocked.Increment(ref completed) / total);
+            }).ConfigureAwait(false);
 
-            var dest = Path.Combine(instanceDir, file.TargetPath.Replace('/', Path.DirectorySeparatorChar));
-            var destDir = Path.GetDirectoryName(dest);
-            if (!string.IsNullOrEmpty(destDir)) Directory.CreateDirectory(destDir);
-
-            await DownloadOneAsync(file.DownloadUrl, dest, cancellationToken).ConfigureAwait(false);
-            completed++;
-            progress?.Report((double)completed / total);
+            // 2) Copy overrides/, then client-overrides/ on top of it (the spec's precedence).
+            await using (var fs = File.OpenRead(archivePath))
+            using (var zip = new ZipArchive(fs, ZipArchiveMode.Read))
+            {
+                CopyOverrides(zip, "overrides", instanceDir, cancellationToken);
+                CopyOverrides(zip, "client-overrides", instanceDir, cancellationToken);
+            }
         }
-
-        // 2) Copy overrides tree on top.
-        if (!string.IsNullOrEmpty(manifest.OverridesPath))
+        catch
         {
-            await using var fs = File.OpenRead(archivePath);
-            using var zip = new ZipArchive(fs, ZipArchiveMode.Read);
-            CopyOverrides(zip, manifest.OverridesPath!, instanceDir, cancellationToken);
+            // Never leave a half-populated instance folder behind: it would sit on disk with
+            // no instance record pointing at it.
+            try { Directory.Delete(instanceDir, recursive: true); } catch { /* best-effort */ }
+            throw;
         }
 
         // Final progress tick: importing is done.
@@ -196,20 +211,20 @@ public sealed class ModrinthModpackImporter : IModpackImporter
         {
             var path = ReadString(file, "path");
             if (string.IsNullOrWhiteSpace(path)) continue;
+            // The spec requires launchers to refuse packs whose files point outside the instance.
+            if (!IsSafeRelativePath(path))
+                throw new InvalidDataException($"Unsafe file path '{path}' in {ManifestEntry}.");
 
-            string? url = null;
+            var urls = new List<string>();
             if (file.TryGetProperty("downloads", out var downloads) && downloads.ValueKind == JsonValueKind.Array)
             {
                 foreach (var d in downloads.EnumerateArray())
                 {
-                    if (d.ValueKind == JsonValueKind.String)
-                    {
-                        url = d.GetString();
-                        if (!string.IsNullOrWhiteSpace(url)) break;
-                    }
+                    if (d.ValueKind == JsonValueKind.String && d.GetString() is { Length: > 0 } u && !string.IsNullOrWhiteSpace(u))
+                        urls.Add(u);
                 }
             }
-            if (string.IsNullOrWhiteSpace(url)) continue;
+            if (urls.Count == 0) continue;
 
             string? sha1 = null;
             if (file.TryGetProperty("hashes", out var hashes) && hashes.ValueKind == JsonValueKind.Object)
@@ -233,7 +248,8 @@ public sealed class ModrinthModpackImporter : IModpackImporter
             list.Add(new ModpackFile
             {
                 TargetPath = path!,
-                DownloadUrl = url!,
+                DownloadUrl = urls[0],
+                MirrorUrls = urls.Skip(1).ToList(),
                 Sha1 = sha1,
                 FileSizeBytes = size,
                 Required = required,
@@ -254,7 +270,9 @@ public sealed class ModrinthModpackImporter : IModpackImporter
             // Directory entries (trailing slash) carry no bytes; just ensure the folder exists.
             var relative = entry.FullName.Substring(prefix.Length);
             if (string.IsNullOrEmpty(relative)) continue;
-            var dest = Path.Combine(instanceDir, relative.Replace('/', Path.DirectorySeparatorChar));
+            if (!IsSafeRelativePath(relative.TrimEnd('/')))
+                throw new InvalidDataException($"Unsafe override path '{entry.FullName}' in the .mrpack archive.");
+            var dest = ResolveInside(instanceDir, relative.TrimEnd('/'));
 
             if (entry.FullName.EndsWith('/'))
             {
@@ -270,15 +288,74 @@ public sealed class ModrinthModpackImporter : IModpackImporter
         }
     }
 
-    private async Task DownloadOneAsync(string url, string destPath, CancellationToken cancellationToken)
+    /// <summary>
+    /// Fetch <paramref name="file"/> into <paramref name="destPath"/>, trying the primary URL and
+    /// then each mirror. A download only counts when its sha1 matches the manifest (when given).
+    /// </summary>
+    private async Task DownloadVerifiedAsync(ModpackFile file, string destPath, CancellationToken cancellationToken)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, url);
-        using var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
+        Exception? lastError = null;
+        foreach (var url in file.MirrorUrls.Prepend(file.DownloadUrl))
+        {
+            try
+            {
+                using var response = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
 
-        await using var src = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-        await using var fs = File.Create(destPath);
-        await src.CopyToAsync(fs, 81920, cancellationToken).ConfigureAwait(false);
+                string actualSha1;
+                await using (var src = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
+                await using (var fs = File.Create(destPath))
+                {
+                    using var sha1 = IncrementalHash.CreateHash(HashAlgorithmName.SHA1);
+                    var buffer = new byte[81920];
+                    int read;
+                    while ((read = await src.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)) > 0)
+                    {
+                        sha1.AppendData(buffer, 0, read);
+                        await fs.WriteAsync(buffer.AsMemory(0, read), cancellationToken).ConfigureAwait(false);
+                    }
+                    actualSha1 = Convert.ToHexString(sha1.GetHashAndReset());
+                }
+
+                if (string.IsNullOrEmpty(file.Sha1) || string.Equals(actualSha1, file.Sha1, StringComparison.OrdinalIgnoreCase))
+                    return;
+
+                File.Delete(destPath);
+                lastError = new InvalidDataException($"sha1 mismatch from {url} (expected {file.Sha1}, got {actualSha1.ToLowerInvariant()})");
+            }
+            catch (HttpRequestException ex)
+            {
+                lastError = ex;
+            }
+            catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+            {
+                lastError = ex; // HttpClient timeout, not a user cancel - try the next mirror
+            }
+        }
+        throw new InvalidDataException($"Could not download '{file.TargetPath}': {lastError?.Message}", lastError);
+    }
+
+    /// <summary>
+    /// True for a plain relative path that stays inside the instance: not rooted, no drive
+    /// letter, no <c>..</c> segment. Checked on both manifest paths and override entries.
+    /// </summary>
+    private static bool IsSafeRelativePath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path) || Path.IsPathRooted(path) || path.Contains(':'))
+            return false;
+        if (path.StartsWith('/') || path.StartsWith('\\'))
+            return false;
+        return path.Split('/', '\\').All(segment => segment != "..");
+    }
+
+    /// <summary>Combine and re-check that the result really lands under <paramref name="root"/>.</summary>
+    private static string ResolveInside(string root, string relativePath)
+    {
+        var fullRoot = Path.GetFullPath(root).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        var full = Path.GetFullPath(Path.Combine(fullRoot, relativePath.Replace('/', Path.DirectorySeparatorChar)));
+        if (!full.StartsWith(fullRoot, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException($"Path '{relativePath}' escapes the instance directory.");
+        return full;
     }
 
     private static string? ReadString(JsonElement el, string name)

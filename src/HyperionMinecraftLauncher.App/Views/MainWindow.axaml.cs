@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,6 +39,11 @@ public partial class MainWindow : Window
         InitializeComponent();
         LoadDefaultSkin();
         Opened += (_, _) => HookViewModel();
+
+        // Dropping a .mrpack / CurseForge .zip anywhere on the window starts a modpack import.
+        DragDrop.SetAllowDrop(this, true);
+        AddHandler(DragDrop.DragOverEvent, OnModpackDragOver);
+        AddHandler(DragDrop.DropEvent, OnModpackDrop);
     }
 
     private void HookViewModel()
@@ -525,11 +531,52 @@ public partial class MainWindow : Window
             return;
         }
 
+        await ImportModpackArchiveAsync(vm, path);
+    }
+
+    /// <summary>Confirm dialog (with the manifest preview) and then the actual import.</summary>
+    private async Task ImportModpackArchiveAsync(MainViewModel vm, string path)
+    {
         var dialog = ImportModpackDialog.ForArchive(path, suggestedName: null);
         await dialog.ShowDialog(this);
         if (!dialog.Confirmed || string.IsNullOrEmpty(dialog.ArchivePath)) return;
 
+        vm.SelectedSection = NavSection.Installations;
         await vm.ImportModpackAsync(dialog.ArchivePath, dialog.TargetInstanceName, CancellationToken.None);
+    }
+
+    private static string? DraggedModpackPath(DragEventArgs e)
+    {
+        var item = e.Data.GetFiles()?.FirstOrDefault();
+        var path = item?.TryGetLocalPath();
+        if (string.IsNullOrEmpty(path)) return null;
+        var ext = Path.GetExtension(path);
+        return ext.Equals(".mrpack", StringComparison.OrdinalIgnoreCase)
+            || ext.Equals(".zip", StringComparison.OrdinalIgnoreCase)
+            ? path
+            : null;
+    }
+
+    private void OnModpackDragOver(object? sender, DragEventArgs e)
+    {
+        e.DragEffects = DataContext is MainViewModel { CanImportModpack: true } && DraggedModpackPath(e) is not null
+            ? DragDropEffects.Copy
+            : DragDropEffects.None;
+    }
+
+    private async void OnModpackDrop(object? sender, DragEventArgs e)
+    {
+        if (DataContext is not MainViewModel { CanImportModpack: true } vm) return;
+        if (DraggedModpackPath(e) is not { } path || !File.Exists(path)) return;
+        e.Handled = true;
+        try
+        {
+            await ImportModpackArchiveAsync(vm, path);
+        }
+        catch (Exception ex)
+        {
+            vm.Append($"[error] Modpack import failed: {ex.Message}");
+        }
     }
 
     /// <summary>

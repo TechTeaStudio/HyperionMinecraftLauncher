@@ -3,6 +3,25 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.26] - 2026-09-22
+
+### Added
+
+- Drag a `.mrpack` (or CurseForge `.zip`) onto the launcher window to import it; same confirm dialog as Installations > "Import modpack...".
+- The modpack confirm dialog previews the manifest before anything is downloaded (pack name, pack version, Minecraft version, loader) and refuses unknown or unsafe archives with the reason shown and Import disabled. Backed by `DispatchingModpackImporter.ReadManifest`.
+
+### Changed
+
+- `.mrpack` import downloads up to 6 files in parallel (the 25-file Nestle Optimized pack went from ~20 s to ~9 s), falls back to the manifest's mirror URLs, and applies `client-overrides/` on top of `overrides/` as the spec prescribes.
+- The Logs page renders the Serilog compact-JSON lines as `HH:mm:ss LVL message` (local time, exception indented below) instead of raw JSON (`ClefLogFormatter`).
+
+### Fixed
+
+- Logs page always said "no log file yet": it looked for `launcher-yyyy-MM-dd.log`, but the Serilog sink writes `launcher-yyyyMMdd.log` (plus `_001`, `_002` size-roll parts). `LauncherLogFiles.FindForDate` now resolves the newest part for the day.
+- `.mrpack` downloads are verified against the manifest sha1; a mismatch fails the import instead of installing a corrupted or tampered jar.
+- `.mrpack` files and override entries whose paths escape the instance folder (`../`, absolute paths, drive letters) are rejected, and a failed import no longer leaves a half-populated instance folder behind.
+- Modpack confirm dialog clipped its Cancel / Import buttons; it now sizes to its content.
+
 ## [0.32.25] - 2026-09-22
 
 ### Changed

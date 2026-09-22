@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -21,8 +22,9 @@ public class ModrinthModpackImporterTests
         try
         {
             var archivePath = Path.Combine(workdir, "test.mrpack");
+            var modBytes = Encoding.UTF8.GetBytes("MOD-BYTES-XX"); // 12 bytes
             BuildMrpack(archivePath,
-                manifestJson: """
+                manifestJson: $$"""
                 {
                   "formatVersion": 1,
                   "game": "minecraft",
@@ -31,7 +33,7 @@ public class ModrinthModpackImporterTests
                   "files": [
                     {
                       "path": "mods/example-1.0.jar",
-                      "hashes": { "sha1": "deadbeef" },
+                      "hashes": { "sha1": "{{Sha1(modBytes)}}" },
                       "downloads": ["https://example.com/example-1.0.jar"],
                       "fileSize": 12,
                       "env": { "client": "required", "server": "required" }
@@ -48,7 +50,6 @@ public class ModrinthModpackImporterTests
                     ("overrides/config/foo.txt", "hello override")
                 });
 
-            var modBytes = Encoding.UTF8.GetBytes("MOD-BYTES-XX"); // 12 bytes
             var handler = new StubHandler((req, _) =>
             {
                 Assert.Equal("https://example.com/example-1.0.jar", req.RequestUri!.ToString());
@@ -176,7 +177,139 @@ public class ModrinthModpackImporterTests
             importer.ImportAsync(Path.Combine(Path.GetTempPath(), "does-not-exist.mrpack"), null, null, CancellationToken.None));
     }
 
+    [Fact]
+    public async Task ImportAsync_Sha1Mismatch_Throws_AndRemovesPartialInstance()
+    {
+        var workdir = NewTempDir();
+        try
+        {
+            var archivePath = Path.Combine(workdir, "bad.mrpack");
+            BuildMrpack(archivePath, manifestJson: """
+                {
+                  "name": "P", "versionId": "0", "dependencies": { "minecraft": "1.20.1" },
+                  "files": [ { "path": "mods/a.jar", "hashes": { "sha1": "0000000000000000000000000000000000000000" },
+                               "downloads": ["https://cdn.example/a.jar"] } ]
+                }
+                """);
+            using var http = new HttpClient(new StubHandler((_, _) =>
+                new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Encoding.UTF8.GetBytes("tampered")) }));
+            var instancesRoot = Path.Combine(workdir, "instances");
+            var importer = new ModrinthModpackImporter(instancesRoot, http);
+
+            var ex = await Assert.ThrowsAsync<InvalidDataException>(() =>
+                importer.ImportAsync(archivePath, null, null, CancellationToken.None));
+
+            Assert.Contains("mods/a.jar", ex.Message);
+            Assert.False(Directory.Exists(instancesRoot) && Directory.EnumerateFileSystemEntries(instancesRoot).Any(),
+                "a failed import must not leave a half-populated instance folder behind");
+        }
+        finally { TryDelete(workdir); }
+    }
+
+    [Fact]
+    public async Task ImportAsync_FirstMirrorFails_FallsBackToNextDownloadUrl()
+    {
+        var workdir = NewTempDir();
+        try
+        {
+            var bytes = Encoding.UTF8.GetBytes("JAR");
+            var archivePath = Path.Combine(workdir, "mirrors.mrpack");
+            BuildMrpack(archivePath, manifestJson: $$"""
+                {
+                  "name": "P", "versionId": "0", "dependencies": { "minecraft": "1.20.1" },
+                  "files": [ { "path": "mods/a.jar", "hashes": { "sha1": "{{Sha1(bytes)}}" },
+                               "downloads": ["https://dead.example/a.jar", "https://cdn.example/a.jar"] } ]
+                }
+                """);
+            using var http = new HttpClient(new StubHandler((req, _) => req.RequestUri!.Host == "dead.example"
+                ? new HttpResponseMessage(HttpStatusCode.NotFound)
+                : new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(bytes) }));
+            var importer = new ModrinthModpackImporter(Path.Combine(workdir, "instances"), http);
+
+            var inst = await importer.ImportAsync(archivePath, null, null, CancellationToken.None);
+
+            Assert.Equal(bytes, File.ReadAllBytes(Path.Combine(inst.GameDirectory!, "mods", "a.jar")));
+        }
+        finally { TryDelete(workdir); }
+    }
+
+    [Fact]
+    public async Task ImportAsync_ManyFiles_AllDownloadedWithProgressReachingOne()
+    {
+        var workdir = NewTempDir();
+        try
+        {
+            var files = string.Join(",", Enumerable.Range(0, 12).Select(i =>
+                $$"""{ "path": "mods/m{{i}}.jar", "hashes": { "sha1": "{{Sha1(Encoding.UTF8.GetBytes($"m{i}"))}}" }, "downloads": ["https://cdn.example/m{{i}}.jar"] }"""));
+            var archivePath = Path.Combine(workdir, "many.mrpack");
+            BuildMrpack(archivePath, manifestJson: $$"""
+                { "name": "P", "versionId": "0", "dependencies": { "minecraft": "1.20.1" }, "files": [ {{files}} ] }
+                """);
+            using var http = new HttpClient(new StubHandler((req, _) => new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent(Encoding.UTF8.GetBytes(Path.GetFileNameWithoutExtension(req.RequestUri!.AbsolutePath))),
+            }));
+            var importer = new ModrinthModpackImporter(Path.Combine(workdir, "instances"), http);
+            var reports = new System.Collections.Concurrent.ConcurrentBag<double>();
+
+            var inst = await importer.ImportAsync(archivePath, null, new SyncProgress(reports.Add), CancellationToken.None);
+
+            for (var i = 0; i < 12; i++)
+                Assert.Equal($"m{i}", File.ReadAllText(Path.Combine(inst.GameDirectory!, "mods", $"m{i}.jar")));
+            Assert.Equal(1.0, reports.Max());
+        }
+        finally { TryDelete(workdir); }
+    }
+
+    [Theory]
+    [InlineData("../evil.jar")]
+    [InlineData("mods/../../evil.jar")]
+    [InlineData("C:/Windows/evil.jar")]
+    [InlineData("/etc/evil.jar")]
+    public void ParseManifest_PathEscapingInstance_IsRejected(string path)
+    {
+        using var ms = new MemoryStream();
+        BuildMrpackTo(ms, manifestJson: $$"""
+            { "name": "P", "versionId": "0", "dependencies": { "minecraft": "1.20.1" },
+              "files": [ { "path": "{{path}}", "downloads": ["https://cdn.example/x"] } ] }
+            """);
+        ms.Position = 0;
+        using var zip = new ZipArchive(ms, ZipArchiveMode.Read);
+
+        Assert.Throws<InvalidDataException>(() => ModrinthModpackImporter.ParseManifest(zip));
+    }
+
+    [Fact]
+    public async Task ImportAsync_OverrideEscapingInstance_IsRejected()
+    {
+        var workdir = NewTempDir();
+        try
+        {
+            var archivePath = Path.Combine(workdir, "slip.mrpack");
+            BuildMrpack(archivePath,
+                manifestJson: """{ "name": "P", "versionId": "0", "dependencies": { "minecraft": "1.20.1" }, "files": [] }""",
+                overrides: new[] { ("overrides/../../escaped.txt", "pwned") });
+            using var http = new HttpClient(new StubHandler((_, _) => throw new InvalidOperationException("no downloads")));
+            var importer = new ModrinthModpackImporter(Path.Combine(workdir, "instances"), http);
+
+            await Assert.ThrowsAsync<InvalidDataException>(() =>
+                importer.ImportAsync(archivePath, null, null, CancellationToken.None));
+
+            Assert.False(File.Exists(Path.Combine(workdir, "escaped.txt")));
+        }
+        finally { TryDelete(workdir); }
+    }
+
     // ---------- helpers ----------
+
+    private static string Sha1(byte[] bytes)
+        => Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(bytes)).ToLowerInvariant();
+
+    /// <summary>Progress&lt;T&gt; posts to the thread pool; this one reports inline so asserts see every tick.</summary>
+    private sealed class SyncProgress(Action<double> report) : IProgress<double>
+    {
+        public void Report(double value) => report(value);
+    }
 
     private static void BuildMrpack(string path, string manifestJson, params (string Path, string Content)[] overrides)
     {

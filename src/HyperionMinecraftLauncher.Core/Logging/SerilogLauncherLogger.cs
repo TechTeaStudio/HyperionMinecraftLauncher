@@ -7,8 +7,8 @@
 // Serilog.Sinks.File offers natively.
 //
 // Behavior:
-//   - Daily-rotated file sink at <logDirectory>/launcher-.log (Serilog appends the
-//     date stamp before the extension - launcher-YYYY-MM-DD.log).
+//   - Daily-rotated file sink at <logDirectory>/launcher-.log (Serilog inserts the
+//     local date before the extension - launcher-yyyyMMdd.log, see LauncherLogFiles).
 //   - 14-day retention via RetainedFileCountLimit = 14.
 //   - 32 MB per-file cap via FileSizeLimitBytes = 32 * 1024 * 1024 + rollOnFileSizeLimit.
 //   - JSON output via CompactJsonFormatter (one structured event per line).

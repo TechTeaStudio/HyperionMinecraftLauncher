@@ -16,6 +16,9 @@ public sealed record ModpackFile
     /// <summary>Absolute URL to fetch this file from.</summary>
     public required string DownloadUrl { get; init; }
 
+    /// <summary>Further mirrors from the manifest, tried in order when <see cref="DownloadUrl"/> fails.</summary>
+    public IReadOnlyList<string> MirrorUrls { get; init; } = Array.Empty<string>();
+
     /// <summary>Sha-1 hex digest for verifying the download. Null when the manifest omits it.</summary>
     public string? Sha1 { get; init; }
 

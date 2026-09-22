@@ -8,7 +8,8 @@
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.ImportModpackDialog"
         x:DataType="vm:MainViewModel"
         Title="{x:Static loc:Strings.ImportModpackDialog_Title}"
-        Width="480" Height="260"
+        Width="480"
+        SizeToContent="Height"
         CanResize="False"
         SystemDecorations="None"
         ExtendClientAreaToDecorationsHint="True"
@@ -45,6 +46,11 @@
           <TextBlock Text="{x:Static loc:Strings.ImportModpackDialog_ArchiveLabel}" FontSize="12" Opacity="0.85" />
           <TextBlock x:Name="ArchivePathBox" Text="{x:Static loc:Strings.ImportModpackDialog_NoArchivePicked}"
                      FontSize="11" Opacity="0.7" TextWrapping="Wrap" />
+          <!-- Manifest preview (name, pack version, Minecraft, loader) or the reason it can't be imported. -->
+          <TextBlock x:Name="PackInfoText" IsVisible="False"
+                     FontSize="13" Foreground="White" TextWrapping="Wrap" Margin="0,4,0,0" />
+          <TextBlock x:Name="ErrorText" IsVisible="False"
+                     FontSize="11" Foreground="#FF7A7A" TextWrapping="Wrap" Margin="0,4,0,0" />
         </StackPanel>
         <StackPanel Spacing="4">
           <TextBlock Text="{x:Static loc:Strings.ImportModpackDialog_InstanceNameLabel}" FontSize="12" Opacity="0.85" />
@@ -58,7 +64,7 @@
       <Grid Grid.Row="2" Margin="22,4,22,16" ColumnDefinitions="*,Auto,Auto">
         <Button Grid.Column="1" Content="{x:Static loc:Strings.Common_Cancel}" Click="OnCancel"
                 Padding="14,5" FontSize="12" Margin="0,0,8,0" />
-        <Button Grid.Column="2" Content="{x:Static loc:Strings.ImportModpackDialog_ImportButton}"
+        <Button Grid.Column="2" x:Name="ImportButton" Content="{x:Static loc:Strings.ImportModpackDialog_ImportButton}"
                 Click="OnImport"
                 FontFamily="{StaticResource MinecraftFont}" FontSize="13"
                 Padding="14,5"

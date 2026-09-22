@@ -1,6 +1,9 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods.Modpacks;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App.Views;
 
@@ -35,7 +38,29 @@ public partial class ImportModpackDialog : Window
         };
         dlg.ArchivePathBox.Text = archivePath;
         dlg.NameBox.Text = suggestedName ?? string.Empty;
+        dlg.ShowManifestPreview(archivePath);
         return dlg;
+    }
+
+    /// <summary>
+    /// Read the pack manifest up front: show what will be installed, or why it can't be
+    /// (unknown archive, unsafe paths) and keep Import disabled in that case.
+    /// </summary>
+    private void ShowManifestPreview(string archivePath)
+    {
+        try
+        {
+            var m = DispatchingModpackImporter.ReadManifest(archivePath);
+            var loader = m.Loader == ModLoader.None ? string.Empty : $" · {m.Loader} {m.LoaderVersion}".TrimEnd();
+            PackInfoText.Text = $"{m.Name} {m.Version} · Minecraft {m.MinecraftVersion}{loader}".Replace("  ", " ");
+            PackInfoText.IsVisible = true;
+        }
+        catch (Exception ex)
+        {
+            ErrorText.Text = ex.Message;
+            ErrorText.IsVisible = true;
+            ImportButton.IsEnabled = false;
+        }
     }
 
     private void OnTitleBarPressed(object? sender, PointerPressedEventArgs e)
