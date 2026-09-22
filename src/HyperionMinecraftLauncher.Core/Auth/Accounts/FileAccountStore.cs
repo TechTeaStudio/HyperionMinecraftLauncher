@@ -14,15 +14,19 @@ namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Auth.Accounts;
 /// JSON-backed <see cref="IAccountStore"/>. The v2 cache lives at
 /// <c>%LOCALAPPDATA%\HyperionMinecraftLauncher\accounts.v2.json</c> as a single
 /// document holding the active id + the account array. Writes are atomic
-/// (write-temp + rename). The legacy single-account file <c>accounts.json</c>
-/// (managed by XboxAuthNet's account manager) is left untouched - on first read
-/// when v2 is absent but v1 is present, the store materialises one placeholder
-/// account so the user sees something in the switcher and can confirm / refresh it.
+/// (write-temp + rename). <c>accounts.json</c> next to it is XboxAuthNet's live
+/// account-manager cache (rewritten on every sign-in), which this store never reads:
+/// <c>MicrosoftAuthService</c> hydrates the real accounts from it directly.
 /// </summary>
 public sealed class FileAccountStore : IAccountStore
 {
+    /// <summary>
+    /// Id of the phantom row that v0.27.0-v0.32.23 synthesised from <c>accounts.json</c>.
+    /// It ended up persisted next to the real account on first sign-in, so reads prune it.
+    /// </summary>
+    private const string StalePlaceholderId = "legacy-msal";
+
     private readonly string _v2Path;
-    private readonly string _v1Path;
     private static readonly JsonSerializerOptions WriteOptions = new() { WriteIndented = true };
     private static readonly JsonSerializerOptions ReadOptions = new()
     {
@@ -32,13 +36,12 @@ public sealed class FileAccountStore : IAccountStore
     /// <summary>Use the platform-default paths.</summary>
     public FileAccountStore() : this(DefaultV2Path(), DefaultV1Path()) { }
 
-    /// <summary>Use explicit paths (tests / advanced wiring).</summary>
+    /// <summary>Use explicit paths (tests / advanced wiring). <paramref name="v1Path"/> is kept for API compatibility and ignored.</summary>
     public FileAccountStore(string v2Path, string v1Path)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(v2Path);
         ArgumentException.ThrowIfNullOrWhiteSpace(v1Path);
         _v2Path = v2Path;
-        _v1Path = v1Path;
         var dir = Path.GetDirectoryName(v2Path);
         if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
     }
@@ -91,10 +94,8 @@ public sealed class FileAccountStore : IAccountStore
     }
 
     /// <summary>
-    /// Read the v2 document. When v2 is absent the loader runs the migration: if v1
-    /// (legacy <c>accounts.json</c>) exists, it returns a 1-entry placeholder list so
-    /// the UI shows something the user recognises; if neither exists, returns an empty
-    /// document. Malformed v2 JSON returns an empty document too - never crashes startup.
+    /// Read the v2 document. Missing or malformed v2 JSON returns an empty document - never
+    /// crashes startup. The stale <see cref="StalePlaceholderId"/> row is dropped on the way out.
     /// </summary>
     private async Task<AccountDocument> ReadDocumentAsync(CancellationToken cancellationToken)
     {
@@ -109,8 +110,12 @@ public sealed class FileAccountStore : IAccountStore
                 if (dto is not null)
                     return new AccountDocument
                     {
-                        ActiveId = dto.ActiveId,
-                        Accounts = dto.Accounts ?? new List<Account>(),
+                        ActiveId = string.Equals(dto.ActiveId, StalePlaceholderId, StringComparison.Ordinal)
+                            ? null
+                            : dto.ActiveId,
+                        Accounts = (dto.Accounts ?? new List<Account>())
+                            .Where(a => !string.Equals(a.Id, StalePlaceholderId, StringComparison.Ordinal))
+                            .ToList(),
                     };
             }
             catch
@@ -118,12 +123,6 @@ public sealed class FileAccountStore : IAccountStore
                 // Bad JSON - fall through to empty document. We don't auto-delete the file:
                 // future versions might want to attempt recovery.
             }
-            return AccountDocument.Empty;
-        }
-
-        if (File.Exists(_v1Path))
-        {
-            return MigrateV1Placeholder();
         }
 
         return AccountDocument.Empty;
@@ -145,31 +144,6 @@ public sealed class FileAccountStore : IAccountStore
             await JsonSerializer.SerializeAsync(stream, dto, WriteOptions, cancellationToken).ConfigureAwait(false);
         }
         File.Move(tmp, _v2Path, overwrite: true);
-    }
-
-    /// <summary>
-    /// Build a one-entry placeholder document for the v1 -> v2 migration. The legacy file
-    /// is XboxAuthNet's account-manager JSON, which has its own internal schema; rather
-    /// than try to parse it (and couple the Core library to that library's private format)
-    /// the migration surfaces a single "Cached Microsoft account" entry and leaves the
-    /// real refresh-token cache alone for the auth service to use on the next sign-in.
-    /// </summary>
-    private static AccountDocument MigrateV1Placeholder()
-    {
-        var placeholder = new Account
-        {
-            Id = "legacy-msal",
-            Username = "Cached Microsoft account",
-            Uuid = string.Empty,
-            SkinHeadUri = null,
-            LastUsedAt = DateTimeOffset.UtcNow,
-            IsOffline = false,
-        };
-        return new AccountDocument
-        {
-            ActiveId = placeholder.Id,
-            Accounts = new List<Account> { placeholder },
-        };
     }
 
     private static string DefaultV2Path() => Path.Combine(DefaultDir(), "accounts.v2.json");

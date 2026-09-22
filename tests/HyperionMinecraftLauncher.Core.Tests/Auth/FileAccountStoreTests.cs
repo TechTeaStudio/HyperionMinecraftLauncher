@@ -203,21 +203,57 @@ public class FileAccountStoreTests : IDisposable
     }
 
     [Fact]
-    public async Task ListAsync_MigratesFromV1LegacyFile_ReturnsSingleAccount()
+    public async Task ListAsync_V1FilePresent_DoesNotInventPlaceholder()
     {
-        // Legacy "accounts.json" is the XboxAuthNet account-manager cache. We don't try to
-        // parse its real format - the migration path produces a one-entry list with a synthetic
-        // id so the user sees a placeholder account they can use to trigger a fresh sign-in.
-        // The contract: when v2 is absent but v1 exists, ListAsync returns 1 account.
+        // "accounts.json" is XboxAuthNet's live cache, rewritten on every sign-in, not a
+        // legacy file. The real accounts in it are surfaced by MicrosoftAuthService, so the
+        // store must not synthesise a "Cached Microsoft account" row on top of them.
         File.WriteAllText(_v1Path, "{\"accounts\":[{\"foo\":\"bar\"}]}");
         Assert.False(File.Exists(_v2Path));
 
         var store = new FileAccountStore(_v2Path, _v1Path);
         var list = await store.ListAsync(CancellationToken.None);
 
-        Assert.Single(list);
-        // V1 must be left in place for back-compat with the old code path.
+        Assert.Empty(list);
         Assert.True(File.Exists(_v1Path));
+    }
+
+    [Fact]
+    public async Task SaveAsync_FirstSignInWithV1Present_PersistsOnlyRealAccount()
+    {
+        // Repro of the duplicate-account bug: first sign-in writes accounts.json via
+        // XboxAuthNet, then persists into v2 - the placeholder used to ride along.
+        File.WriteAllText(_v1Path, "{}");
+        var store = new FileAccountStore(_v2Path, _v1Path);
+
+        await store.SaveAsync(new Account
+        {
+            Id = "real", Username = "The_LL", Uuid = "real",
+            LastUsedAt = DateTimeOffset.UtcNow, IsOffline = false,
+        }, CancellationToken.None);
+
+        var list = await store.ListAsync(CancellationToken.None);
+        Assert.Equal("real", Assert.Single(list).Id);
+    }
+
+    [Fact]
+    public async Task ListAsync_StalePlaceholderInV2_IsPruned()
+    {
+        // Stores written by <= v0.32.23 may already carry the phantom row; heal them on read.
+        File.WriteAllText(_v2Path, """
+        {
+          "activeId": "legacy-msal",
+          "accounts": [
+            { "Id": "legacy-msal", "Username": "Cached Microsoft account", "Uuid": "", "LastUsedAt": "2026-09-22T04:01:21+00:00", "IsOffline": false },
+            { "Id": "real", "Username": "The_LL", "Uuid": "real", "LastUsedAt": "2026-09-22T04:01:48+00:00", "IsOffline": false }
+          ]
+        }
+        """);
+        var store = new FileAccountStore(_v2Path, _v1Path);
+
+        var list = await store.ListAsync(CancellationToken.None);
+        Assert.Equal("real", Assert.Single(list).Id);
+        Assert.Null(await store.GetActiveAsync(CancellationToken.None));
     }
 
     [Fact]

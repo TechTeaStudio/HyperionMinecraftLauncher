@@ -3,6 +3,12 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.24] - 2026-09-22
+
+### Fixed
+
+- Account switcher showed a phantom "Cached Microsoft account" next to the real one after the first Microsoft sign-in. `FileAccountStore` treated `accounts.json` as a legacy v1 file and synthesised a `legacy-msal` placeholder whenever `accounts.v2.json` was missing, but `accounts.json` is XboxAuthNet's live cache written by that very sign-in, so the placeholder got persisted alongside the real account. The placeholder migration is gone, and existing `legacy-msal` rows (and an active id pointing at one) are pruned on read.
+
 ## [0.32.23] - 2026-09-22
 
 ### Fixed
