@@ -3,6 +3,17 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.30] - 2026-09-22
+
+### Added
+
+- Resource, shader and data pack lists show packs the way the game's pack screen does: the pack's own icon (`pack.png`) and its `pack.mcmeta` description rendered with Minecraft formatting (legacy `§` colour / style codes, JSON text components with `translate` + `fallback`, named and `#hex` colours, bold / italic / underlined / strikethrough, `extra`, component arrays), plus the pack name without `.zip` / `.zip.disabled` (full file name in the tooltip). Shader packs have no icon convention, so the first `pack.png` / `logo.png` / `icon.png` found in the root, in `shaders/` or under a single top folder is used. Packs without an icon get the game's "?" placeholder instead of the old book / redstone stubs. Backed by `McText`, `PackMetadataReader` (never throws; icons over 2 MB skipped) and the `McTextBlock` control.
+
+### Fixed
+
+- Pack rows' Remove button stretched to the full row height.
+- The pack tabs (Resource / Shader / Data packs), their toggle tooltip, Remove button and empty states were English in every locale; now translated into all 13 (Russian follows the game: "Наборы ресурсов / шейдеров / данных").
+
 ## [0.32.29] - 2026-09-22
 
 ### Changed

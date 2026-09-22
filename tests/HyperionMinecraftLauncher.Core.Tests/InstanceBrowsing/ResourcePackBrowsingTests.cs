@@ -50,6 +50,43 @@ public class ResourcePackBrowsingTests : IDisposable
     }
 
     [Fact]
+    public async Task ListResourcePacksAsync_CarriesIconDescriptionAndDisplayName()
+    {
+        var dir = Path.Combine(_root, "resourcepacks");
+        Directory.CreateDirectory(dir);
+        var png = new byte[] { 0x89, 0x50, 0x4E, 0x47, 9, 9 };
+        using (var zip = System.IO.Compression.ZipFile.Open(Path.Combine(dir, "Fresh Animations.zip.disabled"), System.IO.Compression.ZipArchiveMode.Create))
+        {
+            using (var s = zip.CreateEntry("pack.png").Open()) s.Write(png);
+            using (var w = new StreamWriter(zip.CreateEntry("pack.mcmeta").Open()))
+                w.Write("{\"pack\":{\"pack_format\":15,\"description\":\"§4By FreshLX\"}}");
+        }
+
+        var pack = Assert.Single(await new FileSystemInstanceBrowser().ListResourcePacksAsync(_instance, CancellationToken.None));
+
+        Assert.Equal("Fresh Animations", pack.DisplayName);
+        Assert.Equal(png, pack.IconPng);
+        Assert.Equal(("By FreshLX", "#AA0000"), (pack.Description.Single().Text, pack.Description.Single().Color));
+    }
+
+    [Fact]
+    public async Task ListShaderPacksAsync_CarriesTheIconWhenThePackHasOne()
+    {
+        var dir = Path.Combine(_root, "shaderpacks");
+        Directory.CreateDirectory(dir);
+        var png = new byte[] { 0x89, 0x50, 0x4E, 0x47, 7 };
+        using (var zip = System.IO.Compression.ZipFile.Open(Path.Combine(dir, "BSL_v8.4.zip"), System.IO.Compression.ZipArchiveMode.Create))
+        {
+            using (var s = zip.CreateEntry("shaders/logo.png").Open()) s.Write(png);
+        }
+
+        var pack = Assert.Single(await new FileSystemInstanceBrowser().ListShaderPacksAsync(_instance, CancellationToken.None));
+
+        Assert.Equal("BSL_v8.4", pack.DisplayName);
+        Assert.Equal(png, pack.IconPng);
+    }
+
+    [Fact]
     public async Task ListResourcePacksAsync_MissingDirectory_ReturnsEmpty()
     {
         var result = await new FileSystemInstanceBrowser().ListResourcePacksAsync(_instance, CancellationToken.None);

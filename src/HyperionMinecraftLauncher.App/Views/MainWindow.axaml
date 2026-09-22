@@ -1021,12 +1021,20 @@
                   <ListBox.ItemTemplate>
                     <DataTemplate DataType="browsing:ResourcePackEntry">
                       <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" Margin="2,3">
-                        <Image Grid.Column="0"
-                               Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/book.png"
-                               Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <Border Grid.Column="0" Classes="PackIcon" ToolTip.Tip="{Binding Filename}">
+                          <Panel>
+                            <TextBlock Text="?" FontFamily="{StaticResource MinecraftFont}" FontSize="20" Foreground="#8B8B8B"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       IsVisible="{Binding IconPng, Converter={x:Static ObjectConverters.IsNull}}" />
+                            <Image Source="{Binding IconPng, Converter={x:Static local:PngBytesToBitmap.Instance}}"
+                                   Stretch="Uniform" RenderOptions.BitmapInterpolationMode="HighQuality" />
+                          </Panel>
+                        </Border>
                         <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
-                          <TextBlock Text="{Binding Filename}" FontWeight="SemiBold" FontSize="12"
+                          <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="13"
                                      TextTrimming="CharacterEllipsis" />
+                          <controls:McTextBlock Spans="{Binding Description}" Classes="PackDescription"
+                                                IsVisible="{Binding !!Description.Count}" />
                           <TextBlock Text="{Binding SizeBytes, Converter={x:Static local:ByteSizeFormatter.Instance}}"
                                      Opacity="0.55" FontSize="10" />
                         </StackPanel>
@@ -1039,7 +1047,7 @@
                                       Margin="6,0,0,0" />
                         <Button Grid.Column="3"
                                 Content="{x:Static loc:Strings.InstanceTabs_PackRemoveButton}"
-                                FontSize="10" Padding="8,2" Margin="6,0,0,0"
+                                FontSize="10" Padding="8,2" Margin="6,0,0,0" VerticalAlignment="Center"
                                 Command="{Binding $parent[ListBox].((vm:MainViewModel)DataContext).RemoveResourcePackCommand}"
                                 CommandParameter="{Binding Filename}" />
                       </Grid>
@@ -1061,12 +1069,20 @@
                   <ListBox.ItemTemplate>
                     <DataTemplate DataType="browsing:ShaderPackEntry">
                       <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" Margin="2,3">
-                        <Image Grid.Column="0"
-                               Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/redstone.png"
-                               Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <Border Grid.Column="0" Classes="PackIcon" ToolTip.Tip="{Binding Filename}">
+                          <Panel>
+                            <TextBlock Text="?" FontFamily="{StaticResource MinecraftFont}" FontSize="20" Foreground="#8B8B8B"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       IsVisible="{Binding IconPng, Converter={x:Static ObjectConverters.IsNull}}" />
+                            <Image Source="{Binding IconPng, Converter={x:Static local:PngBytesToBitmap.Instance}}"
+                                   Stretch="Uniform" RenderOptions.BitmapInterpolationMode="HighQuality" />
+                          </Panel>
+                        </Border>
                         <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
-                          <TextBlock Text="{Binding Filename}" FontWeight="SemiBold" FontSize="12"
+                          <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="13"
                                      TextTrimming="CharacterEllipsis" />
+                          <controls:McTextBlock Spans="{Binding Description}" Classes="PackDescription"
+                                                IsVisible="{Binding !!Description.Count}" />
                           <TextBlock Text="{Binding SizeBytes, Converter={x:Static local:ByteSizeFormatter.Instance}}"
                                      Opacity="0.55" FontSize="10" />
                         </StackPanel>
@@ -1079,7 +1095,7 @@
                                       Margin="6,0,0,0" />
                         <Button Grid.Column="3"
                                 Content="{x:Static loc:Strings.InstanceTabs_PackRemoveButton}"
-                                FontSize="10" Padding="8,2" Margin="6,0,0,0"
+                                FontSize="10" Padding="8,2" Margin="6,0,0,0" VerticalAlignment="Center"
                                 Command="{Binding $parent[ListBox].((vm:MainViewModel)DataContext).RemoveShaderPackCommand}"
                                 CommandParameter="{Binding Filename}" />
                       </Grid>
@@ -1102,12 +1118,20 @@
                   <ListBox.ItemTemplate>
                     <DataTemplate DataType="browsing:DataPackEntry">
                       <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" Margin="2,3">
-                        <Image Grid.Column="0"
-                               Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/writable_book.png"
-                               Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <Border Grid.Column="0" Classes="PackIcon" ToolTip.Tip="{Binding Filename}">
+                          <Panel>
+                            <TextBlock Text="?" FontFamily="{StaticResource MinecraftFont}" FontSize="20" Foreground="#8B8B8B"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       IsVisible="{Binding IconPng, Converter={x:Static ObjectConverters.IsNull}}" />
+                            <Image Source="{Binding IconPng, Converter={x:Static local:PngBytesToBitmap.Instance}}"
+                                   Stretch="Uniform" RenderOptions.BitmapInterpolationMode="HighQuality" />
+                          </Panel>
+                        </Border>
                         <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
-                          <TextBlock Text="{Binding Filename}" FontWeight="SemiBold" FontSize="12"
+                          <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="13"
                                      TextTrimming="CharacterEllipsis" />
+                          <controls:McTextBlock Spans="{Binding Description}" Classes="PackDescription"
+                                                IsVisible="{Binding !!Description.Count}" />
                           <TextBlock Opacity="0.55" FontSize="10">
                             <Run Text="{Binding WorldFolderName}" />
                             <Run Text=" - " />
@@ -1123,7 +1147,7 @@
                                       Margin="6,0,0,0" />
                         <Button Grid.Column="3"
                                 Content="{x:Static loc:Strings.InstanceTabs_PackRemoveButton}"
-                                FontSize="10" Padding="8,2" Margin="6,0,0,0"
+                                FontSize="10" Padding="8,2" Margin="6,0,0,0" VerticalAlignment="Center"
                                 Command="{Binding $parent[ListBox].((vm:MainViewModel)DataContext).RemoveDataPackCommand}"
                                 CommandParameter="{Binding}" />
                       </Grid>
@@ -2111,6 +2135,23 @@
       <Setter Property="FontWeight" Value="SemiBold" />
       <Setter Property="Foreground" Value="White" />
       <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <!-- Resource / shader / data pack rows: icon slot like the game's pack screen. -->
+    <Style Selector="Border.PackIcon">
+      <Setter Property="Width" Value="44" />
+      <Setter Property="Height" Value="44" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Margin" Value="0,0,12,0" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Background" Value="#2B2B2B" />
+      <Setter Property="ClipToBounds" Value="True" />
+    </Style>
+    <Style Selector="TextBlock.PackDescription">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="Foreground" Value="#A8A8A8" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+      <Setter Property="MaxLines" Value="2" />
+      <Setter Property="TextTrimming" Value="CharacterEllipsis" />
     </Style>
     <Style Selector="WrapPanel.DetailTabs > RadioButton">
       <Setter Property="Margin" Value="0,0,4,4" />

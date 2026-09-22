@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing.Packs;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
@@ -142,12 +143,15 @@ public sealed class FileSystemInstanceBrowser : IInstanceBrowser
                 try
                 {
                     var info = new FileInfo(path);
+                    var meta = PackMetadataReader.Read(info.FullName, PackKind.Resource);
                     entries.Add(new ResourcePackEntry
                     {
                         FullPath = info.FullName,
                         Filename = info.Name,
                         SizeBytes = info.Length,
                         IsEnabled = enabled,
+                        IconPng = meta.IconPng,
+                        Description = meta.Description,
                     });
                 }
                 catch
@@ -181,12 +185,15 @@ public sealed class FileSystemInstanceBrowser : IInstanceBrowser
                 try
                 {
                     var info = new FileInfo(path);
+                    var meta = PackMetadataReader.Read(info.FullName, PackKind.Shader);
                     entries.Add(new ShaderPackEntry
                     {
                         FullPath = info.FullName,
                         Filename = info.Name,
                         SizeBytes = info.Length,
                         IsEnabled = enabled,
+                        IconPng = meta.IconPng,
+                        Description = meta.Description,
                     });
                 }
                 catch
@@ -227,6 +234,7 @@ public sealed class FileSystemInstanceBrowser : IInstanceBrowser
                     try
                     {
                         var info = new FileInfo(path);
+                        var meta = PackMetadataReader.Read(info.FullName, PackKind.Data);
                         entries.Add(new DataPackEntry
                         {
                             FullPath = info.FullName,
@@ -234,6 +242,8 @@ public sealed class FileSystemInstanceBrowser : IInstanceBrowser
                             SizeBytes = info.Length,
                             WorldFolderName = worldName,
                             IsEnabled = enabled,
+                            IconPng = meta.IconPng,
+                            Description = meta.Description,
                         });
                     }
                     catch

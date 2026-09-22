@@ -117,6 +117,14 @@
   <data name="InstanceTabs.WorldMenuRestoreLatest" xml:space="preserve"><value>还原最新备份</value></data>
   <data name="InstanceTabs.WorldMenuOpenFolder" xml:space="preserve"><value>打开文件夹</value></data>
   <data name="InstanceTabs.CrashSeparatorDash" xml:space="preserve"><value>  -  </value></data>
+  <data name="InstanceTabs.ResourcePacks" xml:space="preserve"><value>资源包</value></data>
+  <data name="InstanceTabs.ShaderPacks" xml:space="preserve"><value>光影包</value></data>
+  <data name="InstanceTabs.DataPacks" xml:space="preserve"><value>数据包</value></data>
+  <data name="InstanceTabs.PackEnableTooltip" xml:space="preserve"><value>切换启用 / 禁用</value></data>
+  <data name="InstanceTabs.PackRemoveButton" xml:space="preserve"><value>移除</value></data>
+  <data name="InstanceTabs.PackEmptyResource" xml:space="preserve"><value>此实例暂无资源包。</value></data>
+  <data name="InstanceTabs.PackEmptyShader" xml:space="preserve"><value>此实例暂无光影包。</value></data>
+  <data name="InstanceTabs.PackEmptyData" xml:space="preserve"><value>所有世界中均未找到数据包。</value></data>
 
   <!-- Skins page -->
   <data name="Skins.Title" xml:space="preserve"><value>皮肤</value></data>

@@ -114,6 +114,14 @@
   <data name="InstanceTabs.WorldMenuRestoreLatest" xml:space="preserve"><value>最新のバックアップから復元</value></data>
   <data name="InstanceTabs.WorldMenuOpenFolder" xml:space="preserve"><value>フォルダーを開く</value></data>
   <data name="InstanceTabs.CrashSeparatorDash" xml:space="preserve"><value>  -  </value></data>
+  <data name="InstanceTabs.ResourcePacks" xml:space="preserve"><value>リソースパック</value></data>
+  <data name="InstanceTabs.ShaderPacks" xml:space="preserve"><value>シェーダーパック</value></data>
+  <data name="InstanceTabs.DataPacks" xml:space="preserve"><value>データパック</value></data>
+  <data name="InstanceTabs.PackEnableTooltip" xml:space="preserve"><value>有効 / 無効を切り替え</value></data>
+  <data name="InstanceTabs.PackRemoveButton" xml:space="preserve"><value>削除</value></data>
+  <data name="InstanceTabs.PackEmptyResource" xml:space="preserve"><value>このインスタンスにリソースパックはありません。</value></data>
+  <data name="InstanceTabs.PackEmptyShader" xml:space="preserve"><value>このインスタンスにシェーダーパックはありません。</value></data>
+  <data name="InstanceTabs.PackEmptyData" xml:space="preserve"><value>どのワールドにもデータパックが見つかりません。</value></data>
 
   <!-- Skins page -->
   <data name="Skins.Title" xml:space="preserve"><value>スキン</value></data>

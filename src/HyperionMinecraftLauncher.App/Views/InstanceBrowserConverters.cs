@@ -34,6 +34,33 @@ public sealed class PngPathToThumbnail : IValueConverter
         => throw new NotSupportedException();
 }
 
+/// <summary>
+/// Decodes a pack icon (<c>pack.png</c> bytes) for the pack lists. Decoded at 88 px, twice the
+/// 44 px slot, so it stays sharp on HiDPI while a 512 px icon doesn't sit in memory at full size.
+/// </summary>
+public sealed class PngBytesToBitmap : IValueConverter
+{
+    public static readonly PngBytesToBitmap Instance = new();
+    private const int DecodeWidth = 88;
+
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not byte[] { Length: > 0 } bytes) return null;
+        try
+        {
+            using var ms = new MemoryStream(bytes);
+            return Bitmap.DecodeToWidth(ms, DecodeWidth, Avalonia.Media.Imaging.BitmapInterpolationMode.HighQuality);
+        }
+        catch
+        {
+            return null; // not a decodable image: the "?" placeholder stays visible
+        }
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
 /// <summary>Format a byte count as a readable size (B, KB, MB, GB). One decimal once it leaves KB.</summary>
 public sealed class ByteSizeFormatter : IValueConverter
 {

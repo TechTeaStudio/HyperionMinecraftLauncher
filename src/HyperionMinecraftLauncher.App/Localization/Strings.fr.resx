@@ -115,6 +115,14 @@
   <data name="InstanceTabs.WorldMenuRestoreLatest" xml:space="preserve"><value>Restaurer la dernière sauvegarde</value></data>
   <data name="InstanceTabs.WorldMenuOpenFolder" xml:space="preserve"><value>Ouvrir le dossier</value></data>
   <data name="InstanceTabs.CrashSeparatorDash" xml:space="preserve"><value>  -  </value></data>
+  <data name="InstanceTabs.ResourcePacks" xml:space="preserve"><value>Packs de ressources</value></data>
+  <data name="InstanceTabs.ShaderPacks" xml:space="preserve"><value>Packs de shaders</value></data>
+  <data name="InstanceTabs.DataPacks" xml:space="preserve"><value>Packs de données</value></data>
+  <data name="InstanceTabs.PackEnableTooltip" xml:space="preserve"><value>Activer / désactiver</value></data>
+  <data name="InstanceTabs.PackRemoveButton" xml:space="preserve"><value>Supprimer</value></data>
+  <data name="InstanceTabs.PackEmptyResource" xml:space="preserve"><value>Aucun pack de ressources dans cette instance.</value></data>
+  <data name="InstanceTabs.PackEmptyShader" xml:space="preserve"><value>Aucun pack de shaders dans cette instance.</value></data>
+  <data name="InstanceTabs.PackEmptyData" xml:space="preserve"><value>Aucun pack de données trouvé dans les mondes.</value></data>
 
   <!-- Skins page -->
   <data name="Skins.Title" xml:space="preserve"><value>Skins</value></data>
