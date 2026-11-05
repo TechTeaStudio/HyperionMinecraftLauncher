@@ -132,7 +132,6 @@
   <data name="Skins.ClearCape" xml:space="preserve"><value>ケープをクリア</value></data>
   <data name="Skins.RecentSkins" xml:space="preserve"><value>最近のスキン</value></data>
   <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>このスキンを再適用</value></data>
-  <data name="Skins.DragHint" xml:space="preserve"><value>頭部プレビューの内側をドラッグして回転させます。</value></data>
 
   <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
   <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>スキンを探す</value></data>
@@ -440,4 +439,6 @@
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] MultiMC インポートを利用できません。</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] MultiMC インポート用のファイル/フォルダーピッカーを利用できません。</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>MultiMC インポートをキャンセルしました。</value></data>
+  <data name="Skins.ViewerHint" xml:space="preserve"><value>ドラッグで回転、ダブルクリックでリセット</value></data>
+  <data name="Skins.WalkToggle" xml:space="preserve"><value>歩く</value></data>
 </root>

@@ -135,7 +135,6 @@
   <data name="Skins.ClearCape" xml:space="preserve"><value>Zdejmij pelerynę</value></data>
   <data name="Skins.RecentSkins" xml:space="preserve"><value>Ostatnie skiny</value></data>
   <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>Zastosuj ten skin ponownie</value></data>
-  <data name="Skins.DragHint" xml:space="preserve"><value>Przeciągnij wewnątrz podglądu głowy, żeby obrócić.</value></data>
 
   <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
   <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Przeglądaj skiny</value></data>
@@ -447,4 +446,6 @@
   <!-- v0.32.5 (I1): hybrid Mojang nickname resolver labels. -->
   <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>Konto Mojang: {0}</value></data>
   <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>Skin gracza z API profilu Mojang</value></data>
+  <data name="Skins.ViewerHint" xml:space="preserve"><value>Przeciągnij, aby obrócić, kliknij dwukrotnie, aby zresetować</value></data>
+  <data name="Skins.WalkToggle" xml:space="preserve"><value>Chód</value></data>
 </root>

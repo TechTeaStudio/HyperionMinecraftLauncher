@@ -3041,6 +3041,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Raised after a skin upload succeeds (new upload, history re-apply or browsed skin), so the
+    /// view can show it in the 3D preview. May fire on a background thread.
+    /// </summary>
+    public event EventHandler<SkinAppliedEventArgs>? SkinApplied;
+
     private async Task UploadAndArchiveAsync(string accessToken, byte[] pngBytes, SkinVariant variant)
     {
         if (_skinService is null) return;
@@ -3050,6 +3056,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             await _skinService.UploadSkinAsync(accessToken, pngBytes, variant, CancellationToken.None).ConfigureAwait(false);
             Append($"Skin upload succeeded ({variant}).");
             _logger.Info($"UI: skin upload succeeded ({variant}).");
+            SkinApplied?.Invoke(this, new SkinAppliedEventArgs(pngBytes, variant));
 
             if (_skinHistory is not null)
             {

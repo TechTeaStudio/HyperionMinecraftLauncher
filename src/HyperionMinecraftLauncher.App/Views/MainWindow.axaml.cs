@@ -51,6 +51,12 @@ public partial class MainWindow : Window
         if (DataContext is not MainViewModel vm) return;
         vm.DeviceCodeRequested += OnVmDeviceCodeRequested;
         vm.PropertyChanged += OnVmPropertyChanged;
+        // A freshly uploaded skin goes straight into the 3D preview and the account avatar.
+        vm.SkinApplied += (_, e) => Dispatcher.UIThread.Post(() =>
+        {
+            SkinViewer.IsSlim = e.Variant == SkinVariant.Slim;
+            ApplySkinBytes(e.PngBytes);
+        });
         // The view-model has no Avalonia dependency; inject the file-picker + variant-prompt
         // delegate now that the TopLevel is available.
         vm.SetSkinPickRequest(PickSkinAsync);
@@ -282,20 +288,10 @@ public partial class MainWindow : Window
             // Marshal back to the UI thread before touching Avalonia controls.
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
+                SkinViewer.IsSlim = info.IsSlim;
                 ApplySkinBytes(info.SkinPng);
-                if (info.CapePng is { Length: > 0 } capeBytes)
-                {
-                    try
-                    {
-                        using var capeMs = new MemoryStream(capeBytes);
-                        SkinViewer.CapeSource = new Bitmap(capeMs);
-                    }
-                    catch { /* malformed cape PNG - skip */ }
-                }
-                else
-                {
-                    SkinViewer.CapeSource = null;
-                }
+                // The 3D viewer hangs the cape on the model; a malformed PNG just shows no cape.
+                SkinViewer.CapePngSource = info.CapePng is { Length: > 0 } capeBytes ? capeBytes : null;
             });
         }
         catch

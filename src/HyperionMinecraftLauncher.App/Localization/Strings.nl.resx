@@ -135,7 +135,6 @@
   <data name="Skins.ClearCape" xml:space="preserve"><value>Cape afdoen</value></data>
   <data name="Skins.RecentSkins" xml:space="preserve"><value>Recente skins</value></data>
   <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>Deze skin opnieuw toepassen</value></data>
-  <data name="Skins.DragHint" xml:space="preserve"><value>Sleep in de hoofdpreview om te draaien.</value></data>
 
   <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
   <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Skins bladeren</value></data>
@@ -447,4 +446,6 @@
   <!-- v0.32.5 (I1): hybrid Mojang nickname resolver labels. -->
   <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>Mojang-account: {0}</value></data>
   <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>Speler-skin via Mojangs profiel-API</value></data>
+  <data name="Skins.ViewerHint" xml:space="preserve"><value>Sleep om te draaien, dubbelklik om te herstellen</value></data>
+  <data name="Skins.WalkToggle" xml:space="preserve"><value>Lopen</value></data>
 </root>

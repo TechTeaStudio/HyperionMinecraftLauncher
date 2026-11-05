@@ -135,7 +135,6 @@
   <data name="Skins.ClearCape" xml:space="preserve"><value>Снять плащ</value></data>
   <data name="Skins.RecentSkins" xml:space="preserve"><value>Недавние скины</value></data>
   <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>Применить этот скин повторно</value></data>
-  <data name="Skins.DragHint" xml:space="preserve"><value>Перетащите внутри превью головы, чтобы повернуть.</value></data>
 
   <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
   <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Каталог скинов</value></data>
@@ -443,4 +442,6 @@
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] Импорт из MultiMC недоступен.</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] Выбор файла или папки для импорта из MultiMC недоступен.</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>Импорт из MultiMC отменён.</value></data>
+  <data name="Skins.ViewerHint" xml:space="preserve"><value>Тяните, чтобы повернуть, двойной клик возвращает вид</value></data>
+  <data name="Skins.WalkToggle" xml:space="preserve"><value>Ходьба</value></data>
 </root>

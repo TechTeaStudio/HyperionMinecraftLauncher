@@ -90,16 +90,39 @@ public class MainViewModelSkinTests : IDisposable
         Assert.False(vm.HasOwnedCapes);
     }
 
+    [Fact]
+    public async Task ReapplyHistoricSkin_RaisesSkinAppliedSoThePreviewCanRefresh()
+    {
+        var historyStore = new FileSkinHistoryStore(_historyRoot);
+        var png = MakePng();
+        await historyStore.AppendAsync(png, SkinVariant.Slim, CancellationToken.None);
+        var auth = new FakeMicrosoftAuthService
+        {
+            ResultToReturn = new AuthResult { Username = "Notch", Uuid = "069a79f444e94726a5befca90e38aaf5", AccessToken = "t", IsOffline = false },
+        };
+        var vm = NewVm(new FakeSkinService(), historyStore, auth);
+        await vm.SignInMicrosoftCommand.ExecuteAsync();
+        await vm.ReloadHistoryAsync();
+        SkinAppliedEventArgs? applied = null;
+        vm.SkinApplied += (_, e) => applied = e;
+
+        await vm.ReapplyHistoricSkinCommand.ExecuteAsync(vm.SkinHistory[0]);
+
+        Assert.NotNull(applied);
+        Assert.Equal(png, applied!.PngBytes);
+        Assert.Equal(SkinVariant.Slim, applied.Variant);
+    }
+
     private static byte[] MakePng()
     {
         return new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x01, 0x02 };
     }
 
-    private static MainViewModel NewVm(ISkinService skinService, ISkinHistoryStore historyStore)
+    private static MainViewModel NewVm(ISkinService skinService, ISkinHistoryStore historyStore, IMicrosoftAuthService? auth = null)
     {
         var launcher = new SkinTestsStubLauncher();
         return new MainViewModel(launcher, new SkinTestsLogger(),
-            microsoftAuth: null,
+            microsoftAuth: auth,
             settingsStore: null,
             skinService: skinService,
             skinHistory: historyStore);
@@ -180,7 +203,7 @@ public class MainViewModelSkinTests : IDisposable
             => Task.CompletedTask;
 
         public Task<AuthResult> AuthenticateAsync(AuthRequest request, CancellationToken cancellationToken)
-            => Task.FromResult(new AuthResult { Username = "x", Uuid = "x", AccessToken = "x", IsOffline = true });
+            => Task.FromResult(new AuthResult { Username = "x", Uuid = "x", AccessToken = "x", IsOffline = request.Mode != AuthMode.Microsoft });
 
         public Task<LaunchResult> LaunchAsync(LaunchRequest request, IProgress<LaunchProgress>? progress, CancellationToken cancellationToken)
             => Task.FromResult(new LaunchResult { ProcessId = 1, VersionName = "x" });

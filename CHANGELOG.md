@@ -3,6 +3,21 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.33] - 2026-11-05
+
+### Added
+
+- Skins page shows the full 3D player walking in place instead of a 3D head next to a flat body sprite: head, body, arms and legs with the second skin layer (hat, jacket, sleeves, pants), classic or slim arms (detected from the texture when the profile doesn't say), and the cape hung from the shoulders, swinging back with each stride. Drag to orbit, double-click to reset the view, the Walk chip pauses the animation. Legacy 64x32 and HD skins are supported.
+- New software renderer in `Core/Skins/Rendering` (`PlayerSkinRenderer`): per-row triangle spans with a depth buffer, perspective-correct nearest-neighbour texturing, cut-out second layer and optional 2x2 supersampling. It replaces both earlier attempts (painter's-algorithm Skia with cracks between faces, and the GPU renderer that went blank on Avalonia's GLES context) and needs no GPU. Frames render on a worker thread and only while the Skins page is visible.
+
+### Fixed
+
+- The skin preview and the account avatar now update right after a skin is uploaded, re-applied from history or applied from the catalog; before, they kept showing the old skin until the next sign-in.
+
+### Removed
+
+- The 2D body sprite and head-only drag code (`BackBodyComposer`, `SkinRotation`) and the "drag inside the head preview" hint.
+
 ## [0.32.32] - 2026-11-05
 
 ### Added

@@ -145,7 +145,8 @@ public static class Strings
     public static string Skins_ClearCape => L("Skins.ClearCape");
     public static string Skins_RecentSkins => L("Skins.RecentSkins");
     public static string Skins_RecentReapplyTooltip => L("Skins.RecentReapplyTooltip");
-    public static string Skins_DragHint => L("Skins.DragHint");
+    public static string Skins_ViewerHint => L("Skins.ViewerHint");
+    public static string Skins_WalkToggle => L("Skins.WalkToggle");
 
     // Community skin browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3).
     public static string SkinsBrowser_SectionTitle => L("SkinsBrowser.SectionTitle");

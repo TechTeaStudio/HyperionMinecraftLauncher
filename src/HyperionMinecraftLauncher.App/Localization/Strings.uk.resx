@@ -135,7 +135,6 @@
   <data name="Skins.ClearCape" xml:space="preserve"><value>Зняти плащ</value></data>
   <data name="Skins.RecentSkins" xml:space="preserve"><value>Нещодавні скіни</value></data>
   <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>Застосувати цей скін повторно</value></data>
-  <data name="Skins.DragHint" xml:space="preserve"><value>Перетягни в превʼю голови, щоб обернути.</value></data>
 
   <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
   <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Каталог скінів</value></data>
@@ -447,4 +446,6 @@
   <!-- v0.32.5 (I1): hybrid Mojang nickname resolver labels. -->
   <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>Акаунт Mojang: {0}</value></data>
   <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>Скін гравця з API профілю Mojang</value></data>
+  <data name="Skins.ViewerHint" xml:space="preserve"><value>Тягніть, щоб повернути, подвійний клік повертає вигляд</value></data>
+  <data name="Skins.WalkToggle" xml:space="preserve"><value>Ходьба</value></data>
 </root>

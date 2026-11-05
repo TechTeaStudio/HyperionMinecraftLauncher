@@ -135,7 +135,6 @@
   <data name="Skins.ClearCape" xml:space="preserve"><value>清除披风</value></data>
   <data name="Skins.RecentSkins" xml:space="preserve"><value>最近使用的皮肤</value></data>
   <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>重新应用此皮肤</value></data>
-  <data name="Skins.DragHint" xml:space="preserve"><value>在头部预览区域内拖动以旋转。</value></data>
 
   <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
   <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>浏览皮肤</value></data>
@@ -443,4 +442,6 @@
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] MultiMC 导入功能不可用。</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] MultiMC 导入文件或文件夹选择器不可用。</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>MultiMC 导入已取消。</value></data>
+  <data name="Skins.ViewerHint" xml:space="preserve"><value>拖动旋转，双击复位</value></data>
+  <data name="Skins.WalkToggle" xml:space="preserve"><value>行走</value></data>
 </root>

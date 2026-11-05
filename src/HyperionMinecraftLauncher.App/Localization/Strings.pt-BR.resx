@@ -135,7 +135,6 @@
   <data name="Skins.ClearCape" xml:space="preserve"><value>Remover capa</value></data>
   <data name="Skins.RecentSkins" xml:space="preserve"><value>Skins recentes</value></data>
   <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>Reaplicar esta skin</value></data>
-  <data name="Skins.DragHint" xml:space="preserve"><value>Arraste dentro da prévia da cabeça para girar.</value></data>
 
   <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
   <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Explorar skins</value></data>
@@ -443,4 +442,6 @@
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] A importação do MultiMC não está disponível.</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] O seletor de arquivo ou pasta do MultiMC não está disponível.</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>Importação do MultiMC cancelada.</value></data>
+  <data name="Skins.ViewerHint" xml:space="preserve"><value>Arraste para girar, clique duas vezes para redefinir</value></data>
+  <data name="Skins.WalkToggle" xml:space="preserve"><value>Andar</value></data>
 </root>

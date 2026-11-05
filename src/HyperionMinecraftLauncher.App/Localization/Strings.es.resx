@@ -135,7 +135,6 @@
   <data name="Skins.ClearCape" xml:space="preserve"><value>Quitar capa</value></data>
   <data name="Skins.RecentSkins" xml:space="preserve"><value>Skins recientes</value></data>
   <data name="Skins.RecentReapplyTooltip" xml:space="preserve"><value>Volver a aplicar esta skin</value></data>
-  <data name="Skins.DragHint" xml:space="preserve"><value>Arrastra dentro de la vista previa de la cabeza para rotar.</value></data>
 
   <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
   <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Explorar skins</value></data>
@@ -443,4 +442,6 @@
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] La importación desde MultiMC no está disponible.</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] El selector de archivos o carpetas para MultiMC no está disponible.</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>Importación desde MultiMC cancelada.</value></data>
+  <data name="Skins.ViewerHint" xml:space="preserve"><value>Arrastra para girar, doble clic para restablecer</value></data>
+  <data name="Skins.WalkToggle" xml:space="preserve"><value>Caminar</value></data>
 </root>
