@@ -56,20 +56,14 @@
 
   <!-- Home page -->
   <data name="Home.Title" xml:space="preserve"><value>Minecraft をプレイ</value></data>
-  <data name="Home.Subtitle" xml:space="preserve"><value>インストール済みのバージョンを選ぶか、マニフェストから取得してください。</value></data>
+  <data name="Home.Subtitle" xml:space="preserve"><value>インスタンスを選んでプレイするか、新しく作成します。</value></data>
   <data name="Home.YourInstancesLabel" xml:space="preserve"><value>あなたのインスタンス</value></data>
-  <data name="Home.YourInstancesPlaceholder" xml:space="preserve"><value>(まだインスタンスがありません。インストールページで作成してください)</value></data>
+  <data name="Home.YourInstancesPlaceholder" xml:space="preserve"><value>（インスタンスがありません。右のボタンで作成してください）</value></data>
   <data name="Home.RescanButton" xml:space="preserve"><value>再スキャン</value></data>
-  <data name="Home.OrInstallAnother" xml:space="preserve"><value>または別のバージョンをインストール</value></data>
-  <data name="Home.SearchVersionWatermark" xml:space="preserve"><value>バージョンを検索...</value></data>
   <data name="Home.ChipRelease" xml:space="preserve"><value>Release</value></data>
   <data name="Home.ChipSnapshot" xml:space="preserve"><value>Snapshot</value></data>
   <data name="Home.ChipOldBeta" xml:space="preserve"><value>旧 Beta</value></data>
   <data name="Home.ChipOldAlpha" xml:space="preserve"><value>旧 Alpha</value></data>
-  <data name="Home.ManifestPlaceholder" xml:space="preserve"><value>(先にマニフェストを更新してください)</value></data>
-  <data name="Home.RefreshManifestButton" xml:space="preserve"><value>マニフェストを更新</value></data>
-  <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>オフラインユーザー名:</value></data>
-  <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
   <data name="Home.TestModeBadge" xml:space="preserve"><value>テストモード</value></data>
   <data name="Home.TestModeBadge.Tooltip" xml:space="preserve"><value>強制オフラインモードが有効です (設定 → ランチャーの環境設定)。Microsoft アカウントがキャッシュされていても、次の Play はオフラインセッションで開始されます。</value></data>
   <data name="Home.ResumeWorldButton" xml:space="preserve"><value>ワールドを再開...</value></data>
@@ -441,4 +435,13 @@
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>MultiMC インポートをキャンセルしました。</value></data>
   <data name="Skins.ViewerHint" xml:space="preserve"><value>ドラッグで回転、ダブルクリックでリセット</value></data>
   <data name="Skins.WalkToggle" xml:space="preserve"><value>歩く</value></data>
+  <data name="Header.OfflineAccountChip" xml:space="preserve"><value>{0}（オフライン）</value></data>
+  <data name="Header.OfflineAccountSubtitle" xml:space="preserve"><value>オフラインアカウント</value></data>
+  <data name="Header.AddOfflineAccount" xml:space="preserve"><value>オフラインを追加</value></data>
+  <data name="Header.OfflineNameWatermark" xml:space="preserve"><value>オフラインの名前</value></data>
+  <data name="Accounts.InvalidOfflineName" xml:space="preserve"><value>「{0}」は Minecraft の名前として使えません。半角英数字と _ で 3〜16 文字にしてください。</value></data>
+  <data name="Accounts.OfflineAccountSelected" xml:space="preserve"><value>'{0}' としてオフラインでプレイします。</value></data>
+  <data name="Home.PlayingAs" xml:space="preserve"><value>{0} としてプレイ</value></data>
+  <data name="Home.LatestNewsCaption" xml:space="preserve"><value>最新ニュース</value></data>
+  <data name="Home.AllNews" xml:space="preserve"><value>すべてのニュース</value></data>
 </root>

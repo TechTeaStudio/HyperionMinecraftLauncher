@@ -38,6 +38,12 @@
     <themes:MaterialTheme BaseTheme="Dark" PrimaryColor="Green" SecondaryColor="Amber" />
     <materialIcons:MaterialIconStyles />
 
+    <!-- Flyouts, drop-downs, context menus and tooltips open in their own popup roots, which
+         don't inherit the window's font; give them the same UI face. -->
+    <Style Selector="PopupRoot">
+      <Setter Property="FontFamily" Value="{DynamicResource UiFont}" />
+    </Style>
+
     <!-- Instance-icon picker tile (New / Edit instance, Edit icon dialogs). Replaces the
          Material radio template: no radio dot, icon centred in a glass tile, hover lift,
          and an unmistakable selected state (green rim + tint + corner check badge). -->

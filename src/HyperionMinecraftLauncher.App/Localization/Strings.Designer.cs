@@ -45,6 +45,10 @@ public static class Strings
     public static string Header_AccountsLabel => L("Header.AccountsLabel");
     public static string Header_AddAccount => L("Header.AddAccount");
     public static string Header_RemoveThisAccount => L("Header.RemoveThisAccount");
+    public static string Header_OfflineAccountChip => L("Header.OfflineAccountChip");
+    public static string Header_OfflineAccountSubtitle => L("Header.OfflineAccountSubtitle");
+    public static string Header_AddOfflineAccount => L("Header.AddOfflineAccount");
+    public static string Header_OfflineNameWatermark => L("Header.OfflineNameWatermark");
 
     public static string WindowChrome_Minimize => L("WindowChrome.Minimize");
     public static string WindowChrome_MaximizeRestore => L("WindowChrome.MaximizeRestore");
@@ -71,21 +75,18 @@ public static class Strings
     public static string Home_YourInstancesLabel => L("Home.YourInstancesLabel");
     public static string Home_YourInstancesPlaceholder => L("Home.YourInstancesPlaceholder");
     public static string Home_RescanButton => L("Home.RescanButton");
-    public static string Home_OrInstallAnother => L("Home.OrInstallAnother");
-    public static string Home_SearchVersionWatermark => L("Home.SearchVersionWatermark");
     public static string Home_ChipRelease => L("Home.ChipRelease");
     public static string Home_ChipSnapshot => L("Home.ChipSnapshot");
     public static string Home_ChipOldBeta => L("Home.ChipOldBeta");
     public static string Home_ChipOldAlpha => L("Home.ChipOldAlpha");
-    public static string Home_ManifestPlaceholder => L("Home.ManifestPlaceholder");
-    public static string Home_RefreshManifestButton => L("Home.RefreshManifestButton");
-    public static string Home_OfflineUsernameLabel => L("Home.OfflineUsernameLabel");
-    public static string Home_OfflineUsernameWatermark => L("Home.OfflineUsernameWatermark");
     public static string Home_TestModeBadge => L("Home.TestModeBadge");
     public static string Home_TestModeBadge_Tooltip => L("Home.TestModeBadge.Tooltip");
     public static string Home_ResumeWorldButton => L("Home.ResumeWorldButton");
     public static string Home_ResumeWorldTooltip => L("Home.ResumeWorldTooltip");
     public static string Home_LaunchButton => L("Home.LaunchButton");
+    public static string Home_PlayingAs => L("Home.PlayingAs");
+    public static string Home_LatestNewsCaption => L("Home.LatestNewsCaption");
+    public static string Home_AllNews => L("Home.AllNews");
 
     // Installations
     public static string Installations_Title => L("Installations.Title");
@@ -450,4 +451,6 @@ public static class Strings
     public static string Error_MultiMcImporterUnavailable => L("Error.MultiMcImporterUnavailable");
     public static string Error_MultiMcPickerUnavailable => L("Error.MultiMcPickerUnavailable");
     public static string Error_MultiMcImportCancelled => L("Error.MultiMcImportCancelled");
+    public static string Accounts_InvalidOfflineName => L("Accounts.InvalidOfflineName");
+    public static string Accounts_OfflineAccountSelected => L("Accounts.OfflineAccountSelected");
 }

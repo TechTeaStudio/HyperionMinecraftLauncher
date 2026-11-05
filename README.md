@@ -28,7 +28,7 @@ The launcher reads from and writes alongside the same `.minecraft` directory the
 
 ### Accounts and auth
 - **Microsoft sign-in with multi-account switcher.** MSAL device-code flow with a readable user code in a modal; silent re-sign-in on subsequent launches; account chip in the header opens a flyout to switch, add, or sign out of accounts. Cached roster persists between sessions.
-- **Offline mode** for LAN games and offline-mode servers when no Microsoft account is connected.
+- **Offline accounts in the account list.** One is always there ("Steve" until you add your own nickname from the account flyout) and it is the active account until you sign in with Microsoft; picking it keeps you offline across restarts. Used for LAN games and offline-mode servers.
 
 ### Instances and launch
 - **Unified instance manager.** User-created instances and versions already installed under `.minecraft/versions/` show up in one list, with a small "auto" badge on the auto-imported ones.
@@ -46,12 +46,12 @@ The launcher reads from and writes alongside the same `.minecraft` directory the
 - **Crash report parser.** A "Crashes" tab on each instance lists every report under `crash-reports/`, parses the Forge pipe-table or Fabric hyphen-list mod block, ranks suspect mods by stacktrace frame, and offers one-click Modrinth + CurseForge search links.
 
 ### Servers
-- **Multiplayer server list** parsed from `.minecraft/servers.dat` (per instance) with live Server List Ping: status colour, latency, online / max players, and decoded MOTD.
+- **Multiplayer server lists** (the Servers page and each instance's Servers tab) parsed from `servers.dat` with live Server List Ping: server icon (the saved one, then the live favicon), status colour, latency, online / max players, and a Quick Play Join button.
 - **Headless dedicated-server registry.** Folder-per-server under `LOCALAPPDATA/headless_servers/{id}/` with metadata, EULA, and a baseline `server.properties`. Hyperion downloads `server.jar` (Mojang manifest, sha1 verified), auto-installs the matching Adoptium Temurin JRE, starts the JVM, streams stdout into a console pane on the Headless Servers page, and sends commands (`say`, `op`, `stop`, ...) over stdin.
 
 ### UX and platform
-- **Skins.** 3D skin + cape viewer (pure-Skia, no GL context). Upload a new skin PNG, switch capes, browse a 10-entry skin history, re-apply a historic skin. Community gallery powered by MineSkin v2 with paginated minifigure thumbnails; nickname search resolves through Mojang's public profile API so typing a username like `Notch` shows that account's actual current skin (tagged with a blue "M" badge). Pagination is anchored below the gallery and the panel resizes with the window.
-- **News feed** from `launchercontent.mojang.com/news.json` (same source the official launcher uses), with a one-hour disk cache and a stale-on-failure fallback.
+- **Skins.** The full 3D player walking in place, with both skin layers, classic or slim arms and the cape, drawn by a built-in software renderer (no GPU or GL context); drag to orbit. Upload a new skin PNG, switch capes, browse a 10-entry skin history, re-apply a historic skin. The community catalog comes from crafty.gg: trending skins real players wear (banned ones filtered out) and a player-nickname search over each player's skin history.
+- **News feed** from minecraft.net (falling back to `launchercontent.mojang.com/news.json`, the source the official launcher uses), with a one-hour disk cache and a stale-on-failure fallback. The newest article also sits on the Home page.
 - **Logs page.** A dedicated sidebar entry shows today's `launcher-YYYY-MM-DD.log` with substring filter, copy-all, and "Open logs folder".
 - **Per-instance browser.** Screenshots, Worlds, Servers, Crashes, Resource packs, Shader packs, and Data packs tabs under each instance. PNG thumbnails open in the OS default viewer; world rows show humanised "last played"; right-click on a world opens its folder; pack tabs support enable / disable / remove and drag-drop install.
 - **Discord Rich Presence.** "In Hyperion launcher" when idle, "Playing &lt;version&gt; - &lt;instance&gt;" when the game is running. Optional, falls back to a no-op when Discord isn't installed.
@@ -287,7 +287,7 @@ Items still open after the v0.32.x parity push. Anything not listed here is ship
 - **OptiFine and Legacy-Forge (1.7.10 era) installers.** `CmlLibModLoaderInstaller` throws `NotSupportedException` for these two cases today; the other four loaders (Forge / NeoForge / Fabric / Quilt) install transparently before launch.
 
 ### Skin browser
-- **Server-side search across the full gallery.** MineSkin v2's anonymous tier ignores `?name=` and caps `?size=` at 128, so the browser oversamples and filters client-side. The hybrid Mojang nickname resolver (`api.mojang.com/users/profiles/minecraft/{name}` -> `sessionserver.mojang.com/session/minecraft/profile/{uuid}`, prepended on page 0) covers the common "find my friend's skin" path. A paid MineSkin key or a server-side proxy would unlock proper server-side search, tags, and variant metadata across the whole feed. NameMC support stays in-tree as `[Obsolete]` so it can be revived once a CF-solver or proxy lands.
+- **Free-text skin search.** crafty.gg's public API offers trending skins and per-player skin history but no text or tag search, so the catalog searches by player nickname only.
 
 ### Performance and packaging
 - **Validated Native AOT publish.** The `ReleaseAot` configuration is wired but Avalonia 11.2 + MSAL + CmlLib have not been validated for full AOT yet. Run the trim-warnings audit, suppress / re-architect where needed, ship a working `dotnet publish -c ReleaseAot` story.

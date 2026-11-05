@@ -59,20 +59,14 @@
 
   <!-- Home page -->
   <data name="Home.Title" xml:space="preserve"><value>Грати в Minecraft</value></data>
-  <data name="Home.Subtitle" xml:space="preserve"><value>Вибери встановлену версію або завантаж із маніфесту.</value></data>
+  <data name="Home.Subtitle" xml:space="preserve"><value>Виберіть збірку й грайте або створіть нову.</value></data>
   <data name="Home.YourInstancesLabel" xml:space="preserve"><value>Твої збірки</value></data>
-  <data name="Home.YourInstancesPlaceholder" xml:space="preserve"><value>(збірок поки немає, створи на сторінці Збірки)</value></data>
+  <data name="Home.YourInstancesPlaceholder" xml:space="preserve"><value>(збірок поки немає - створіть кнопкою праворуч)</value></data>
   <data name="Home.RescanButton" xml:space="preserve"><value>Пересканувати</value></data>
-  <data name="Home.OrInstallAnother" xml:space="preserve"><value>Або встановити іншу версію</value></data>
-  <data name="Home.SearchVersionWatermark" xml:space="preserve"><value>Пошук версії...</value></data>
   <data name="Home.ChipRelease" xml:space="preserve"><value>Release</value></data>
   <data name="Home.ChipSnapshot" xml:space="preserve"><value>Snapshot</value></data>
   <data name="Home.ChipOldBeta" xml:space="preserve"><value>Стара beta</value></data>
   <data name="Home.ChipOldAlpha" xml:space="preserve"><value>Стара alpha</value></data>
-  <data name="Home.ManifestPlaceholder" xml:space="preserve"><value>(спершу натисни "Оновити маніфест")</value></data>
-  <data name="Home.RefreshManifestButton" xml:space="preserve"><value>Оновити маніфест</value></data>
-  <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>Офлайн-нік:</value></data>
-  <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
   <data name="Home.TestModeBadge" xml:space="preserve"><value>ТЕСТ-РЕЖИМ</value></data>
   <data name="Home.TestModeBadge.Tooltip" xml:space="preserve"><value>Увімкнено force-offline режим (Налаштування → Налаштування лаунчера). Наступний Play стартує з offline-сесією, навіть якщо є кешований акаунт Microsoft.</value></data>
   <data name="Home.ResumeWorldButton" xml:space="preserve"><value>Продовжити світ...</value></data>
@@ -448,4 +442,13 @@
   <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>Скін, який гравець носить зараз</value></data>
   <data name="Skins.ViewerHint" xml:space="preserve"><value>Тягніть, щоб повернути, подвійний клік повертає вигляд</value></data>
   <data name="Skins.WalkToggle" xml:space="preserve"><value>Ходьба</value></data>
+  <data name="Header.OfflineAccountChip" xml:space="preserve"><value>{0} (офлайн)</value></data>
+  <data name="Header.OfflineAccountSubtitle" xml:space="preserve"><value>Офлайн-акаунт</value></data>
+  <data name="Header.AddOfflineAccount" xml:space="preserve"><value>Додати офлайн</value></data>
+  <data name="Header.OfflineNameWatermark" xml:space="preserve"><value>Офлайн-нік</value></data>
+  <data name="Accounts.InvalidOfflineName" xml:space="preserve"><value>"{0}" не підходить як нік Minecraft: потрібно 3-16 латинських літер, цифр або _.</value></data>
+  <data name="Accounts.OfflineAccountSelected" xml:space="preserve"><value>Граємо офлайн як '{0}'.</value></data>
+  <data name="Home.PlayingAs" xml:space="preserve"><value>Граєте як {0}</value></data>
+  <data name="Home.LatestNewsCaption" xml:space="preserve"><value>Остання новина</value></data>
+  <data name="Home.AllNews" xml:space="preserve"><value>Усі новини</value></data>
 </root>

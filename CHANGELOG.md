@@ -3,6 +3,23 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.37] - 2026-11-05
+
+### Added
+
+- Offline accounts are regular entries of the account list. There is always one ("Steve" unless you had typed another offline name), and it is the active account until you sign in with Microsoft. The account flyout has an offline-nickname box with "Add offline" (3-16 Latin letters, digits or `_`, like Minecraft itself), offline rows say "Offline account" instead of a UUID, and removing one only touches the launcher's account store. Choosing an offline account keeps you offline after a restart instead of silently signing back in to Microsoft.
+- Home page shortcut "+ New instance" next to the instance picker; the created instance is selected right away (on the Installations page too).
+- Home page panel with the newest minecraft.net article: key art, category, date, title, "Read more" and "All news".
+
+### Changed
+
+- Home page: the "Or install another version" block (version search, type chips, manifest list) and the offline-username box are gone. The play row shows who you play as, Quick Play "Resume world..." and Launch. The header chip shows the active offline account ("Steve (offline)") instead of "Sign in with Microsoft" when you are not signed in.
+- After instances load, the previously selected instance stays selected; otherwise the most recently played one (or the first) is picked, so Home is ready to play instead of showing an empty picker.
+
+### Fixed
+
+- Flyouts, drop-downs and tooltips used Inter while the window used Monocraft; popups now get the UI font too.
+
 ## [0.32.36] - 2026-11-05
 
 ### Added

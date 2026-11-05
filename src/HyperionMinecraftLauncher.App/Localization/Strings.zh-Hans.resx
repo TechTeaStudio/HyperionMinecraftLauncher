@@ -59,20 +59,14 @@
 
   <!-- Home page -->
   <data name="Home.Title" xml:space="preserve"><value>启动 Minecraft</value></data>
-  <data name="Home.Subtitle" xml:space="preserve"><value>选择已安装的版本，或从清单中获取一个。</value></data>
+  <data name="Home.Subtitle" xml:space="preserve"><value>选择一个实例开始游戏，或新建一个。</value></data>
   <data name="Home.YourInstancesLabel" xml:space="preserve"><value>你的实例</value></data>
-  <data name="Home.YourInstancesPlaceholder" xml:space="preserve"><value>（暂无实例，请在「安装」页面创建一个）</value></data>
+  <data name="Home.YourInstancesPlaceholder" xml:space="preserve"><value>（还没有实例，请用右侧按钮创建）</value></data>
   <data name="Home.RescanButton" xml:space="preserve"><value>重新扫描</value></data>
-  <data name="Home.OrInstallAnother" xml:space="preserve"><value>或者安装其他版本</value></data>
-  <data name="Home.SearchVersionWatermark" xml:space="preserve"><value>搜索版本...</value></data>
   <data name="Home.ChipRelease" xml:space="preserve"><value>Release</value></data>
   <data name="Home.ChipSnapshot" xml:space="preserve"><value>Snapshot</value></data>
   <data name="Home.ChipOldBeta" xml:space="preserve"><value>旧 Beta</value></data>
   <data name="Home.ChipOldAlpha" xml:space="preserve"><value>旧 Alpha</value></data>
-  <data name="Home.ManifestPlaceholder" xml:space="preserve"><value>（请先点击「刷新清单」）</value></data>
-  <data name="Home.RefreshManifestButton" xml:space="preserve"><value>刷新清单</value></data>
-  <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>离线用户名：</value></data>
-  <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
   <data name="Home.TestModeBadge" xml:space="preserve"><value>测试模式</value></data>
   <data name="Home.TestModeBadge.Tooltip" xml:space="preserve"><value>已开启强制离线模式（设置 → 启动器偏好设置）。无论缓存中是否存在 Microsoft 账户，下一次 Play 都将以离线会话启动。</value></data>
   <data name="Home.ResumeWorldButton" xml:space="preserve"><value>继续游戏世界...</value></data>
@@ -444,4 +438,13 @@
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>MultiMC 导入已取消。</value></data>
   <data name="Skins.ViewerHint" xml:space="preserve"><value>拖动旋转，双击复位</value></data>
   <data name="Skins.WalkToggle" xml:space="preserve"><value>行走</value></data>
+  <data name="Header.OfflineAccountChip" xml:space="preserve"><value>{0}（离线）</value></data>
+  <data name="Header.OfflineAccountSubtitle" xml:space="preserve"><value>离线账户</value></data>
+  <data name="Header.AddOfflineAccount" xml:space="preserve"><value>添加离线账户</value></data>
+  <data name="Header.OfflineNameWatermark" xml:space="preserve"><value>离线昵称</value></data>
+  <data name="Accounts.InvalidOfflineName" xml:space="preserve"><value>“{0}”不能作为 Minecraft 昵称：请使用 3-16 个拉丁字母、数字或下划线。</value></data>
+  <data name="Accounts.OfflineAccountSelected" xml:space="preserve"><value>以“{0}”离线游戏。</value></data>
+  <data name="Home.PlayingAs" xml:space="preserve"><value>当前账户：{0}</value></data>
+  <data name="Home.LatestNewsCaption" xml:space="preserve"><value>最新新闻</value></data>
+  <data name="Home.AllNews" xml:space="preserve"><value>全部新闻</value></data>
 </root>

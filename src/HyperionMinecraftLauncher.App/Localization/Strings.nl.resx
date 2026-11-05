@@ -59,20 +59,14 @@
 
   <!-- Home page -->
   <data name="Home.Title" xml:space="preserve"><value>Minecraft spelen</value></data>
-  <data name="Home.Subtitle" xml:space="preserve"><value>Kies een geïnstalleerde versie of haal er een uit het manifest.</value></data>
+  <data name="Home.Subtitle" xml:space="preserve"><value>Kies een instantie en speel, of maak een nieuwe.</value></data>
   <data name="Home.YourInstancesLabel" xml:space="preserve"><value>Jouw instances</value></data>
-  <data name="Home.YourInstancesPlaceholder" xml:space="preserve"><value>(nog geen instances, maak er een aan op de pagina Instances)</value></data>
+  <data name="Home.YourInstancesPlaceholder" xml:space="preserve"><value>(nog geen instanties - maak er een met de knop rechts)</value></data>
   <data name="Home.RescanButton" xml:space="preserve"><value>Opnieuw scannen</value></data>
-  <data name="Home.OrInstallAnother" xml:space="preserve"><value>Of installeer een andere versie</value></data>
-  <data name="Home.SearchVersionWatermark" xml:space="preserve"><value>Versie zoeken...</value></data>
   <data name="Home.ChipRelease" xml:space="preserve"><value>Release</value></data>
   <data name="Home.ChipSnapshot" xml:space="preserve"><value>Snapshot</value></data>
   <data name="Home.ChipOldBeta" xml:space="preserve"><value>Oude beta</value></data>
   <data name="Home.ChipOldAlpha" xml:space="preserve"><value>Oude alpha</value></data>
-  <data name="Home.ManifestPlaceholder" xml:space="preserve"><value>(klik eerst op "Manifest vernieuwen")</value></data>
-  <data name="Home.RefreshManifestButton" xml:space="preserve"><value>Manifest vernieuwen</value></data>
-  <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>Offline-gebruikersnaam:</value></data>
-  <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
   <data name="Home.TestModeBadge" xml:space="preserve"><value>TESTMODUS</value></data>
   <data name="Home.TestModeBadge.Tooltip" xml:space="preserve"><value>Force-offline-modus staat aan (Instellingen → Launcher-voorkeuren). De volgende Play start met een offline-sessie, ongeacht een gecachet Microsoft-account.</value></data>
   <data name="Home.ResumeWorldButton" xml:space="preserve"><value>Wereld hervatten...</value></data>
@@ -448,4 +442,13 @@
   <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>De skin die deze speler nu draagt</value></data>
   <data name="Skins.ViewerHint" xml:space="preserve"><value>Sleep om te draaien, dubbelklik om te herstellen</value></data>
   <data name="Skins.WalkToggle" xml:space="preserve"><value>Lopen</value></data>
+  <data name="Header.OfflineAccountChip" xml:space="preserve"><value>{0} (offline)</value></data>
+  <data name="Header.OfflineAccountSubtitle" xml:space="preserve"><value>Offline-account</value></data>
+  <data name="Header.AddOfflineAccount" xml:space="preserve"><value>Offline toevoegen</value></data>
+  <data name="Header.OfflineNameWatermark" xml:space="preserve"><value>Offline-spelersnaam</value></data>
+  <data name="Accounts.InvalidOfflineName" xml:space="preserve"><value>"{0}" is geen geldige Minecraft-naam: gebruik 3-16 Latijnse letters, cijfers of _.</value></data>
+  <data name="Accounts.OfflineAccountSelected" xml:space="preserve"><value>Offline spelen als '{0}'.</value></data>
+  <data name="Home.PlayingAs" xml:space="preserve"><value>Spelen als {0}</value></data>
+  <data name="Home.LatestNewsCaption" xml:space="preserve"><value>Laatste nieuws</value></data>
+  <data name="Home.AllNews" xml:space="preserve"><value>Al het nieuws</value></data>
 </root>

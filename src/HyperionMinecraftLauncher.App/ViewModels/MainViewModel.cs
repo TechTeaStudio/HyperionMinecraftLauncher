@@ -310,6 +310,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         Profiles = new ObservableCollection<LauncherProfile>();
         Servers = new ObservableCollection<ServerListItemViewModel>();
         News = new ObservableCollection<NewsEntry>();
+        News.CollectionChanged += (_, _) => OnPropertyChanged(nameof(LatestNews));
         Instances = new ObservableCollection<Instance>();
         ModSearchResults = new ObservableCollection<Mod>();
         InstalledMods = new ObservableCollection<LocalMod>();
@@ -431,13 +432,18 @@ public sealed class MainViewModel : INotifyPropertyChanged
         // (flyout rows bind to those), but unwraps to the underlying Account internally.
         // RemoveAccount still takes Account because the X button's CommandParameter is bound
         // to ActiveAccount which stays an Account.
+        // Offline accounts live in the account store only, so they switch / get removed
+        // without Microsoft auth.
         SwitchAccountCommand = new AsyncParameterRelayCommand<AccountWithBitmap>(
             SwitchAccountAsync,
-            a => !IsBusy && a is not null && _microsoftAuth is not null);
+            a => !IsBusy && a is not null && (a.IsOffline ? _accountStore is not null : _microsoftAuth is not null));
         AddAccountCommand = new AsyncRelayCommand(AddAccountAsync, () => !IsBusy && _microsoftAuth is not null);
+        AddOfflineAccountCommand = new AsyncParameterRelayCommand<string>(
+            AddOfflineAccountAsync,
+            _ => !IsBusy && _accountStore is not null);
         RemoveAccountCommand = new AsyncParameterRelayCommand<Account>(
             RemoveAccountAsync,
-            a => !IsBusy && a is not null && _microsoftAuth is not null);
+            a => !IsBusy && a is not null && (a.IsOffline ? _accountStore is not null : _microsoftAuth is not null));
 
         // Launcher update banner: only enabled once the startup probe populates AvailableUpdate;
         // Dismiss simply clears the banner for the current session (re-checked on next startup).
@@ -607,6 +613,18 @@ public sealed class MainViewModel : INotifyPropertyChanged
             ? $"Offline: {_currentSession.Username}"
             : _currentSession.Username;
 
+    /// <summary>
+    /// Header chip text: the Microsoft account when signed in, otherwise the active offline
+    /// account ("Steve (offline)"), otherwise the sign-in prompt.
+    /// </summary>
+    public string AccountChipLabel => _currentSession is { IsOffline: false } online
+        ? online.Username
+        : _activeAccount is { IsOffline: true } offline
+            ? string.Format(Strings.Header_OfflineAccountChip, offline.Username)
+            : _currentSession is { } offlineSession
+                ? string.Format(Strings.Header_OfflineAccountChip, offlineSession.Username)
+                : Strings.Header_SignInWithMicrosoft;
+
     /// <summary>The current authenticated session, if any.</summary>
     public AuthResult? CurrentSession
     {
@@ -618,6 +636,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 OnPropertyChanged(nameof(IsSignedInOnline));
                 OnPropertyChanged(nameof(HasSession));
                 OnPropertyChanged(nameof(AccountDisplay));
+                OnPropertyChanged(nameof(AccountChipLabel));
                 SignInMicrosoftCommand.RaiseCanExecuteChanged();
                 SignOutCommand.RaiseCanExecuteChanged();
                 LaunchCommand.RaiseCanExecuteChanged();
@@ -648,6 +667,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             if (SetField(ref _activeAccount, value))
             {
                 RemoveAccountCommand.RaiseCanExecuteChanged();
+                OnPropertyChanged(nameof(AccountChipLabel));
             }
         }
     }
@@ -782,6 +802,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     /// <summary>News from Mojang's launcher feed.</summary>
     public ObservableCollection<NewsEntry> News { get; }
+
+    /// <summary>Newest article of the feed, for the Home page news panel. Null until news loads.</summary>
+    public NewsEntry? LatestNews => News.Count > 0 ? News[0] : null;
 
     /// <summary>Hyperion launcher instances (created via the New Instance dialog).</summary>
     public ObservableCollection<Instance> Instances { get; }
@@ -1539,6 +1562,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public AsyncRelayCommand OpenCurseForgeOnboardingCommand { get; }
     public AsyncParameterRelayCommand<AccountWithBitmap> SwitchAccountCommand { get; }
     public AsyncRelayCommand AddAccountCommand { get; }
+
+    /// <summary>Add (or re-select) an offline account; the parameter is its nickname.</summary>
+    public AsyncParameterRelayCommand<string> AddOfflineAccountCommand { get; }
     public AsyncParameterRelayCommand<Account> RemoveAccountCommand { get; }
     public AsyncRelayCommand ExportInstanceCommand { get; }
     public AsyncRelayCommand ImportInstanceCommand { get; }
@@ -1645,7 +1671,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         // with an MSAL token round-trip on the UI thread. The 2 s constant is the task brief.
         await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
         var msAuthSw = Stopwatch.StartNew();
-        if (_microsoftAuth is { HasCachedAccount: true })
+        // A player who picked an offline account keeps it; don't sign them back in to Microsoft.
+        if (_microsoftAuth is { HasCachedAccount: true } && _activeAccount is not { IsOffline: true })
         {
             try
             {
@@ -1763,6 +1790,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
             _logger.Warn($"RefreshAccounts failed: {ex.Message}");
         }
 
+        list = await EnsureOfflineAccountAsync(list, cancellationToken).ConfigureAwait(false);
+
         // Bug 2 (v0.32.0): the flyout used to show the same account twice when the MSAL
         // cache and the file account store both reported it (e.g. the store's row had a
         // slightly different Id casing or a stale Uuid). Group by Id and keep the most
@@ -1829,6 +1858,90 @@ public sealed class MainViewModel : INotifyPropertyChanged
         // Fall back to the most-recent account when the store didn't pin one (single-account upgrade path).
         active ??= Accounts.FirstOrDefault()?.Account;
         ActiveAccount = active;
+        // An offline launch plays under the active offline account's name.
+        if (active is { IsOffline: true }) Username = active.Username;
+    }
+
+    /// <summary>
+    /// The account list always holds an offline account, so a player who never signs in to
+    /// Microsoft can still pick a name and play. Creates one from the current offline name
+    /// ("Steve" by default) when none exists, dated at the epoch so it never outranks a
+    /// Microsoft account as "most recently used".
+    /// </summary>
+    private async Task<IReadOnlyList<Account>> EnsureOfflineAccountAsync(IReadOnlyList<Account> list, CancellationToken cancellationToken)
+    {
+        if (_accountStore is null || list.Any(a => a.IsOffline)) return list;
+
+        var name = IsValidOfflineName(Username) ? Username : DefaultOfflineName;
+        var account = NewOfflineAccount(name, DateTimeOffset.UnixEpoch);
+        try
+        {
+            await _accountStore.SaveAsync(account, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn($"Could not save the default offline account: {ex.Message}");
+        }
+        return list.Append(account).ToList();
+    }
+
+    private const string DefaultOfflineName = "Steve";
+
+    private static readonly System.Text.RegularExpressions.Regex OfflineNameShape =
+        new("^[A-Za-z0-9_]{3,16}$", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    /// <summary>Minecraft's own username rule: 3-16 characters, Latin letters, digits and underscore.</summary>
+    public static bool IsValidOfflineName(string? name) => name is not null && OfflineNameShape.IsMatch(name);
+
+    private static Account NewOfflineAccount(string name, DateTimeOffset lastUsed) => new()
+    {
+        Id = "offline:" + name.ToLowerInvariant(),
+        Username = name,
+        Uuid = OfflinePlayerUuid(name),
+        LastUsedAt = lastUsed,
+        IsOffline = true,
+    };
+
+    /// <summary>The UUID an offline-mode server gives this name (Java's nameUUIDFromBytes of "OfflinePlayer:name").</summary>
+    private static string OfflinePlayerUuid(string name)
+    {
+        var hash = System.Security.Cryptography.MD5.HashData(System.Text.Encoding.UTF8.GetBytes("OfflinePlayer:" + name));
+        hash[6] = (byte)((hash[6] & 0x0f) | 0x30);
+        hash[8] = (byte)((hash[8] & 0x3f) | 0x80);
+        return Convert.ToHexString(hash).ToLowerInvariant();
+    }
+
+    /// <summary>Add an offline account (or re-select one with the same name) and make it active.</summary>
+    private async Task AddOfflineAccountAsync(string? name)
+    {
+        if (_accountStore is null) return;
+        name = name?.Trim();
+        if (!IsValidOfflineName(name))
+        {
+            Append("[error] " + string.Format(Strings.Accounts_InvalidOfflineName, name));
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            var account = NewOfflineAccount(name!, DateTimeOffset.UtcNow);
+            await _accountStore.SaveAsync(account, CancellationToken.None).ConfigureAwait(false);
+            await _accountStore.SetActiveAsync(account.Id, CancellationToken.None).ConfigureAwait(false);
+            CurrentSession = null;
+            ActiveAccount = account;
+            Username = account.Username;
+            await RefreshAccountsAsync(CancellationToken.None).ConfigureAwait(false);
+            Append(string.Format(Strings.Accounts_OfflineAccountSelected, account.Username));
+        }
+        catch (Exception ex)
+        {
+            Append($"[error] Could not add offline account: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     /// <summary>
@@ -1912,7 +2025,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private async Task SwitchAccountAsync(AccountWithBitmap? selected)
     {
         var target = selected?.Account;
-        if (target is null || _microsoftAuth is null) return;
+        if (target is null || (!target.IsOffline && _microsoftAuth is null)) return;
         IsBusy = true;
         try
         {
@@ -1972,12 +2085,16 @@ public sealed class MainViewModel : INotifyPropertyChanged
     /// <summary>Remove the picked account from MSAL's cache and our roster.</summary>
     private async Task RemoveAccountAsync(Account? target)
     {
-        if (target is null || _microsoftAuth is null) return;
+        if (target is null) return;
+        if (target.IsOffline ? _accountStore is null : _microsoftAuth is null) return;
         IsBusy = true;
         try
         {
             Append($"Removing account '{target.Username}' ...");
-            await _microsoftAuth.SignOutAsync(target.Id, CancellationToken.None).ConfigureAwait(false);
+            if (target.IsOffline)
+                await _accountStore!.RemoveAsync(target.Id, CancellationToken.None).ConfigureAwait(false);
+            else
+                await _microsoftAuth!.SignOutAsync(target.Id, CancellationToken.None).ConfigureAwait(false);
             if (ActiveAccount?.Id == target.Id)
             {
                 CurrentSession = null;
@@ -2037,6 +2154,13 @@ public sealed class MainViewModel : INotifyPropertyChanged
                     IconKey = InstanceIcons.ForLoader(v.Loader),
                 });
             }
+
+            // Keep the Home page ready to play: reselect the previous choice when it is still
+            // listed, otherwise the most recently played instance, otherwise the first one.
+            var previous = SelectedInstance;
+            SelectedInstance = (previous is null ? null : Instances.FirstOrDefault(i => i.Id == previous.Id))
+                ?? Instances.Where(i => i.LastPlayedAt is not null).OrderByDescending(i => i.LastPlayedAt).FirstOrDefault()
+                ?? Instances.FirstOrDefault();
 
             var autoImported = Instances.Count - saved.Count;
             Append(autoImported > 0
@@ -2101,6 +2225,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         };
         await _service.SaveInstanceAsync(instance, CancellationToken.None);
         Instances.Insert(0, instance);
+        // The new instance is what the player wants to set up or play next.
+        SelectedInstance = instance;
         var loaderSuffix = loader == ModLoader.None
             ? string.Empty
             : (string.IsNullOrEmpty(loaderVersion) ? $" ({loader})" : $" ({loader} {loaderVersion})");

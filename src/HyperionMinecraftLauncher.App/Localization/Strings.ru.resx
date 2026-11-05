@@ -59,20 +59,14 @@
 
   <!-- Home page -->
   <data name="Home.Title" xml:space="preserve"><value>Играть в Minecraft</value></data>
-  <data name="Home.Subtitle" xml:space="preserve"><value>Выберите установленную версию или подгрузите из манифеста.</value></data>
+  <data name="Home.Subtitle" xml:space="preserve"><value>Выберите сборку и играйте или создайте новую.</value></data>
   <data name="Home.YourInstancesLabel" xml:space="preserve"><value>Ваши сборки</value></data>
-  <data name="Home.YourInstancesPlaceholder" xml:space="preserve"><value>(сборок пока нет, создайте на странице Сборки)</value></data>
+  <data name="Home.YourInstancesPlaceholder" xml:space="preserve"><value>(сборок пока нет - создайте кнопкой справа)</value></data>
   <data name="Home.RescanButton" xml:space="preserve"><value>Пересканировать</value></data>
-  <data name="Home.OrInstallAnother" xml:space="preserve"><value>Или установить другую версию</value></data>
-  <data name="Home.SearchVersionWatermark" xml:space="preserve"><value>Поиск версии...</value></data>
   <data name="Home.ChipRelease" xml:space="preserve"><value>Release</value></data>
   <data name="Home.ChipSnapshot" xml:space="preserve"><value>Snapshot</value></data>
   <data name="Home.ChipOldBeta" xml:space="preserve"><value>Старая beta</value></data>
   <data name="Home.ChipOldAlpha" xml:space="preserve"><value>Старая alpha</value></data>
-  <data name="Home.ManifestPlaceholder" xml:space="preserve"><value>(сначала нажмите "Обновить манифест")</value></data>
-  <data name="Home.RefreshManifestButton" xml:space="preserve"><value>Обновить манифест</value></data>
-  <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>Оффлайн-ник:</value></data>
-  <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
   <data name="Home.TestModeBadge" xml:space="preserve"><value>ТЕСТ-РЕЖИМ</value></data>
   <data name="Home.TestModeBadge.Tooltip" xml:space="preserve"><value>Включен force-offline режим (Настройки → Параметры лаунчера). Следующий Play запустится с offline-сессией независимо от кешированного Microsoft-аккаунта.</value></data>
   <data name="Home.ResumeWorldButton" xml:space="preserve"><value>Продолжить мир...</value></data>
@@ -444,4 +438,13 @@
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>Импорт из MultiMC отменён.</value></data>
   <data name="Skins.ViewerHint" xml:space="preserve"><value>Тяните, чтобы повернуть, двойной клик возвращает вид</value></data>
   <data name="Skins.WalkToggle" xml:space="preserve"><value>Ходьба</value></data>
+  <data name="Header.OfflineAccountChip" xml:space="preserve"><value>{0} (офлайн)</value></data>
+  <data name="Header.OfflineAccountSubtitle" xml:space="preserve"><value>Офлайн-аккаунт</value></data>
+  <data name="Header.AddOfflineAccount" xml:space="preserve"><value>Добавить офлайн</value></data>
+  <data name="Header.OfflineNameWatermark" xml:space="preserve"><value>Офлайн-ник</value></data>
+  <data name="Accounts.InvalidOfflineName" xml:space="preserve"><value>"{0}" не подходит как ник Minecraft: нужно 3-16 латинских букв, цифр или _.</value></data>
+  <data name="Accounts.OfflineAccountSelected" xml:space="preserve"><value>Играем офлайн как '{0}'.</value></data>
+  <data name="Home.PlayingAs" xml:space="preserve"><value>Играете как {0}</value></data>
+  <data name="Home.LatestNewsCaption" xml:space="preserve"><value>Последняя новость</value></data>
+  <data name="Home.AllNews" xml:space="preserve"><value>Все новости</value></data>
 </root>

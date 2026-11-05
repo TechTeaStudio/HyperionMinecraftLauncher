@@ -59,20 +59,14 @@
 
   <!-- Home page -->
   <data name="Home.Title" xml:space="preserve"><value>Play Minecraft</value></data>
-  <data name="Home.Subtitle" xml:space="preserve"><value>Pick an installed version or fetch one from the manifest.</value></data>
+  <data name="Home.Subtitle" xml:space="preserve"><value>Pick an instance and play, or create a new one.</value></data>
   <data name="Home.YourInstancesLabel" xml:space="preserve"><value>Your instances</value></data>
-  <data name="Home.YourInstancesPlaceholder" xml:space="preserve"><value>(no instances yet - create one on the Installations page)</value></data>
+  <data name="Home.YourInstancesPlaceholder" xml:space="preserve"><value>(no instances yet - create one with the button on the right)</value></data>
   <data name="Home.RescanButton" xml:space="preserve"><value>Rescan</value></data>
-  <data name="Home.OrInstallAnother" xml:space="preserve"><value>Or install another version</value></data>
-  <data name="Home.SearchVersionWatermark" xml:space="preserve"><value>Search version...</value></data>
   <data name="Home.ChipRelease" xml:space="preserve"><value>Release</value></data>
   <data name="Home.ChipSnapshot" xml:space="preserve"><value>Snapshot</value></data>
   <data name="Home.ChipOldBeta" xml:space="preserve"><value>Old beta</value></data>
   <data name="Home.ChipOldAlpha" xml:space="preserve"><value>Old alpha</value></data>
-  <data name="Home.ManifestPlaceholder" xml:space="preserve"><value>(click Refresh manifest first)</value></data>
-  <data name="Home.RefreshManifestButton" xml:space="preserve"><value>Refresh manifest</value></data>
-  <data name="Home.OfflineUsernameLabel" xml:space="preserve"><value>Offline username:</value></data>
-  <data name="Home.OfflineUsernameWatermark" xml:space="preserve"><value>Steve</value></data>
   <data name="Home.TestModeBadge" xml:space="preserve"><value>TEST MODE</value></data>
   <data name="Home.TestModeBadge.Tooltip" xml:space="preserve"><value>Force-offline mode is on (Settings -> Launcher preferences). The next Play will start with an offline session regardless of any cached Microsoft account.</value></data>
   <data name="Home.ResumeWorldButton" xml:space="preserve"><value>Resume world...</value></data>
@@ -446,4 +440,13 @@
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>MultiMC import cancelled.</value></data>
   <data name="Skins.ViewerHint" xml:space="preserve"><value>Drag to rotate, double-click to reset</value></data>
   <data name="Skins.WalkToggle" xml:space="preserve"><value>Walk</value></data>
+  <data name="Header.OfflineAccountChip" xml:space="preserve"><value>{0} (offline)</value></data>
+  <data name="Header.OfflineAccountSubtitle" xml:space="preserve"><value>Offline account</value></data>
+  <data name="Header.AddOfflineAccount" xml:space="preserve"><value>Add offline</value></data>
+  <data name="Header.OfflineNameWatermark" xml:space="preserve"><value>Offline nickname</value></data>
+  <data name="Accounts.InvalidOfflineName" xml:space="preserve"><value>"{0}" can't be a Minecraft nickname: use 3-16 Latin letters, digits or _.</value></data>
+  <data name="Accounts.OfflineAccountSelected" xml:space="preserve"><value>Playing offline as '{0}'.</value></data>
+  <data name="Home.PlayingAs" xml:space="preserve"><value>Playing as {0}</value></data>
+  <data name="Home.LatestNewsCaption" xml:space="preserve"><value>Latest news</value></data>
+  <data name="Home.AllNews" xml:space="preserve"><value>All news</value></data>
 </root>
