@@ -193,7 +193,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private Bitmap? _avatarBitmap;
     private IReadOnlyList<ScreenshotEntry> _instanceScreenshots = Array.Empty<ScreenshotEntry>();
     private IReadOnlyList<WorldEntry> _instanceWorlds = Array.Empty<WorldEntry>();
-    private IReadOnlyList<ServerListEntry> _instanceServers = Array.Empty<ServerListEntry>();
+    private IReadOnlyList<ServerListItemViewModel> _instanceServers = Array.Empty<ServerListItemViewModel>();
     private IReadOnlyList<CrashReport> _instanceCrashReports = Array.Empty<CrashReport>();
     // v0.32.1 T-content-tabs: per-instance content packs. The collections back the three new
     // tabs (Resource packs / Shader packs / Data packs) on the Installations detail panel.
@@ -823,7 +823,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 {
                     InstanceScreenshots = Array.Empty<ScreenshotEntry>();
                     InstanceWorlds = Array.Empty<WorldEntry>();
-                    InstanceServers = Array.Empty<ServerListEntry>();
+                    InstanceServers = Array.Empty<ServerListItemViewModel>();
                     InstanceResourcePacks?.Clear();
                     InstanceShaderPacks?.Clear();
                     InstanceDataPacks?.Clear();
@@ -869,8 +869,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
         private set => SetField(ref _instanceWorlds, value);
     }
 
-    /// <summary>Multiplayer entries from the selected instance's <c>servers.dat</c>.</summary>
-    public IReadOnlyList<ServerListEntry> InstanceServers
+    /// <summary>
+    /// Multiplayer entries from the selected instance's <c>servers.dat</c>, as rows that pick up
+    /// the server icon, player count and latency once they are pinged.
+    /// </summary>
+    public IReadOnlyList<ServerListItemViewModel> InstanceServers
     {
         get => _instanceServers;
         private set => SetField(ref _instanceServers, value);
@@ -3828,12 +3831,44 @@ public sealed class MainViewModel : INotifyPropertyChanged
         if (_instanceBrowser is null || SelectedInstance is not { } inst) return;
         try
         {
-            InstanceServers = await _instanceBrowser.ListServersAsync(inst, CancellationToken.None);
+            var entries = await _instanceBrowser.ListServersAsync(inst, CancellationToken.None);
+            await ShowInstanceServersAsync(entries);
         }
         catch (Exception ex)
         {
             Append($"[error] Could not list instance servers: {ex.Message}");
-            InstanceServers = Array.Empty<ServerListEntry>();
+            InstanceServers = Array.Empty<ServerListItemViewModel>();
+        }
+    }
+
+    /// <summary>
+    /// Show <paramref name="entries"/> as rows, then ping them so each row gets the server's
+    /// current icon, player count and latency. Rows keep the icon saved in servers.dat when a
+    /// server doesn't answer.
+    /// </summary>
+    private async Task ShowInstanceServersAsync(IReadOnlyList<ServerListEntry> entries)
+    {
+        var rows = entries.Select(e => new ServerListItemViewModel(e)).ToList();
+        InstanceServers = rows;
+        if (rows.Count == 0) return;
+
+        foreach (var row in rows) row.IsPinging = true;
+        try
+        {
+            var results = await _service.PingServersAsync(entries, CancellationToken.None);
+            foreach (var row in rows)
+            {
+                results.TryGetValue(row.Entry.Ip ?? string.Empty, out var status);
+                row.ApplyStatus(status);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn($"Pinging instance servers failed: {ex.Message}");
+        }
+        finally
+        {
+            foreach (var row in rows) row.IsPinging = false;
         }
     }
 
@@ -4098,10 +4133,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
             if (!ReferenceEquals(SelectedInstance, instance)) return;
             InstanceScreenshots = ssTask.Result;
             InstanceWorlds = worldsTask.Result;
-            InstanceServers = serversTask.Result;
             ReplaceCollection(InstanceResourcePacks, resTask.Result);
             ReplaceCollection(InstanceShaderPacks, shaderTask.Result);
             ReplaceCollection(InstanceDataPacks, dataTask.Result);
+            await ShowInstanceServersAsync(serversTask.Result);
         }
         catch (Exception ex)
         {

@@ -47,6 +47,35 @@ public class MainViewModelInstanceBrowserTests
         await browser.ScreenshotsCallTcs.Task;
     }
 
+    [Fact]
+    public async Task RefreshInstanceServers_PingsTheServersAndShowsTheirFavicons()
+    {
+        using var icon = new SkiaSharp.SKBitmap(8, 8);
+        icon.Erase(SkiaSharp.SKColors.Gold);
+        var favicon = icon.Encode(SkiaSharp.SKEncodedImageFormat.Png, 100).ToArray();
+        var browser = new FakeInstanceBrowser
+        {
+            Servers = new[] { new ServerListEntry { Name = "Pepeland", Ip = "play.pepeland.net" } },
+        };
+        var service = new StubLauncherService
+        {
+            PingsToReturn = new Dictionary<string, TechTeaStudio.HyperionMinecraftLauncher.Core.Servers.Ping.ServerStatus?>
+            {
+                ["play.pepeland.net"] = new() { OnlinePlayers = 120, MaxPlayers = 500, LatencyMs = 40, FaviconPng = favicon },
+            },
+        };
+        var vm = new MainViewModel(service, new RecordingLogger(),
+            microsoftAuth: null, settingsStore: null, instanceBrowser: browser);
+        vm.SelectedInstance = new Instance { Id = "p", Name = "PEPELAND", VersionId = "26.3", GameDirectory = "/tmp/p" };
+        await browser.ServersCallTcs.Task;
+
+        await vm.RefreshInstanceServersCommand.ExecuteAsync();
+
+        var row = Assert.Single(vm.InstanceServers);
+        Assert.Equal(favicon, row.IconPng);
+        Assert.Equal(120, row.Status!.OnlinePlayers);
+    }
+
     private sealed class FakeInstanceBrowser : IInstanceBrowser
     {
         public int ScreenshotCalls;
@@ -55,6 +84,7 @@ public class MainViewModelInstanceBrowserTests
         public readonly TaskCompletionSource ScreenshotsCallTcs = new();
         public readonly TaskCompletionSource WorldsCallTcs = new();
         public readonly TaskCompletionSource ServersCallTcs = new();
+        public IReadOnlyList<ServerListEntry> Servers { get; init; } = System.Array.Empty<ServerListEntry>();
 
         public Task<IReadOnlyList<ScreenshotEntry>> ListScreenshotsAsync(Instance instance, CancellationToken cancellationToken)
         {
@@ -74,7 +104,7 @@ public class MainViewModelInstanceBrowserTests
         {
             ServerCalls++;
             ServersCallTcs.TrySetResult();
-            return Task.FromResult<IReadOnlyList<ServerListEntry>>(System.Array.Empty<ServerListEntry>());
+            return Task.FromResult(Servers);
         }
 
         public Task<IReadOnlyList<ResourcePackEntry>> ListResourcePacksAsync(Instance instance, CancellationToken cancellationToken)

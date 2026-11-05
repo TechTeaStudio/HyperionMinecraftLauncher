@@ -1002,7 +1002,14 @@ public partial class MainWindow : Window
     private async void OnJoinServerClicked(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel vm) return;
-        if (sender is not Button { Tag: ServerListEntry server }) return;
+        // Rows are ServerListItemViewModels on both the Servers page and the instance tab.
+        var server = (sender as Button)?.Tag switch
+        {
+            ServerListItemViewModel row => row.Entry,
+            ServerListEntry entry => entry,
+            _ => null,
+        };
+        if (server is null) return;
 
         if (vm.Instances.Count == 0)
         {

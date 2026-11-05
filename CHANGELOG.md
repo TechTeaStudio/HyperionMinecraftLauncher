@@ -3,6 +3,17 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.36] - 2026-11-05
+
+### Added
+
+- Server icons in both server lists: the icon the game saved in `servers.dat`, replaced by the server's live favicon once it answers a ping. Blank (fully transparent) or unreadable icons fall back to the ender pearl.
+- An instance's Servers tab pings its servers, so it shows players online and latency like the Servers page, and has the same Join button (Quick Play into that instance).
+
+### Fixed
+
+- The Join button on the Servers page did nothing: it expected a different row type. It also sat on top of the status text in the same column; both now have their own columns.
+
 ## [0.32.35] - 2026-11-05
 
 ### Changed
