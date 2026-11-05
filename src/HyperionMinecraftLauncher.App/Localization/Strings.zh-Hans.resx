@@ -138,20 +138,20 @@
 
   <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
   <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>浏览皮肤</value></data>
-  <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>按名称或标签搜索皮肤...</value></data>
+  <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>玩家昵称...</value></data>
   <data name="SkinsBrowser.ShowTrending" xml:space="preserve"><value>显示热门</value></data>
   <data name="SkinsBrowser.ApplyButton" xml:space="preserve"><value>应用到我的账户</value></data>
-  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>由 api.mineskin.org 提供。Hyperion 与 MineSkin 无关。</value></data>
+  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>来源：crafty.gg - 真实玩家正在使用的皮肤，已封禁的皮肤不显示。Hyperion 与 crafty.gg 无关。</value></data>
   <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[错误] 无法加载皮肤图库：{0}</value></data>
   <data name="SkinsBrowser.DownloadFailed" xml:space="preserve"><value>[错误] 无法下载皮肤：{0}</value></data>
-  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>正在从 MineSkin 下载皮肤 {0}...</value></data>
+  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>正在下载皮肤 {0}...</value></data>
   <data name="SkinsBrowser.Loading" xml:space="preserve"><value>加载图库中...</value></data>
-  <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>未找到匹配的皮肤。请尝试其他搜索或点击"显示热门"。</value></data>
+  <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>未找到皮肤。请输入准确的玩家昵称，或点击“显示热门”。</value></data>
   <data name="SkinsBrowser.PrevPage" xml:space="preserve"><value>上一页</value></data>
   <data name="SkinsBrowser.NextPage" xml:space="preserve"><value>下一页</value></data>
   <data name="SkinsBrowser.PageLabel" xml:space="preserve"><value>第 {0} 页</value></data>
-  <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>Mojang 账户：{0}</value></data>
-  <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>来自 Mojang 个人资料 API 的玩家皮肤</value></data>
+  <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>{0} 当前的皮肤</value></data>
+  <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>该玩家当前正在使用的皮肤</value></data>
 
   <!-- Servers page -->
   <data name="Servers.Title" xml:space="preserve"><value>服务器</value></data>

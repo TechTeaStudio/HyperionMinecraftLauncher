@@ -138,15 +138,15 @@
 
   <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
   <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>스킨 둘러보기</value></data>
-  <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>이름 또는 태그로 스킨 검색...</value></data>
+  <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>플레이어 닉네임...</value></data>
   <data name="SkinsBrowser.ShowTrending" xml:space="preserve"><value>인기 표시</value></data>
   <data name="SkinsBrowser.ApplyButton" xml:space="preserve"><value>내 계정에 적용</value></data>
-  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>제공: api.mineskin.org. Hyperion은 MineSkin과 무관합니다.</value></data>
+  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>출처: crafty.gg - 실제 플레이어가 사용하는 스킨, 차단된 스킨은 숨김. Hyperion은 crafty.gg와 관련이 없습니다.</value></data>
   <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[error] 스킨 갤러리를 불러올 수 없습니다: {0}</value></data>
   <data name="SkinsBrowser.DownloadFailed" xml:space="preserve"><value>[error] 스킨을 다운로드할 수 없습니다: {0}</value></data>
-  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>MineSkin에서 스킨 {0} 다운로드 중...</value></data>
+  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>스킨 {0} 다운로드 중...</value></data>
   <data name="SkinsBrowser.Loading" xml:space="preserve"><value>갤러리 불러오는 중...</value></data>
-  <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>일치하는 스킨이 없습니다. 다른 검색어를 시도하거나 "인기 표시"를 누르세요.</value></data>
+  <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>스킨을 찾지 못했습니다. 정확한 플레이어 닉네임을 입력하거나 "인기 표시"를 누르세요.</value></data>
 
   <!-- v0.32.4 (H1): Prev / Next pagination controls. The "Page {0}" label uses a 1-based page number for the UI. -->
   <data name="SkinsBrowser.PrevPage" xml:space="preserve"><value>이전</value></data>
@@ -444,8 +444,8 @@
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>MultiMC 가져오기가 취소되었습니다.</value></data>
 
   <!-- v0.32.5 (I1): hybrid Mojang nickname resolver labels. -->
-  <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>Mojang 계정: {0}</value></data>
-  <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>Mojang 프로필 API의 플레이어 스킨</value></data>
+  <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>{0}의 현재 스킨</value></data>
+  <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>이 플레이어가 지금 사용 중인 스킨</value></data>
   <data name="Skins.ViewerHint" xml:space="preserve"><value>드래그하여 회전, 두 번 클릭하여 초기화</value></data>
   <data name="Skins.WalkToggle" xml:space="preserve"><value>걷기</value></data>
 </root>

@@ -138,20 +138,20 @@
 
   <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
   <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Explorar skins</value></data>
-  <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>Buscar skins por nombre o etiqueta...</value></data>
+  <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>Nombre del jugador...</value></data>
   <data name="SkinsBrowser.ShowTrending" xml:space="preserve"><value>Mostrar populares</value></data>
   <data name="SkinsBrowser.ApplyButton" xml:space="preserve"><value>Aplicar a mi cuenta</value></data>
-  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>Con tecnología de api.mineskin.org. Hyperion no está afiliado a MineSkin.</value></data>
+  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>Fuente: crafty.gg - skins que llevan jugadores reales, sin las skins bloqueadas. Hyperion no está afiliado a crafty.gg.</value></data>
   <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[error] No se pudo cargar la galería de skins: {0}</value></data>
   <data name="SkinsBrowser.DownloadFailed" xml:space="preserve"><value>[error] No se pudo descargar la skin: {0}</value></data>
-  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>Descargando skin {0} desde MineSkin...</value></data>
+  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>Descargando la skin {0}...</value></data>
   <data name="SkinsBrowser.Loading" xml:space="preserve"><value>Cargando galería...</value></data>
-  <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>Ninguna skin coincide. Prueba otra búsqueda o pulsa "Mostrar populares".</value></data>
+  <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>No se encontraron skins. Escribe el nombre exacto de un jugador o pulsa "Mostrar populares".</value></data>
   <data name="SkinsBrowser.PrevPage" xml:space="preserve"><value>Anterior</value></data>
   <data name="SkinsBrowser.NextPage" xml:space="preserve"><value>Siguiente</value></data>
   <data name="SkinsBrowser.PageLabel" xml:space="preserve"><value>Página {0}</value></data>
-  <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>Cuenta Mojang: {0}</value></data>
-  <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>Skin del jugador desde la API de perfil de Mojang</value></data>
+  <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>Skin actual de {0}</value></data>
+  <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>La skin que este jugador lleva ahora</value></data>
 
   <!-- Servers page -->
   <data name="Servers.Title" xml:space="preserve"><value>Servidores</value></data>

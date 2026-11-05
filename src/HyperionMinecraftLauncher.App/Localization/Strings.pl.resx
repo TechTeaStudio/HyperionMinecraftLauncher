@@ -138,15 +138,15 @@
 
   <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
   <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Przeglądaj skiny</value></data>
-  <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>Szukaj skinów po nazwie lub tagu...</value></data>
+  <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>Nick gracza...</value></data>
   <data name="SkinsBrowser.ShowTrending" xml:space="preserve"><value>Pokaż popularne</value></data>
   <data name="SkinsBrowser.ApplyButton" xml:space="preserve"><value>Zastosuj do mojego konta</value></data>
-  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>Napędzane przez api.mineskin.org. Hyperion nie jest powiązany z MineSkin.</value></data>
+  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>Źródło: crafty.gg - skiny noszone przez prawdziwych graczy, zbanowane skiny ukryte. Hyperion nie jest powiązany z crafty.gg.</value></data>
   <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[error] Nie udało się załadować galerii skinów: {0}</value></data>
   <data name="SkinsBrowser.DownloadFailed" xml:space="preserve"><value>[error] Nie udało się pobrać skina: {0}</value></data>
-  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>Pobieranie skina {0} z MineSkin...</value></data>
+  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>Pobieranie skina {0}...</value></data>
   <data name="SkinsBrowser.Loading" xml:space="preserve"><value>Ładowanie galerii...</value></data>
-  <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>Nie znaleziono skinów. Spróbuj innego zapytania lub naciśnij "Pokaż popularne".</value></data>
+  <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>Nie znaleziono skinów. Wpisz dokładny nick gracza albo kliknij "Pokaż popularne".</value></data>
 
   <!-- v0.32.4 (H1): Prev / Next pagination controls. The "Page {0}" label uses a 1-based page number for the UI. -->
   <data name="SkinsBrowser.PrevPage" xml:space="preserve"><value>Wstecz</value></data>
@@ -444,8 +444,8 @@
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>Import z MultiMC anulowany.</value></data>
 
   <!-- v0.32.5 (I1): hybrid Mojang nickname resolver labels. -->
-  <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>Konto Mojang: {0}</value></data>
-  <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>Skin gracza z API profilu Mojang</value></data>
+  <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>Obecny skin gracza {0}</value></data>
+  <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>Skin, który ten gracz nosi teraz</value></data>
   <data name="Skins.ViewerHint" xml:space="preserve"><value>Przeciągnij, aby obrócić, kliknij dwukrotnie, aby zresetować</value></data>
   <data name="Skins.WalkToggle" xml:space="preserve"><value>Chód</value></data>
 </root>

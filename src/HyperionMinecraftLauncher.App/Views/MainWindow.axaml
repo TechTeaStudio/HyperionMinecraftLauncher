@@ -1401,7 +1401,7 @@
 
         <StackPanel Grid.Row="4" Spacing="2" Margin="0,6,0,0">
           <TextBlock Text="{x:Static loc:Strings.SkinsBrowser_PoweredBy}"
-                     Opacity="0.45" FontSize="13.5"
+                     Opacity="0.45" FontSize="13.5" TextWrapping="Wrap"
                      IsVisible="{Binding IsSkinBrowserAvailable}" />
         </StackPanel>
       </Grid>

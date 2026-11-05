@@ -138,15 +138,15 @@
 
   <!-- Skins page: community browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3) -->
   <data name="SkinsBrowser.SectionTitle" xml:space="preserve"><value>Каталог скінів</value></data>
-  <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>Пошук скінів за іменем або тегом...</value></data>
+  <data name="SkinsBrowser.SearchWatermark" xml:space="preserve"><value>Нік гравця...</value></data>
   <data name="SkinsBrowser.ShowTrending" xml:space="preserve"><value>Показати популярні</value></data>
   <data name="SkinsBrowser.ApplyButton" xml:space="preserve"><value>Застосувати до мого акаунта</value></data>
-  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>Джерело: api.mineskin.org. Hyperion не пов'язаний з MineSkin.</value></data>
+  <data name="SkinsBrowser.PoweredBy" xml:space="preserve"><value>Джерело: crafty.gg - скіни, які носять справжні гравці, заблоковані приховано. Hyperion не пов'язаний з crafty.gg.</value></data>
   <data name="SkinsBrowser.FetchFailed" xml:space="preserve"><value>[error] Не вдалося завантажити галерею скінів: {0}</value></data>
   <data name="SkinsBrowser.DownloadFailed" xml:space="preserve"><value>[error] Не вдалося завантажити скін: {0}</value></data>
-  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>Завантажуємо скін {0} з MineSkin...</value></data>
+  <data name="SkinsBrowser.Applying" xml:space="preserve"><value>Завантажуємо скін {0}...</value></data>
   <data name="SkinsBrowser.Loading" xml:space="preserve"><value>Завантажуємо галерею...</value></data>
-  <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>Нічого не знайшлося. Змініть запит або натисніть "Показати популярні".</value></data>
+  <data name="SkinsBrowser.NoResults" xml:space="preserve"><value>Нічого не знайдено. Введіть точний нік гравця або натисніть "Показати популярні".</value></data>
 
   <!-- v0.32.4 (H1): Prev / Next pagination controls. The "Page {0}" label uses a 1-based page number for the UI. -->
   <data name="SkinsBrowser.PrevPage" xml:space="preserve"><value>Назад</value></data>
@@ -444,8 +444,8 @@
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>Імпорт з MultiMC скасовано.</value></data>
 
   <!-- v0.32.5 (I1): hybrid Mojang nickname resolver labels. -->
-  <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>Акаунт Mojang: {0}</value></data>
-  <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>Скін гравця з API профілю Mojang</value></data>
+  <data name="SkinsBrowser.MojangAccountLabel" xml:space="preserve"><value>Поточний скін {0}</value></data>
+  <data name="SkinsBrowser.MojangAccountBadgeTooltip" xml:space="preserve"><value>Скін, який гравець носить зараз</value></data>
   <data name="Skins.ViewerHint" xml:space="preserve"><value>Тягніть, щоб повернути, подвійний клік повертає вигляд</value></data>
   <data name="Skins.WalkToggle" xml:space="preserve"><value>Ходьба</value></data>
 </root>

@@ -3,6 +3,13 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.35] - 2026-11-05
+
+### Changed
+
+- The skin catalog comes from crafty.gg instead of MineSkin. MineSkin's list is an anonymous upload feed and regularly showed skins unfit for streaming; crafty.gg ranks the skins real players started wearing this week and flags banned ones. "Show trending" lists those (banned, deleted and player-hidden skins are filtered out), and the search box now takes a player nickname and lists every skin that player has worn, current one first. NameMC still has no public API and blocks automated requests, so it stays out.
+- New `CraftySkinBrowser` in `Core/Skins/Browser`; `MineSkinBrowser` stays in Core but is no longer wired in.
+
 ## [0.32.34] - 2026-11-05
 
 ### Changed
