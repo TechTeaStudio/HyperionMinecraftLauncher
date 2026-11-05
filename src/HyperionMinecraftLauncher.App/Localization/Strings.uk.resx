@@ -451,4 +451,13 @@
   <data name="Home.PlayingAs" xml:space="preserve"><value>Граєте як {0}</value></data>
   <data name="Home.LatestNewsCaption" xml:space="preserve"><value>Остання новина</value></data>
   <data name="Home.AllNews" xml:space="preserve"><value>Усі новини</value></data>
+  <data name="SkinChangeDialog.Title" xml:space="preserve"><value>Зміна скіна</value></data>
+  <data name="SkinChangeDialog.Header" xml:space="preserve"><value>Змінити скін?</value></data>
+  <data name="SkinChangeDialog.Message" xml:space="preserve"><value>Скін акаунта {0} буде замінено на цей. Його побачать усі гравці.</value></data>
+  <data name="SkinChangeDialog.BackupNote" xml:space="preserve"><value>Поточний скін залишиться в «Нещодавніх скінах», його можна буде повернути.</value></data>
+  <data name="SkinChangeDialog.Model" xml:space="preserve"><value>Модель: {0}</value></data>
+  <data name="SkinChangeDialog.Confirm" xml:space="preserve"><value>Змінити скін</value></data>
+  <data name="SkinChangeDialog.Cancel" xml:space="preserve"><value>Скасувати</value></data>
+  <data name="Skins.ChangeCancelled" xml:space="preserve"><value>Зміну скіна скасовано.</value></data>
+  <data name="Skins.PreviousSkinSaved" xml:space="preserve"><value>Попередній скін збережено в «Нещодавніх скінах».</value></data>
 </root>

@@ -451,4 +451,13 @@
   <data name="Home.PlayingAs" xml:space="preserve"><value>{0} olarak oynanıyor</value></data>
   <data name="Home.LatestNewsCaption" xml:space="preserve"><value>Son haber</value></data>
   <data name="Home.AllNews" xml:space="preserve"><value>Tüm haberler</value></data>
+  <data name="SkinChangeDialog.Title" xml:space="preserve"><value>Skin değiştir</value></data>
+  <data name="SkinChangeDialog.Header" xml:space="preserve"><value>Skin değiştirilsin mi?</value></data>
+  <data name="SkinChangeDialog.Message" xml:space="preserve"><value>{0} hesabının skini bununla değiştirilecek. Tüm oyuncular onu görecek.</value></data>
+  <data name="SkinChangeDialog.BackupNote" xml:space="preserve"><value>Mevcut skinin "Son skinler" içinde kalır, istediğinde geri alabilirsin.</value></data>
+  <data name="SkinChangeDialog.Model" xml:space="preserve"><value>Model: {0}</value></data>
+  <data name="SkinChangeDialog.Confirm" xml:space="preserve"><value>Skini değiştir</value></data>
+  <data name="SkinChangeDialog.Cancel" xml:space="preserve"><value>İptal</value></data>
+  <data name="Skins.ChangeCancelled" xml:space="preserve"><value>Skin değişikliği iptal edildi.</value></data>
+  <data name="Skins.PreviousSkinSaved" xml:space="preserve"><value>Önceki skin "Son skinler" içine kaydedildi.</value></data>
 </root>

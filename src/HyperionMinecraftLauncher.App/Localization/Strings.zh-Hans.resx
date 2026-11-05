@@ -447,4 +447,13 @@
   <data name="Home.PlayingAs" xml:space="preserve"><value>当前账户：{0}</value></data>
   <data name="Home.LatestNewsCaption" xml:space="preserve"><value>最新新闻</value></data>
   <data name="Home.AllNews" xml:space="preserve"><value>全部新闻</value></data>
+  <data name="SkinChangeDialog.Title" xml:space="preserve"><value>更换皮肤</value></data>
+  <data name="SkinChangeDialog.Header" xml:space="preserve"><value>要更换皮肤吗?</value></data>
+  <data name="SkinChangeDialog.Message" xml:space="preserve"><value>{0} 的皮肤将被替换为此皮肤，所有玩家都会看到它。</value></data>
+  <data name="SkinChangeDialog.BackupNote" xml:space="preserve"><value>当前皮肤会保留在“最近使用的皮肤”中，可以随时换回。</value></data>
+  <data name="SkinChangeDialog.Model" xml:space="preserve"><value>模型：{0}</value></data>
+  <data name="SkinChangeDialog.Confirm" xml:space="preserve"><value>更换皮肤</value></data>
+  <data name="SkinChangeDialog.Cancel" xml:space="preserve"><value>取消</value></data>
+  <data name="Skins.ChangeCancelled" xml:space="preserve"><value>已取消更换皮肤。</value></data>
+  <data name="Skins.PreviousSkinSaved" xml:space="preserve"><value>之前的皮肤已保存到“最近使用的皮肤”。</value></data>
 </root>

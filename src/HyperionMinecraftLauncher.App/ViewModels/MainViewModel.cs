@@ -71,6 +71,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private readonly ISkinService? _skinService;
     private readonly ISkinHistoryStore? _skinHistory;
     private SkinPickRequest? _skinPickRequest;
+    private SkinChangeConfirmRequest? _skinChangeConfirm;
+    // The skin the signed-in account wears right now (fetched from Mojang by the view, or
+    // uploaded here). Backed up into Recent skins before a confirmed change replaces it.
+    private volatile WornSkin? _wornSkin;
+
+    private sealed record WornSkin(byte[] Png, SkinVariant Variant);
 
     // T-namemc (v0.32.1): community skin gallery. Optional - the Skins page falls
     // back to "Browser not available" copy when the user runs the launcher without
@@ -631,8 +637,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
         get => _currentSession;
         private set
         {
+            var previousUuid = _currentSession?.Uuid;
             if (SetField(ref _currentSession, value))
             {
+                // The remembered skin belongs to the previous account; a token refresh keeps it.
+                if (!string.Equals(previousUuid, value?.Uuid, StringComparison.OrdinalIgnoreCase))
+                    _wornSkin = null;
                 OnPropertyChanged(nameof(IsSignedInOnline));
                 OnPropertyChanged(nameof(HasSession));
                 OnPropertyChanged(nameof(AccountDisplay));
@@ -3065,6 +3075,24 @@ public sealed class MainViewModel : INotifyPropertyChanged
     }
 
     /// <summary>
+    /// Inject the View's "change skin?" dialog. Every skin change (upload, Recent skins,
+    /// catalog) asks it first; without one (tests, headless) changes go through unasked.
+    /// </summary>
+    public void SetSkinChangeConfirmRequest(SkinChangeConfirmRequest? request)
+    {
+        _skinChangeConfirm = request;
+    }
+
+    /// <summary>
+    /// Tell the VM which skin the signed-in account wears now, so a confirmed change can keep
+    /// it in Recent skins. Cleared when the account changes.
+    /// </summary>
+    public void RememberCurrentSkin(byte[] pngBytes, SkinVariant variant)
+    {
+        _wornSkin = pngBytes is { Length: > 0 } ? new WornSkin(pngBytes, variant) : null;
+    }
+
+    /// <summary>
     /// Inject the View's CurseForge onboarding-dialog delegate. The View calls this from its
     /// <c>Window.Opened</c> handler so the VM can request "show the onboarding dialog and
     /// give me back the entered key" without taking a direct Avalonia dependency.
@@ -3179,18 +3207,32 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private async Task UploadAndArchiveAsync(string accessToken, byte[] pngBytes, SkinVariant variant)
     {
         if (_skinService is null) return;
+        if (!await ConfirmSkinChangeAsync(pngBytes, variant).ConfigureAwait(false))
+        {
+            Append(Strings.Skins_ChangeCancelled);
+            _logger.Info("UI: skin change cancelled at the confirmation dialog.");
+            return;
+        }
+
+        var replaced = _wornSkin;
         try
         {
             Append($"Uploading skin ({variant}) ...");
             await _skinService.UploadSkinAsync(accessToken, pngBytes, variant, CancellationToken.None).ConfigureAwait(false);
             Append($"Skin upload succeeded ({variant}).");
             _logger.Info($"UI: skin upload succeeded ({variant}).");
+            _wornSkin = new WornSkin(pngBytes, variant);
             SkinApplied?.Invoke(this, new SkinAppliedEventArgs(pngBytes, variant));
 
             if (_skinHistory is not null)
             {
                 try
                 {
+                    if (replaced is not null && await ShouldKeepReplacedSkinAsync(replaced, pngBytes).ConfigureAwait(false))
+                    {
+                        await _skinHistory.AppendAsync(replaced.Png, replaced.Variant, CancellationToken.None).ConfigureAwait(false);
+                        Append(Strings.Skins_PreviousSkinSaved);
+                    }
                     await _skinHistory.AppendAsync(pngBytes, variant, CancellationToken.None).ConfigureAwait(false);
                     await ReloadHistoryAsync().ConfigureAwait(false);
                 }
@@ -3211,6 +3253,38 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             Append($"[error] Skin upload failed: {ex.Message}");
         }
+    }
+
+    // Ask the view's dialog; no dialog (tests, headless) means go ahead. A dialog that
+    // fails counts as "no", so a skin is never replaced without an answer.
+    private async Task<bool> ConfirmSkinChangeAsync(byte[] pngBytes, SkinVariant variant)
+    {
+        var confirm = _skinChangeConfirm;
+        if (confirm is null) return true;
+        try
+        {
+            var request = new SkinChangeConfirmation(pngBytes, variant, _currentSession?.Username ?? string.Empty);
+            return await confirm(request, CancellationToken.None).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn($"Skin change confirmation dialog failed: {ex.Message}");
+            return false;
+        }
+    }
+
+    // The replaced skin goes to Recent skins unless it is the new skin itself or is already there.
+    private async Task<bool> ShouldKeepReplacedSkinAsync(WornSkin replaced, byte[] newPng)
+    {
+        if (_skinHistory is null || SkinPictures.Same(replaced.Png, newPng)) return false;
+        foreach (var entry in await _skinHistory.ListAsync(CancellationToken.None).ConfigureAwait(false))
+        {
+            byte[] saved;
+            try { saved = await File.ReadAllBytesAsync(entry.FilePath).ConfigureAwait(false); }
+            catch (IOException) { continue; }
+            if (SkinPictures.Same(replaced.Png, saved)) return false;
+        }
+        return true;
     }
 
     private async Task SetActiveCapeFromSelectionAsync()

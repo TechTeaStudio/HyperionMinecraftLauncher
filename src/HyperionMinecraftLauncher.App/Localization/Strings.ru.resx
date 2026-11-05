@@ -447,4 +447,13 @@
   <data name="Home.PlayingAs" xml:space="preserve"><value>Играете как {0}</value></data>
   <data name="Home.LatestNewsCaption" xml:space="preserve"><value>Последняя новость</value></data>
   <data name="Home.AllNews" xml:space="preserve"><value>Все новости</value></data>
+  <data name="SkinChangeDialog.Title" xml:space="preserve"><value>Смена скина</value></data>
+  <data name="SkinChangeDialog.Header" xml:space="preserve"><value>Сменить скин?</value></data>
+  <data name="SkinChangeDialog.Message" xml:space="preserve"><value>Скин аккаунта {0} будет заменён на этот. Его увидят все игроки.</value></data>
+  <data name="SkinChangeDialog.BackupNote" xml:space="preserve"><value>Текущий скин останется в «Недавних скинах», его можно будет вернуть.</value></data>
+  <data name="SkinChangeDialog.Model" xml:space="preserve"><value>Модель: {0}</value></data>
+  <data name="SkinChangeDialog.Confirm" xml:space="preserve"><value>Сменить скин</value></data>
+  <data name="SkinChangeDialog.Cancel" xml:space="preserve"><value>Отмена</value></data>
+  <data name="Skins.ChangeCancelled" xml:space="preserve"><value>Смена скина отменена.</value></data>
+  <data name="Skins.PreviousSkinSaved" xml:space="preserve"><value>Прежний скин сохранён в «Недавних скинах».</value></data>
 </root>

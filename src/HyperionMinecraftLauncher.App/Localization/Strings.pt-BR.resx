@@ -447,4 +447,13 @@
   <data name="Home.PlayingAs" xml:space="preserve"><value>Jogando como {0}</value></data>
   <data name="Home.LatestNewsCaption" xml:space="preserve"><value>Última notícia</value></data>
   <data name="Home.AllNews" xml:space="preserve"><value>Todas as notícias</value></data>
+  <data name="SkinChangeDialog.Title" xml:space="preserve"><value>Trocar skin</value></data>
+  <data name="SkinChangeDialog.Header" xml:space="preserve"><value>Trocar sua skin?</value></data>
+  <data name="SkinChangeDialog.Message" xml:space="preserve"><value>A skin de {0} será substituída por esta. Todos os jogadores vão vê-la.</value></data>
+  <data name="SkinChangeDialog.BackupNote" xml:space="preserve"><value>Sua skin atual fica em "Skins recentes", então você pode voltar a ela.</value></data>
+  <data name="SkinChangeDialog.Model" xml:space="preserve"><value>Modelo: {0}</value></data>
+  <data name="SkinChangeDialog.Confirm" xml:space="preserve"><value>Trocar skin</value></data>
+  <data name="SkinChangeDialog.Cancel" xml:space="preserve"><value>Cancelar</value></data>
+  <data name="Skins.ChangeCancelled" xml:space="preserve"><value>Troca de skin cancelada.</value></data>
+  <data name="Skins.PreviousSkinSaved" xml:space="preserve"><value>Skin anterior salva em "Skins recentes".</value></data>
 </root>

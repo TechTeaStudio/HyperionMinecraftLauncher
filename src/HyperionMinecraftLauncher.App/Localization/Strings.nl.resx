@@ -451,4 +451,13 @@
   <data name="Home.PlayingAs" xml:space="preserve"><value>Spelen als {0}</value></data>
   <data name="Home.LatestNewsCaption" xml:space="preserve"><value>Laatste nieuws</value></data>
   <data name="Home.AllNews" xml:space="preserve"><value>Al het nieuws</value></data>
+  <data name="SkinChangeDialog.Title" xml:space="preserve"><value>Skin wijzigen</value></data>
+  <data name="SkinChangeDialog.Header" xml:space="preserve"><value>Je skin wijzigen?</value></data>
+  <data name="SkinChangeDialog.Message" xml:space="preserve"><value>De skin van {0} wordt vervangen door deze. Alle spelers zien hem.</value></data>
+  <data name="SkinChangeDialog.BackupNote" xml:space="preserve"><value>Je huidige skin blijft in ‘Recente skins’ staan, zodat je hem terug kunt zetten.</value></data>
+  <data name="SkinChangeDialog.Model" xml:space="preserve"><value>Model: {0}</value></data>
+  <data name="SkinChangeDialog.Confirm" xml:space="preserve"><value>Skin wijzigen</value></data>
+  <data name="SkinChangeDialog.Cancel" xml:space="preserve"><value>Annuleren</value></data>
+  <data name="Skins.ChangeCancelled" xml:space="preserve"><value>Skinwijziging geannuleerd.</value></data>
+  <data name="Skins.PreviousSkinSaved" xml:space="preserve"><value>Vorige skin opgeslagen in ‘Recente skins’.</value></data>
 </root>

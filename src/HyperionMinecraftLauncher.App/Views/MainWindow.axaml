@@ -1209,7 +1209,12 @@
                       IsVisible="{Binding HasOwnedCapes}">
               <ComboBox.ItemTemplate>
                 <DataTemplate>
-                  <TextBlock Text="{Binding Alias}" />
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <!-- 20x32 = 2 px per cape texel: stays pixel-sharp at 100/150/200 % scaling. -->
+                    <controls:CapeIcon Url="{Binding Url}" Width="20" Height="32"
+                                       RenderOptions.BitmapInterpolationMode="None" />
+                    <TextBlock Text="{Binding Alias}" VerticalAlignment="Center" />
+                  </StackPanel>
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
@@ -1234,13 +1239,16 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
-                    <Button Width="64" Height="64" Padding="0"
+                    <Button Width="64" Height="64" Padding="4"
                             ToolTip.Tip="{x:Static loc:Strings.Skins_RecentReapplyTooltip}"
                             Click="OnReapplyHistoricSkinClicked"
-                            Tag="{Binding}">
-                      <Image Source="{Binding FilePath}"
-                             Stretch="UniformToFill"
-                             RenderOptions.BitmapInterpolationMode="None" />
+                            Tag="{Binding}"
+                            Background="{DynamicResource LG.SkinCardBackground}"
+                            BorderBrush="{DynamicResource LG.GlassRim}"
+                            BorderThickness="1">
+                      <controls:SkinFileThumbnail FilePath="{Binding FilePath}"
+                                                  Stretch="Uniform"
+                                                  RenderOptions.BitmapInterpolationMode="None" />
                     </Button>
                   </DataTemplate>
                 </ItemsControl.ItemTemplate>

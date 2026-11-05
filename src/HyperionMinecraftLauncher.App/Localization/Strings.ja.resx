@@ -444,4 +444,13 @@
   <data name="Home.PlayingAs" xml:space="preserve"><value>{0} としてプレイ</value></data>
   <data name="Home.LatestNewsCaption" xml:space="preserve"><value>最新ニュース</value></data>
   <data name="Home.AllNews" xml:space="preserve"><value>すべてのニュース</value></data>
+  <data name="SkinChangeDialog.Title" xml:space="preserve"><value>スキンの変更</value></data>
+  <data name="SkinChangeDialog.Header" xml:space="preserve"><value>スキンを変更しますか?</value></data>
+  <data name="SkinChangeDialog.Message" xml:space="preserve"><value>{0} のスキンがこのスキンに置き換わります。すべてのプレイヤーに表示されます。</value></data>
+  <data name="SkinChangeDialog.BackupNote" xml:space="preserve"><value>現在のスキンは「最近のスキン」に残るので、元に戻せます。</value></data>
+  <data name="SkinChangeDialog.Model" xml:space="preserve"><value>モデル: {0}</value></data>
+  <data name="SkinChangeDialog.Confirm" xml:space="preserve"><value>変更する</value></data>
+  <data name="SkinChangeDialog.Cancel" xml:space="preserve"><value>キャンセル</value></data>
+  <data name="Skins.ChangeCancelled" xml:space="preserve"><value>スキンの変更をキャンセルしました。</value></data>
+  <data name="Skins.PreviousSkinSaved" xml:space="preserve"><value>以前のスキンを「最近のスキン」に保存しました。</value></data>
 </root>

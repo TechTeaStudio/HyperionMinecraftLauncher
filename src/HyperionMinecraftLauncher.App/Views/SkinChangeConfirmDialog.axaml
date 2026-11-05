@@ -1,0 +1,87 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:loc="using:TechTeaStudio.HyperionMinecraftLauncher.App.Localization"
+        xmlns:controls="using:TechTeaStudio.HyperionMinecraftLauncher.App.Controls"
+        mc:Ignorable="d"
+        x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.SkinChangeConfirmDialog"
+        Title="{x:Static loc:Strings.SkinChangeDialog_Title}"
+        Width="420" Height="580"
+        CanResize="False"
+        SystemDecorations="None"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource LG.WindowBackground}"
+        FontFamily="{StaticResource UiFont}"
+        FontWeight="Medium">
+
+  <Border Background="{DynamicResource LG.GlassSurface}"
+          BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="1"
+          CornerRadius="15">
+    <Grid RowDefinitions="36,*,Auto">
+      <Border Grid.Row="0" Background="#400D0D1B"
+              PointerPressed="OnTitleBarPressed">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.SkinChangeDialog_Title}"
+                     FontFamily="{StaticResource MinecraftFont}" FontSize="13.5"
+                     Foreground="White" VerticalAlignment="Center" Margin="12,0" />
+          <Button Grid.Column="1" Click="OnCancel" Classes="WinCtrl WinCtrlClose"
+                  Width="36" Height="36">
+            <Path Data="M 0,0 L 10,10 M 10,0 L 0,10" Stroke="White" StrokeThickness="1.2"
+                  Width="10" Height="10" />
+          </Button>
+        </Grid>
+      </Border>
+
+      <Grid Grid.Row="1" Margin="22,12,22,4" RowDefinitions="Auto,*,Auto,Auto,Auto">
+        <TextBlock Grid.Row="0" Text="{x:Static loc:Strings.SkinChangeDialog_Header}"
+                   FontSize="18" Margin="0,0,0,8" />
+
+        <Border Grid.Row="1" CornerRadius="12" ClipToBounds="True"
+                Background="#260D0D1B"
+                BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="1">
+          <controls:SkinPreview x:Name="Preview" />
+        </Border>
+
+        <TextBlock Grid.Row="2" x:Name="MessageText"
+                   FontSize="13.5" TextWrapping="Wrap" Margin="0,10,0,0" />
+        <TextBlock Grid.Row="3" x:Name="ModelText"
+                   FontSize="13.5" Opacity="0.6" Margin="0,4,0,0" />
+        <TextBlock Grid.Row="4" Text="{x:Static loc:Strings.SkinChangeDialog_BackupNote}"
+                   FontSize="13.5" Opacity="0.6" TextWrapping="Wrap" Margin="0,4,0,0" />
+      </Grid>
+
+      <Grid Grid.Row="2" Margin="22,8,22,16" ColumnDefinitions="*,Auto,Auto">
+        <Button Grid.Column="1" Content="{x:Static loc:Strings.SkinChangeDialog_Confirm}" Click="OnConfirm"
+                Padding="20,6" FontSize="13.5" Margin="0,0,8,0"
+                CornerRadius="15"
+                Background="{DynamicResource LG.BubbleFillCombined}"
+                BorderBrush="{DynamicResource LG.GlassRimStrong}"
+                BorderThickness="1"
+                Foreground="White" />
+        <Button Grid.Column="2" x:Name="CancelButton"
+                Content="{x:Static loc:Strings.SkinChangeDialog_Cancel}" Click="OnCancel"
+                IsCancel="True"
+                CornerRadius="15"
+                Padding="20,6" FontSize="13.5" />
+      </Grid>
+    </Grid>
+  </Border>
+
+  <Window.Styles>
+    <Style Selector="Button.WinCtrl">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="CornerRadius" Value="0" />
+    </Style>
+    <Style Selector="Button.WinCtrl:pointerover">
+      <Setter Property="Background" Value="#33FFFFFF" />
+    </Style>
+    <Style Selector="Button.WinCtrlClose:pointerover">
+      <Setter Property="Background" Value="#E81123" />
+    </Style>
+  </Window.Styles>
+</Window>

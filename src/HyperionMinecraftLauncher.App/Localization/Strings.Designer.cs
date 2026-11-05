@@ -148,6 +148,8 @@ public static class Strings
     public static string Skins_RecentReapplyTooltip => L("Skins.RecentReapplyTooltip");
     public static string Skins_ViewerHint => L("Skins.ViewerHint");
     public static string Skins_WalkToggle => L("Skins.WalkToggle");
+    public static string Skins_ChangeCancelled => L("Skins.ChangeCancelled");
+    public static string Skins_PreviousSkinSaved => L("Skins.PreviousSkinSaved");
 
     // Community skin browser (T-namemc, v0.32.1; pivoted to MineSkin v2 in v0.32.3).
     public static string SkinsBrowser_SectionTitle => L("SkinsBrowser.SectionTitle");
@@ -453,4 +455,11 @@ public static class Strings
     public static string Error_MultiMcImportCancelled => L("Error.MultiMcImportCancelled");
     public static string Accounts_InvalidOfflineName => L("Accounts.InvalidOfflineName");
     public static string Accounts_OfflineAccountSelected => L("Accounts.OfflineAccountSelected");
+    public static string SkinChangeDialog_Title => L("SkinChangeDialog.Title");
+    public static string SkinChangeDialog_Header => L("SkinChangeDialog.Header");
+    public static string SkinChangeDialog_Message => L("SkinChangeDialog.Message");
+    public static string SkinChangeDialog_BackupNote => L("SkinChangeDialog.BackupNote");
+    public static string SkinChangeDialog_Model => L("SkinChangeDialog.Model");
+    public static string SkinChangeDialog_Confirm => L("SkinChangeDialog.Confirm");
+    public static string SkinChangeDialog_Cancel => L("SkinChangeDialog.Cancel");
 }

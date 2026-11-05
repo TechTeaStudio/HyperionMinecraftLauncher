@@ -142,23 +142,7 @@ public sealed class MojangPlayerSkinFetcher : IPlayerSkinFetcher
             var result = new PlayerSkinInfo { SkinPng = skinPng, IsSlim = slim, CapePng = capePng };
 
             // Best-effort cache write so the next launch is instant.
-            if (_cache is not null)
-            {
-                try
-                {
-                    await _cache.WriteAsync($"skins/{trimmed}.png", skinPng, cancellationToken).ConfigureAwait(false);
-                    var meta = JsonSerializer.SerializeToUtf8Bytes(new
-                    {
-                        slim,
-                        cape = capePng is null ? null : "yes",
-                        fetched = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-                    });
-                    await _cache.WriteAsync($"skins/{trimmed}.json", meta, cancellationToken).ConfigureAwait(false);
-                    if (capePng is not null)
-                        await _cache.WriteAsync($"skins/{trimmed}.cape.png", capePng, cancellationToken).ConfigureAwait(false);
-                }
-                catch { /* cache write is best-effort */ }
-            }
+            await WriteCacheAsync(trimmed, skinPng, slim, capePng, cancellationToken).ConfigureAwait(false);
 
             return result;
         }
@@ -187,5 +171,35 @@ public sealed class MojangPlayerSkinFetcher : IPlayerSkinFetcher
             }
             return null;
         }
+    }
+
+    /// <summary>
+    /// Make a skin the player just uploaded the cached one. Without this the next start (within
+    /// the cache lifetime) would show the skin it replaced. No-op without a cache.
+    /// </summary>
+    public Task RememberAsync(string uuid, byte[] skinPng, bool slim, byte[]? capePng, CancellationToken cancellationToken)
+    {
+        var trimmed = uuid.Replace("-", string.Empty);
+        if (_cache is null || trimmed.Length != 32 || skinPng is not { Length: > 0 }) return Task.CompletedTask;
+        return WriteCacheAsync(trimmed, skinPng, slim, capePng, cancellationToken);
+    }
+
+    private async Task WriteCacheAsync(string trimmed, byte[] skinPng, bool slim, byte[]? capePng, CancellationToken cancellationToken)
+    {
+        if (_cache is null) return;
+        try
+        {
+            await _cache.WriteAsync($"skins/{trimmed}.png", skinPng, cancellationToken).ConfigureAwait(false);
+            var meta = JsonSerializer.SerializeToUtf8Bytes(new
+            {
+                slim,
+                cape = capePng is null ? null : "yes",
+                fetched = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            });
+            await _cache.WriteAsync($"skins/{trimmed}.json", meta, cancellationToken).ConfigureAwait(false);
+            if (capePng is not null)
+                await _cache.WriteAsync($"skins/{trimmed}.cape.png", capePng, cancellationToken).ConfigureAwait(false);
+        }
+        catch { /* cache write is best-effort */ }
     }
 }

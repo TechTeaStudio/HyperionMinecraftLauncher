@@ -3,77 +3,54 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.32.37] - 2026-11-05
+## [0.32.38] - 2026-11-05
 
 ### Added
 
+- Every skin change asks first: uploading a file, clicking a Recent skins tile and applying a catalog skin all open a "Change your skin?" dialog that shows the new skin on the walking 3D model, the account it goes to and its model (Classic / Slim). Nothing reaches Mojang until you press "Change skin"; Cancel, Escape or closing the dialog keep your skin, and focus starts on Cancel so a stray Enter changes nothing. Localized into all 14 locales.
+- The skin being replaced is saved to Recent skins before the change, so one click brings it back. It is skipped when the same picture is already there (skins are compared by pixels, since Mojang re-encodes uploads).
+- The cape picker shows a small picture of each cape (its outer side) next to the name, in the list and in the closed picker. Cape textures are downloaded once and kept in the launcher cache.
+
+### Fixed
+
+- Recent skins tiles were blank green squares: the tile bound a file path string to an image, which Avalonia doesn't convert. Tiles now show the player's front view, like the catalog cards.
+- After a skin upload, restarting the launcher within six hours showed the previous skin: the Mojang skin cache was only written on sign-in. An upload now replaces the cached skin.
+
+## [0.32.37] - 2026-11-05
+
+Everything since v0.32.31. Builds 0.32.32 to 0.32.36 were never published on their own, so this release carries their changes too.
+
+### Added
+
+- Minecraft 26.x support: the year-based versions (26.1, 26.3, their pre-releases, release candidates and snapshots) now get Java 25. Hyperion reuses a Java 25 already on the machine or downloads Temurin 25 from Adoptium, the same way it handles Java 8 / 17 / 21. Before this, 26.x instances were started on Java 21 and the game refused to launch.
+- Skins page shows the full 3D player walking in place instead of a 3D head next to a flat body sprite: head, body, arms and legs with the second skin layer (hat, jacket, sleeves, pants), classic or slim arms (detected from the texture when the profile doesn't say), and the cape hung from the shoulders, swinging back with each stride. Drag to orbit, double-click to reset the view, the Walk chip pauses the animation. Legacy 64x32 and HD skins are supported.
+- New software renderer in `Core/Skins/Rendering` (`PlayerSkinRenderer`): per-row triangle spans with a depth buffer, perspective-correct nearest-neighbour texturing, cut-out second layer and optional 2x2 supersampling. It replaces both earlier attempts (painter's-algorithm Skia with cracks between faces, and the GPU renderer that went blank on Avalonia's GLES context) and needs no GPU. Frames render on a worker thread and only while the Skins page is visible.
+- Server icons in both server lists: the icon the game saved in `servers.dat`, replaced by the server's live favicon once it answers a ping. Blank (fully transparent) or unreadable icons fall back to the ender pearl.
+- An instance's Servers tab pings its servers, so it shows players online and latency like the Servers page, and has the same Join button (Quick Play into that instance).
 - Offline accounts are regular entries of the account list. There is always one ("Steve" unless you had typed another offline name), and it is the active account until you sign in with Microsoft. The account flyout has an offline-nickname box with "Add offline" (3-16 Latin letters, digits or `_`, like Minecraft itself), offline rows say "Offline account" instead of a UUID, and removing one only touches the launcher's account store. Choosing an offline account keeps you offline after a restart instead of silently signing back in to Microsoft.
 - Home page shortcut "+ New instance" next to the instance picker; the created instance is selected right away (on the Installations page too).
 - Home page panel with the newest minecraft.net article: key art, category, date, title, "Read more" and "All news".
 
 ### Changed
 
+- The whole UI uses Monocraft, the Minecraft-style face already bundled for titles, instead of Inter: small Inter at 10-11 px was hard to read at 100 % display scaling. Monocraft covers Latin and Cyrillic; Inter stays as the fallback for Chinese, Japanese and Korean. SemiBold and Bold Monocraft are bundled too, so bold text is a real face rather than a smeared synthetic one. Flyouts, drop-downs and tooltips use it as well.
+- Every text size below 13.5 px is now 13.5 px. Monocraft draws on a 9-pixel grid; at 13.5 px each font pixel is exactly 1.5 screen pixels, the smallest size where letters like ю, ж and щ stay distinct.
+- The skin catalog comes from crafty.gg instead of MineSkin. MineSkin's list is an anonymous upload feed and regularly showed skins unfit for streaming; crafty.gg ranks the skins real players started wearing this week and flags banned ones. "Show trending" lists those (banned, deleted and player-hidden skins are filtered out), and the search box now takes a player nickname and lists every skin that player has worn, current one first. NameMC still has no public API and blocks automated requests, so it stays out.
+- New `CraftySkinBrowser` in `Core/Skins/Browser`; `MineSkinBrowser` stays in Core but is no longer wired in.
 - Home page: the "Or install another version" block (version search, type chips, manifest list) and the offline-username box are gone. The play row shows who you play as, Quick Play "Resume world..." and Launch. The header chip shows the active offline account ("Steve (offline)") instead of "Sign in with Microsoft" when you are not signed in.
 - After instances load, the previously selected instance stays selected; otherwise the most recently played one (or the first) is picked, so Home is ready to play instead of showing an empty picker.
 
 ### Fixed
 
-- Flyouts, drop-downs and tooltips used Inter while the window used Monocraft; popups now get the UI font too.
-
-## [0.32.36] - 2026-11-05
-
-### Added
-
-- Server icons in both server lists: the icon the game saved in `servers.dat`, replaced by the server's live favicon once it answers a ping. Blank (fully transparent) or unreadable icons fall back to the ender pearl.
-- An instance's Servers tab pings its servers, so it shows players online and latency like the Servers page, and has the same Join button (Quick Play into that instance).
-
-### Fixed
-
-- The Join button on the Servers page did nothing: it expected a different row type. It also sat on top of the status text in the same column; both now have their own columns.
-
-## [0.32.35] - 2026-11-05
-
-### Changed
-
-- The skin catalog comes from crafty.gg instead of MineSkin. MineSkin's list is an anonymous upload feed and regularly showed skins unfit for streaming; crafty.gg ranks the skins real players started wearing this week and flags banned ones. "Show trending" lists those (banned, deleted and player-hidden skins are filtered out), and the search box now takes a player nickname and lists every skin that player has worn, current one first. NameMC still has no public API and blocks automated requests, so it stays out.
-- New `CraftySkinBrowser` in `Core/Skins/Browser`; `MineSkinBrowser` stays in Core but is no longer wired in.
-
-## [0.32.34] - 2026-11-05
-
-### Changed
-
-- The whole UI uses Monocraft, the Minecraft-style face already bundled for titles, instead of Inter: small Inter at 10-11 px was hard to read at 100 % display scaling. Monocraft covers Latin and Cyrillic; Inter stays as the fallback for Chinese, Japanese and Korean. SemiBold and Bold Monocraft are bundled too, so bold text is a real face rather than a smeared synthetic one.
-- Every text size below 13.5 px is now 13.5 px. Monocraft draws on a 9-pixel grid; at 13.5 px each font pixel is exactly 1.5 screen pixels, the smallest size where letters like ю, ж and щ stay distinct.
-
-### Fixed
-
-- Settings: the memory slider labels (Minimum / Maximum) were cut off by the sliders; their column now sizes to the text.
-
-## [0.32.33] - 2026-11-05
-
-### Added
-
-- Skins page shows the full 3D player walking in place instead of a 3D head next to a flat body sprite: head, body, arms and legs with the second skin layer (hat, jacket, sleeves, pants), classic or slim arms (detected from the texture when the profile doesn't say), and the cape hung from the shoulders, swinging back with each stride. Drag to orbit, double-click to reset the view, the Walk chip pauses the animation. Legacy 64x32 and HD skins are supported.
-- New software renderer in `Core/Skins/Rendering` (`PlayerSkinRenderer`): per-row triangle spans with a depth buffer, perspective-correct nearest-neighbour texturing, cut-out second layer and optional 2x2 supersampling. It replaces both earlier attempts (painter's-algorithm Skia with cracks between faces, and the GPU renderer that went blank on Avalonia's GLES context) and needs no GPU. Frames render on a worker thread and only while the Skins page is visible.
-
-### Fixed
-
+- Instances with their own game directory (every MultiMC / Prism, `.mrpack` and CurseForge import) failed to start with "Could not find or load main class net.minecraft.client.main.Main". The launch resolved the game jar and libraries inside the instance folder, while the installer puts them into the shared `.minecraft`. The instance folder is now only the game directory (mods, saves, configs); versions, libraries, assets and Java runtimes come from `.minecraft`.
+- `--launch <id>` in CLI mode now launches an instance the way the window does: it installs the instance's mod loader, picks the Java version through the same JRE manager (managed cache, an installed JDK, or an Adoptium download), and passes the instance's JVM arguments. Before, a Fabric / Quilt / Forge / NeoForge instance started from the CLI ran vanilla on whatever Java CmlLib found.
 - The skin preview and the account avatar now update right after a skin is uploaded, re-applied from history or applied from the catalog; before, they kept showing the old skin until the next sign-in.
+- The Join button on the Servers page did nothing: it expected a different row type. It also sat on top of the status text in the same column; both now have their own columns.
+- Settings: the memory slider labels (Minimum / Maximum) were cut off by the sliders; their column now sizes to the text.
 
 ### Removed
 
 - The 2D body sprite and head-only drag code (`BackBodyComposer`, `SkinRotation`) and the "drag inside the head preview" hint.
-
-## [0.32.32] - 2026-11-05
-
-### Added
-
-- Minecraft 26.x support: the year-based versions (26.1, 26.3, their pre-releases, release candidates and snapshots) now get Java 25. Hyperion reuses a Java 25 already on the machine or downloads Temurin 25 from Adoptium, the same way it handles Java 8 / 17 / 21. Before this, 26.x instances were started on Java 21 and the game refused to launch.
-
-### Fixed
-
-- Instances with their own game directory (every MultiMC / Prism, `.mrpack` and CurseForge import) failed to start with "Could not find or load main class net.minecraft.client.main.Main". The launch resolved the game jar and libraries inside the instance folder, while the installer puts them into the shared `.minecraft`. The instance folder is now only the game directory (mods, saves, configs); versions, libraries, assets and Java runtimes come from `.minecraft`.
-- `--launch <id>` in CLI mode now launches an instance the way the window does: it installs the instance's mod loader, picks the Java version through the same JRE manager (managed cache, an installed JDK, or an Adoptium download), and passes the instance's JVM arguments. Before, a Fabric / Quilt / Forge / NeoForge instance started from the CLI ran vanilla on whatever Java CmlLib found.
 
 ## [0.32.31] - 2026-09-22
 

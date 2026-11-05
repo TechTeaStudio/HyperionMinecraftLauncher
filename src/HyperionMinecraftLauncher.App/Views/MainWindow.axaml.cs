@@ -34,6 +34,12 @@ public partial class MainWindow : Window
 {
     private DeviceCodeDialog? _deviceCodeDialog;
 
+    // Mojang skin lookups, cached on disk so repeated sign-ins are instant and offline launches
+    // still show the user's last-seen skin.
+    private readonly Lazy<MojangPlayerSkinFetcher> _skinFetcher = new(() => new MojangPlayerSkinFetcher(
+        new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(15) },
+        new FileCache()));
+
     public MainWindow()
     {
         InitializeComponent();
@@ -56,15 +62,32 @@ public partial class MainWindow : Window
         {
             SkinViewer.IsSlim = e.Variant == SkinVariant.Slim;
             ApplySkinBytes(e.PngBytes);
+            // The skin cache lives for hours; without this the next start shows the old skin.
+            if (vm.CurrentSession is { IsOffline: false, Uuid: { Length: > 0 } uuid })
+                _ = _skinFetcher.Value.RememberAsync(uuid, e.PngBytes, e.Variant == SkinVariant.Slim,
+                    SkinViewer.CapePngSource, CancellationToken.None);
         });
         // The view-model has no Avalonia dependency; inject the file-picker + variant-prompt
         // delegate now that the TopLevel is available.
         vm.SetSkinPickRequest(PickSkinAsync);
+        vm.SetSkinChangeConfirmRequest(ConfirmSkinChangeAsync);
         vm.SetExportZipPickRequest(PickExportZipAsync);
         vm.SetImportZipPickRequest(PickImportZipAsync);
         vm.SetMultiMcImportPickRequest(PickMultiMcImportAsync);
         vm.SetCurseForgeKeyRequest(RequestCurseForgeKeyAsync);
     }
+
+    /// <summary>
+    /// Ask before a skin goes to Mojang. The VM may call this from a background thread (catalog
+    /// downloads continue off the UI thread), so the dialog is marshalled onto it.
+    /// </summary>
+    private Task<bool> ConfirmSkinChangeAsync(SkinChangeConfirmation request, CancellationToken cancellationToken)
+        => Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            var dialog = new SkinChangeConfirmDialog(request, SkinViewer.CapePngSource);
+            await dialog.ShowDialog(this);
+            return dialog.Confirmed;
+        });
 
     /// <summary>
     /// Show the CurseForge onboarding modal pre-populated with the user's existing key (if any)
@@ -277,12 +300,7 @@ public partial class MainWindow : Window
     {
         try
         {
-            // Share the on-disk cache root with the news client so repeated sign-ins are instant
-            // and offline launches still show the user's last-seen skin.
-            var fetcher = new MojangPlayerSkinFetcher(
-                new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(15) },
-                new FileCache());
-            var info = await fetcher.FetchAsync(uuid, CancellationToken.None).ConfigureAwait(false);
+            var info = await _skinFetcher.Value.FetchAsync(uuid, CancellationToken.None).ConfigureAwait(false);
             if (info is null || info.SkinPng.Length == 0) return;
 
             // Marshal back to the UI thread before touching Avalonia controls.
@@ -292,6 +310,10 @@ public partial class MainWindow : Window
                 ApplySkinBytes(info.SkinPng);
                 // The 3D viewer hangs the cape on the model; a malformed PNG just shows no cape.
                 SkinViewer.CapePngSource = info.CapePng is { Length: > 0 } capeBytes ? capeBytes : null;
+                // Kept so a confirmed skin change can save this skin to Recent skins first.
+                if (DataContext is MainViewModel vm
+                    && string.Equals(vm.CurrentSession?.Uuid, uuid, StringComparison.OrdinalIgnoreCase))
+                    vm.RememberCurrentSkin(info.SkinPng, info.IsSlim ? SkinVariant.Slim : SkinVariant.Classic);
             });
         }
         catch

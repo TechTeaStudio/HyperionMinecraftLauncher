@@ -449,4 +449,13 @@
   <data name="Home.PlayingAs" xml:space="preserve"><value>Playing as {0}</value></data>
   <data name="Home.LatestNewsCaption" xml:space="preserve"><value>Latest news</value></data>
   <data name="Home.AllNews" xml:space="preserve"><value>All news</value></data>
+  <data name="SkinChangeDialog.Title" xml:space="preserve"><value>Change skin</value></data>
+  <data name="SkinChangeDialog.Header" xml:space="preserve"><value>Change your skin?</value></data>
+  <data name="SkinChangeDialog.Message" xml:space="preserve"><value>The skin of {0} will be replaced with this one. Every player will see it.</value></data>
+  <data name="SkinChangeDialog.BackupNote" xml:space="preserve"><value>Your current skin stays in Recent skins, so you can bring it back.</value></data>
+  <data name="SkinChangeDialog.Model" xml:space="preserve"><value>Model: {0}</value></data>
+  <data name="SkinChangeDialog.Confirm" xml:space="preserve"><value>Change skin</value></data>
+  <data name="SkinChangeDialog.Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Skins.ChangeCancelled" xml:space="preserve"><value>Skin change cancelled.</value></data>
+  <data name="Skins.PreviousSkinSaved" xml:space="preserve"><value>Previous skin saved to Recent skins.</value></data>
 </root>
