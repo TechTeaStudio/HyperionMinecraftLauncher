@@ -30,7 +30,7 @@
       <Border Grid.Row="0" Background="#400D0D1B" PointerPressed="OnTitleBarPressed">
         <Grid ColumnDefinitions="*,Auto">
           <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.ImportModpackDialog_HeaderTitle}"
-                     FontFamily="{StaticResource MinecraftFont}" FontSize="13"
+                     FontFamily="{StaticResource MinecraftFont}" FontSize="13.5"
                      Foreground="White" VerticalAlignment="Center" Margin="12,0" />
           <Button Grid.Column="1" Click="OnCancel" Width="36" Height="36"
                   Background="Transparent" BorderThickness="0" CornerRadius="0">
@@ -43,30 +43,30 @@
       <!-- Body -->
       <StackPanel Grid.Row="1" Margin="22,16" Spacing="14">
         <StackPanel Spacing="4">
-          <TextBlock Text="{x:Static loc:Strings.ImportModpackDialog_ArchiveLabel}" FontSize="12" Opacity="0.85" />
+          <TextBlock Text="{x:Static loc:Strings.ImportModpackDialog_ArchiveLabel}" FontSize="13.5" Opacity="0.85" />
           <TextBlock x:Name="ArchivePathBox" Text="{x:Static loc:Strings.ImportModpackDialog_NoArchivePicked}"
-                     FontSize="11" Opacity="0.7" TextWrapping="Wrap" />
+                     FontSize="13.5" Opacity="0.7" TextWrapping="Wrap" />
           <!-- Manifest preview (name, pack version, Minecraft, loader) or the reason it can't be imported. -->
           <TextBlock x:Name="PackInfoText" IsVisible="False"
-                     FontSize="13" Foreground="White" TextWrapping="Wrap" Margin="0,4,0,0" />
+                     FontSize="13.5" Foreground="White" TextWrapping="Wrap" Margin="0,4,0,0" />
           <TextBlock x:Name="ErrorText" IsVisible="False"
-                     FontSize="11" Foreground="#FF7A7A" TextWrapping="Wrap" Margin="0,4,0,0" />
+                     FontSize="13.5" Foreground="#FF7A7A" TextWrapping="Wrap" Margin="0,4,0,0" />
         </StackPanel>
         <StackPanel Spacing="4">
-          <TextBlock Text="{x:Static loc:Strings.ImportModpackDialog_InstanceNameLabel}" FontSize="12" Opacity="0.85" />
-          <TextBox x:Name="NameBox" Text="" Watermark="{x:Static loc:Strings.ImportModpackDialog_InstanceNameWatermark}" FontSize="13" />
+          <TextBlock Text="{x:Static loc:Strings.ImportModpackDialog_InstanceNameLabel}" FontSize="13.5" Opacity="0.85" />
+          <TextBox x:Name="NameBox" Text="" Watermark="{x:Static loc:Strings.ImportModpackDialog_InstanceNameWatermark}" FontSize="13.5" />
         </StackPanel>
         <TextBlock Text="{x:Static loc:Strings.ImportModpackDialog_Hint}"
-                   FontSize="10" Opacity="0.55" TextWrapping="Wrap" />
+                   FontSize="13.5" Opacity="0.55" TextWrapping="Wrap" />
       </StackPanel>
 
       <!-- Footer -->
       <Grid Grid.Row="2" Margin="22,4,22,16" ColumnDefinitions="*,Auto,Auto">
         <Button Grid.Column="1" Content="{x:Static loc:Strings.Common_Cancel}" Click="OnCancel"
-                Padding="14,5" FontSize="12" Margin="0,0,8,0" />
+                Padding="14,5" FontSize="13.5" Margin="0,0,8,0" />
         <Button Grid.Column="2" x:Name="ImportButton" Content="{x:Static loc:Strings.ImportModpackDialog_ImportButton}"
                 Click="OnImport"
-                FontFamily="{StaticResource MinecraftFont}" FontSize="13"
+                FontFamily="{StaticResource MinecraftFont}" FontSize="13.5"
                 Padding="14,5"
                 CornerRadius="15"
                 Background="{DynamicResource LG.BubbleFillCombined}"

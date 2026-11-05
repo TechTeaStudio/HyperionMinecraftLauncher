@@ -18,10 +18,12 @@
            (same author, SIL OFL, monospaced) because the pixel face was unreadable in chrome
            at 11-14 px. The pixel face is still available under "MinecraftPixelFont" for big
            decorative headings if anyone wants it. -->
-      <!-- Body UI face: the Inter build shipped inside Avalonia.Fonts.Inter (Thin..Bold statics),
-           so every machine renders the same glyphs instead of falling back to Segoe UI Regular.
-           Windows set FontWeight="Medium" next to it - Regular at 10-12 px read too thin. -->
-      <FontFamily x:Key="UiFont">fonts:Inter#Inter, $Default</FontFamily>
+      <!-- Body UI face: Monocraft, the Minecraft-style face with full Latin and Cyrillic
+           (Regular, SemiBold and Bold are bundled so bold text isn't synthesised). Small Inter
+           at 10-11 px read poorly on 100 % scaling; the blocky glyphs stay legible like the
+           game's own font. Inter (Avalonia.Fonts.Inter) is the fallback for scripts Monocraft
+           lacks (Chinese, Japanese, Korean), then the system default. -->
+      <FontFamily x:Key="UiFont">avares://HyperionMinecraftLauncher/Assets/Fonts#Monocraft, fonts:Inter#Inter, $Default</FontFamily>
 
       <FontFamily x:Key="MinecraftFont">avares://HyperionMinecraftLauncher/Assets/Fonts#Monocraft</FontFamily>
       <FontFamily x:Key="MinecraftFontBold">avares://HyperionMinecraftLauncher/Assets/Fonts#Monocraft</FontFamily>

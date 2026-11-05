@@ -31,7 +31,7 @@
               PointerPressed="OnTitleBarPressed">
         <Grid ColumnDefinitions="*,Auto">
           <TextBlock Grid.Column="0" x:Name="TitleText" Text="{x:Static loc:Strings.EditInstanceIconDialog_HeaderTitle}"
-                     FontFamily="{StaticResource MinecraftFont}" FontSize="13"
+                     FontFamily="{StaticResource MinecraftFont}" FontSize="13.5"
                      Foreground="White" VerticalAlignment="Center" Margin="12,0" />
           <Button Grid.Column="1" Click="OnCancel" Width="36" Height="36"
                   Background="Transparent" BorderThickness="0" CornerRadius="0">
@@ -57,7 +57,7 @@
           </LinearGradientBrush>
         </ScrollViewer.OpacityMask>
         <StackPanel Spacing="12" HorizontalAlignment="Stretch" Margin="22,16,22,34">
-          <TextBlock x:Name="SubtitleText" FontSize="12" Opacity="0.85" TextWrapping="Wrap"
+          <TextBlock x:Name="SubtitleText" FontSize="13.5" Opacity="0.85" TextWrapping="Wrap"
                      HorizontalAlignment="Center" TextAlignment="Center"
                      Text="{x:Static loc:Strings.EditInstanceIconDialog_Subtitle}" />
 
@@ -98,10 +98,10 @@
            how far the user scrolls the picker above. -->
       <Grid Grid.Row="2" Margin="22,4,22,16" ColumnDefinitions="*,Auto,Auto">
         <Button Grid.Column="1" Content="{x:Static loc:Strings.Common_Cancel}" Click="OnCancel"
-                Padding="14,5" FontSize="12" Margin="0,0,8,0" />
+                Padding="14,5" FontSize="13.5" Margin="0,0,8,0" />
         <Button Grid.Column="2" Content="{x:Static loc:Strings.EditInstanceIconDialog_SaveButton}"
                 Click="OnSave"
-                FontFamily="{StaticResource MinecraftFont}" FontSize="13"
+                FontFamily="{StaticResource MinecraftFont}" FontSize="13.5"
                 Padding="14,5"
                 CornerRadius="{StaticResource LG.RadiusButton}"
                 Background="{DynamicResource LG.BubbleGradient}"

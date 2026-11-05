@@ -141,7 +141,7 @@ public sealed class SkinPreview : UserControl
         var hint = new TextBlock
         {
             Text = Strings.Skins_ViewerHint,
-            FontSize = 12,
+            FontSize = 13.5,
             Opacity = 0.6,
             TextWrapping = TextWrapping.Wrap,
             TextAlignment = TextAlignment.Center,

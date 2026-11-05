@@ -122,10 +122,10 @@
                    Width="22" Height="22"
                    RenderOptions.BitmapInterpolationMode="None" />
             <TextBlock Text="{Binding AccountDisplay}" Foreground="White" VerticalAlignment="Center"
-                       FontSize="12"
+                       FontSize="13.5"
                        IsVisible="{Binding HasSession}" />
             <TextBlock Text="{x:Static loc:Strings.Header_SignInWithMicrosoft}" Foreground="White" VerticalAlignment="Center"
-                       FontSize="12"
+                       FontSize="13.5"
                        IsVisible="{Binding !HasSession}" />
             <Path Data="M 0,0 L 6,6 L 12,0" Stroke="White" StrokeThickness="1.5"
                   Width="12" Height="7" Margin="4,0,0,0" VerticalAlignment="Center" />
@@ -136,7 +136,7 @@
                       CornerRadius="15">
                 <StackPanel Spacing="3">
                   <TextBlock Text="{x:Static loc:Strings.Header_AccountsLabel}"
-                             FontFamily="{StaticResource MinecraftFont}" FontSize="10"
+                             FontFamily="{StaticResource MinecraftFont}" FontSize="13.5"
                              Foreground="{DynamicResource MaterialSecondaryMidBrush}"
                              Margin="4,2,4,4" />
                   <ItemsControl ItemsSource="{Binding Accounts}">
@@ -167,10 +167,10 @@
                             </Panel>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                               <TextBlock Text="{Binding Username}"
-                                         FontSize="12" FontWeight="SemiBold"
+                                         FontSize="13.5" FontWeight="SemiBold"
                                          TextTrimming="CharacterEllipsis" />
                               <TextBlock Text="{Binding Uuid, Converter={x:Static local:UuidToShort.Instance}}"
-                                         FontSize="10" Opacity="0.6"
+                                         FontSize="13.5" Opacity="0.6"
                                          TextTrimming="CharacterEllipsis" />
                             </StackPanel>
                             <Path Grid.Column="2" Data="M 0,4 L 4,8 L 12,0"
@@ -194,7 +194,7 @@
                           Command="{Binding AddAccountCommand}"
                           HorizontalAlignment="Stretch"
                           HorizontalContentAlignment="Left"
-                          FontSize="12" Padding="8,4"
+                          FontSize="13.5" Padding="8,4"
                           Background="Transparent" />
                   <Button Content="{x:Static loc:Strings.Header_RemoveThisAccount}"
                           Command="{Binding RemoveAccountCommand}"
@@ -202,7 +202,7 @@
                           IsVisible="{Binding ActiveAccount, Converter={x:Static ObjectConverters.IsNotNull}}"
                           HorizontalAlignment="Stretch"
                           HorizontalContentAlignment="Left"
-                          FontSize="12" Padding="8,4"
+                          FontSize="13.5" Padding="8,4"
                           Background="Transparent" />
                 </StackPanel>
               </Border>
@@ -251,7 +251,7 @@
           <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="Download" Width="16" Height="16" Foreground="White" />
             <TextBlock Text="{Binding UpdateBannerText}"
-                       Foreground="White" FontSize="12"
+                       Foreground="White" FontSize="13.5"
                        VerticalAlignment="Center"
                        TextTrimming="CharacterEllipsis" />
           </StackPanel>
@@ -388,7 +388,7 @@
         <Border Margin="4,12,4,6" Height="1" Background="{DynamicResource MaterialDividerBrush}" />
 
         <TextBlock Text="{Binding LauncherVersionLabel}"
-                   FontFamily="{StaticResource MinecraftFont}" FontSize="10"
+                   FontFamily="{StaticResource MinecraftFont}" FontSize="13.5"
                    Opacity="0.55" Margin="10,2,0,0"
                    IsVisible="{Binding AreSidebarLabelsVisible}" />
       </StackPanel>
@@ -405,7 +405,7 @@
                      FontFamily="{StaticResource MinecraftFont}"
                      FontSize="18" Foreground="White" />
           <TextBlock Text="{x:Static loc:Strings.Home_Subtitle}"
-                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
+                     Opacity="0.65" FontSize="13.5" TextWrapping="Wrap" />
         </StackPanel>
 
         <!-- Instances (saved + auto-imported from .minecraft/versions/) -->
@@ -416,7 +416,7 @@
                    Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/grass_block_side.png"
                    Width="24" Height="24" Margin="0,0,10,0" VerticalAlignment="Center" />
             <TextBlock Grid.Row="0" Grid.Column="1" Text="{x:Static loc:Strings.Home_YourInstancesLabel}"
-                       FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" />
+                       FontWeight="SemiBold" FontSize="13.5" VerticalAlignment="Center" />
             <ComboBox Grid.Row="1" Grid.Column="1" Margin="0,2,0,0"
                       ItemsSource="{Binding Instances}"
                       SelectedItem="{Binding SelectedInstance, Mode=TwoWay}"
@@ -429,7 +429,7 @@
               </ComboBox.ItemTemplate>
             </ComboBox>
             <Button Grid.Row="1" Grid.Column="2"
-                    Content="{x:Static loc:Strings.Home_RescanButton}" FontSize="11"
+                    Content="{x:Static loc:Strings.Home_RescanButton}" FontSize="13.5"
                     Command="{Binding RefreshInstancesCommand}"
                     Padding="10,4" Margin="8,2,0,0" />
           </Grid>
@@ -443,13 +443,13 @@
                    Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/compass.png"
                    Width="24" Height="24" Margin="0,0,10,0" VerticalAlignment="Center" />
             <TextBlock Grid.Row="0" Grid.Column="1" Text="{x:Static loc:Strings.Home_OrInstallAnother}"
-                       FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" />
+                       FontWeight="SemiBold" FontSize="13.5" VerticalAlignment="Center" />
 
             <!-- Search box. Filters FilteredVersions on every keystroke. -->
             <TextBox Grid.Row="1" Grid.Column="1" Margin="0,4,0,0"
                      Text="{Binding VersionSearchText, Mode=TwoWay}"
                      Watermark="{x:Static loc:Strings.Home_SearchVersionWatermark}"
-                     FontSize="11" />
+                     FontSize="13.5" />
 
             <!-- Type-filter chips. Single horizontal row, compact. -->
             <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal"
@@ -472,7 +472,7 @@
               </ComboBox.ItemTemplate>
             </ComboBox>
             <Button Grid.Row="3" Grid.Column="2"
-                    Content="{x:Static loc:Strings.Home_RefreshManifestButton}" FontSize="11"
+                    Content="{x:Static loc:Strings.Home_RefreshManifestButton}" FontSize="13.5"
                     Command="{Binding RefreshVersionsCommand}"
                     Padding="10,4" Margin="8,4,0,0" />
           </Grid>
@@ -484,8 +484,8 @@
           <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto">
             <Image Grid.Column="0" Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/steve_face.png"
                    Width="22" Height="22" Margin="0,0,10,0" VerticalAlignment="Center" />
-            <TextBlock Grid.Column="1" Text="{x:Static loc:Strings.Home_OfflineUsernameLabel}" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0" />
-            <TextBox Grid.Column="2" Text="{Binding Username, Mode=TwoWay}" Watermark="{x:Static loc:Strings.Home_OfflineUsernameWatermark}" FontSize="12"
+            <TextBlock Grid.Column="1" Text="{x:Static loc:Strings.Home_OfflineUsernameLabel}" FontSize="13.5" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <TextBox Grid.Column="2" Text="{Binding Username, Mode=TwoWay}" Watermark="{x:Static loc:Strings.Home_OfflineUsernameWatermark}" FontSize="13.5"
                      IsEnabled="{Binding !IsSignedInOnline}" />
             <!-- TEST MODE badge: visible only while the ForceOfflineMode dev toggle is on, so the
                  user is never surprised that the next Play used an offline session. Compact pill
@@ -497,13 +497,13 @@
                     VerticalAlignment="Center"
                     ToolTip.Tip="{x:Static loc:Strings.Home_TestModeBadge_Tooltip}">
               <TextBlock Text="{x:Static loc:Strings.Home_TestModeBadge}"
-                         FontSize="10" FontWeight="SemiBold"
+                         FontSize="13.5" FontWeight="SemiBold"
                          Foreground="#7A5F12" />
             </Border>
             <Button Grid.Column="4"
                     Content="{x:Static loc:Strings.Home_ResumeWorldButton}"
                     Click="OnResumeWorldClicked"
-                    FontSize="11"
+                    FontSize="13.5"
                     Padding="10,5" Margin="8,0,0,0"
                     ToolTip.Tip="{x:Static loc:Strings.Home_ResumeWorldTooltip}" />
             <Button Grid.Column="5"
@@ -526,7 +526,7 @@
                      AcceptsReturn="True"
                      BorderThickness="0"
                      FontFamily="Cascadia Mono, Consolas, Menlo, monospace"
-                     FontSize="11"
+                     FontSize="13.5"
                      Padding="8" />
           </ScrollViewer>
         </Border>
@@ -538,20 +538,20 @@
           <TextBlock Text="{x:Static loc:Strings.Installations_Title}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
           <TextBlock Text="{x:Static loc:Strings.Installations_Subtitle}"
-                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
+                     Opacity="0.65" FontSize="13.5" TextWrapping="Wrap" />
         </StackPanel>
         <WrapPanel Grid.ColumnSpan="2" Grid.Row="1" Classes="Toolbar" Margin="0,0,0,2">
           <Button Content="{x:Static loc:Strings.Installations_NewInstance}"
                   Click="OnNewInstanceClicked"
                   Classes="LaunchBtn"
-                  FontFamily="{StaticResource MinecraftFont}" FontSize="12"
+                  FontFamily="{StaticResource MinecraftFont}" FontSize="13.5"
                   Padding="14,5"
                   Foreground="White" />
-          <Button Content="{x:Static loc:Strings.Installations_ImportFromZip}" FontSize="11"
+          <Button Content="{x:Static loc:Strings.Installations_ImportFromZip}" FontSize="13.5"
                   Command="{Binding ImportInstanceCommand}"
                   ToolTip.Tip="{x:Static loc:Strings.Installations_ImportFromZipTooltip}"
                   Padding="10,5" />
-          <Button Content="{x:Static loc:Strings.Installations_ImportFromMultiMc}" FontSize="11"
+          <Button Content="{x:Static loc:Strings.Installations_ImportFromMultiMc}" FontSize="13.5"
                   Command="{Binding ImportMultiMcCommand}"
                   Classes="LaunchBtn"
                   FontFamily="{StaticResource MinecraftFont}"
@@ -561,12 +561,12 @@
           <Button Content="{x:Static loc:Strings.Installations_ImportModpack}"
                   Click="OnImportModpackClicked"
                   IsVisible="{Binding CanImportModpack}"
-                  FontSize="11"
+                  FontSize="13.5"
                   Padding="10,5" />
-          <Button Content="{x:Static loc:Strings.Installations_Refresh}" FontSize="11"
+          <Button Content="{x:Static loc:Strings.Installations_Refresh}" FontSize="13.5"
                   Command="{Binding RefreshInstancesCommand}"
                   Padding="10,5" />
-          <Button Content="{x:Static loc:Strings.Installations_DeleteSelected}" FontSize="11"
+          <Button Content="{x:Static loc:Strings.Installations_DeleteSelected}" FontSize="13.5"
                   Command="{Binding DeleteInstanceCommand}"
                   Padding="10,5" />
         </WrapPanel>
@@ -577,7 +577,7 @@
                 BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="1"
                 IsVisible="{Binding IsImportingModpack}">
           <StackPanel Spacing="3">
-            <TextBlock Text="{Binding ModpackImportStatus}" FontSize="11" Foreground="White" />
+            <TextBlock Text="{Binding ModpackImportStatus}" FontSize="13.5" Foreground="White" />
             <ProgressBar Value="{Binding ModpackImportProgress}" Minimum="0" Maximum="1"
                          Height="6" />
           </StackPanel>
@@ -626,11 +626,11 @@
                              Stretch="Uniform" Margin="14"
                              RenderOptions.BitmapInterpolationMode="None" />
                       <TextBlock Grid.Row="1" Text="{Binding Name}"
-                                 FontWeight="SemiBold" FontSize="12"
+                                 FontWeight="SemiBold" FontSize="13.5"
                                  TextTrimming="CharacterEllipsis"
                                  HorizontalAlignment="Center" Margin="6,0" />
                       <TextBlock Grid.Row="2" Text="{Binding VersionId}"
-                                 Opacity="0.65" FontSize="10"
+                                 Opacity="0.65" FontSize="13.5"
                                  HorizontalAlignment="Center" Margin="6,2,6,8" />
                     </Grid>
                     <!-- "auto" pill on instances synthesised from .minecraft/versions/.
@@ -640,7 +640,7 @@
                             HorizontalAlignment="Right" VerticalAlignment="Top"
                             Margin="0,5,5,0"
                             IsVisible="{Binding IsAutoImported}">
-                      <TextBlock Text="{x:Static loc:Strings.Installations_AutoBadge}" FontSize="9" Foreground="White"
+                      <TextBlock Text="{x:Static loc:Strings.Installations_AutoBadge}" FontSize="13.5" Foreground="White"
                                  FontWeight="SemiBold" />
                     </Border>
                     <!-- Discoverability fallback: small overflow button in the bottom-right
@@ -662,7 +662,7 @@
                             ToolTip.Tip="{x:Static loc:Strings.Installations_MoreTooltip}"
                             Padding="0"
                             Width="26" Height="22"
-                            FontSize="12" FontWeight="Bold"
+                            FontSize="13.5" FontWeight="Bold"
                             HorizontalAlignment="Right" VerticalAlignment="Top"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                             Margin="0,4,4,0"
@@ -709,7 +709,7 @@
               </Border>
               <TextBlock Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"
                          Text="{Binding SelectedInstance.Name}"
-                         FontFamily="{StaticResource MinecraftFont}" FontSize="13" Foreground="White"
+                         FontFamily="{StaticResource MinecraftFont}" FontSize="13.5" Foreground="White"
                          TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" />
             </Grid>
 
@@ -797,18 +797,18 @@
                              Click="OnInstanceTabDataPacks" />
               </WrapPanel>
               <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Top" Margin="8,0,0,0">
-                <Button Content="{x:Static loc:Strings.InstanceTabs_RefreshButton}" FontSize="10" Padding="8,2"
+                <Button Content="{x:Static loc:Strings.InstanceTabs_RefreshButton}" FontSize="13.5" Padding="8,2"
                         Click="OnRefreshInstanceTab" />
-                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2"
+                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="13.5" Padding="8,2"
                         Click="OnOpenCrashReportsFolder"
                         IsVisible="{Binding IsCrashesTabSelected}" />
-                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2"
+                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="13.5" Padding="8,2"
                         Click="OnOpenResourcePacksFolder"
                         IsVisible="{Binding IsResourcePacksTabSelected}" />
-                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2"
+                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="13.5" Padding="8,2"
                         Click="OnOpenShaderPacksFolder"
                         IsVisible="{Binding IsShaderPacksTabSelected}" />
-                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="10" Padding="8,2"
+                <Button Content="{x:Static loc:Strings.InstanceTabs_OpenFolderButton}" FontSize="13.5" Padding="8,2"
                         Click="OnOpenSavesFolder"
                         IsVisible="{Binding IsDataPacksTabSelected}" />
                 <!-- Bug 3 (v0.32.0): the detail panel had no way to be dismissed. This X
@@ -852,7 +852,7 @@
                                  PointerPressed="OnScreenshotPressed" />
                         </Border>
                         <TextBlock Grid.Row="1" Text="{Binding Filename}"
-                                   FontSize="9" Opacity="0.75"
+                                   FontSize="13.5" Opacity="0.75"
                                    TextTrimming="CharacterEllipsis"
                                    Margin="4,2,4,2" />
                       </Grid>
@@ -887,21 +887,21 @@
                       </Border.ContextMenu>
                       <Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,Auto">
                         <TextBlock Grid.Row="0" Grid.Column="0"
-                                   Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="12"
+                                   Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="13.5"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock Grid.Row="1" Grid.Column="0"
-                                   Text="{Binding FolderName}" Opacity="0.6" FontSize="10"
+                                   Text="{Binding FolderName}" Opacity="0.6" FontSize="13.5"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock Grid.Row="0" Grid.Column="1"
                                    Text="{Binding LastPlayedIso, Converter={x:Static local:IsoToHumanizedAgo.Instance}}"
-                                   Opacity="0.7" FontSize="10" VerticalAlignment="Center"
+                                   Opacity="0.7" FontSize="13.5" VerticalAlignment="Center"
                                    Margin="10,0,0,0" />
                         <TextBlock Grid.Row="1" Grid.Column="1"
                                    Text="{Binding SizeBytes, Converter={x:Static local:ByteSizeFormatter.Instance}}"
-                                   Opacity="0.55" FontSize="10" VerticalAlignment="Center"
+                                   Opacity="0.55" FontSize="13.5" VerticalAlignment="Center"
                                    Margin="10,0,0,0" HorizontalAlignment="Right" />
                         <TextBlock Grid.Row="0" Grid.Column="2" Grid.RowSpan="2"
-                                   Text="{Binding Version}" Opacity="0.55" FontSize="10"
+                                   Text="{Binding Version}" Opacity="0.55" FontSize="13.5"
                                    VerticalAlignment="Center" Margin="10,0,0,0" />
                       </Grid>
                     </Border>
@@ -921,8 +921,8 @@
                       <Image Grid.Column="0" Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/ender_pearl.png"
                              Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center" />
                       <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12" />
-                        <TextBlock Text="{Binding Ip}" Opacity="0.65" FontSize="10" />
+                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13.5" />
+                        <TextBlock Text="{Binding Ip}" Opacity="0.65" FontSize="13.5" />
                       </StackPanel>
                     </Grid>
                   </DataTemplate>
@@ -946,10 +946,10 @@
                         <DataTemplate DataType="crashes:CrashReport">
                           <Grid ColumnDefinitions="*,Auto" Margin="2,3" RowDefinitions="Auto,Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0"
-                                       Text="{Binding Filename}" FontWeight="SemiBold" FontSize="11"
+                                       Text="{Binding Filename}" FontWeight="SemiBold" FontSize="13.5"
                                        TextTrimming="CharacterEllipsis" />
                             <TextBlock Grid.Row="1" Grid.Column="0"
-                                       FontSize="10" Opacity="0.7"
+                                       FontSize="13.5" Opacity="0.7"
                                        TextTrimming="CharacterEllipsis">
                               <Run Text="{Binding MinecraftVersion}" />
                               <Run Text="{x:Static loc:Strings.InstanceTabs_CrashSeparatorDash}" />
@@ -957,7 +957,7 @@
                             </TextBlock>
                             <TextBlock Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
                                        Text="{Binding GeneratedAt, Converter={x:Static local:DateTimeOffsetToHumanizedAgo.Instance}}"
-                                       Opacity="0.6" FontSize="10" VerticalAlignment="Center"
+                                       Opacity="0.6" FontSize="13.5" VerticalAlignment="Center"
                                        Margin="10,0,4,0" />
                           </Grid>
                         </DataTemplate>
@@ -965,7 +965,7 @@
                     </ListBox>
                   </ScrollViewer>
                   <TextBlock Grid.Row="1" Text="{x:Static loc:Strings.InstanceTabs_NoCrashReports}"
-                             FontSize="10" Opacity="0.55" Margin="6,4"
+                             FontSize="13.5" Opacity="0.55" Margin="6,4"
                              IsVisible="{Binding !HasInstanceCrashReports}" />
                 </Grid>
               </Border>
@@ -985,12 +985,12 @@
                     <ItemsControl.ItemTemplate>
                       <DataTemplate DataType="crashes:CrashFrame">
                         <StackPanel Orientation="Horizontal" Spacing="3" Margin="0,2,8,2">
-                          <TextBlock Text="{Binding ModDisplayName}" FontWeight="SemiBold" FontSize="11"
+                          <TextBlock Text="{Binding ModDisplayName}" FontWeight="SemiBold" FontSize="13.5"
                                      VerticalAlignment="Center" />
-                          <Button Content="{x:Static loc:Strings.InstanceTabs_SearchModrinth}" Padding="6,2" FontSize="10"
+                          <Button Content="{x:Static loc:Strings.InstanceTabs_SearchModrinth}" Padding="6,2" FontSize="13.5"
                                   Tag="{Binding ModrinthSearchUrl}"
                                   Click="OnOpenCrashSuspectUrl" />
-                          <Button Content="{x:Static loc:Strings.InstanceTabs_SearchCurseForge}" Padding="6,2" FontSize="10"
+                          <Button Content="{x:Static loc:Strings.InstanceTabs_SearchCurseForge}" Padding="6,2" FontSize="13.5"
                                   Tag="{Binding CurseForgeSearchUrl}"
                                   Click="OnOpenCrashSuspectUrl" />
                         </StackPanel>
@@ -1003,7 +1003,7 @@
                            AcceptsReturn="True"
                            TextWrapping="NoWrap"
                            FontFamily="Cascadia Mono, Consolas, monospace"
-                           FontSize="10"
+                           FontSize="13.5"
                            Background="Transparent"
                            Margin="6,2,6,6"
                            ScrollViewer.HorizontalScrollBarVisibility="Auto"
@@ -1031,12 +1031,12 @@
                           </Panel>
                         </Border>
                         <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
-                          <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="13"
+                          <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="13.5"
                                      TextTrimming="CharacterEllipsis" />
                           <controls:McTextBlock Spans="{Binding Description}" Classes="PackDescription"
                                                 IsVisible="{Binding !!Description.Count}" />
                           <TextBlock Text="{Binding SizeBytes, Converter={x:Static local:ByteSizeFormatter.Instance}}"
-                                     Opacity="0.55" FontSize="10" />
+                                     Opacity="0.55" FontSize="13.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="2"
                                       IsChecked="{Binding IsEnabled, Mode=OneWay}"
@@ -1047,7 +1047,7 @@
                                       Margin="6,0,0,0" />
                         <Button Grid.Column="3"
                                 Content="{x:Static loc:Strings.InstanceTabs_PackRemoveButton}"
-                                FontSize="10" Padding="8,2" Margin="6,0,0,0" VerticalAlignment="Center"
+                                FontSize="13.5" Padding="8,2" Margin="6,0,0,0" VerticalAlignment="Center"
                                 Command="{Binding $parent[ListBox].((vm:MainViewModel)DataContext).RemoveResourcePackCommand}"
                                 CommandParameter="{Binding Filename}" />
                       </Grid>
@@ -1055,7 +1055,7 @@
                   </ListBox.ItemTemplate>
                 </ListBox>
                 <TextBlock Grid.Row="1" Text="{x:Static loc:Strings.InstanceTabs_PackEmptyResource}"
-                           FontSize="10" Opacity="0.55" Margin="6,4"
+                           FontSize="13.5" Opacity="0.55" Margin="6,4"
                            IsVisible="{Binding !InstanceResourcePacks.Count}" />
               </Grid>
             </ScrollViewer>
@@ -1079,12 +1079,12 @@
                           </Panel>
                         </Border>
                         <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
-                          <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="13"
+                          <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="13.5"
                                      TextTrimming="CharacterEllipsis" />
                           <controls:McTextBlock Spans="{Binding Description}" Classes="PackDescription"
                                                 IsVisible="{Binding !!Description.Count}" />
                           <TextBlock Text="{Binding SizeBytes, Converter={x:Static local:ByteSizeFormatter.Instance}}"
-                                     Opacity="0.55" FontSize="10" />
+                                     Opacity="0.55" FontSize="13.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="2"
                                       IsChecked="{Binding IsEnabled, Mode=OneWay}"
@@ -1095,7 +1095,7 @@
                                       Margin="6,0,0,0" />
                         <Button Grid.Column="3"
                                 Content="{x:Static loc:Strings.InstanceTabs_PackRemoveButton}"
-                                FontSize="10" Padding="8,2" Margin="6,0,0,0" VerticalAlignment="Center"
+                                FontSize="13.5" Padding="8,2" Margin="6,0,0,0" VerticalAlignment="Center"
                                 Command="{Binding $parent[ListBox].((vm:MainViewModel)DataContext).RemoveShaderPackCommand}"
                                 CommandParameter="{Binding Filename}" />
                       </Grid>
@@ -1103,7 +1103,7 @@
                   </ListBox.ItemTemplate>
                 </ListBox>
                 <TextBlock Grid.Row="1" Text="{x:Static loc:Strings.InstanceTabs_PackEmptyShader}"
-                           FontSize="10" Opacity="0.55" Margin="6,4"
+                           FontSize="13.5" Opacity="0.55" Margin="6,4"
                            IsVisible="{Binding !InstanceShaderPacks.Count}" />
               </Grid>
             </ScrollViewer>
@@ -1128,11 +1128,11 @@
                           </Panel>
                         </Border>
                         <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
-                          <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="13"
+                          <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="13.5"
                                      TextTrimming="CharacterEllipsis" />
                           <controls:McTextBlock Spans="{Binding Description}" Classes="PackDescription"
                                                 IsVisible="{Binding !!Description.Count}" />
-                          <TextBlock Opacity="0.55" FontSize="10">
+                          <TextBlock Opacity="0.55" FontSize="13.5">
                             <Run Text="{Binding WorldFolderName}" />
                             <Run Text=" - " />
                             <Run Text="{Binding SizeBytes, Converter={x:Static local:ByteSizeFormatter.Instance}}" />
@@ -1147,7 +1147,7 @@
                                       Margin="6,0,0,0" />
                         <Button Grid.Column="3"
                                 Content="{x:Static loc:Strings.InstanceTabs_PackRemoveButton}"
-                                FontSize="10" Padding="8,2" Margin="6,0,0,0" VerticalAlignment="Center"
+                                FontSize="13.5" Padding="8,2" Margin="6,0,0,0" VerticalAlignment="Center"
                                 Command="{Binding $parent[ListBox].((vm:MainViewModel)DataContext).RemoveDataPackCommand}"
                                 CommandParameter="{Binding}" />
                       </Grid>
@@ -1155,7 +1155,7 @@
                   </ListBox.ItemTemplate>
                 </ListBox>
                 <TextBlock Grid.Row="1" Text="{x:Static loc:Strings.InstanceTabs_PackEmptyData}"
-                           FontSize="10" Opacity="0.55" Margin="6,4"
+                           FontSize="13.5" Opacity="0.55" Margin="6,4"
                            IsVisible="{Binding !InstanceDataPacks.Count}" />
               </Grid>
             </ScrollViewer>
@@ -1168,7 +1168,7 @@
         <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
           <TextBlock Text="{x:Static loc:Strings.Skins_Title}" FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
           <TextBlock Text="{x:Static loc:Strings.Skins_Subtitle}"
-                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
+                     Opacity="0.65" FontSize="13.5" TextWrapping="Wrap" />
         </StackPanel>
 
         <!-- Upload + cape picker row -->
@@ -1178,11 +1178,11 @@
             <Button Content="{x:Static loc:Strings.Skins_UploadButton}"
                     Command="{Binding UploadSkinCommand}"
                     Classes="LaunchBtn"
-                    FontFamily="{StaticResource MinecraftFont}" FontSize="12"
+                    FontFamily="{StaticResource MinecraftFont}" FontSize="13.5"
                     Padding="14,5"
                     Foreground="White" />
             <Border Width="1" Background="{DynamicResource MaterialDividerBrush}" Margin="2,0" />
-            <TextBlock Text="{x:Static loc:Strings.Skins_CapeLabel}" VerticalAlignment="Center" FontSize="12"
+            <TextBlock Text="{x:Static loc:Strings.Skins_CapeLabel}" VerticalAlignment="Center" FontSize="13.5"
                        IsVisible="{Binding HasOwnedCapes}" />
             <ComboBox MinWidth="180"
                       ItemsSource="{Binding OwnedCapes}"
@@ -1197,7 +1197,7 @@
             </ComboBox>
             <Button Content="{x:Static loc:Strings.Skins_ClearCape}"
                     Command="{Binding ClearActiveCapeCommand}"
-                    FontSize="11" Padding="10,4"
+                    FontSize="13.5" Padding="10,4"
                     IsVisible="{Binding HasOwnedCapes}" />
           </StackPanel>
         </Border>
@@ -1206,7 +1206,7 @@
         <Border Grid.Row="2" Padding="6,8" Margin="0,0,0,6" CornerRadius="15"
                 Background="{DynamicResource MaterialPaperBrush}">
           <StackPanel Spacing="4">
-            <TextBlock Text="{x:Static loc:Strings.Skins_RecentSkins}" FontWeight="SemiBold" FontSize="12" />
+            <TextBlock Text="{x:Static loc:Strings.Skins_RecentSkins}" FontWeight="SemiBold" FontSize="13.5" />
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
               <ItemsControl ItemsSource="{Binding SkinHistory}">
                 <ItemsControl.ItemsPanel>
@@ -1257,7 +1257,7 @@
             <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
               <TextBlock Grid.Row="0"
                          Text="{x:Static loc:Strings.SkinsBrowser_SectionTitle}"
-                         FontWeight="SemiBold" FontSize="12" Margin="0,0,0,6" />
+                         FontWeight="SemiBold" FontSize="13.5" Margin="0,0,0,6" />
 
               <!--
                 Search + "Show trending" row.
@@ -1277,9 +1277,9 @@
                          KeyDown="OnBrowsedSkinSearchKeyDown" />
                 <Button Content="{x:Static loc:Strings.SkinsBrowser_ShowTrending}"
                         Command="{Binding RefreshTrendingSkinsCommand}"
-                        FontSize="11" Padding="10,4" />
+                        FontSize="13.5" Padding="10,4" />
                 <TextBlock Text="{x:Static loc:Strings.SkinsBrowser_Loading}"
-                           FontSize="10" Opacity="0.65" VerticalAlignment="Center"
+                           FontSize="13.5" Opacity="0.65" VerticalAlignment="Center"
                            IsVisible="{Binding IsSkinBrowserBusy}" />
               </StackPanel>
 
@@ -1321,7 +1321,7 @@
                                   Background="#3A5BFF" CornerRadius="4"
                                   Padding="3,0" Margin="0,-2,-2,0"
                                   ToolTip.Tip="{x:Static loc:Strings.SkinsBrowser_MojangAccountBadgeTooltip}">
-                            <TextBlock Text="M" Foreground="White" FontSize="8"
+                            <TextBlock Text="M" Foreground="White" FontSize="13.5"
                                        FontWeight="Bold" />
                           </Border>
                         </Grid>
@@ -1340,12 +1340,12 @@
                           Margin="0,6,0,0" HorizontalAlignment="Center">
                 <Button Content="{x:Static loc:Strings.SkinsBrowser_PrevPage}"
                         Command="{Binding PrevSkinPageCommand}"
-                        FontSize="11" Padding="10,4" />
+                        FontSize="13.5" Padding="10,4" />
                 <TextBlock Text="{Binding CurrentSkinPageDisplay, StringFormat={x:Static loc:Strings.SkinsBrowser_PageLabel}}"
-                           FontSize="11" VerticalAlignment="Center" Opacity="0.85" />
+                           FontSize="13.5" VerticalAlignment="Center" Opacity="0.85" />
                 <Button Content="{x:Static loc:Strings.SkinsBrowser_NextPage}"
                         Command="{Binding NextSkinPageCommand}"
-                        FontSize="11" Padding="10,4" />
+                        FontSize="13.5" Padding="10,4" />
               </StackPanel>
 
               <!-- Selected-card preview + apply -->
@@ -1361,12 +1361,12 @@
                          Margin="0,0,8,0" />
                   <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
                     <TextBlock Text="{Binding SelectedBrowsedSkin.UploaderName}"
-                               FontWeight="SemiBold" FontSize="11" TextTrimming="CharacterEllipsis" />
+                               FontWeight="SemiBold" FontSize="13.5" TextTrimming="CharacterEllipsis" />
                     <!-- I1 (v0.32.5): live-player skin badge. Surfaces "Mojang account: {Name}"
                          so the user knows the tile points at a real online player's current
                          skin rather than an anonymous MineSkin gallery upload. -->
                     <TextBlock IsVisible="{Binding SelectedBrowsedSkin.IsLivePlayerSkin}"
-                               FontSize="10" Opacity="0.85"
+                               FontSize="13.5" Opacity="0.85"
                                Foreground="#3A5BFF"
                                Text="{Binding SelectedBrowsedSkin.UploaderName, StringFormat={x:Static loc:Strings.SkinsBrowser_MojangAccountLabel}}" />
                     <ItemsControl ItemsSource="{Binding SelectedBrowsedSkin.Tags}">
@@ -1379,7 +1379,7 @@
                         <DataTemplate>
                           <Border Padding="4,1" CornerRadius="6"
                                   Background="{DynamicResource MaterialDividerBrush}">
-                            <TextBlock Text="{Binding}" FontSize="9" Opacity="0.85" />
+                            <TextBlock Text="{Binding}" FontSize="13.5" Opacity="0.85" />
                           </Border>
                         </DataTemplate>
                       </ItemsControl.ItemTemplate>
@@ -1391,7 +1391,7 @@
                           CommandParameter="{Binding SelectedBrowsedSkin}"
                           Classes="LaunchBtn"
                           FontFamily="{StaticResource MinecraftFont}"
-                          FontSize="11" Padding="12,4"
+                          FontSize="13.5" Padding="12,4"
                           Foreground="White" />
                 </Grid>
               </Border>
@@ -1401,7 +1401,7 @@
 
         <StackPanel Grid.Row="4" Spacing="2" Margin="0,6,0,0">
           <TextBlock Text="{x:Static loc:Strings.SkinsBrowser_PoweredBy}"
-                     Opacity="0.45" FontSize="10"
+                     Opacity="0.45" FontSize="13.5"
                      IsVisible="{Binding IsSkinBrowserAvailable}" />
         </StackPanel>
       </Grid>
@@ -1412,13 +1412,13 @@
           <TextBlock Text="{x:Static loc:Strings.Servers_Title}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
           <TextBlock Text="{x:Static loc:Strings.Servers_Subtitle}"
-                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
+                     Opacity="0.65" FontSize="13.5" TextWrapping="Wrap" />
         </StackPanel>
         <WrapPanel Grid.Row="1" Classes="Toolbar" Margin="0,0,0,2">
-          <Button Content="{x:Static loc:Strings.Servers_RefreshServers}" FontSize="11"
+          <Button Content="{x:Static loc:Strings.Servers_RefreshServers}" FontSize="13.5"
                   Command="{Binding RefreshServersCommand}"
                   Padding="10,4" />
-          <Button Content="{x:Static loc:Strings.Servers_RefreshPings}" FontSize="11"
+          <Button Content="{x:Static loc:Strings.Servers_RefreshPings}" FontSize="13.5"
                   Command="{Binding RefreshServerPingsCommand}"
                   Padding="10,4" />
         </WrapPanel>
@@ -1432,15 +1432,15 @@
                   <Image Grid.Column="0" Source="avares://HyperionMinecraftLauncher/Assets/Icons/MC/ender_pearl.png"
                          Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center" />
                   <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12" />
-                    <TextBlock Text="{Binding Ip}" Opacity="0.65" FontSize="10" />
+                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13.5" />
+                    <TextBlock Text="{Binding Ip}" Opacity="0.65" FontSize="13.5" />
                   </StackPanel>
                   <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="6,0,2,0">
                     <Ellipse Width="9" Height="9" Fill="{Binding StatusColor}" VerticalAlignment="Center" />
-                    <TextBlock Text="{Binding StatusLine}" FontSize="10" Opacity="0.85" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding StatusLine}" FontSize="13.5" Opacity="0.85" VerticalAlignment="Center" />
                   </StackPanel>
                   <Button Grid.Column="2" Content="{x:Static loc:Strings.Servers_JoinButton}"
-                          FontSize="11" Padding="10,3" Margin="6,0,2,0"
+                          FontSize="13.5" Padding="10,3" Margin="6,0,2,0"
                           VerticalAlignment="Center"
                           Click="OnJoinServerClicked" Tag="{Binding}"
                           ToolTip.Tip="{x:Static loc:Strings.Servers_JoinTooltip}" />
@@ -1457,26 +1457,26 @@
           <TextBlock Text="{x:Static loc:Strings.HeadlessServers_Title}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
           <TextBlock Text="{x:Static loc:Strings.HeadlessServers_Subtitle}"
-                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
+                     Opacity="0.65" FontSize="13.5" TextWrapping="Wrap" />
         </StackPanel>
 
         <WrapPanel Grid.Row="1" Classes="Toolbar" Margin="0,0,0,2">
           <Button Content="{x:Static loc:Strings.HeadlessServers_NewServer}"
                   Click="OnNewHeadlessServerClicked"
                   Classes="LaunchBtn"
-                  FontFamily="{StaticResource MinecraftFont}" FontSize="12"
+                  FontFamily="{StaticResource MinecraftFont}" FontSize="13.5"
                   Padding="14,5"
                   Foreground="White" />
-          <Button Content="{x:Static loc:Strings.HeadlessServers_Refresh}" FontSize="11"
+          <Button Content="{x:Static loc:Strings.HeadlessServers_Refresh}" FontSize="13.5"
                   Command="{Binding RefreshHeadlessServersCommand}"
                   Padding="10,5" />
-          <Button Content="{x:Static loc:Strings.HeadlessServers_Start}" FontSize="11"
+          <Button Content="{x:Static loc:Strings.HeadlessServers_Start}" FontSize="13.5"
                   Command="{Binding StartHeadlessServerCommand}"
                   Padding="10,5" />
-          <Button Content="{x:Static loc:Strings.HeadlessServers_Stop}" FontSize="11"
+          <Button Content="{x:Static loc:Strings.HeadlessServers_Stop}" FontSize="13.5"
                   Command="{Binding StopHeadlessServerCommand}"
                   Padding="10,5" />
-          <Button Content="{x:Static loc:Strings.HeadlessServers_Delete}" FontSize="11"
+          <Button Content="{x:Static loc:Strings.HeadlessServers_Delete}" FontSize="13.5"
                   Command="{Binding DeleteHeadlessServerCommand}"
                   Padding="10,5" />
         </WrapPanel>
@@ -1485,9 +1485,9 @@
         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="6" Margin="0,0,0,6"
                     IsVisible="{Binding IsHeadlessConsoleVisible}">
           <TextBlock Text="{x:Static loc:Strings.HeadlessServers_StatusLabel}"
-                     FontSize="11" Opacity="0.7" VerticalAlignment="Center" />
+                     FontSize="13.5" Opacity="0.7" VerticalAlignment="Center" />
           <TextBlock Text="{Binding HeadlessSelectedStatus}"
-                     FontFamily="{StaticResource MinecraftFont}" FontSize="11"
+                     FontFamily="{StaticResource MinecraftFont}" FontSize="13.5"
                      Foreground="White" VerticalAlignment="Center" />
         </StackPanel>
 
@@ -1504,8 +1504,8 @@
                                               Margin="0,0,10,0" VerticalAlignment="Center"
                                               Foreground="White" />
                   <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12" />
-                    <TextBlock Opacity="0.65" FontSize="10">
+                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13.5" />
+                    <TextBlock Opacity="0.65" FontSize="13.5">
                       <Run Text="{Binding VersionId}" />
                       <Run Text="{x:Static loc:Strings.HeadlessServers_DashSeparator}" />
                       <Run Text="{Binding RamMb}" />
@@ -1514,7 +1514,7 @@
                     </TextBlock>
                   </StackPanel>
                   <TextBlock Grid.Column="2" Text="{Binding Path}"
-                             Opacity="0.5" FontSize="10" VerticalAlignment="Center"
+                             Opacity="0.5" FontSize="13.5" VerticalAlignment="Center"
                              TextTrimming="CharacterEllipsis" MaxWidth="280" />
                 </Grid>
               </DataTemplate>
@@ -1529,32 +1529,32 @@
                 IsVisible="{Binding IsHeadlessConsoleVisible}">
           <Grid RowDefinitions="Auto,180,Auto" Margin="2,2">
             <TextBlock Grid.Row="0" Text="{x:Static loc:Strings.HeadlessServers_ConsoleHeader}"
-                       FontWeight="SemiBold" FontSize="12" Margin="0,0,0,4" />
+                       FontWeight="SemiBold" FontSize="13.5" Margin="0,0,0,4" />
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
                           Background="#1B1817" Padding="6">
               <ItemsControl ItemsSource="{Binding HeadlessConsoleLines}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
                     <TextBlock Text="{Binding}" FontFamily="Consolas, Cascadia Mono, monospace"
-                               FontSize="11" Foreground="#E6E5E3" TextWrapping="NoWrap" />
+                               FontSize="13.5" Foreground="#E6E5E3" TextWrapping="NoWrap" />
                   </DataTemplate>
                 </ItemsControl.ItemTemplate>
               </ItemsControl>
             </ScrollViewer>
             <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,6,0,0">
               <TextBox Grid.Column="0" Text="{Binding HeadlessCommandInput, Mode=TwoWay}"
-                       FontFamily="Consolas, Cascadia Mono, monospace" FontSize="11"
+                       FontFamily="Consolas, Cascadia Mono, monospace" FontSize="13.5"
                        Watermark="{x:Static loc:Strings.HeadlessServers_CommandWatermark}" />
               <Button Grid.Column="1" Content="{x:Static loc:Strings.HeadlessServers_SendButton}"
                       Command="{Binding SendHeadlessCommand}"
-                      FontSize="11" Padding="14,5" Margin="6,0,0,0" />
+                      FontSize="13.5" Padding="14,5" Margin="6,0,0,0" />
             </Grid>
           </Grid>
         </Border>
 
         <TextBlock Grid.Row="5" Margin="0,8,0,0"
                    Text="{x:Static loc:Strings.HeadlessServers_FootnotePath}"
-                   Opacity="0.55" FontSize="10" TextWrapping="Wrap" />
+                   Opacity="0.55" FontSize="13.5" TextWrapping="Wrap" />
       </Grid>
 
       <!-- ==== MODS PAGE ==== -->
@@ -1563,7 +1563,7 @@
           <TextBlock Text="{x:Static loc:Strings.Mods_Title}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
           <TextBlock Text="{x:Static loc:Strings.Mods_Subtitle}"
-                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
+                     Opacity="0.65" FontSize="13.5" TextWrapping="Wrap" />
         </StackPanel>
 
         <!-- Top search bar -->
@@ -1575,17 +1575,17 @@
               <RadioButton GroupName="ModSource"
                            IsChecked="{Binding IsModrinthSelected, Mode=OneWay}"
                            Click="OnModSourceModrinth"
-                           Padding="10,5" FontSize="11" Content="{x:Static loc:Strings.Mods_SourceModrinth}" />
+                           Padding="10,5" FontSize="13.5" Content="{x:Static loc:Strings.Mods_SourceModrinth}" />
               <RadioButton GroupName="ModSource"
                            IsChecked="{Binding IsCurseForgeSelected, Mode=OneWay}"
                            Click="OnModSourceCurseForge"
-                           Padding="10,5" FontSize="11" Content="{x:Static loc:Strings.Mods_SourceCurseForge}" />
+                           Padding="10,5" FontSize="13.5" Content="{x:Static loc:Strings.Mods_SourceCurseForge}" />
             </StackPanel>
-            <TextBlock Grid.Column="1" Text="{x:Static loc:Strings.Mods_SearchLabel}" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,0" />
+            <TextBlock Grid.Column="1" Text="{x:Static loc:Strings.Mods_SearchLabel}" FontSize="13.5" VerticalAlignment="Center" Margin="0,0,6,0" />
             <TextBox Grid.Column="2" Text="{Binding ModSearchTerm, Mode=TwoWay}"
                      Watermark="{x:Static loc:Strings.Mods_SearchWatermark}"
-                     FontSize="12" />
-            <Button Grid.Column="3" Content="{x:Static loc:Strings.Mods_SearchButton}" FontSize="11"
+                     FontSize="13.5" />
+            <Button Grid.Column="3" Content="{x:Static loc:Strings.Mods_SearchButton}" FontSize="13.5"
                     Command="{Binding SearchModsCommand}"
                     Padding="14,5" Margin="8,0,0,0" />
           </Grid>
@@ -1598,7 +1598,7 @@
                   Background="{DynamicResource MaterialPaperBrush}">
             <Grid RowDefinitions="Auto,*">
               <TextBlock Grid.Row="0" Text="{x:Static loc:Strings.Mods_SearchResults}"
-                         FontWeight="SemiBold" FontSize="12" Margin="6,4" />
+                         FontWeight="SemiBold" FontSize="13.5" Margin="6,4" />
 
               <!-- v0.32.1 (T-cf-onboarding): friendly empty-state for the CurseForge tab
                    before the user has configured an API key. Hides the search list and
@@ -1611,17 +1611,17 @@
                                               Foreground="{DynamicResource MaterialPrimaryMidBrush}"
                                               HorizontalAlignment="Center" />
                   <TextBlock Text="{x:Static loc:Strings.Mods_ConnectHeadline}"
-                             FontSize="13" FontWeight="SemiBold"
+                             FontSize="13.5" FontWeight="SemiBold"
                              HorizontalAlignment="Center" TextAlignment="Center"
                              TextWrapping="Wrap" />
                   <TextBlock Text="{x:Static loc:Strings.Mods_ConnectSubhead}"
-                             FontSize="11" Opacity="0.7"
+                             FontSize="13.5" Opacity="0.7"
                              HorizontalAlignment="Center" TextAlignment="Center"
                              TextWrapping="Wrap" />
                   <Button Content="{x:Static loc:Strings.Mods_GetStartedButton}"
                           Command="{Binding OpenCurseForgeOnboardingCommand}"
                           HorizontalAlignment="Center"
-                          Padding="18,6" FontSize="12"
+                          Padding="18,6" FontSize="13.5"
                           CornerRadius="4"
                           Background="{DynamicResource LG.BubbleFillCombined}"
                           BorderBrush="{DynamicResource LG.GlassRimStrong}"
@@ -1643,13 +1643,13 @@
                           <Image Grid.Column="0" Width="32" Height="32" Margin="0,0,8,0"
                                  asyncImageLoader:ImageLoader.Source="{Binding IconUri}" />
                           <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12"
+                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13.5"
                                        TextTrimming="CharacterEllipsis" />
-                            <TextBlock Text="{Binding AuthorDisplay}" FontSize="10" Opacity="0.7" />
+                            <TextBlock Text="{Binding AuthorDisplay}" FontSize="13.5" Opacity="0.7" />
                             <TextBlock Text="{Binding Downloads, StringFormat='{}{0:N0} downloads'}"
-                                       FontSize="10" Opacity="0.55" />
+                                       FontSize="13.5" Opacity="0.55" />
                           </StackPanel>
-                          <Button Grid.Column="2" Content="{x:Static loc:Strings.Mods_InstallButton}" FontSize="10"
+                          <Button Grid.Column="2" Content="{x:Static loc:Strings.Mods_InstallButton}" FontSize="13.5"
                                   Command="{Binding $parent[ListBox].((vm:MainViewModel)DataContext).InstallModCommand}"
                                   Padding="8,3" VerticalAlignment="Center" />
                         </Grid>
@@ -1667,8 +1667,8 @@
             <Grid RowDefinitions="Auto,*">
               <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="6,4">
                 <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.Mods_InstalledInSelectedInstance}"
-                           FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" />
-                <Button Grid.Column="1" Content="{x:Static loc:Strings.Mods_RefreshButton}" FontSize="10"
+                           FontWeight="SemiBold" FontSize="13.5" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="{x:Static loc:Strings.Mods_RefreshButton}" FontSize="13.5"
                         Command="{Binding RefreshInstalledModsCommand}"
                         Padding="8,3" />
               </Grid>
@@ -1681,9 +1681,9 @@
                                               Foreground="{DynamicResource MaterialPrimaryMidBrush}"
                                               HorizontalAlignment="Center" />
                   <TextBlock Text="{x:Static loc:Strings.Mods_PickAnInstanceFirst}"
-                             FontSize="12" Opacity="0.75" HorizontalAlignment="Center" TextAlignment="Center" />
+                             FontSize="13.5" Opacity="0.75" HorizontalAlignment="Center" TextAlignment="Center" />
                   <TextBlock Text="{x:Static loc:Strings.Mods_RightPaneHint}"
-                             FontSize="10" Opacity="0.55" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" />
+                             FontSize="13.5" Opacity="0.55" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" />
                 </StackPanel>
               </Border>
 
@@ -1702,15 +1702,15 @@
                                     Tag="{Binding Filename}"
                                     Margin="0,0,8,0" VerticalAlignment="Center" />
                           <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding DisplayName}" FontSize="11"
+                            <TextBlock Text="{Binding DisplayName}" FontSize="13.5"
                                        FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                            <TextBlock Text="{Binding Filename}" FontSize="9" Opacity="0.6"
+                            <TextBlock Text="{Binding Filename}" FontSize="13.5" Opacity="0.6"
                                        TextTrimming="CharacterEllipsis" />
                           </StackPanel>
                           <TextBlock Grid.Column="2" Text="{Binding SizeBytes, StringFormat='{}{0:N0} B'}"
-                                     FontSize="10" Opacity="0.55"
+                                     FontSize="13.5" Opacity="0.55"
                                      VerticalAlignment="Center" Margin="4,0,8,0" />
-                          <Button Grid.Column="3" Content="{x:Static loc:Strings.Mods_RemoveButton}" FontSize="10"
+                          <Button Grid.Column="3" Content="{x:Static loc:Strings.Mods_RemoveButton}" FontSize="13.5"
                                   Command="{Binding $parent[ListBox].((vm:MainViewModel)DataContext).RemoveInstalledModCommand}"
                                   Padding="6,3" />
                         </Grid>
@@ -1729,9 +1729,9 @@
         <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
           <TextBlock Text="{x:Static loc:Strings.News_Title}" FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
           <TextBlock Text="{x:Static loc:Strings.News_Subtitle}"
-                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
+                     Opacity="0.65" FontSize="13.5" TextWrapping="Wrap" />
         </StackPanel>
-        <Button Grid.Row="1" Content="{x:Static loc:Strings.News_RefreshButton}" FontSize="11"
+        <Button Grid.Row="1" Content="{x:Static loc:Strings.News_RefreshButton}" FontSize="13.5"
                 Command="{Binding RefreshNewsCommand}"
                 Padding="10,4" HorizontalAlignment="Left" Margin="0,0,0,6" />
         <Border Grid.Row="2" Padding="6" CornerRadius="15"
@@ -1759,18 +1759,18 @@
                       </controls:AspectRatioDecorator>
                       <DockPanel Margin="18,14,18,16">
                         <Button DockPanel.Dock="Bottom"
-                                Content="{x:Static loc:Strings.News_ReadMore}" FontSize="12"
+                                Content="{x:Static loc:Strings.News_ReadMore}" FontSize="13.5"
                                 Tag="{Binding ReadMoreLink}" Click="OnOpenExternalLink"
                                 HorizontalAlignment="Left" Margin="0,10,0,0" Padding="12,5" />
                         <StackPanel Spacing="6">
                           <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Text="{Binding Category}" FontSize="12" FontWeight="SemiBold"
+                            <TextBlock Text="{Binding Category}" FontSize="13.5" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MaterialSecondaryMidBrush}" />
-                            <TextBlock Text="{Binding Date}" FontSize="12" Opacity="0.6" />
+                            <TextBlock Text="{Binding Date}" FontSize="13.5" Opacity="0.6" />
                           </StackPanel>
                           <TextBlock Text="{Binding Title}" FontSize="19" FontWeight="Bold" Foreground="White"
                                      TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" />
-                          <TextBlock Text="{Binding Text}" FontSize="13" Opacity="0.8"
+                          <TextBlock Text="{Binding Text}" FontSize="13.5" Opacity="0.8"
                                      TextWrapping="Wrap" MaxLines="3" TextTrimming="CharacterEllipsis" />
                         </StackPanel>
                       </DockPanel>
@@ -1788,7 +1788,7 @@
         <StackPanel Grid.Row="0" Spacing="1" Margin="0,0,0,8">
           <TextBlock Text="{x:Static loc:Strings.Settings_Title}" FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
           <TextBlock Text="{x:Static loc:Strings.Settings_Subtitle}"
-                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
+                     Opacity="0.65" FontSize="13.5" TextWrapping="Wrap" />
         </StackPanel>
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
@@ -1796,34 +1796,44 @@
 
             <!-- Memory -->
             <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
-              <StackPanel Spacing="6">
-                <TextBlock Text="{x:Static loc:Strings.Settings_MemoryHeader}" FontWeight="SemiBold" FontSize="12" />
+              <StackPanel Spacing="6" Grid.IsSharedSizeScope="True">
+                <TextBlock Text="{x:Static loc:Strings.Settings_MemoryHeader}" FontWeight="SemiBold" FontSize="13.5" />
 
-                <Grid ColumnDefinitions="100,*,80">
-                  <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.Settings_MinimumXmsLabel}" FontSize="11" VerticalAlignment="Center" />
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="MemoryLabel" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="MemoryValue" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.Settings_MinimumXmsLabel}" FontSize="13.5" VerticalAlignment="Center" Margin="0,0,12,0" />
                   <Slider Grid.Column="1" Minimum="256"
                           Maximum="{Binding MaxAllowedMemoryMb}"
                           Value="{Binding MinMemoryMb, Mode=TwoWay}"
                           TickFrequency="256" IsSnapToTickEnabled="True" />
-                  <TextBlock Grid.Column="2" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Right">
+                  <TextBlock Grid.Column="2" FontSize="13.5" VerticalAlignment="Center" HorizontalAlignment="Right">
                     <Run Text="{Binding MinMemoryMb}" />
                     <Run Text="{x:Static loc:Strings.Settings_MbUnit}" />
                   </TextBlock>
                 </Grid>
 
-                <Grid ColumnDefinitions="100,*,80">
-                  <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.Settings_MaximumXmxLabel}" FontSize="11" VerticalAlignment="Center" />
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="MemoryLabel" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="MemoryValue" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.Settings_MaximumXmxLabel}" FontSize="13.5" VerticalAlignment="Center" Margin="0,0,12,0" />
                   <Slider Grid.Column="1" Minimum="512"
                           Maximum="{Binding MaxAllowedMemoryMb}"
                           Value="{Binding MaxMemoryMb, Mode=TwoWay}"
                           TickFrequency="512" IsSnapToTickEnabled="True" />
-                  <TextBlock Grid.Column="2" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Right">
+                  <TextBlock Grid.Column="2" FontSize="13.5" VerticalAlignment="Center" HorizontalAlignment="Right">
                     <Run Text="{Binding MaxMemoryMb}" />
                     <Run Text="{x:Static loc:Strings.Settings_MbUnit}" />
                   </TextBlock>
                 </Grid>
 
-                <TextBlock FontSize="10" Opacity="0.6">
+                <TextBlock FontSize="13.5" Opacity="0.6">
                   <Run Text="{x:Static loc:Strings.Settings_CeilingPrefix}" />
                   <Run Text="{Binding MaxAllowedMemoryMb}" />
                   <Run Text="{x:Static loc:Strings.Settings_CeilingSuffix}" />
@@ -1834,24 +1844,24 @@
             <!-- JVM args -->
             <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
-                <TextBlock Text="{x:Static loc:Strings.Settings_JvmArgsHeader}" FontWeight="SemiBold" FontSize="12" />
+                <TextBlock Text="{x:Static loc:Strings.Settings_JvmArgsHeader}" FontWeight="SemiBold" FontSize="13.5" />
                 <TextBox Text="{Binding JvmArguments, Mode=TwoWay}"
                          Watermark="{x:Static loc:Strings.Settings_JvmArgsWatermark}"
-                         FontFamily="Cascadia Mono, Consolas, Menlo, monospace" FontSize="11"
+                         FontFamily="Cascadia Mono, Consolas, Menlo, monospace" FontSize="13.5"
                          AcceptsReturn="True" Height="56" />
                 <TextBlock Text="{x:Static loc:Strings.Settings_JvmArgsHint}"
-                           FontSize="10" Opacity="0.55" TextWrapping="Wrap" />
+                           FontSize="13.5" Opacity="0.55" TextWrapping="Wrap" />
               </StackPanel>
             </Border>
 
             <!-- Game directory -->
             <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
-                <TextBlock Text="{x:Static loc:Strings.Settings_GameDirHeader}" FontWeight="SemiBold" FontSize="12" />
+                <TextBlock Text="{x:Static loc:Strings.Settings_GameDirHeader}" FontWeight="SemiBold" FontSize="13.5" />
                 <Grid ColumnDefinitions="*,Auto">
                   <TextBox Grid.Column="0" Text="{Binding GameDirectoryOverride, Mode=TwoWay}"
-                           Watermark="{x:Static loc:Strings.Settings_GameDirWatermark}" FontSize="11" />
-                  <Button Grid.Column="1" Content="{x:Static loc:Strings.Settings_BrowseButton}" FontSize="11"
+                           Watermark="{x:Static loc:Strings.Settings_GameDirWatermark}" FontSize="13.5" />
+                  <Button Grid.Column="1" Content="{x:Static loc:Strings.Settings_BrowseButton}" FontSize="13.5"
                           Padding="10,4" Margin="6,0,0,0" Click="OnBrowseGameDir" />
                 </Grid>
               </StackPanel>
@@ -1860,11 +1870,11 @@
             <!-- Java executable -->
             <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
-                <TextBlock Text="{x:Static loc:Strings.Settings_JavaExeHeader}" FontWeight="SemiBold" FontSize="12" />
+                <TextBlock Text="{x:Static loc:Strings.Settings_JavaExeHeader}" FontWeight="SemiBold" FontSize="13.5" />
                 <Grid ColumnDefinitions="*,Auto">
                   <TextBox Grid.Column="0" Text="{Binding JavaExecutableOverride, Mode=TwoWay}"
-                           Watermark="{x:Static loc:Strings.Settings_JavaExeWatermark}" FontSize="11" />
-                  <Button Grid.Column="1" Content="{x:Static loc:Strings.Settings_BrowseButton}" FontSize="11"
+                           Watermark="{x:Static loc:Strings.Settings_JavaExeWatermark}" FontSize="13.5" />
+                  <Button Grid.Column="1" Content="{x:Static loc:Strings.Settings_BrowseButton}" FontSize="13.5"
                           Padding="10,4" Margin="6,0,0,0" Click="OnBrowseJavaExe" />
                 </Grid>
               </StackPanel>
@@ -1873,17 +1883,17 @@
             <!-- Launcher prefs -->
             <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
-                <TextBlock Text="{x:Static loc:Strings.Settings_LauncherPrefsHeader}" FontWeight="SemiBold" FontSize="12" />
-                <CheckBox IsChecked="{Binding KeepLauncherOpen, Mode=TwoWay}" FontSize="11"
+                <TextBlock Text="{x:Static loc:Strings.Settings_LauncherPrefsHeader}" FontWeight="SemiBold" FontSize="13.5" />
+                <CheckBox IsChecked="{Binding KeepLauncherOpen, Mode=TwoWay}" FontSize="13.5"
                           Content="{x:Static loc:Strings.Settings_KeepLauncherOpen}" />
-                <CheckBox IsChecked="{Binding ShowGameLog, Mode=TwoWay}" FontSize="11"
+                <CheckBox IsChecked="{Binding ShowGameLog, Mode=TwoWay}" FontSize="13.5"
                           Content="{x:Static loc:Strings.Settings_ShowGameLog}"
                           ToolTip.Tip="{x:Static loc:Strings.Settings_ShowGameLogTooltip}" />
                 <!-- Dev / QA: force every Play to go through AuthMode.Offline regardless of
                      whether a Microsoft session is cached. Useful for testing the install /
                      download / launch pipeline without burning a sign-in. The Microsoft cache
                      stays intact - flipping off restores normal online launches. -->
-                <CheckBox IsChecked="{Binding ForceOfflineMode, Mode=TwoWay}" FontSize="11"
+                <CheckBox IsChecked="{Binding ForceOfflineMode, Mode=TwoWay}" FontSize="13.5"
                           Content="{x:Static loc:Strings.Settings_ForceOfflineMode}"
                           ToolTip.Tip="{x:Static loc:Strings.Settings_ForceOfflineMode_Tooltip}" />
               </StackPanel>
@@ -1895,25 +1905,25 @@
                  its own action button label. Both buttons fire the same VM command. -->
             <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
-                <TextBlock Text="{x:Static loc:Strings.Settings_ModsHeader}" FontWeight="SemiBold" FontSize="12" />
+                <TextBlock Text="{x:Static loc:Strings.Settings_ModsHeader}" FontWeight="SemiBold" FontSize="13.5" />
                 <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto">
                   <TextBlock Grid.Column="0"
                              Text="{x:Static loc:Strings.Settings_CurseForgeStatusNotConfigured}"
-                             FontSize="11" VerticalAlignment="Center"
+                             FontSize="13.5" VerticalAlignment="Center"
                              IsVisible="{Binding !HasCurseForgeKey}" />
                   <TextBlock Grid.Column="0"
                              Text="{x:Static loc:Strings.Settings_CurseForgeStatusConfigured}"
-                             FontSize="11" VerticalAlignment="Center"
+                             FontSize="13.5" VerticalAlignment="Center"
                              IsVisible="{Binding HasCurseForgeKey}" />
                   <Button Grid.Column="1"
                           Content="{x:Static loc:Strings.Settings_SetUpCurseForgeButton}"
                           Command="{Binding OpenCurseForgeOnboardingCommand}"
-                          FontSize="11" Padding="10,4"
+                          FontSize="13.5" Padding="10,4"
                           IsVisible="{Binding !HasCurseForgeKey}" />
                   <Button Grid.Column="1"
                           Content="{x:Static loc:Strings.Settings_ChangeKeyButton}"
                           Command="{Binding OpenCurseForgeOnboardingCommand}"
-                          FontSize="11" Padding="10,4"
+                          FontSize="13.5" Padding="10,4"
                           IsVisible="{Binding HasCurseForgeKey}" />
                 </Grid>
               </StackPanel>
@@ -1922,17 +1932,17 @@
             <!-- Backups (v0.30 T21f). Pre-launch world snapshot under <gameDir>/backups/ -->
             <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
-                <TextBlock Text="{x:Static loc:Strings.Settings_BackupsHeader}" FontWeight="SemiBold" FontSize="12" />
-                <CheckBox IsChecked="{Binding AutoBackupBeforeLaunch, Mode=TwoWay}" FontSize="11"
+                <TextBlock Text="{x:Static loc:Strings.Settings_BackupsHeader}" FontWeight="SemiBold" FontSize="13.5" />
+                <CheckBox IsChecked="{Binding AutoBackupBeforeLaunch, Mode=TwoWay}" FontSize="13.5"
                           Content="{x:Static loc:Strings.Settings_AutoBackupCheckbox}" />
                 <Grid ColumnDefinitions="*,80" Margin="0,2,0,0">
-                  <TextBlock Grid.Column="0" FontSize="11" VerticalAlignment="Center"
+                  <TextBlock Grid.Column="0" FontSize="13.5" VerticalAlignment="Center"
                              Text="{x:Static loc:Strings.Settings_KeepLatestNLabel}" />
                   <NumericUpDown Grid.Column="1" Minimum="0" Maximum="100" Increment="1"
                                  Value="{Binding AutoBackupKeepLatest, Mode=TwoWay}"
-                                 FormatString="0" FontSize="11" />
+                                 FormatString="0" FontSize="13.5" />
                 </Grid>
-                <TextBlock FontSize="10" Opacity="0.6" TextWrapping="Wrap"
+                <TextBlock FontSize="13.5" Opacity="0.6" TextWrapping="Wrap"
                            Text="{x:Static loc:Strings.Settings_BackupHint}" />
               </StackPanel>
             </Border>
@@ -1944,9 +1954,9 @@
                  LauncherSettings.Locale. -->
             <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
-                <TextBlock Text="{x:Static loc:Strings.Settings_LanguageHeader}" FontWeight="SemiBold" FontSize="12" />
+                <TextBlock Text="{x:Static loc:Strings.Settings_LanguageHeader}" FontWeight="SemiBold" FontSize="13.5" />
                 <Grid ColumnDefinitions="*,*">
-                  <TextBlock Grid.Column="0" FontSize="11" VerticalAlignment="Center"
+                  <TextBlock Grid.Column="0" FontSize="13.5" VerticalAlignment="Center"
                              Text="{x:Static loc:Strings.Settings_LanguageLabel}" />
                   <ComboBox Grid.Column="1"
                             HorizontalAlignment="Stretch"
@@ -1960,7 +1970,7 @@
                     </ComboBox.ItemTemplate>
                   </ComboBox>
                 </Grid>
-                <TextBlock FontSize="10" Opacity="0.55" TextWrapping="Wrap"
+                <TextBlock FontSize="13.5" Opacity="0.55" TextWrapping="Wrap"
                            Text="{x:Static loc:Strings.Settings_LanguageHint}" />
               </StackPanel>
             </Border>
@@ -1973,16 +1983,16 @@
                  line in the launcher log. -->
             <Border Padding="10" Classes="Card" CornerRadius="15" Background="{DynamicResource MaterialPaperBrush}">
               <StackPanel Spacing="6">
-                <TextBlock Text="Updates" FontWeight="SemiBold" FontSize="12" />
+                <TextBlock Text="Updates" FontWeight="SemiBold" FontSize="13.5" />
                 <Grid ColumnDefinitions="*,Auto">
-                  <TextBlock Grid.Column="0" FontSize="11" VerticalAlignment="Center"
+                  <TextBlock Grid.Column="0" FontSize="13.5" VerticalAlignment="Center"
                              Text="Manually check GitHub Releases for a newer launcher build." />
                   <Button Grid.Column="1"
                           Content="Check for updates"
                           Command="{Binding CheckForUpdatesCommand}"
-                          FontSize="11" Padding="10,4" />
+                          FontSize="13.5" Padding="10,4" />
                 </Grid>
-                <TextBlock FontSize="10" Opacity="0.55" TextWrapping="Wrap"
+                <TextBlock FontSize="13.5" Opacity="0.55" TextWrapping="Wrap"
                            Text="If a newer release is available a green banner appears at the top of the window. Otherwise the log shows a 'you're on the latest version' line." />
               </StackPanel>
             </Border>
@@ -1993,7 +2003,7 @@
         <Button Grid.Row="2" Content="{x:Static loc:Strings.Settings_SaveButton}"
                 Command="{Binding SaveSettingsCommand}"
                 Classes="LaunchBtn"
-                FontFamily="{StaticResource MinecraftFont}" FontSize="13"
+                FontFamily="{StaticResource MinecraftFont}" FontSize="13.5"
                 Padding="18,6" HorizontalAlignment="Right" Margin="0,8,0,0"
                 Foreground="White" />
       </Grid>
@@ -2004,7 +2014,7 @@
           <TextBlock Text="{x:Static loc:Strings.Logs_Title}"
                      FontFamily="{StaticResource MinecraftFont}" FontSize="18" Foreground="White" />
           <TextBlock Text="{x:Static loc:Strings.Logs_Subtitle}"
-                     Opacity="0.65" FontSize="11" TextWrapping="Wrap" />
+                     Opacity="0.65" FontSize="13.5" TextWrapping="Wrap" />
         </StackPanel>
 
         <!-- Toolbar: filter + refresh + open folder + copy all -->
@@ -2012,14 +2022,14 @@
           <TextBox Grid.Column="0"
                    Text="{Binding LogFilter, Mode=TwoWay}"
                    Watermark="{x:Static loc:Strings.Logs_FilterWatermark}"
-                   FontSize="11" />
-          <Button Grid.Column="1" Content="{x:Static loc:Strings.Logs_RefreshButton}" FontSize="11"
+                   FontSize="13.5" />
+          <Button Grid.Column="1" Content="{x:Static loc:Strings.Logs_RefreshButton}" FontSize="13.5"
                   Command="{Binding RefreshLogFileCommand}"
                   Padding="10,4" Margin="6,0,0,0" />
-          <Button Grid.Column="2" Content="{x:Static loc:Strings.Logs_OpenLogsFolderButton}" FontSize="11"
+          <Button Grid.Column="2" Content="{x:Static loc:Strings.Logs_OpenLogsFolderButton}" FontSize="13.5"
                   Click="OnOpenLogsFolder"
                   Padding="10,4" Margin="6,0,0,0" />
-          <Button Grid.Column="3" Content="{x:Static loc:Strings.Logs_CopyAllButton}" FontSize="11"
+          <Button Grid.Column="3" Content="{x:Static loc:Strings.Logs_CopyAllButton}" FontSize="13.5"
                   Click="OnCopyLogAll"
                   Padding="10,4" Margin="6,0,0,0" />
         </Grid>
@@ -2033,14 +2043,14 @@
                      AcceptsReturn="True"
                      BorderThickness="0"
                      FontFamily="Cascadia Mono, Consolas, Menlo, monospace"
-                     FontSize="11"
+                     FontSize="13.5"
                      Padding="8" />
           </ScrollViewer>
         </Border>
 
         <!-- Status bar -->
         <TextBlock Grid.Row="3" Text="{Binding LogStatusText}"
-                   FontSize="10" Opacity="0.6" Margin="2,6,2,0" />
+                   FontSize="13.5" Opacity="0.6" Margin="2,6,2,0" />
       </Grid>
 
     </Grid>
@@ -2113,7 +2123,7 @@
       <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
     <Style Selector="Border.InstanceChip TextBlock">
-      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontSize" Value="13.5" />
       <Setter Property="Foreground" Value="White" />
       <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
@@ -2124,12 +2134,12 @@
       <Setter Property="VerticalAlignment" Value="Top" />
     </Style>
     <Style Selector="Grid.InstanceStat TextBlock.Caption">
-      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontSize" Value="13.5" />
       <Setter Property="Opacity" Value="0.65" />
       <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
     <Style Selector="Grid.InstanceStat TextBlock.Value">
-      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontSize" Value="13.5" />
       <Setter Property="FontWeight" Value="SemiBold" />
       <Setter Property="Foreground" Value="White" />
       <Setter Property="TextWrapping" Value="Wrap" />
@@ -2145,7 +2155,7 @@
       <Setter Property="ClipToBounds" Value="True" />
     </Style>
     <Style Selector="TextBlock.PackDescription">
-      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontSize" Value="13.5" />
       <Setter Property="Foreground" Value="#A8A8A8" />
       <Setter Property="TextWrapping" Value="Wrap" />
       <Setter Property="MaxLines" Value="2" />
@@ -2335,7 +2345,7 @@
     <Style Selector="RadioButton.DetailTab">
       <Setter Property="Padding" Value="10,4" />
       <Setter Property="CornerRadius" Value="4" />
-      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontSize" Value="13.5" />
       <Setter Property="Background" Value="Transparent" />
       <Setter Property="assists:ShadowAssist.ShadowDepth" Value="Depth0" />
       <Setter Property="Template">
@@ -2377,7 +2387,7 @@
       <Setter Property="BorderBrush" Value="Transparent" />
       <Setter Property="BorderThickness" Value="1" />
       <Setter Property="CornerRadius" Value="{DynamicResource LG.RadiusItem}" />
-      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontSize" Value="13.5" />
       <Setter Property="Foreground" Value="{DynamicResource LG.TextPrimary}" />
       <Setter Property="Template">
         <ControlTemplate>
@@ -2439,7 +2449,7 @@
          dropdown so it doesn't crowd the manifest box. -->
     <Style Selector="ToggleButton.Chip">
       <Setter Property="Padding" Value="10,3" />
-      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontSize" Value="13.5" />
       <Setter Property="CornerRadius" Value="10" />
       <Setter Property="MinHeight" Value="22" />
       <Setter Property="Background" Value="#33FFFFFF" />

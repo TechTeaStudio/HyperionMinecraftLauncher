@@ -27,7 +27,7 @@
               PointerPressed="OnTitleBarPressed">
         <Grid ColumnDefinitions="*,Auto">
           <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.DeviceCodeDialog_HeaderTitle}"
-                     FontFamily="{StaticResource MinecraftFont}" FontSize="13"
+                     FontFamily="{StaticResource MinecraftFont}" FontSize="13.5"
                      Foreground="White" VerticalAlignment="Center" Margin="12,0" />
           <Button Grid.Column="1" Click="OnClose" Classes="WinCtrl WinCtrlClose"
                   Width="36" Height="36">
@@ -39,16 +39,16 @@
 
       <!-- Body -->
       <StackPanel Grid.Row="1" Margin="22,16,22,8" Spacing="10">
-        <TextBlock Text="{x:Static loc:Strings.DeviceCodeDialog_OpenPagePrompt}" Opacity="0.75" FontSize="12" />
+        <TextBlock Text="{x:Static loc:Strings.DeviceCodeDialog_OpenPagePrompt}" Opacity="0.75" FontSize="13.5" />
         <Border Padding="10,6" CornerRadius="10" Background="#330D0D1B"
                 BorderBrush="{DynamicResource LG.GlassRim}" BorderThickness="1">
           <TextBlock x:Name="UrlText"
                      FontFamily="Cascadia Mono, Consolas, Menlo, monospace"
-                     FontSize="13" Foreground="{DynamicResource LG.AccentLink}"
+                     FontSize="13.5" Foreground="{DynamicResource LG.AccentLink}"
                      TextWrapping="NoWrap" />
         </Border>
 
-        <TextBlock Text="{x:Static loc:Strings.DeviceCodeDialog_EnterCodePrompt}" Opacity="0.75" FontSize="12" Margin="0,4,0,0" />
+        <TextBlock Text="{x:Static loc:Strings.DeviceCodeDialog_EnterCodePrompt}" Opacity="0.75" FontSize="13.5" Margin="0,4,0,0" />
         <Border Padding="14,10" CornerRadius="15"
                 Background="{DynamicResource LG.BubbleFillCombined}"
                 BorderBrush="{DynamicResource LG.GlassRimStrong}" BorderThickness="1">
@@ -62,18 +62,18 @@
         </Border>
 
         <TextBlock Text="{x:Static loc:Strings.DeviceCodeDialog_Footer}"
-                   Opacity="0.6" FontSize="10" TextWrapping="Wrap" Margin="0,4,0,0" />
+                   Opacity="0.6" FontSize="13.5" TextWrapping="Wrap" Margin="0,4,0,0" />
       </StackPanel>
 
       <!-- Footer buttons -->
       <Grid Grid.Row="2" Margin="22,4,22,16" ColumnDefinitions="*,Auto,Auto,Auto">
         <Button Grid.Column="1" Content="{x:Static loc:Strings.DeviceCodeDialog_CopyCode}" Click="OnCopy"
-                Padding="14,5" FontSize="12" Margin="0,0,8,0" />
+                Padding="14,5" FontSize="13.5" Margin="0,0,8,0" />
         <Button Grid.Column="2" Content="{x:Static loc:Strings.DeviceCodeDialog_OpenBrowser}" Click="OnOpenBrowser"
-                Padding="14,5" FontSize="12" Margin="0,0,8,0" />
+                Padding="14,5" FontSize="13.5" Margin="0,0,8,0" />
         <Button Grid.Column="3" Content="{x:Static loc:Strings.Common_Hide}"
                 Click="OnClose"
-                Padding="14,5" FontSize="12"
+                Padding="14,5" FontSize="13.5"
                 CornerRadius="15"
                 Background="{DynamicResource LG.BubbleFillCombined}"
                 BorderBrush="{DynamicResource LG.GlassRimStrong}"

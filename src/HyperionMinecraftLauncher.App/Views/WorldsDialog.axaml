@@ -28,7 +28,7 @@
               PointerPressed="OnTitleBarPressed">
         <Grid ColumnDefinitions="*,Auto">
           <TextBlock Grid.Column="0" Text="{x:Static loc:Strings.WorldsDialog_HeaderTitle}"
-                     FontFamily="{StaticResource MinecraftFont}" FontSize="13"
+                     FontFamily="{StaticResource MinecraftFont}" FontSize="13.5"
                      Foreground="White" VerticalAlignment="Center" Margin="12,0" />
           <Button Grid.Column="1" Click="OnCancel" Width="36" Height="36"
                   Background="Transparent" BorderThickness="0" CornerRadius="0">
@@ -39,8 +39,8 @@
       </Border>
 
       <StackPanel Grid.Row="1" Margin="20,16,20,8" Spacing="6">
-        <TextBlock x:Name="HeaderText" FontSize="13" TextWrapping="Wrap" />
-        <TextBlock x:Name="SavesPathText" FontSize="10" Opacity="0.55" TextWrapping="Wrap" />
+        <TextBlock x:Name="HeaderText" FontSize="13.5" TextWrapping="Wrap" />
+        <TextBlock x:Name="SavesPathText" FontSize="13.5" Opacity="0.55" TextWrapping="Wrap" />
       </StackPanel>
 
       <Border Grid.Row="2" Margin="20,0,20,12" Padding="6" CornerRadius="10"
@@ -49,7 +49,7 @@
         <ListBox x:Name="WorldsList" Background="Transparent" BorderThickness="0">
           <ListBox.ItemTemplate>
             <DataTemplate DataType="sys:String">
-              <TextBlock Text="{Binding}" FontSize="12" Margin="4,2" />
+              <TextBlock Text="{Binding}" FontSize="13.5" Margin="4,2" />
             </DataTemplate>
           </ListBox.ItemTemplate>
         </ListBox>
@@ -57,10 +57,10 @@
 
       <Grid Grid.Row="3" Margin="20,0,20,16" ColumnDefinitions="*,Auto,Auto">
         <Button Grid.Column="1" Content="{x:Static loc:Strings.Common_Cancel}" Click="OnCancel"
-                Padding="14,5" FontSize="12" Margin="0,0,8,0" />
+                Padding="14,5" FontSize="13.5" Margin="0,0,8,0" />
         <Button Grid.Column="2" Content="{x:Static loc:Strings.WorldsDialog_ResumeButton}"
                 Click="OnConfirm"
-                FontFamily="{StaticResource MinecraftFont}" FontSize="13"
+                FontFamily="{StaticResource MinecraftFont}" FontSize="13.5"
                 Padding="14,5"
                 CornerRadius="15"
                 Background="{DynamicResource LG.BubbleFillCombined}"

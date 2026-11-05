@@ -3,6 +3,17 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.34] - 2026-11-05
+
+### Changed
+
+- The whole UI uses Monocraft, the Minecraft-style face already bundled for titles, instead of Inter: small Inter at 10-11 px was hard to read at 100 % display scaling. Monocraft covers Latin and Cyrillic; Inter stays as the fallback for Chinese, Japanese and Korean. SemiBold and Bold Monocraft are bundled too, so bold text is a real face rather than a smeared synthetic one.
+- Every text size below 13.5 px is now 13.5 px. Monocraft draws on a 9-pixel grid; at 13.5 px each font pixel is exactly 1.5 screen pixels, the smallest size where letters like ю, ж and щ stay distinct.
+
+### Fixed
+
+- Settings: the memory slider labels (Minimum / Maximum) were cut off by the sliders; their column now sizes to the text.
+
 ## [0.32.33] - 2026-11-05
 
 ### Added
