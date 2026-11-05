@@ -1,8 +1,11 @@
 using Avalonia;
 using System;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using TechTeaStudio.HyperionMinecraftLauncher.App.Cli;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.Loaders;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 
@@ -23,13 +26,21 @@ internal static class Program
         {
             TryAttachParentConsole();
 
-            // Minimal DI for headless runs: just the file logger + the CmlLib service. No view-model,
-            // no Avalonia, no Microsoft auth (CLI launches are offline-only on purpose).
+            // Minimal DI for headless runs: the file logger + the CmlLib service with the same JRE
+            // manager and mod-loader installer the window uses, so --launch picks the right Java
+            // and installs the instance's loader. No view-model, no Avalonia, no Microsoft auth
+            // (CLI launches are offline-only on purpose).
             // SerilogLauncherLogger gives us CLEF-format JSON logs with size-rolling + 14-day retention,
             // same shape the GUI mode uses (see App.axaml.cs). The legacy FileLauncherLogger is now
             // kept only for deterministic unit tests with an injected clock.
             using var logger = new SerilogLauncherLogger(DefaultLogDirectory.Resolve());
-            var service = new CmlLibMinecraftLauncherService(new CmlLibUnderlyingLauncher(), logger);
+            using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
+            var minecraftLauncher = new CmlLib.Core.MinecraftLauncher();
+            var service = new CmlLibMinecraftLauncherService(
+                new CmlLibUnderlyingLauncher(minecraftLauncher), logger,
+                lazyJavaRuntimeManager: new Lazy<IJavaRuntimeManager>(LaunchPipeline.CreateJavaRuntimeManager),
+                lazyModLoaderInstaller: new Lazy<IModLoaderInstaller>(
+                    () => LaunchPipeline.CreateModLoaderInstaller(http, minecraftLauncher)));
             var rc = CliEntryPoint.RunAsync(args, service, logger).GetAwaiter().GetResult();
             Environment.Exit(rc);
             return;

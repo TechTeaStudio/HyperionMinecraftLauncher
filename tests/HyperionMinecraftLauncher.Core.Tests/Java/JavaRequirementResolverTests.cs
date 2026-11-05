@@ -70,6 +70,25 @@ public class JavaRequirementResolverTests
     }
 
     [Theory]
+    // Year-based ids (Mojang's scheme since 26.1): every 26.x build needs Java 25.
+    [InlineData("26.1", JavaRequirement.Java25)]
+    [InlineData("26.1.2", JavaRequirement.Java25)]
+    [InlineData("26.2", JavaRequirement.Java25)]
+    [InlineData("26.3", JavaRequirement.Java25)]
+    [InlineData("26.3-pre-1", JavaRequirement.Java25)]
+    [InlineData("26.3-rc-3", JavaRequirement.Java25)]
+    [InlineData("26.1-snapshot-1", JavaRequirement.Java25)]
+    [InlineData("26.4-snapshot-7", JavaRequirement.Java25)]
+    [InlineData("27.1", JavaRequirement.Java25)]
+    // The last 1.x line and its "25wXXa" snapshots stay on Java 21.
+    [InlineData("1.21.11", JavaRequirement.Java21)]
+    [InlineData("25w45a", JavaRequirement.Java21)]
+    public void For_YearBasedVersions_MapToJava25(string mcVersion, JavaRequirement expected)
+    {
+        Assert.Equal(expected, JavaRequirementResolver.For(mcVersion));
+    }
+
+    [Theory]
     [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]

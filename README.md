@@ -37,7 +37,7 @@ The launcher reads from and writes alongside the same `.minecraft` directory the
 - **Edit instance icon.** Right-click any tile (or the green "..." button) and pick from a 15-tile Minecraft icon set. Auto-imported instances are protected from edits.
 - **Quick Play.** Launch straight into a saved world or a multiplayer server via `--quickPlaySingleplayer` / `--quickPlayMultiplayer`. Servers list grew a "Join" button; the Worlds tab grew a "Resume" button.
 - **Auto-backup before launch.** Worlds in the instance's `saves/` directory are zipped to `gameDir/backups/{world}-{timestamp}.zip` before every launch, with configurable retention. One-click restore per world.
-- **Auto-detect or auto-download a matching JRE per Minecraft version.** Java 8 / 17 / 21 picked automatically based on the version id. The launcher first reuses anything already on the host (the Settings override, then `JAVA_HOME`, then `PATH`, then well-known vendor directories like `C:\Program Files\Java`, `/usr/lib/jvm`, or `/Library/Java/JavaVirtualMachines`), only falling back to a fresh Adoptium Temurin download when nothing matches. Downloads are cached once under `%LOCALAPPDATA%/HyperionMinecraftLauncher/java/{requirement}/`.
+- **Auto-detect or auto-download a matching JRE per Minecraft version.** Java 8 / 17 / 21 / 25 picked automatically based on the version id (25 for the year-based 26.x versions). The launcher first reuses anything already on the host (the Settings override, then `JAVA_HOME`, then `PATH`, then well-known vendor directories like `C:\Program Files\Java`, `/usr/lib/jvm`, or `/Library/Java/JavaVirtualMachines`), only falling back to a fresh Adoptium Temurin download when nothing matches. Downloads are cached once under `%LOCALAPPDATA%/HyperionMinecraftLauncher/java/{requirement}/`.
 
 ### Mods and modpacks
 - **Mod-loader installer.** Forge, NeoForge (via `CmlLib.Core.Installer.*`), Fabric and Quilt (via the loaders' official meta APIs) install transparently before launch. Loader-version dropdown on the New Instance dialog.
@@ -182,7 +182,7 @@ HyperionMinecraftLauncher.exe --launch <instance-id> [--server host:port]
 | `%LOCALAPPDATA%\HyperionMinecraftLauncher\cache\` | Hyperion | News + player-skin disk cache (1 h / 6 h TTL with stale-on-failure fallback). |
 | `%LOCALAPPDATA%\HyperionMinecraftLauncher\skins_history\` | Hyperion | Last 10 uploaded skin PNGs + `index.json`. |
 | `%LOCALAPPDATA%\HyperionMinecraftLauncher\headless_servers\{id}\` | Hyperion | One folder per registered headless server (metadata + eula + properties). |
-| `%LOCALAPPDATA%\HyperionMinecraftLauncher\java\{Java8\|Java17\|Java21}\` | Hyperion | Adoptium JRE installs, one per required Java major. |
+| `%LOCALAPPDATA%\HyperionMinecraftLauncher\java\{Java8\|Java17\|Java21\|Java25}\` | Hyperion | Adoptium JRE installs, one per required Java major. |
 | `%LOCALAPPDATA%\HyperionMinecraftLauncher\logs\launcher-YYYY-MM-DD.log` | Hyperion | Daily-rotated Serilog file log (JSON, 14-day retention, 32 MB cap). |
 | `%LOCALAPPDATA%\.IdentityService\` | Microsoft MSAL | MSAL refresh-token cache (managed by the library, used for silent sign-in). |
 | `&lt;instance.GameDirectory&gt;\backups\{world}-{timestamp}.zip` | Hyperion | Auto-backup snapshots, pruned to `LauncherSettings.AutoBackupKeepLatest` per world. |

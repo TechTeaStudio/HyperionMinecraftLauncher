@@ -7,17 +7,20 @@ namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 /// <see cref="JavaRequirement"/> the game needs to run.
 ///
 /// Cutoffs (from Mojang's published JRE bumps):
-///   - 1.20.5+         -> <see cref="JavaRequirement.Java21"/>
+///   - 26.1+ (year-based ids, snapshots and pre-releases included) -> <see cref="JavaRequirement.Java25"/>
+///   - 1.20.5 .. 1.21.11 -> <see cref="JavaRequirement.Java21"/>
 ///   - 1.17 .. 1.20.4  -> <see cref="JavaRequirement.Java17"/>
 ///   - 1.16.x and older -> <see cref="JavaRequirement.Java8"/>
 ///
 /// Snapshots like <c>"23w14a"</c> are mapped to the closest known release year/season.
-/// Unknown / malformed strings default to <see cref="JavaRequirement.Java21"/> (the
-/// current bleeding edge - safer to over-install JRE than to fail with a cryptic
-/// "wrong Java" crash in the game process).
+/// Unknown / malformed strings default to <see cref="JavaRequirement.Java21"/> (safer to
+/// over-install JRE than to fail with a cryptic "wrong Java" crash in the game process).
 /// </summary>
 public static class JavaRequirementResolver
 {
+    /// <summary>First year of Mojang's year-based version ids (<c>"26.1"</c>).</summary>
+    private const int FirstYearBasedRelease = 26;
+
     /// <summary>
     /// Resolve the minimum Java requirement for the given Minecraft version id.
     /// </summary>
@@ -48,6 +51,10 @@ public static class JavaRequirementResolver
             // 20 and older target 1.16 cycle or earlier -> Java 8.
             return JavaRequirement.Java8;
         }
+
+        // Year-based ids ("26.1", "26.3-pre-1", "26.1-snapshot-1") all require Java 25.
+        if (IsYearBased(v))
+            return JavaRequirement.Java25;
 
         // Strip pre-release / release-candidate suffixes like "-rc1", "-pre1", " Pre-Release 3".
         var bare = StripPreReleaseSuffix(v);
@@ -105,6 +112,21 @@ public static class JavaRequirementResolver
             int.TryParse(patchSpan, out patch);
         }
         return true;
+    }
+
+    /// <summary>
+    /// True for Mojang's year-based ids: <c>"26.1"</c>, <c>"26.3-pre-1"</c>,
+    /// <c>"26.1-snapshot-1"</c> and later. The leading number is the year, so it is at least
+    /// <see cref="FirstYearBasedRelease"/>, while the old scheme always starts with <c>"1."</c>.
+    /// </summary>
+    private static bool IsYearBased(string s)
+    {
+        var year = TakeLeadingDigits(s.AsSpan(), out var consumed);
+        return consumed > 0
+            && consumed < s.Length
+            && s[consumed] == '.'
+            && int.TryParse(year, out var value)
+            && value >= FirstYearBasedRelease;
     }
 
     /// <summary>Return the leading run of digit chars in <paramref name="s"/>.</summary>

@@ -3,6 +3,17 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.32] - 2026-11-05
+
+### Added
+
+- Minecraft 26.x support: the year-based versions (26.1, 26.3, their pre-releases, release candidates and snapshots) now get Java 25. Hyperion reuses a Java 25 already on the machine or downloads Temurin 25 from Adoptium, the same way it handles Java 8 / 17 / 21. Before this, 26.x instances were started on Java 21 and the game refused to launch.
+
+### Fixed
+
+- Instances with their own game directory (every MultiMC / Prism, `.mrpack` and CurseForge import) failed to start with "Could not find or load main class net.minecraft.client.main.Main". The launch resolved the game jar and libraries inside the instance folder, while the installer puts them into the shared `.minecraft`. The instance folder is now only the game directory (mods, saves, configs); versions, libraries, assets and Java runtimes come from `.minecraft`.
+- `--launch <id>` in CLI mode now launches an instance the way the window does: it installs the instance's mod loader, picks the Java version through the same JRE manager (managed cache, an installed JDK, or an Adoptium download), and passes the instance's JVM arguments. Before, a Fabric / Quilt / Forge / NeoForge instance started from the CLI ran vanilla on whatever Java CmlLib found.
+
 ## [0.32.31] - 2026-09-22
 
 ### Fixed

@@ -47,6 +47,21 @@ public class AdoptiumUrlBuilderTests
     }
 
     [Fact]
+    public void Build_WindowsX64Java25_BuildsExpectedUrl()
+    {
+        var url = AdoptiumUrlBuilder.BuildBinaryUrl(JavaRequirement.Java25, "windows", "x64");
+        Assert.Equal(
+            "https://api.adoptium.net/v3/binary/latest/25/ga/windows/x64/jre/hotspot/normal/eclipse",
+            url);
+    }
+
+    [Fact]
+    public void FeatureNumber_Java25_Is25()
+    {
+        Assert.Equal(25, AdoptiumUrlBuilder.FeatureNumber(JavaRequirement.Java25));
+    }
+
+    [Fact]
     public void Build_LinuxX64Java8_BuildsExpectedUrl()
     {
         var url = AdoptiumUrlBuilder.BuildBinaryUrl(JavaRequirement.Java8, "linux", "x64");

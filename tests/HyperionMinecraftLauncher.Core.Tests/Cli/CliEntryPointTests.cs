@@ -1,4 +1,7 @@
 using TechTeaStudio.HyperionMinecraftLauncher.App.Cli;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Tests.Cli;
@@ -48,6 +51,40 @@ public class CliEntryPointTests
         var mp = Assert.IsType<QuickPlay.Multiplayer>(result);
         Assert.Equal("mc.hypixel.net:abc", mp.Host);
         Assert.Equal(25565, mp.Port);
+    }
+
+    [Fact]
+    public async Task RunAsync_Launch_ForwardsLoaderJavaAndJvmArgsOfTheInstance()
+    {
+        var service = new StubLauncherService
+        {
+            InstancesToReturn = new[]
+            {
+                new Instance
+                {
+                    Id = "pepeland",
+                    Name = "PEPELAND 10 26.3",
+                    VersionId = "26.3",
+                    Loader = ModLoader.Fabric,
+                    LoaderVersion = "0.20.1",
+                    JvmArguments = "-XX:+UseZGC",
+                    MinimumRamMb = 4048,
+                    MaximumRamMb = 6144,
+                    GameDirectory = @"C:\games\pepeland",
+                },
+            },
+        };
+
+        await CliEntryPoint.RunAsync(new[] { "--launch", "pepeland" }, service, new RecordingLogger());
+
+        var request = Assert.IsType<LaunchRequest>(service.LastLaunchRequest);
+        Assert.Equal("26.3", request.VersionName);
+        Assert.Equal(ModLoader.Fabric, request.Loader);
+        Assert.Equal("0.20.1", request.LoaderVersion);
+        Assert.Equal(JavaRequirement.Java25, request.JavaRequirement);
+        Assert.Equal("-XX:+UseZGC", request.JvmArguments);
+        Assert.Equal(@"C:\games\pepeland", request.GameDirectory);
+        Assert.Equal(6144, request.MaximumRamMb);
     }
 
     [Fact]

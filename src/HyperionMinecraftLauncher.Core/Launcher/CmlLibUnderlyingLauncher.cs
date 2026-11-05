@@ -154,9 +154,11 @@ public sealed class CmlLibUnderlyingLauncher : IUnderlyingLauncher
         if (request.ScreenWidth is int w && w > 0) options.ScreenWidth = w;
         if (request.ScreenHeight is int h && h > 0) options.ScreenHeight = h;
 
-        // Per-instance game-directory override. The chosen path becomes both the version
-        // root (so jars/libraries resolve there) and the working dir Minecraft writes to.
-        if (!string.IsNullOrWhiteSpace(request.GameDirectory)) options.Path = new MinecraftPath(request.GameDirectory);
+        // Per-instance game-directory override: the working dir Minecraft writes to. Jars,
+        // libraries, assets and runtimes keep resolving from the shared .minecraft they were
+        // installed into (see BuildInstancePath).
+        if (!string.IsNullOrWhiteSpace(request.GameDirectory))
+            options.Path = BuildInstancePath(_launcher.MinecraftPath, request.GameDirectory);
 
         // Per-instance extra JVM args. Whitespace-split; CmlLib joins them after its built-in
         // heap flags so user args land near the end of the command line.
@@ -244,6 +246,27 @@ public sealed class CmlLibUnderlyingLauncher : IUnderlyingLauncher
     /// <remarks>
     /// Public for unit testing the arg-emission rules without needing a real CmlLib process build.
     /// </remarks>
+    /// <summary>
+    /// Path set for launching an instance with its own game directory. The game directory is
+    /// the working dir (<c>--gameDir</c>: mods, saves, configs, and <c>resources/</c> for the
+    /// pre-1.6 virtual assets). Versions, libraries, assets and Java runtimes stay in
+    /// <paramref name="shared"/>, the .minecraft the installer writes them to; resolving them
+    /// under the game directory instead leaves the classpath pointing at missing jars.
+    /// </summary>
+    public static MinecraftPath BuildInstancePath(MinecraftPath shared, string gameDirectory)
+    {
+        ArgumentNullException.ThrowIfNull(shared);
+        ArgumentException.ThrowIfNullOrWhiteSpace(gameDirectory);
+
+        return new MinecraftPath(gameDirectory)
+        {
+            Versions = shared.Versions,
+            Library = shared.Library,
+            Assets = shared.Assets,
+            Runtime = shared.Runtime,
+        };
+    }
+
     public static IReadOnlyList<string> BuildQuickPlayArgs(QuickPlay quickPlay) => quickPlay switch
     {
         QuickPlay.Multiplayer mp => new[] { "--quickPlayMultiplayer", $"{mp.Host}:{mp.Port}" },

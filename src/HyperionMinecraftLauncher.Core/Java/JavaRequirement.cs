@@ -1,7 +1,7 @@
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 
 /// <summary>
-/// The three JRE feature versions Minecraft has required across its history.
+/// The JRE feature versions Minecraft has required across its history.
 /// Mojang bumps the minimum JRE every few major versions and the launcher follows.
 /// </summary>
 public enum JavaRequirement
@@ -12,6 +12,9 @@ public enum JavaRequirement
     /// <summary>Required by Minecraft 1.17 through 1.20.4.</summary>
     Java17,
 
-    /// <summary>Required by Minecraft 1.20.5 and later.</summary>
+    /// <summary>Required by Minecraft 1.20.5 through 1.21.11.</summary>
     Java21,
+
+    /// <summary>Required by the year-based versions, 26.1 and later.</summary>
+    Java25,
 }

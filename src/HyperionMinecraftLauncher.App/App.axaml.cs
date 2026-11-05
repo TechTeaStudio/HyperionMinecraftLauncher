@@ -104,30 +104,16 @@ public partial class App : Application
             // matter once the user actually presses Play. Lazy<> defers their HttpClient
             // construction (the JRE one carries a 5-minute timeout for big downloads) and the
             // four CmlLib underlying-installer wrappers until first-launch. .Value is thread-safe.
+            // v0.32.11: the JRE manager includes a SystemJavaProbe so an existing JDK / JRE under
+            // JAVA_HOME, PATH, or a well-known vendor directory wins over a fresh Adoptium
+            // download. The probe only fires when the managed cache is empty and memoises its
+            // per-requirement result for the session, so it doesn't add cost to later launches.
             var lazyJavaRuntimeManager = new Lazy<IJavaRuntimeManager>(
-                () =>
-                {
-                    var javaHttp = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
-                    // v0.32.11: pass a SystemJavaProbe so an existing JDK / JRE under
-                    // JAVA_HOME, PATH, or a well-known vendor directory wins over a fresh
-                    // ~180 MB Adoptium download. The probe only fires when the managed
-                    // cache is empty and memoises its per-requirement result for the
-                    // session, so it doesn't add cost to subsequent launches.
-                    return new AdoptiumJavaRuntimeManager(
-                        javaHttp,
-                        AdoptiumJavaRuntimeManager.DefaultRootDirectory(),
-                        AdoptiumJavaRuntimeManager.DetectOs(),
-                        AdoptiumJavaRuntimeManager.DetectArch(),
-                        new SystemJavaProbe());
-                },
+                LaunchPipeline.CreateJavaRuntimeManager,
                 System.Threading.LazyThreadSafetyMode.ExecutionAndPublication);
 
             var lazyModLoaderInstaller = new Lazy<IModLoaderInstaller>(
-                () => new CmlLibModLoaderInstaller(
-                    forge: new CmlLibForgeUnderlying(minecraftLauncher),
-                    neoForge: new CmlLibNeoForgeUnderlying(minecraftLauncher),
-                    fabric: new CmlLibFabricUnderlying(httpClient, minecraftLauncher),
-                    quilt: new CmlLibQuiltUnderlying(httpClient, minecraftLauncher)),
+                () => LaunchPipeline.CreateModLoaderInstaller(httpClient, minecraftLauncher),
                 System.Threading.LazyThreadSafetyMode.ExecutionAndPublication);
 
             // Loader version fetcher is only used after the user picks a non-Vanilla loader on

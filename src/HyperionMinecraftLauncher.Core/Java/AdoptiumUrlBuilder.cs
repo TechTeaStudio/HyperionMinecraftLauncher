@@ -36,6 +36,7 @@ public static class AdoptiumUrlBuilder
         JavaRequirement.Java8 => 8,
         JavaRequirement.Java17 => 17,
         JavaRequirement.Java21 => 21,
+        JavaRequirement.Java25 => 25,
         _ => throw new ArgumentOutOfRangeException(nameof(requirement), requirement, "Unknown JavaRequirement"),
     };
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 
@@ -156,6 +157,8 @@ public static class CliEntryPoint
             // --server HOST[:PORT] -> Quick Play multiplayer deep-link.
             var quickPlay = ParseServerArg(launch.Server);
 
+            // Same instance fields the GUI launch forwards: the mod loader (otherwise a Fabric
+            // instance starts vanilla), its JVM args and the Java major the version needs.
             var request = new LaunchRequest
             {
                 VersionName = instance.VersionId,
@@ -163,7 +166,11 @@ public static class CliEntryPoint
                 GameDirectory = instance.GameDirectory,
                 MinimumRamMb = instance.MinimumRamMb,
                 MaximumRamMb = instance.MaximumRamMb,
+                JvmArguments = string.IsNullOrWhiteSpace(instance.JvmArguments) ? null : instance.JvmArguments,
                 QuickPlay = quickPlay,
+                JavaRequirement = JavaRequirementResolver.For(instance.VersionId),
+                Loader = instance.Loader,
+                LoaderVersion = instance.LoaderVersion,
             };
 
             // Stream progress to stdout so the calling script can watch the install pipeline.
