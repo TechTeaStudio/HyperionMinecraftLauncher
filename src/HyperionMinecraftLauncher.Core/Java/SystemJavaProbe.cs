@@ -264,22 +264,58 @@ public sealed class SystemJavaProbe : ISystemJavaProbe
     /// </summary>
     private static async Task<int?> TryGetMajorVersionAsync(string javaExe, CancellationToken cancellationToken)
     {
+        var banner = await CaptureOutputAsync(javaExe, VersionArguments, VersionProbeTimeout, cancellationToken)
+            .ConfigureAwait(false);
+        return banner is null ? null : ParseMajor(banner);
+    }
+
+    private static readonly string[] VersionArguments = { "-version" };
+
+    /// <summary>
+    /// Start <paramref name="fileName"/> with <paramref name="arguments"/>, wait for it to exit
+    /// and return everything it printed: standard error first, then standard output. Returns
+    /// null when the process could not be started or was still running after
+    /// <paramref name="timeout"/> (it is killed then). The exit code is not looked at.
+    /// Cancelling <paramref name="cancellationToken"/> kills the process and throws.
+    /// Public so tests can run it against a harmless command without a Java install.
+    /// </summary>
+    public static async Task<string?> CaptureOutputAsync(
+        string fileName,
+        IReadOnlyList<string> arguments,
+        TimeSpan timeout,
+        CancellationToken cancellationToken)
+    {
         try
         {
-            var psi = new ProcessStartInfo(javaExe, "-version")
+            var psi = new ProcessStartInfo(fileName)
             {
                 UseShellExecute = false,
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
                 CreateNoWindow = true,
             };
-            using var proc = Process.Start(psi);
-            if (proc is null) return null;
+            foreach (var argument in arguments) psi.ArgumentList.Add(argument);
+
+            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeoutCts.CancelAfter(timeout);
+
+#if NET11_0_OR_GREATER
+            // .NET 11 reads both streams, waits for the exit and kills the process on
+            // cancellation in one call, which is everything the older branch below does by hand.
+            var output = await Process.RunAndCaptureTextAsync(psi, timeoutCts.Token).ConfigureAwait(false);
+            if (output.ExitStatus.Canceled)
+            {
+                // The streams were read but the process did not exit in time and was killed.
+                cancellationToken.ThrowIfCancellationRequested();
+                return null;
+            }
 
             // java writes its version banner to stderr (legacy Sun behaviour preserved by
-            // every modern JDK). Read both streams just in case a vendor changed that.
-            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            timeoutCts.CancelAfter(VersionProbeTimeout);
+            // every modern JDK). Both streams are kept in case a vendor changed that.
+            return output.StandardError + "\n" + output.StandardOutput;
+#else
+            using var proc = Process.Start(psi);
+            if (proc is null) return null;
 
             var stderrTask = proc.StandardError.ReadToEndAsync(timeoutCts.Token);
             var stdoutTask = proc.StandardOutput.ReadToEndAsync(timeoutCts.Token);
@@ -291,12 +327,16 @@ public sealed class SystemJavaProbe : ISystemJavaProbe
             catch (OperationCanceledException)
             {
                 try { if (!proc.HasExited) proc.Kill(entireProcessTree: true); } catch { /* ignored */ }
+                cancellationToken.ThrowIfCancellationRequested();
                 return null;
             }
 
+            // java writes its version banner to stderr (legacy Sun behaviour preserved by
+            // every modern JDK). Both streams are kept in case a vendor changed that.
             var stderr = await stderrTask.ConfigureAwait(false);
             var stdout = await stdoutTask.ConfigureAwait(false);
-            return ParseMajor(stderr + "\n" + stdout);
+            return stderr + "\n" + stdout;
+#endif
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { return null; }
         catch (OperationCanceledException) { throw; }

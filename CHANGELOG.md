@@ -3,6 +3,20 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.40] - 2026-11-11
+
+### Changed
+
+- The check of an installed Java (`java -version`) uses the .NET 11 `Process.RunAndCaptureTextAsync`: one call reads both output streams, waits for the exit and kills the process when the three-second limit runs out. The Core targets below .NET 11 keep the previous hand-written code. The process start now lives in one method, `SystemJavaProbe.CaptureOutputAsync`.
+
+### Fixed
+
+- Cancelling a launch while a Java candidate is being checked now stops the search at once. The cancellation used to be read as "this Java did not answer", and the next candidate was tried.
+
+### Tests
+
+- `SystemJavaProbeCaptureTests` (6): standard output, standard error, a non-zero exit code, a missing executable, a process that outlives the limit, cancellation by the caller. They run the host's shell, so no Java is needed.
+
 ## [0.32.39] - 2026-11-11
 
 ### Changed
