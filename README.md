@@ -108,7 +108,7 @@ dotnet test  HyperionMinecraftLauncher.slnx
 dotnet run   --project src/HyperionMinecraftLauncher.App
 ```
 
-Requires .NET SDK 10. The Core library multi-targets `net8.0;net9.0;net10.0`; the App is `net10.0` (Avalonia 11.2.x, WinExe).
+Requires .NET SDK 11. The Core library multi-targets `net8.0;net9.0;net10.0;net11.0`; the App is `net11.0` (Avalonia 11.2.x, WinExe).
 
 ### One-click Windows build
 
@@ -261,7 +261,7 @@ Format is 3-part SemVer (`X.Y.Z`); commit format is `vX.Y.Z <short description>`
 
 ### Continuous integration
 
-Pushing to the `product` branch triggers `.github/workflows/dotnet.yml` (restore + build + test on Ubuntu, Windows, and macOS matrix, .NET 10). Packaging scripts (`build-appimage.sh`, `build-macos-app.sh`) do not run in `dotnet.yml`; the dedicated `release.yml` workflow described below picks them up on a version tag instead.
+Pushing to the `product` branch triggers `.github/workflows/dotnet.yml` (restore + build + test on Ubuntu, Windows, and macOS matrix, .NET 11). Packaging scripts (`build-appimage.sh`, `build-macos-app.sh`) do not run in `dotnet.yml`; the dedicated `release.yml` workflow described below picks them up on a version tag instead.
 
 ### Tag-driven release flow
 

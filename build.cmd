@@ -8,7 +8,7 @@ rem   3. Also writes the full release artefact set under outputs\ (publish folde
 rem      that mirrors what the GitHub Releases CI pipeline uploads on a v*.*.* tag push.
 rem
 rem Prerequisites:
-rem   - .NET SDK 10.0+ on PATH (`dotnet --info` to verify).
+rem   - .NET SDK 11.0+ on PATH (`dotnet --info` to verify).
 rem   - PowerShell 5.1+ (every supported Windows ships it). PowerShell 7 (`pwsh`) is used
 rem     when present, otherwise we fall back to Windows PowerShell (`powershell.exe`).
 rem

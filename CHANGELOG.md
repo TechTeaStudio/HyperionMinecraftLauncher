@@ -3,6 +3,13 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.39] - 2026-11-11
+
+### Changed
+
+- The launcher runs on .NET 11: the app and the test project target `net11.0` (was `net10.0`), and the Core library gains a `net11.0` target next to `net8.0`, `net9.0` and `net10.0`. No feature or behaviour change.
+- CI and the release workflow install the .NET 11 SDK; the build scripts and the docs ask for .NET SDK 11.
+
 ## [0.32.38] - 2026-11-05
 
 ### Added

@@ -20,7 +20,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '11.0.x'
 
       - name: Restore
         run: dotnet restore HyperionMinecraftLauncher.slnx
@@ -40,5 +40,5 @@ jobs:
       # DYLD_*), so the variable is harmless there - we still scope it to Ubuntu for clarity.
       - name: Test
         env:
-          LD_LIBRARY_PATH: ${{ matrix.os == 'ubuntu-latest' && format('{0}/tests/HyperionMinecraftLauncher.Core.Tests/bin/Release/net10.0/runtimes/linux-x64/native', github.workspace) || '' }}
+          LD_LIBRARY_PATH: ${{ matrix.os == 'ubuntu-latest' && format('{0}/tests/HyperionMinecraftLauncher.Core.Tests/bin/Release/net11.0/runtimes/linux-x64/native', github.workspace) || '' }}
         run: dotnet test HyperionMinecraftLauncher.slnx --no-build --configuration Release --verbosity normal

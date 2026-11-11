@@ -12,7 +12,7 @@
 #   ./scripts/build-appimage.sh
 #
 # Requirements:
-#   - .NET SDK 10 on PATH (`dotnet --version` should print 10.x.y).
+#   - .NET SDK 11 on PATH (`dotnet --version` should print 11.x.y).
 #   - (Optional) appimagetool: https://github.com/AppImage/AppImageKit/releases
 #
 set -euo pipefail

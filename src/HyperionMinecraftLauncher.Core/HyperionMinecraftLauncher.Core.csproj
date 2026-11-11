@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net9.0;net10.0;net11.0</TargetFrameworks>
     <RootNamespace>TechTeaStudio.HyperionMinecraftLauncher.Core</RootNamespace>
     <AssemblyName>TechTeaStudio.HyperionMinecraftLauncher.Core</AssemblyName>
     <!-- &lt;Version&gt; is inherited from Directory.Build.props which reads /VERSION. -->

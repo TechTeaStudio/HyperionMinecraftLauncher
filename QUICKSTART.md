@@ -3,7 +3,7 @@
 Minimal Avalonia desktop launcher around `CmlLib.Core` 4.0.6. Pick a Minecraft version, click Launch, watch the log.
 
 ## Prerequisites
-- .NET SDK 10.0+
+- .NET SDK 11.0+
 - A real Minecraft account (Microsoft); Mojang auth was discontinued upstream in 2022
 - Java runtime (for older Minecraft versions only — modern versions ship their own)
 

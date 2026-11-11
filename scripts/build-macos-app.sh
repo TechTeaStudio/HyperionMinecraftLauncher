@@ -21,7 +21,7 @@
 #   ./scripts/build-macos-app.sh
 #
 # Requirements:
-#   - .NET SDK 10 on PATH (`dotnet --version` should print 10.x.y).
+#   - .NET SDK 11 on PATH (`dotnet --version` should print 11.x.y).
 #   - macOS host for `sips` + `iconutil` (icon conversion). On non-mac hosts the
 #     script falls back to copying icon.png and prints a notice.
 #   - (Optional) productbuild for .pkg generation (part of Xcode Command Line Tools).
