@@ -435,6 +435,9 @@
   <data name="MultiMc.PickZipButton" xml:space="preserve"><value>Pick zip file...</value></data>
   <data name="MultiMc.PickFolderButton" xml:space="preserve"><value>Pick folder...</value></data>
   <data name="MultiMc.ImportedSuccessfully" xml:space="preserve"><value>[mmc] Imported '{0}' (MC {1}, {2}) from {3}.</value></data>
+  <data name="MultiMc.PickLinkButton" xml:space="preserve"><value>Link folder (no copy)...</value></data>
+  <data name="MultiMc.LinkedSuccessfully" xml:space="preserve"><value>[mmc] Linked '{0}' (MC {1}, {2}): plays from {3}, nothing copied.</value></data>
+  <data name="MultiMc.PlaytimeImported" xml:space="preserve"><value>[mmc] Time played in MultiMC carried over: {0}.</value></data>
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] MultiMC import is not available.</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] MultiMC import picker is not available.</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>MultiMC import cancelled.</value></data>

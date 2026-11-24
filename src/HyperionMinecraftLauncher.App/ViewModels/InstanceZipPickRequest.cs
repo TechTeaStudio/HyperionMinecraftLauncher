@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Import.MultiMc;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.App.ViewModels;
 
@@ -18,10 +19,15 @@ public delegate Task<string?> InstanceExportZipPickRequest(string suggestedFileN
 /// </summary>
 public delegate Task<string?> InstanceImportZipPickRequest(CancellationToken cancellationToken);
 
+/// <summary>A MultiMC / Prism source the user picked and whether to copy it or link to it in place.</summary>
+/// <param name="Path">Absolute path to the instance <c>.zip</c> or folder.</param>
+/// <param name="Mode">Copy (zip or folder) or link (folder only).</param>
+public sealed record MultiMcImportPick(string Path, MultiMcImportMode Mode);
+
 /// <summary>
-/// Delegate the View injects so the view-model can ask the user to pick either a
-/// MultiMC / Prism instance <c>.zip</c> file OR an unzipped instance folder. The View
-/// shows whatever flow is most natural for the host platform (a chooser dialog with two
-/// buttons; the picked path is the return value, or <c>null</c> when cancelled).
+/// Delegate the View injects so the view-model can ask the user to pick a MultiMC / Prism
+/// instance: a <c>.zip</c> or a folder to copy, or a folder to link without copying. The
+/// View shows a chooser dialog with three buttons and then the matching picker; returns
+/// <c>null</c> when cancelled.
 /// </summary>
-public delegate Task<string?> MultiMcImportPickRequest(CancellationToken cancellationToken);
+public delegate Task<MultiMcImportPick?> MultiMcImportPickRequest(CancellationToken cancellationToken);

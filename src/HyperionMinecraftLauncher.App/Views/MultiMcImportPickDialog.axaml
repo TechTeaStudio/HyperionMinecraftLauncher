@@ -6,7 +6,7 @@
         mc:Ignorable="d"
         x:Class="TechTeaStudio.HyperionMinecraftLauncher.App.Views.MultiMcImportPickDialog"
         Title="{x:Static loc:Strings.MultiMc_PickDialogTitle}"
-        Width="420" Height="200"
+        Width="640" Height="200"
         CanResize="False"
         SystemDecorations="None"
         ExtendClientAreaToDecorationsHint="True"
@@ -40,7 +40,7 @@
                    FontSize="13.5" TextWrapping="Wrap" />
       </StackPanel>
 
-      <Grid Grid.Row="2" Margin="22,8,22,16" ColumnDefinitions="*,Auto,Auto">
+      <Grid Grid.Row="2" Margin="22,8,22,16" ColumnDefinitions="*,Auto,Auto,Auto">
         <Button Grid.Column="1" Content="{x:Static loc:Strings.MultiMc_PickZipButton}" Click="OnPickZip"
                 Padding="16,6" FontSize="13.5" Margin="0,0,8,0"
                 CornerRadius="15"
@@ -49,6 +49,9 @@
                 BorderThickness="1"
                 Foreground="White" />
         <Button Grid.Column="2" Content="{x:Static loc:Strings.MultiMc_PickFolderButton}" Click="OnPickFolder"
+                CornerRadius="15" Margin="0,0,8,0"
+                Padding="16,6" FontSize="13.5" />
+        <Button Grid.Column="3" Content="{x:Static loc:Strings.MultiMc_PickLinkButton}" Click="OnLinkFolder"
                 CornerRadius="15"
                 Padding="16,6" FontSize="13.5" />
       </Grid>

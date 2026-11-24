@@ -2576,34 +2576,37 @@ public sealed class MainViewModel : INotifyPropertyChanged
             return;
         }
 
-        string? source;
+        MultiMcImportPick? pick;
         try
         {
-            source = await _multiMcImportPickRequest(CancellationToken.None).ConfigureAwait(true);
+            pick = await _multiMcImportPickRequest(CancellationToken.None).ConfigureAwait(true);
         }
         catch (Exception ex)
         {
             Append($"[error] Could not show MultiMC import picker: {ex.Message}");
             return;
         }
-        if (string.IsNullOrWhiteSpace(source))
+        if (pick is null || string.IsNullOrWhiteSpace(pick.Path))
         {
             Append(Strings.Error_MultiMcImportCancelled);
             return;
         }
+        var source = pick.Path;
 
         IsBusy = true;
         try
         {
-            Append($"[mmc] Importing MultiMC / Prism instance from {source} ...");
+            Append($"[mmc] Importing MultiMC / Prism instance from {source} ({pick.Mode}) ...");
             var progress = new Progress<double>(v =>
             {
                 var pct = (int)(v * 100);
                 if (pct == 0 || pct == 100 || pct % 25 == 0) Append($"[mmc] Progress: {pct}%");
             });
 
-            var imported = await _multiMcImporter.ImportAsync(source, overrideName: null, progress, CancellationToken.None).ConfigureAwait(true);
+            var result = await _multiMcImporter.ImportAsync(source, pick.Mode, overrideName: null, progress, CancellationToken.None).ConfigureAwait(true);
+            var imported = result.Instance;
             await _service.SaveInstanceAsync(imported, CancellationToken.None).ConfigureAwait(true);
+            await CreditImportedPlaytimeAsync(imported, result.PlayedInSource).ConfigureAwait(true);
             await RefreshInstancesAsync().ConfigureAwait(true);
 
             // Pick the freshly-imported tile so the user sees the result lit up immediately.
@@ -2611,8 +2614,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
             if (match is not null) SelectedInstance = match;
 
             var loaderLabel = imported.Loader == ModLoader.None ? "vanilla" : imported.Loader.ToString();
-            Append(string.Format(Strings.MultiMc_ImportedSuccessfully, imported.Name, imported.VersionId, loaderLabel, source));
-            _logger.Info($"MultiMC instance imported from {source}: {imported.Id} / {imported.Name} (MC {imported.VersionId}, {loaderLabel}).");
+            Append(string.Format(
+                pick.Mode == MultiMcImportMode.Link ? Strings.MultiMc_LinkedSuccessfully : Strings.MultiMc_ImportedSuccessfully,
+                imported.Name, imported.VersionId, loaderLabel, pick.Mode == MultiMcImportMode.Link ? imported.GameDirectory : source));
+            _logger.Info($"MultiMC instance imported from {source} ({pick.Mode}): {imported.Id} / {imported.Name} (MC {imported.VersionId}, {loaderLabel}), game dir {imported.GameDirectory}.");
         }
         catch (InstanceImportException ex)
         {
@@ -2627,6 +2632,25 @@ public sealed class MainViewModel : INotifyPropertyChanged
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// Carry MultiMC's own play-time counter over to the imported instance. A failure here
+    /// costs only the number, never the import, so it is logged and swallowed.
+    /// </summary>
+    private async Task CreditImportedPlaytimeAsync(Instance imported, TimeSpan played)
+    {
+        if (_playtimeStore is null || played <= TimeSpan.Zero) return;
+        try
+        {
+            await _playtimeStore.AddAsync(imported.Id, played, CancellationToken.None).ConfigureAwait(true);
+            Append(string.Format(Strings.MultiMc_PlaytimeImported,
+                PlaytimeFormat.Format(played, Strings.InstanceCard_PlaytimeHoursMinutes, Strings.InstanceCard_PlaytimeMinutes)));
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn($"Could not carry MultiMC play time over to {imported.Id}: {ex.Message}");
         }
     }
 

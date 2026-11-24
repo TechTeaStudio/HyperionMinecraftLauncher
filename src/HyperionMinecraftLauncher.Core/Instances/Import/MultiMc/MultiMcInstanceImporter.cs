@@ -13,9 +13,10 @@ namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Import.MultiMc;
 /// Default <see cref="IMultiMcInstanceImporter"/>. Pulls a MultiMC / Prism Launcher instance
 /// apart - either from the user-picked <c>.zip</c> (extracted to a temp dir first) or directly
 /// from a copy of the on-disk instance folder - parses <c>instance.cfg</c> and <c>mmc-pack.json</c>,
-/// then copies the embedded <c>.minecraft/</c> tree (minus the official launcher's
+/// then either copies the embedded <c>.minecraft/</c> tree (minus the official launcher's
 /// <c>versions/</c> subfolder, which Hyperion manages globally) into a fresh per-instance
-/// directory under Hyperion's data root.
+/// directory under Hyperion's data root, or, in <see cref="MultiMcImportMode.Link"/>, points
+/// the instance at that <c>.minecraft/</c> where it lies.
 /// </summary>
 public sealed class MultiMcInstanceImporter : IMultiMcInstanceImporter
 {
@@ -37,14 +38,34 @@ public sealed class MultiMcInstanceImporter : IMultiMcInstanceImporter
         _newId = newId;
     }
 
-    /// <inheritdoc />
+    /// <summary>Copy-mode import that returns just the instance (the original entry point).</summary>
     public async Task<Instance> ImportAsync(
         string sourceZipOrFolderPath,
         string? overrideName,
         IProgress<double>? progress,
         CancellationToken cancellationToken)
     {
+        var result = await ImportAsync(sourceZipOrFolderPath, MultiMcImportMode.Copy, overrideName, progress, cancellationToken)
+            .ConfigureAwait(false);
+        return result.Instance;
+    }
+
+    /// <inheritdoc />
+    public async Task<MultiMcImportResult> ImportAsync(
+        string sourceZipOrFolderPath,
+        MultiMcImportMode mode,
+        string? overrideName,
+        IProgress<double>? progress,
+        CancellationToken cancellationToken)
+    {
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceZipOrFolderPath);
+
+        // A link plays from the folder the user already has; a zip has no such folder, and
+        // linking into its temp extraction would point at a directory deleted a moment later.
+        if (mode == MultiMcImportMode.Link && !Directory.Exists(sourceZipOrFolderPath))
+            throw new InstanceImportException(File.Exists(sourceZipOrFolderPath)
+                ? "Only an instance folder can be linked; a zip has to be imported as a copy."
+                : $"Source path not found: {sourceZipOrFolderPath}");
 
         // Resolve the source to an on-disk folder. If the user picked a zip we extract it
         // into a temp dir first; otherwise we use the folder verbatim. The split lets the
@@ -89,23 +110,8 @@ public sealed class MultiMcInstanceImporter : IMultiMcInstanceImporter
                 throw new InstanceImportException($"Could not read mmc-pack.json: {ex.Message}", ex);
             }
 
-            // Allocate the destination folder up front - if the caller's id generator returns
-            // an already-existing id we throw rather than silently merge into another instance.
             var newId = _newId();
-            var instanceFolder = Path.Combine(_importRoot, newId);
-            try
-            {
-                Directory.CreateDirectory(_importRoot);
-                Directory.CreateDirectory(instanceFolder);
-            }
-            catch (IOException ex)
-            {
-                throw new InstanceImportException($"Could not create instance folder: {ex.Message}", ex);
-            }
 
-            // Copy .minecraft/* into the new folder. We deliberately drop versions/ - Hyperion
-            // stores Mojang/loader versions globally under .minecraft/versions/ and re-creating
-            // a per-instance copy would just waste disk + risk drift from the canonical install.
             var dotMinecraft = Path.Combine(sourceFolder, ".minecraft");
             // Prism's "Don't load extra dirs" / "minecraft" folder name fallbacks: very old
             // MultiMC builds used "minecraft" (no dot). Accept both so old shares still import.
@@ -115,22 +121,32 @@ public sealed class MultiMcInstanceImporter : IMultiMcInstanceImporter
                 if (Directory.Exists(fallback)) dotMinecraft = fallback;
             }
 
-            if (Directory.Exists(dotMinecraft))
+            string gameDirectory;
+            if (mode == MultiMcImportMode.Link)
             {
-                try
-                {
-                    await CopyTreeAsync(dotMinecraft, instanceFolder, progress, cancellationToken).ConfigureAwait(false);
-                }
-                catch (IOException ex)
-                {
-                    throw new InstanceImportException($"Could not copy game directory: {ex.Message}", ex);
-                }
+                // Play from the MultiMC folder itself. Nothing is created or copied: a never
+                // launched instance has no .minecraft yet, and the game makes it on first start
+                // exactly where MultiMC would. Versions, libraries and assets still come from
+                // Hyperion's shared store (CmlLibUnderlyingLauncher.BuildInstancePath).
+                gameDirectory = dotMinecraft;
+                progress?.Report(1.0);
             }
             else
             {
-                // No game dir in the share - that's allowed (mod-light shares ship only the
-                // configs); the user just gets an empty per-instance folder.
-                progress?.Report(1.0);
+                // Allocate the destination folder up front - if the caller's id generator returns
+                // an already-existing id we throw rather than silently merge into another instance.
+                gameDirectory = Path.Combine(_importRoot, newId);
+                try
+                {
+                    Directory.CreateDirectory(_importRoot);
+                    Directory.CreateDirectory(gameDirectory);
+                }
+                catch (IOException ex)
+                {
+                    throw new InstanceImportException($"Could not create instance folder: {ex.Message}", ex);
+                }
+
+                await CopyGameDirectoryAsync(dotMinecraft, gameDirectory, progress, cancellationToken).ConfigureAwait(false);
             }
 
             // Map iconKey to a Hyperion icon; fallback to grass_block_side when unknown / null.
@@ -140,7 +156,7 @@ public sealed class MultiMcInstanceImporter : IMultiMcInstanceImporter
                 ? overrideName!
                 : (!string.IsNullOrWhiteSpace(cfg.Name) ? cfg.Name! : "Imported from MultiMC");
 
-            return new Instance
+            var instance = new Instance
             {
                 Id = newId,
                 Name = finalName,
@@ -151,10 +167,15 @@ public sealed class MultiMcInstanceImporter : IMultiMcInstanceImporter
                 JvmArguments = cfg.JvmArgs,
                 MinimumRamMb = cfg.MinMemAllocMb,
                 MaximumRamMb = cfg.MaxMemAllocMb,
-                GameDirectory = instanceFolder,
+                GameDirectory = gameDirectory,
                 CreatedAt = DateTimeOffset.UtcNow,
                 LastPlayedAt = null,
                 IsAutoImported = false,
+            };
+            return new MultiMcImportResult
+            {
+                Instance = instance,
+                PlayedInSource = cfg.TotalTimePlayed ?? TimeSpan.Zero,
             };
         }
         finally
@@ -167,6 +188,35 @@ public sealed class MultiMcInstanceImporter : IMultiMcInstanceImporter
                 catch { /* best-effort */ }
                 _tempExtractedPath = null;
             }
+        }
+    }
+
+    /// <summary>
+    /// Copy .minecraft/* into the new folder. We deliberately drop versions/ - Hyperion stores
+    /// Mojang/loader versions globally under .minecraft/versions/ and re-creating a per-instance
+    /// copy would just waste disk + risk drift from the canonical install.
+    /// </summary>
+    private static async Task CopyGameDirectoryAsync(
+        string dotMinecraft,
+        string instanceFolder,
+        IProgress<double>? progress,
+        CancellationToken cancellationToken)
+    {
+        if (!Directory.Exists(dotMinecraft))
+        {
+            // No game dir in the share - that's allowed (mod-light shares ship only the
+            // configs); the user just gets an empty per-instance folder.
+            progress?.Report(1.0);
+            return;
+        }
+
+        try
+        {
+            await CopyTreeAsync(dotMinecraft, instanceFolder, progress, cancellationToken).ConfigureAwait(false);
+        }
+        catch (IOException ex)
+        {
+            throw new InstanceImportException($"Could not copy game directory: {ex.Message}", ex);
         }
     }
 

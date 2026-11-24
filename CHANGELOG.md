@@ -3,6 +3,22 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-11-24
+
+### Added
+
+- "Import from MultiMC..." has a third button, "Link folder (no copy)...": the picked MultiMC / Prism instance folder is not copied, the new instance plays straight from its `.minecraft/` (or the old `minecraft/`). Worlds, mods, configs and settings stay one set shared with MultiMC; versions, libraries and assets still come from Hyperion's shared store. A zip cannot be linked, and a never launched instance points at the `.minecraft/` the game will create. Deleting a linked instance in Hyperion removes only its record, never the MultiMC folder. Localized into all 14 locales.
+- The time played in MultiMC / Prism (`totalTimePlayed` in `instance.cfg`) is added to the imported instance's play time, for linked and copied imports alike, and the log says how much was carried over. New `IPlaytimeStore.AddAsync`.
+
+### Changed
+
+- `IMultiMcInstanceImporter.ImportAsync` takes a `MultiMcImportMode` (Copy / Link) and returns `MultiMcImportResult` (the instance and the time played in the source). The concrete importer keeps the old copy-only overload.
+- Version numbers keep every part to one digit from here on, so 0.32.40 is followed by 1.0.0.
+
+### Tests
+
+- Importer: link mode points at the source and copies nothing, old `minecraft/` folder, never launched instance, a zip refused for linking, play time carried by a copy. Cfg parser: `totalTimePlayed` read, unusable values ignored. Play-time store: `AddAsync` adds on top of sessions and survives a reload, zero or negative changes nothing. View model: a linked pick saves the instance and credits MultiMC's time; a cancelled pick imports nothing.
+
 ## [0.32.40] - 2026-11-11
 
 ### Changed

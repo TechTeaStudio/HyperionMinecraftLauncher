@@ -433,6 +433,9 @@
   <data name="MultiMc.PickZipButton" xml:space="preserve"><value>Zip dosyası seç...</value></data>
   <data name="MultiMc.PickFolderButton" xml:space="preserve"><value>Klasör seç...</value></data>
   <data name="MultiMc.ImportedSuccessfully" xml:space="preserve"><value>[mmc] '{0}' içe aktarıldı (MC {1}, {2}) kaynak: {3}.</value></data>
+  <data name="MultiMc.PickLinkButton" xml:space="preserve"><value>Klasörü bağla (kopyalamadan)...</value></data>
+  <data name="MultiMc.LinkedSuccessfully" xml:space="preserve"><value>[mmc] '{0}' bağlandı (MC {1}, {2}): {3} konumundan çalışır, hiçbir şey kopyalanmadı.</value></data>
+  <data name="MultiMc.PlaytimeImported" xml:space="preserve"><value>[mmc] MultiMC oyun süresi aktarıldı: {0}.</value></data>
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] MultiMC içe aktarma kullanılamıyor.</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] MultiMC için dosya veya klasör seçici kullanılamıyor.</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>MultiMC içe aktarma iptal edildi.</value></data>

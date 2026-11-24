@@ -433,6 +433,9 @@
   <data name="MultiMc.PickZipButton" xml:space="preserve"><value>Wybierz zip...</value></data>
   <data name="MultiMc.PickFolderButton" xml:space="preserve"><value>Wybierz folder...</value></data>
   <data name="MultiMc.ImportedSuccessfully" xml:space="preserve"><value>[mmc] Zaimportowano '{0}' (MC {1}, {2}) z {3}.</value></data>
+  <data name="MultiMc.PickLinkButton" xml:space="preserve"><value>Podłącz folder (bez kopii)...</value></data>
+  <data name="MultiMc.LinkedSuccessfully" xml:space="preserve"><value>[mmc] Podłączono '{0}' (MC {1}, {2}): gra działa z {3}, nic nie skopiowano.</value></data>
+  <data name="MultiMc.PlaytimeImported" xml:space="preserve"><value>[mmc] Przeniesiono czas gry z MultiMC: {0}.</value></data>
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] Import z MultiMC niedostępny.</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] Wybór pliku lub folderu dla importu MultiMC niedostępny.</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>Import z MultiMC anulowany.</value></data>

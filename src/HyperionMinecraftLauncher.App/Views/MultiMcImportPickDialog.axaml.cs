@@ -20,6 +20,9 @@ public enum MultiMcImportPickResult
 
     /// <summary>User wants to pick an unzipped folder with <see cref="Avalonia.Platform.Storage.IStorageProvider.OpenFolderPickerAsync"/>.</summary>
     Folder,
+
+    /// <summary>User wants to pick an instance folder and play from it in place, copying nothing.</summary>
+    LinkFolder,
 }
 
 /// <summary>Tiny modal: "Pick a zip... or a folder."</summary>
@@ -42,6 +45,12 @@ public partial class MultiMcImportPickDialog : Window
     private void OnPickFolder(object? sender, RoutedEventArgs e)
     {
         Result = MultiMcImportPickResult.Folder;
+        Close();
+    }
+
+    private void OnLinkFolder(object? sender, RoutedEventArgs e)
+    {
+        Result = MultiMcImportPickResult.LinkFolder;
         Close();
     }
 

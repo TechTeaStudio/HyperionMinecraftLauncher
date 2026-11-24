@@ -131,6 +131,23 @@ public class MultiMcInstanceCfgParserTests
     }
 
     [Fact]
+    public void Parse_TotalTimePlayed_IsSeconds()
+    {
+        var cfg = MultiMcInstanceCfgParser.Parse("totalTimePlayed=253012\nlastTimePlayed=30942\n");
+
+        Assert.Equal(System.TimeSpan.FromSeconds(253012), cfg.TotalTimePlayed);
+    }
+
+    [Theory]
+    [InlineData("totalTimePlayed=")]
+    [InlineData("totalTimePlayed=abc")]
+    [InlineData("totalTimePlayed=-5")]
+    public void Parse_TotalTimePlayed_Unusable_IsNull(string raw)
+    {
+        Assert.Null(MultiMcInstanceCfgParser.Parse(raw).TotalTimePlayed);
+    }
+
+    [Fact]
     public void Parse_EmptyInput_ReturnsAllNull()
     {
         var cfg = MultiMcInstanceCfgParser.Parse(string.Empty);

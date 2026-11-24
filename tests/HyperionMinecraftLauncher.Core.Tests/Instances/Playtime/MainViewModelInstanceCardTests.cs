@@ -116,6 +116,12 @@ public class MainViewModelInstanceCardTests
 
         public Task<IReadOnlyList<PlaySession>> ListActiveAsync(CancellationToken cancellationToken)
             => Task.FromResult<IReadOnlyList<PlaySession>>(Array.Empty<PlaySession>());
+
+        public Task AddAsync(string instanceId, TimeSpan time, CancellationToken cancellationToken)
+        {
+            if (time > TimeSpan.Zero) Totals[instanceId] = Totals.GetValueOrDefault(instanceId) + time;
+            return Task.CompletedTask;
+        }
     }
 
     internal sealed class FakeModManager : IInstanceModManager

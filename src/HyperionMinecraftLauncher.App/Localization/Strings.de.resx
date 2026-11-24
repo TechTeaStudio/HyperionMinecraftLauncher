@@ -433,6 +433,9 @@
   <data name="MultiMc.PickZipButton" xml:space="preserve"><value>Zip-Datei wählen...</value></data>
   <data name="MultiMc.PickFolderButton" xml:space="preserve"><value>Ordner wählen...</value></data>
   <data name="MultiMc.ImportedSuccessfully" xml:space="preserve"><value>[mmc] '{0}' importiert (MC {1}, {2}) aus {3}.</value></data>
+  <data name="MultiMc.PickLinkButton" xml:space="preserve"><value>Ordner verknüpfen (ohne Kopie)...</value></data>
+  <data name="MultiMc.LinkedSuccessfully" xml:space="preserve"><value>[mmc] '{0}' verknüpft (MC {1}, {2}): spielt aus {3}, nichts kopiert.</value></data>
+  <data name="MultiMc.PlaytimeImported" xml:space="preserve"><value>[mmc] Spielzeit aus MultiMC übernommen: {0}.</value></data>
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] MultiMC-Import ist nicht verfügbar.</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] Datei- oder Ordnerauswahl für MultiMC-Import nicht verfügbar.</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>MultiMC-Import abgebrochen.</value></data>

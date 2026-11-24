@@ -22,6 +22,7 @@ using TechTeaStudio.HyperionMinecraftLauncher.Core.InstanceBrowsing;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Logging;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Mods;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Instances.Import.MultiMc;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Servers;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Skins;
@@ -129,11 +130,11 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// "Import from MultiMC..." picker. Shows the two-button dialog first (zip vs folder),
-    /// then drives the matching <see cref="IStorageProvider"/> picker. Returns the selected
-    /// path (zip file path OR unzipped instance folder path) or null on cancel.
+    /// "Import from MultiMC..." picker. Shows the three-button dialog first (zip, folder to
+    /// copy, folder to link), then drives the matching <see cref="IStorageProvider"/> picker.
+    /// Returns the selected path with its mode, or null on cancel.
     /// </summary>
-    private async Task<string?> PickMultiMcImportAsync(CancellationToken cancellationToken)
+    private async Task<MultiMcImportPick?> PickMultiMcImportAsync(CancellationToken cancellationToken)
     {
         var topLevel = GetTopLevel(this);
         if (topLevel?.StorageProvider is null) return null;
@@ -158,18 +159,22 @@ public partial class MainWindow : Window
                         },
                     },
                 });
-                if (files.Count == 0) return null;
-                return files[0].Path?.LocalPath;
+                if (files.Count == 0 || files[0].Path?.LocalPath is not { } zip) return null;
+                return new MultiMcImportPick(zip, MultiMcImportMode.Copy);
             }
             case MultiMcImportPickResult.Folder:
+            case MultiMcImportPickResult.LinkFolder:
             {
+                var link = dialog.Result == MultiMcImportPickResult.LinkFolder;
                 var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
                 {
-                    Title = "Pick a MultiMC / Prism instance folder",
+                    Title = link
+                        ? "Pick a MultiMC / Prism instance folder to play from"
+                        : "Pick a MultiMC / Prism instance folder",
                     AllowMultiple = false,
                 });
-                if (folders.Count == 0) return null;
-                return folders[0].Path?.LocalPath;
+                if (folders.Count == 0 || folders[0].Path?.LocalPath is not { } folder) return null;
+                return new MultiMcImportPick(folder, link ? MultiMcImportMode.Link : MultiMcImportMode.Copy);
             }
             default:
                 return null;

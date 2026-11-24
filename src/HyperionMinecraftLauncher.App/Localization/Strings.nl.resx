@@ -433,6 +433,9 @@
   <data name="MultiMc.PickZipButton" xml:space="preserve"><value>Kies zip-bestand...</value></data>
   <data name="MultiMc.PickFolderButton" xml:space="preserve"><value>Kies map...</value></data>
   <data name="MultiMc.ImportedSuccessfully" xml:space="preserve"><value>[mmc] '{0}' geïmporteerd (MC {1}, {2}) uit {3}.</value></data>
+  <data name="MultiMc.PickLinkButton" xml:space="preserve"><value>Map koppelen (zonder kopie)...</value></data>
+  <data name="MultiMc.LinkedSuccessfully" xml:space="preserve"><value>[mmc] '{0}' gekoppeld (MC {1}, {2}): speelt vanuit {3}, niets gekopieerd.</value></data>
+  <data name="MultiMc.PlaytimeImported" xml:space="preserve"><value>[mmc] Speeltijd uit MultiMC overgenomen: {0}.</value></data>
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] Import uit MultiMC is niet beschikbaar.</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] Bestands- of mapkiezer voor MultiMC-import is niet beschikbaar.</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>Import uit MultiMC geannuleerd.</value></data>

@@ -433,6 +433,9 @@
   <data name="MultiMc.PickZipButton" xml:space="preserve"><value>Выбрать zip...</value></data>
   <data name="MultiMc.PickFolderButton" xml:space="preserve"><value>Выбрать папку...</value></data>
   <data name="MultiMc.ImportedSuccessfully" xml:space="preserve"><value>[mmc] Импортировано '{0}' (MC {1}, {2}) из {3}.</value></data>
+  <data name="MultiMc.PickLinkButton" xml:space="preserve"><value>Подключить папку (без копии)...</value></data>
+  <data name="MultiMc.LinkedSuccessfully" xml:space="preserve"><value>[mmc] Подключено '{0}' (MC {1}, {2}): игра идёт из {3}, ничего не скопировано.</value></data>
+  <data name="MultiMc.PlaytimeImported" xml:space="preserve"><value>[mmc] Перенесено время из MultiMC: {0}.</value></data>
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] Импорт из MultiMC недоступен.</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] Выбор файла или папки для импорта из MultiMC недоступен.</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>Импорт из MultiMC отменён.</value></data>

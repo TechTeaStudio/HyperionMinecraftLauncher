@@ -430,6 +430,9 @@
   <data name="MultiMc.PickZipButton" xml:space="preserve"><value>zip ファイルを選択...</value></data>
   <data name="MultiMc.PickFolderButton" xml:space="preserve"><value>フォルダーを選択...</value></data>
   <data name="MultiMc.ImportedSuccessfully" xml:space="preserve"><value>[mmc] 「{0}」をインポートしました（MC {1}, {2}） 元: {3}。</value></data>
+  <data name="MultiMc.PickLinkButton" xml:space="preserve"><value>フォルダーをリンク (コピーなし)...</value></data>
+  <data name="MultiMc.LinkedSuccessfully" xml:space="preserve"><value>[mmc] 「{0}」をリンクしました（MC {1}, {2}）: {3} から起動し、何もコピーしていません。</value></data>
+  <data name="MultiMc.PlaytimeImported" xml:space="preserve"><value>[mmc] MultiMC のプレイ時間を引き継ぎました: {0}。</value></data>
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] MultiMC インポートを利用できません。</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] MultiMC インポート用のファイル/フォルダーピッカーを利用できません。</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>MultiMC インポートをキャンセルしました。</value></data>

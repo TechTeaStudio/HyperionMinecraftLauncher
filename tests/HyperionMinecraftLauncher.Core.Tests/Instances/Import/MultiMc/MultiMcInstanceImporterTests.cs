@@ -210,6 +210,84 @@ public class MultiMcInstanceImporterTests : IDisposable
             () => importer.ImportAsync(Path.Combine(_tempRoot, "definitely-missing.zip"), null, null, CancellationToken.None));
     }
 
+    [Fact]
+    public async Task ImportAsync_LinkMode_PointsAtSourceGameDir_AndCopiesNothing()
+    {
+        var folder = BuildPrismFolder("PEPELAND 10 26.3",
+            "name=PEPELAND 11 26.3\nMaxMemAlloc=6144\nMinMemAlloc=4048\ntotalTimePlayed=253012\n", """
+            {
+              "components": [
+                { "uid": "net.minecraft", "version": "26.3" },
+                { "uid": "net.fabricmc.fabric-loader", "version": "0.20.1" }
+              ]
+            }
+            """);
+        Directory.CreateDirectory(Path.Combine(folder, ".minecraft", "saves", "world"));
+        File.WriteAllText(Path.Combine(folder, ".minecraft", "saves", "world", "level.dat"), "world");
+
+        var importer = new MultiMcInstanceImporter(_importTargetRoot);
+        var result = await importer.ImportAsync(folder, MultiMcImportMode.Link, overrideName: null, progress: null, CancellationToken.None);
+
+        Assert.Equal("PEPELAND 11 26.3", result.Instance.Name);
+        Assert.Equal("26.3", result.Instance.VersionId);
+        Assert.Equal(ModLoader.Fabric, result.Instance.Loader);
+        Assert.Equal("0.20.1", result.Instance.LoaderVersion);
+        Assert.Equal(Path.Combine(folder, ".minecraft"), result.Instance.GameDirectory);
+        Assert.Equal(TimeSpan.FromSeconds(253012), result.PlayedInSource);
+
+        // Nothing is copied into Hyperion's data root, and the source stays as it was.
+        Assert.Empty(Directory.EnumerateFileSystemEntries(_importTargetRoot));
+        Assert.True(File.Exists(Path.Combine(folder, ".minecraft", "saves", "world", "level.dat")));
+    }
+
+    [Fact]
+    public async Task ImportAsync_LinkMode_OldMinecraftFolderName_IsUsed()
+    {
+        var folder = BuildPrismFolder("old-mmc", "name=Old\n", VanillaPackJson("1.12.2"));
+        Directory.CreateDirectory(Path.Combine(folder, "minecraft"));
+
+        var importer = new MultiMcInstanceImporter(_importTargetRoot);
+        var result = await importer.ImportAsync(folder, MultiMcImportMode.Link, null, null, CancellationToken.None);
+
+        Assert.Equal(Path.Combine(folder, "minecraft"), result.Instance.GameDirectory);
+    }
+
+    [Fact]
+    public async Task ImportAsync_LinkMode_NeverLaunchedInstance_PointsAtFutureDotMinecraft()
+    {
+        // MultiMC creates .minecraft on the first launch; the link points where it will be.
+        var folder = BuildPrismFolder("fresh", "name=Fresh\n", VanillaPackJson("1.21.4"));
+
+        var importer = new MultiMcInstanceImporter(_importTargetRoot);
+        var result = await importer.ImportAsync(folder, MultiMcImportMode.Link, null, null, CancellationToken.None);
+
+        Assert.Equal(Path.Combine(folder, ".minecraft"), result.Instance.GameDirectory);
+        Assert.Equal(TimeSpan.Zero, result.PlayedInSource);
+    }
+
+    [Fact]
+    public async Task ImportAsync_LinkMode_ZipSource_Throws()
+    {
+        var zipPath = BuildPrismZip("linked.zip", "name=Zip\n", VanillaPackJson("1.21.4"), Array.Empty<(string, string)>());
+
+        var importer = new MultiMcInstanceImporter(_importTargetRoot);
+        await Assert.ThrowsAsync<InstanceImportException>(
+            () => importer.ImportAsync(zipPath, MultiMcImportMode.Link, null, null, CancellationToken.None));
+        Assert.Empty(Directory.EnumerateFileSystemEntries(_importTargetRoot));
+    }
+
+    [Fact]
+    public async Task ImportAsync_CopyMode_CarriesPlayedTime()
+    {
+        var folder = BuildPrismFolder("copied", "name=Copied\ntotalTimePlayed=3600\n", VanillaPackJson("1.21.4"));
+
+        var importer = new MultiMcInstanceImporter(_importTargetRoot);
+        var result = await importer.ImportAsync(folder, MultiMcImportMode.Copy, null, null, CancellationToken.None);
+
+        Assert.Equal(TimeSpan.FromHours(1), result.PlayedInSource);
+        Assert.StartsWith(_importTargetRoot, result.Instance.GameDirectory);
+    }
+
     // -------------------- helpers --------------------
 
     private string BuildPrismFolder(string folderName, string cfg, string mmcPack)

@@ -433,6 +433,9 @@
   <data name="MultiMc.PickZipButton" xml:space="preserve"><value>选择 zip 文件...</value></data>
   <data name="MultiMc.PickFolderButton" xml:space="preserve"><value>选择文件夹...</value></data>
   <data name="MultiMc.ImportedSuccessfully" xml:space="preserve"><value>[mmc] 已从 {3} 导入“{0}”（MC {1}，{2}）。</value></data>
+  <data name="MultiMc.PickLinkButton" xml:space="preserve"><value>链接文件夹（不复制）...</value></data>
+  <data name="MultiMc.LinkedSuccessfully" xml:space="preserve"><value>[mmc] 已链接“{0}”（MC {1}，{2}）：直接从 {3} 运行，未复制任何文件。</value></data>
+  <data name="MultiMc.PlaytimeImported" xml:space="preserve"><value>[mmc] 已转入 MultiMC 的游戏时长：{0}。</value></data>
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] MultiMC 导入功能不可用。</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] MultiMC 导入文件或文件夹选择器不可用。</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>MultiMC 导入已取消。</value></data>

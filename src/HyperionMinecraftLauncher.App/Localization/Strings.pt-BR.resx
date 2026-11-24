@@ -433,6 +433,9 @@
   <data name="MultiMc.PickZipButton" xml:space="preserve"><value>Escolher zip...</value></data>
   <data name="MultiMc.PickFolderButton" xml:space="preserve"><value>Escolher pasta...</value></data>
   <data name="MultiMc.ImportedSuccessfully" xml:space="preserve"><value>[mmc] Importado '{0}' (MC {1}, {2}) de {3}.</value></data>
+  <data name="MultiMc.PickLinkButton" xml:space="preserve"><value>Vincular pasta (sem copiar)...</value></data>
+  <data name="MultiMc.LinkedSuccessfully" xml:space="preserve"><value>[mmc] '{0}' vinculado (MC {1}, {2}): roda a partir de {3}, nada foi copiado.</value></data>
+  <data name="MultiMc.PlaytimeImported" xml:space="preserve"><value>[mmc] Tempo de jogo do MultiMC transferido: {0}.</value></data>
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] A importação do MultiMC não está disponível.</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] O seletor de arquivo ou pasta do MultiMC não está disponível.</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>Importação do MultiMC cancelada.</value></data>

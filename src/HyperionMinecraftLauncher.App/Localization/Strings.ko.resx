@@ -433,6 +433,9 @@
   <data name="MultiMc.PickZipButton" xml:space="preserve"><value>zip 파일 선택...</value></data>
   <data name="MultiMc.PickFolderButton" xml:space="preserve"><value>폴더 선택...</value></data>
   <data name="MultiMc.ImportedSuccessfully" xml:space="preserve"><value>[mmc] '{0}' 가져오기 완료 (MC {1}, {2}) 출처: {3}.</value></data>
+  <data name="MultiMc.PickLinkButton" xml:space="preserve"><value>폴더 연결 (복사 없음)...</value></data>
+  <data name="MultiMc.LinkedSuccessfully" xml:space="preserve"><value>[mmc] '{0}' 연결됨 (MC {1}, {2}): {3}에서 실행, 복사한 파일 없음.</value></data>
+  <data name="MultiMc.PlaytimeImported" xml:space="preserve"><value>[mmc] MultiMC 플레이 시간을 가져왔습니다: {0}.</value></data>
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] MultiMC 가져오기를 사용할 수 없습니다.</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] MultiMC 가져오기용 파일 또는 폴더 선택기를 사용할 수 없습니다.</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>MultiMC 가져오기가 취소되었습니다.</value></data>

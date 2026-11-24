@@ -25,4 +25,10 @@ public interface IPlaytimeStore
 
     /// <summary>Sessions begun but not ended yet (running games, or orphans from a closed launcher).</summary>
     Task<IReadOnlyList<PlaySession>> ListActiveAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Credit <paramref name="time"/> played outside Hyperion (another launcher's counter on
+    /// import) to the instance. Zero or negative time changes nothing.
+    /// </summary>
+    Task AddAsync(string instanceId, TimeSpan time, CancellationToken cancellationToken);
 }

@@ -33,6 +33,12 @@ public sealed record MultiMcInstanceCfg
 
     /// <summary>Free-text user notes. Null when missing.</summary>
     public string? Notes { get; init; }
+
+    /// <summary>
+    /// Time played in MultiMC / Prism (<c>totalTimePlayed</c>, whole seconds). Null when missing,
+    /// unparsable or negative.
+    /// </summary>
+    public TimeSpan? TotalTimePlayed { get; init; }
 }
 
 /// <summary>
@@ -51,6 +57,7 @@ public static class MultiMcInstanceCfgParser
         string? name = null;
         string? icon = null;
         string? jvm = null;
+        TimeSpan? played = null;
         int? minMem = null;
         int? maxMem = null;
         string? notes = null;
@@ -107,6 +114,10 @@ public static class MultiMcInstanceCfgParser
                 case "notes":
                     notes = string.IsNullOrWhiteSpace(value) ? null : value;
                     break;
+                case "totalTimePlayed":
+                    if (long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var seconds) && seconds >= 0)
+                        played = TimeSpan.FromSeconds(seconds);
+                    break;
                 // Everything else (JavaPath, JavaVersion, JoinServerOnLaunch, ...) is ignored.
             }
         }
@@ -119,6 +130,7 @@ public static class MultiMcInstanceCfgParser
             MinMemAllocMb = minMem,
             MaxMemAllocMb = maxMem,
             Notes = notes,
+            TotalTimePlayed = played,
         };
     }
 }

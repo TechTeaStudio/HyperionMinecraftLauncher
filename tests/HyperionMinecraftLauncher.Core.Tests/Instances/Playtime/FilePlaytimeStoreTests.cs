@@ -43,6 +43,32 @@ public class FilePlaytimeStoreTests : IDisposable
     }
 
     [Fact]
+    public async Task Add_CreditsTimeOnTopOfSessions_AndSurvivesReload()
+    {
+        var store = new FilePlaytimeStore(FilePath);
+        await store.BeginSessionAsync(Session("a", 1, T0), CancellationToken.None);
+        await store.EndSessionAsync(1, T0.AddMinutes(30), CancellationToken.None);
+
+        await store.AddAsync("a", TimeSpan.FromSeconds(253012), CancellationToken.None);
+
+        var reloaded = new FilePlaytimeStore(FilePath);
+        Assert.Equal(TimeSpan.FromSeconds(253012 + 1800), await reloaded.GetTotalAsync("a", CancellationToken.None));
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-60)]
+    public async Task Add_ZeroOrNegative_ChangesNothing(int seconds)
+    {
+        var store = new FilePlaytimeStore(FilePath);
+
+        await store.AddAsync("a", TimeSpan.FromSeconds(seconds), CancellationToken.None);
+
+        Assert.Equal(TimeSpan.Zero, await store.GetTotalAsync("a", CancellationToken.None));
+        Assert.False(File.Exists(FilePath));
+    }
+
+    [Fact]
     public async Task Sessions_Accumulate_PerInstance_AndSurviveReload()
     {
         var store = new FilePlaytimeStore(FilePath);

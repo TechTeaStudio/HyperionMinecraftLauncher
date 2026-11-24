@@ -433,6 +433,9 @@
   <data name="MultiMc.PickZipButton" xml:space="preserve"><value>Вибрати zip...</value></data>
   <data name="MultiMc.PickFolderButton" xml:space="preserve"><value>Вибрати теку...</value></data>
   <data name="MultiMc.ImportedSuccessfully" xml:space="preserve"><value>[mmc] Імпортовано '{0}' (MC {1}, {2}) з {3}.</value></data>
+  <data name="MultiMc.PickLinkButton" xml:space="preserve"><value>Підключити теку (без копії)...</value></data>
+  <data name="MultiMc.LinkedSuccessfully" xml:space="preserve"><value>[mmc] Підключено '{0}' (MC {1}, {2}): гра йде з {3}, нічого не скопійовано.</value></data>
+  <data name="MultiMc.PlaytimeImported" xml:space="preserve"><value>[mmc] Перенесено час із MultiMC: {0}.</value></data>
   <data name="Error.MultiMcImporterUnavailable" xml:space="preserve"><value>[error] Імпорт з MultiMC недоступний.</value></data>
   <data name="Error.MultiMcPickerUnavailable" xml:space="preserve"><value>[error] Вибір файлу або теки для імпорту з MultiMC недоступний.</value></data>
   <data name="Error.MultiMcImportCancelled" xml:space="preserve"><value>Імпорт з MultiMC скасовано.</value></data>

@@ -450,6 +450,9 @@ public static class Strings
     public static string MultiMc_PickZipButton => L("MultiMc.PickZipButton");
     public static string MultiMc_PickFolderButton => L("MultiMc.PickFolderButton");
     public static string MultiMc_ImportedSuccessfully => L("MultiMc.ImportedSuccessfully");
+    public static string MultiMc_PickLinkButton => L("MultiMc.PickLinkButton");
+    public static string MultiMc_LinkedSuccessfully => L("MultiMc.LinkedSuccessfully");
+    public static string MultiMc_PlaytimeImported => L("MultiMc.PlaytimeImported");
     public static string Error_MultiMcImporterUnavailable => L("Error.MultiMcImporterUnavailable");
     public static string Error_MultiMcPickerUnavailable => L("Error.MultiMcPickerUnavailable");
     public static string Error_MultiMcImportCancelled => L("Error.MultiMcImportCancelled");

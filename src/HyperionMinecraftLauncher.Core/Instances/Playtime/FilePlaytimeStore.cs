@@ -79,6 +79,18 @@ public sealed class FilePlaytimeStore : IPlaytimeStore
         return doc.Active.Select(s => s.ToSession()).ToList();
     }
 
+    /// <inheritdoc />
+    public Task AddAsync(string instanceId, TimeSpan time, CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(instanceId);
+        if (time <= TimeSpan.Zero) return Task.CompletedTask;
+        return MutateAsync(doc =>
+        {
+            doc.Totals[instanceId] = doc.Totals.GetValueOrDefault(instanceId) + (long)time.TotalSeconds;
+            return TimeSpan.Zero;
+        }, cancellationToken);
+    }
+
     private async Task<Document> ReadLockedAsync(CancellationToken cancellationToken)
     {
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
