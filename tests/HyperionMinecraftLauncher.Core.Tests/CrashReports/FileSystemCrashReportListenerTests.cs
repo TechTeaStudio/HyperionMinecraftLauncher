@@ -67,6 +67,32 @@ public class FileSystemCrashReportListenerTests : IDisposable
     }
 
     [Fact]
+    public async Task ListRecentAsync_MaxCount_PicksNewestByNameTime_NotFileTime()
+    {
+        // Copied reports (a MultiMC copy import, a restored backup) carry the copy time, in any
+        // order; the time in the name is when the game crashed.
+        var dir = Path.Combine(_root, "crash-reports");
+        Directory.CreateDirectory(dir);
+        var copiedAt = new DateTime(2026, 11, 25, 12, 0, 0, DateTimeKind.Utc);
+        var oldest = Path.Combine(dir, "crash-2023-01-01_10.00.00-client.txt");
+        var middle = Path.Combine(dir, "crash-2024-08-12_14.05.33-client.txt");
+        var newest = Path.Combine(dir, "crash-2025-01-15_09.30.00-client.txt");
+        await File.WriteAllTextAsync(oldest, SmallFixture("1.19.4"));
+        await File.WriteAllTextAsync(middle, SmallFixture("1.20.1"));
+        await File.WriteAllTextAsync(newest, SmallFixture("1.21"));
+        File.SetLastWriteTimeUtc(newest, copiedAt);
+        File.SetLastWriteTimeUtc(middle, copiedAt.AddSeconds(1));
+        File.SetLastWriteTimeUtc(oldest, copiedAt.AddSeconds(2));
+
+        var listener = new FileSystemCrashReportListener();
+        var result = await listener.ListRecentAsync(_instance, maxCount: 2, CancellationToken.None);
+
+        Assert.Equal(
+            new[] { "crash-2025-01-15_09.30.00-client.txt", "crash-2024-08-12_14.05.33-client.txt" },
+            result.Select(r => r.Filename));
+    }
+
+    [Fact]
     public async Task ListRecentAsync_NoDirectory_ReturnsEmpty()
     {
         var listener = new FileSystemCrashReportListener();

@@ -3,6 +3,16 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2026-11-25
+
+### Fixed
+
+- The crash report list picks its newest reports by the time in the file name (`crash-YYYY-MM-DD_HH.MM.SS-*.txt`), the same time it sorts and shows them by. It used to pick them by the file's modification time first, so copied reports (a MultiMC copy import, a restored backup), which all carry the copy time in any order, could push the real newest crashes out of the list. Files without a time in the name still fall back to the modification time. The same issue made `ListRecentAsync_HonorsMaxCount` fail on Linux, where three files written in one moment share a modification time and the directory lists them in no fixed order.
+
+### Tests
+
+- `FileSystemCrashReportListenerTests`: with modification times in the opposite order to the names, the two newest reports by name are the ones returned.
+
 ## [1.0.1] - 2026-11-25
 
 ### Fixed

@@ -43,10 +43,14 @@ public sealed class FileSystemCrashReportListener : ICrashReportListener
         var dir = Path.Combine(root, "crash-reports");
         if (!Directory.Exists(dir)) return Array.Empty<CrashReport>();
 
-        // Pre-sort by mtime so we don't bother parsing the whole pile when maxCount is small.
+        // Pick the newest maxCount before parsing, by the same time GeneratedAt uses: the one in
+        // the name, else the mtime. Copied reports (a MultiMC copy import, a restored backup) all
+        // carry the copy time in any order, so the mtime alone drops the real newest ones.
         var files = Directory.EnumerateFiles(dir, "*.txt", SearchOption.TopDirectoryOnly)
             .Select(p => new FileInfo(p))
-            .OrderByDescending(fi => fi.LastWriteTimeUtc)
+            .OrderByDescending(fi => MinecraftCrashReportParser.TryParseTimestampFromFilename(fi.Name)
+                ?? new DateTimeOffset(fi.LastWriteTimeUtc, TimeSpan.Zero))
+            .ThenByDescending(fi => fi.Name, StringComparer.Ordinal)
             .Take(maxCount)
             .ToArray();
 

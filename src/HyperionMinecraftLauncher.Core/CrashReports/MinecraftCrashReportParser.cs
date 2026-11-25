@@ -130,7 +130,8 @@ public sealed class MinecraftCrashReportParser : ICrashReportParser
 
     // ----- timestamp helpers -----
 
-    private static DateTimeOffset? TryParseTimestampFromFilename(string filename)
+    /// <summary>The crash time in a <c>crash-YYYY-MM-DD_HH.MM.SS-*.txt</c> name, or null when the name has none.</summary>
+    internal static DateTimeOffset? TryParseTimestampFromFilename(string filename)
     {
         var m = FilenameTimestamp.Match(filename);
         if (!m.Success) return null;
