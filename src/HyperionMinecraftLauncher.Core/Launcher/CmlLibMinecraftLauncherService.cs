@@ -529,7 +529,9 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
             _logger.Info($"Mod loader: {stage} on top of {request.VersionName} ...");
             try
             {
-                var loaderProgress = progress is null ? null : new Progress<double>(f =>
+                // Forwarded inline: Progress<T> would hop to the thread pool and deliver late,
+                // out of order and after the next stage began.
+                var loaderProgress = progress is null ? null : new SynchronousProgress<double>(f =>
                     progress.Report(new LaunchProgress { Stage = stage, Fraction = f }));
                 var moddedId = await modLoaderInstaller
                     .InstallAsync(request.Loader, request.VersionName, request.LoaderVersion, loaderProgress, cancellationToken)
@@ -579,7 +581,7 @@ public sealed class CmlLibMinecraftLauncherService : IMinecraftLauncherService
             progress?.Report(new LaunchProgress { Stage = $"Preparing Java {(int)requirement}", Fraction = 0 });
             try
             {
-                var javaProgress = progress is null ? null : new Progress<double>(f =>
+                var javaProgress = progress is null ? null : new SynchronousProgress<double>(f =>
                     progress.Report(new LaunchProgress { Stage = $"Downloading Java", Fraction = f }));
                 var javaPath = await JavaRuntimeManager
                     .EnsureRuntimeAsync(requirement, javaProgress, cancellationToken)

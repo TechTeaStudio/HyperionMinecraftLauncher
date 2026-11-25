@@ -3,6 +3,16 @@
 All notable changes to this project are documented here.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-11-25
+
+### Fixed
+
+- Loader install and Java download progress reach the launch progress bar at once and in order. They went through `Progress<T>`, which hands each value to the thread pool when there is no UI context, so fractions arrived late, out of order and after the next stage had started. Both now use `SynchronousProgress<T>`, as the rest of the launch does. The same race failed the Linux test run of the 1.0.0 release (`LaunchAsync_LoaderInstallReportsProgressInLauncherStream`: a late value was added to the list while the test read it), so 1.0.0 was never published.
+
+### Tests
+
+- `LoaderInstallBeforeLaunchTests`: the caller sees each loader fraction and each Java download fraction before the reporter moves on, with the launch run on a thread-pool thread as in the app.
+
 ## [1.0.0] - 2026-11-24
 
 ### Added

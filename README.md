@@ -15,7 +15,7 @@
   <a href="https://github.com/TechTeaStudio/HyperionMinecraftLauncher/actions/workflows/dotnet.yml"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/TechTeaStudio/HyperionMinecraftLauncher/dotnet.yml?branch=product&amp;logo=github&amp;label=build" /></a>
   <a href="LICENSE.txt"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
   <img alt="Tests" src="https://img.shields.io/badge/tests-765%20passing-brightgreen" />
-  <img alt="Version" src="https://img.shields.io/badge/version-0.32.38-3C8527" />
+  <img alt="Version" src="https://img.shields.io/badge/version-1.0.1-3C8527" />
 </p>
 
 ## Overview
@@ -245,7 +245,7 @@ HyperionMinecraftLauncher/
 The launcher version is stored in **one file**: `/VERSION` at the repo root. The build picks it up automatically:
 
 ```
-+- VERSION                          (currently: 0.32.38)
++- VERSION                          (currently: 1.0.1)
 +- Directory.Build.props            (reads VERSION into <Version>)
 +- src/*.csproj                     (inherit <Version>, no per-project override)
 ```

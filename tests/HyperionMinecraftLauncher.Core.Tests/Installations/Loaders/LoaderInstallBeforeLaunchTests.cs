@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Auth;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Installations.Loaders;
+using TechTeaStudio.HyperionMinecraftLauncher.Core.Java;
 using TechTeaStudio.HyperionMinecraftLauncher.Core.Launcher;
 
 namespace TechTeaStudio.HyperionMinecraftLauncher.Core.Tests.Installations.Loaders;
@@ -141,6 +142,72 @@ public class LoaderInstallBeforeLaunchTests
         Assert.Contains(reported, p => p.Fraction == 0.5);
         Assert.Contains(reported, p => p.Fraction == 1.0);
     }
+
+    [Fact]
+    public async Task LaunchAsync_LoaderInstallProgress_ReachesCallerBeforeInstallerMovesOn()
+    {
+        // A thread-pool hop between the installer and the caller delivers fractions late and
+        // out of order, after the next stage has started; the caller must see each one at once.
+        // Task.Run drops the test's synchronization context, as the app's launch path does.
+        var reported = new List<LaunchProgress>();
+        var seenByCaller = new List<double?>();
+        var installer = new SpyLoaderInstaller
+        {
+            Result = "1.20.4-forge-49.0.30",
+            ProgressEventsToEmit = new[] { 0.25, 0.5, 0.75, 1.0 },
+            AfterReport = _ => seenByCaller.Add(reported[^1].Fraction),
+        };
+        var service = new CmlLibMinecraftLauncherService(new FakeUnderlyingLauncher(), new RecordingLogger(), modLoaderInstaller: installer);
+        var auth = await service.AuthenticateAsync(new AuthRequest { Mode = AuthMode.Offline, Username = "Steve" }, CancellationToken.None);
+
+        _ = await Task.Run(() => service.LaunchAsync(
+            new LaunchRequest { VersionName = "1.20.4", Session = auth, Loader = ModLoader.Forge, LoaderVersion = "49.0.30" },
+            new SynchronousProgress<LaunchProgress>(reported.Add), CancellationToken.None));
+
+        Assert.Equal(new double?[] { 0.25, 0.5, 0.75, 1.0 }, seenByCaller);
+    }
+
+    [Fact]
+    public async Task LaunchAsync_JavaDownloadProgress_ReachesCallerBeforeManagerMovesOn()
+    {
+        var reported = new List<LaunchProgress>();
+        var seenByCaller = new List<double?>();
+        var java = new ReportingJavaRuntimeManager
+        {
+            ProgressEventsToEmit = new[] { 0.5, 1.0 },
+            AfterReport = _ => seenByCaller.Add(reported[^1].Fraction),
+        };
+        var service = new CmlLibMinecraftLauncherService(new FakeUnderlyingLauncher(), new RecordingLogger(), javaRuntimeManager: java);
+        var auth = await service.AuthenticateAsync(new AuthRequest { Mode = AuthMode.Offline, Username = "Steve" }, CancellationToken.None);
+
+        _ = await Task.Run(() => service.LaunchAsync(
+            new LaunchRequest { VersionName = "1.21.5", Session = auth, JavaRequirement = JavaRequirement.Java21 },
+            new SynchronousProgress<LaunchProgress>(reported.Add), CancellationToken.None));
+
+        Assert.Equal(new double?[] { 0.5, 1.0 }, seenByCaller);
+        Assert.Contains(reported, p => p.Stage == "Downloading Java" && p.Fraction == 1.0);
+    }
+}
+
+internal sealed class ReportingJavaRuntimeManager : IJavaRuntimeManager
+{
+    public IReadOnlyList<double> ProgressEventsToEmit { get; set; } = Array.Empty<double>();
+    public Action<double>? AfterReport { get; set; }
+
+    public Task<string> EnsureRuntimeAsync(JavaRequirement requirement, IProgress<double>? progress, CancellationToken cancellationToken)
+    {
+        foreach (var p in ProgressEventsToEmit)
+        {
+            progress?.Report(p);
+            AfterReport?.Invoke(p);
+        }
+        return Task.FromResult("/opt/java/bin/java");
+    }
+
+    public Task<IReadOnlyList<InstalledJavaRuntime>> ListInstalledAsync(CancellationToken cancellationToken)
+        => Task.FromResult<IReadOnlyList<InstalledJavaRuntime>>(Array.Empty<InstalledJavaRuntime>());
+
+    public Task RemoveAsync(JavaRequirement requirement, CancellationToken cancellationToken) => Task.CompletedTask;
 }
 
 internal sealed class SpyLoaderInstaller : IModLoaderInstaller
@@ -148,6 +215,9 @@ internal sealed class SpyLoaderInstaller : IModLoaderInstaller
     public string Result { get; set; } = "<modded-id>";
     public Exception? ThrowOn { get; set; }
     public IReadOnlyList<double> ProgressEventsToEmit { get; set; } = Array.Empty<double>();
+
+    /// <summary>Runs right after each fraction is reported, before the next one.</summary>
+    public Action<double>? AfterReport { get; set; }
 
     public bool WasCalled { get; private set; }
     public ModLoader LastLoader { get; private set; }
@@ -161,7 +231,11 @@ internal sealed class SpyLoaderInstaller : IModLoaderInstaller
         LastMcVersion = minecraftVersion;
         LastLoaderVersion = loaderVersion;
         cancellationToken.ThrowIfCancellationRequested();
-        foreach (var p in ProgressEventsToEmit) progress?.Report(p);
+        foreach (var p in ProgressEventsToEmit)
+        {
+            progress?.Report(p);
+            AfterReport?.Invoke(p);
+        }
         if (ThrowOn is not null) throw ThrowOn;
         return Task.FromResult(Result);
     }
